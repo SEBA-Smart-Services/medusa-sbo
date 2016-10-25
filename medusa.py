@@ -64,6 +64,20 @@ class Assets(db.Model):
         self.name = name
         self.location = location
         self.group = group
+
+# asset health
+class AssetHealth(db.Model):
+    __bind_key__ = 'medusa'
+    eid = db.Column('EID',db.Integer,primary_key=True)
+    checkno = db.Column('CheckNo',db.Integer,primary_key=True)
+    result = db.Column('Result',db.Float)
+    healthy = db.Column('Healthy',db.Boolean)
+
+    def __init__(self,eid,checkno,result,healthy):
+        self.eid = eid
+        self.checkno = checkno
+        self.result = result
+        self.healthy = healthy
         
 
 ##
@@ -98,34 +112,64 @@ def inbuildings_test():
         return "Comms OK"
 
 # run checks
-@app.route('/check/AHU/4')
-def airtemp_heating_check():
-    return str(True)
+@app.route('/check/AHU/4/<int:eid>')
+def airtemp_heating_check(eid):
+    result = True
+    healthy = True
+    save_results(eid,4,result,healthy)
+    return str(healthy)
 
-@app.route('/check/AHU/8')
-def simult_heatcool_check():
-    return str(True)
+@app.route('/check/AHU/8/<int:eid>')
+def simult_heatcool_check(eid):
+    result = True
+    healthy = True
+    save_results(eid,8,result,healthy)
+    return str(healthy)
 
-@app.route('/check/AHU/13')
-def fan_unoccupied_check():
-    return str(True)
+@app.route('/check/AHU/13/<int:eid>')
+def fan_unoccupied_check(eid):
+    result = True
+    healthy = True
+    save_results(eid,13,result,healthy)
+    return str(healthy)
 
-@app.route('/check/AHU/14')
-def ahu_occupied_check():
-    return str(False)
+@app.route('/check/AHU/14/<int:eid>')
+def ahu_occupied_check(eid):
+    result = False
+    healthy = False
+    save_results(eid,14,result,healthy)
+    return str(healthy)
 
-@app.route('/check/AHU/16')
-def chw_hunting_check():
-    return str(False)
+@app.route('/check/AHU/16/<int:eid>')
+def chw_hunting_check(eid):
+    result = False
+    healthy = False
+    save_results(eid,16,result,healthy)
+    return str(healthy)
 
-@app.route('/check/AHU/19')
-def run_hours_check():
-    return str(False)
+@app.route('/check/AHU/19/<int:eid>')
+def run_hours_check(eid):
+    result = False
+    healthy = False
+    save_results(eid,19,result,healthy)
+    return str(healthy)
 
 
 ##
 ##  non app.route functions
 ##
+
+# save the check results
+def save_results(eid,checkno,result,healthy):
+    #create or update
+    if AssetHealth.query.filter_by(eid = eid, checkno = checkno).first() is None:
+        db_assethealth = AssetHealth(eid,checkno,result,healthy)
+        db.session.add(db_assethealth)
+    else:
+        db_assethealth = AssetHealth.query.filter_by(eid = eid, checkno = checkno).first()
+        db_assethealth.result = result
+        db_assethealth.healthy = healthy  
+    db.session.commit()
 
 # generic inbuildings request
 def inbuildings_request(data):
@@ -144,17 +188,17 @@ def inbuildings_asset_request():
     mode = "equipmentlist"
     data = {'key':key, 'mode': mode}
     resp = inbuildings_request(data)
-    
+
+    #create or update
     for asset in resp:
         if Assets.query.filter_by(eid=asset['eid']).first() is None:
             db_asset = Assets(asset['eid'],asset['name'],asset['location'],asset['group'])
+            db.session.add(db_asset)
         else:
             db_asset = Assets.query.filter_by(eid=asset['eid']).first()
             db_asset.name = asset['name']
             db_asset.location = asset['location']
-            db_asset.group = asset['group']
-        db.session.add(db_asset)
-        
+            db_asset.group = asset['group']  
     db.session.commit()
 
 if __name__ == '__main__':
