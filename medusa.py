@@ -6,6 +6,7 @@ import flask
 import uuid, base64
 import requests
 import datetime
+import sys
 
 app = Flask(__name__)
 binds = {
@@ -19,12 +20,12 @@ app.config['JSON_AS_ASCII'] = True
 db = SQLAlchemy(app)
 api = Api(app)
 
-##
-## class definitions
-##
+###################################
+## database classes
+###################################
 
-# table with trend log values
-class LogTimeValues(db.Model):
+# trend log values
+class LogTimeValue(db.Model):
     __bind_key__ = 'sbo'
     __tablename__ = 'tbLogTimeValues'
     datetimestamp = db.Column('DateTimeStamp',db.DateTime)
@@ -33,8 +34,8 @@ class LogTimeValues(db.Model):
     parent_id = db.Column('ParentID',db.Integer,primary_key=True)
     odometer_value = db.Column('OdometerValue',db.Float)
 
-# table with list of trend logs
-class LoggedEntities(db.Model):
+# list of trend logs
+class LoggedEntity(db.Model):
     __bind_key__ = 'sbo'
     __tablename__ = 'tbLoggedEntities'
     id = db.Column('ID',db.Integer,primary_key=True)
@@ -62,17 +63,17 @@ asset_func_mapping = db.Table('asset_func_mapping',
 # asset list
 class Asset(db.Model):
     __bind_key__ = 'medusa'
-    eid = db.Column('EID',db.Integer,primary_key=True)
+    id = db.Column('EID',db.Integer,primary_key=True)
     name = db.Column('Name',db.String(512))
     location = db.Column('Location',db.String(512))
     group = db.Column('Group',db.String(512))
     type_id = db.Column('Type_id',db.Integer,db.ForeignKey('asset_type.ID'))
     functions = db.relationship('Function', secondary=asset_func_mapping, backref=db.backref('assets'))
-    components = db.relationship('Component', backref='asset')
+    components = db.relationship('Component', backref='asset', cascade="save-update, merge, delete, delete-orphan")
     results = db.relationship('Result', backref='asset')
 
-    def __init__(self,eid,name,group,location):
-        self.eid = eid
+    def __init__(self,id,name,group,location):
+        self.id = id
         self.name = name
         self.location = location
         self.group = group
@@ -93,6 +94,7 @@ class Component(db.Model):
     id = db.Column('ID',db.Integer,primary_key=True)
     asset_id = db.Column('Asset_id',db.Integer,db.ForeignKey('asset.EID'))
     type_id = db.Column('Type_id',db.Integer,db.ForeignKey('component_type.ID'))
+    loggedentity_id = db.Column('LoggedEntity_id',db.Integer)
 
 # component types
 class ComponentType(db.Model):
@@ -113,9 +115,15 @@ class Function(db.Model):
     __bind_key__ = 'medusa'
     id = db.Column('ID',db.Integer,primary_key=True)
     name = db.Column('Name',db.String(512))
+    descr = db.Column('Descr',db.String(512))
     component_types = db.relationship('ComponentType', secondary=func_comp_mapping, backref=db.backref('functions'))
     results = db.relationship('Result', backref='function')
 
+    def run(self, *args, **kwargs):
+        functionclass = getattr(sys.modules[__name__],self.name)
+        return functionclass.run(*args, **kwargs)
+
+# function results
 class Result(db.Model):
     __bind_key__ = 'medusa'
     id = db.Column('ID', db.Integer, primary_key=True)
@@ -124,20 +132,84 @@ class Result(db.Model):
     function_id = db.Column('Function_id', db.Integer, db.ForeignKey('function.ID'))
     value = db.Column('Result', db.Float)
     passed = db.Column('Passed', db.Boolean)
+
     
-##
-## app.route functions
-##
+###################################
+## endpoint functions
+###################################
 
 # return a value from a trendlog	
 @app.route('/<string:logname>/<int:seqno>')
 def sql_test(name,seqno):
-    trendlog_entity = LoggedEntities.query.filter(LoggedEntities.path.like('%' + logname)).first()
-    trend_value = LogTimeValues.query.filter_by(parent_id == trendlog_entity.entity_id, seqno == seqno).first().float_value
+    trendlog_entity = LoggedEntity.query.filter(LoggedEntity.path.like('%' + logname)).first()
+    trend_value = LogTimeValue.query.filter_by(parent_id == trendlog_entity.entity_id, seqno == seqno).first().float_value
     return str(trend_value)
 
-@app.route('/mapfunctions')
-def map_functions():
+# map functions in database
+@app.route('/map')
+def map_all():
+    generate_functions()
+    map_functions_components()
+    map_functions_assets()
+    return "done"
+
+# check with pre-filled info
+@app.route('/check/test')
+def testcheck():
+    db.session.query(Result).delete()
+    asset_name = Asset.query.filter_by(id=20440).first().name
+    result = check(asset_name)
+    return result
+
+# run checks on an asset
+@app.route('/check/<string:asset_name>')
+def check(asset_name):
+    asset = Asset.query.filter_by(name=asset_name).first()
+    result = check_asset(asset)
+    return result
+
+# update components belonging to an asset
+@app.route('/update', methods=['POST'])
+def update():
+    asset = Asset.query.filter_by(name=request.values['asset']).one()
+    asset.components.clear()
+    component_list = request.values.to_dict(flat=False)
+    component_list.pop('asset')
+    for component_type_name in component_list.keys():
+        component_type = ComponentType.query.filter_by(name=component_type_name).one()
+        trendlog_name = component_list[component_type_name][0]
+        trendlog = LoggedEntity.query.filter(LoggedEntity.path.like('%' + trendlog_name)).one()
+        new_component = Component(asset=asset, type=component_type, loggedentity_id=trendlog.id)
+        asset.components.append(new_component)
+    db.session.commit()
+    return "Done"
+
+###################################
+## mapping functions
+###################################
+
+def generate_functions():
+    for function in FunctionClass.__subclasses__():
+        functionmodel = Function.query.filter_by(name=function.__name__).all()
+        if functionmodel == None:
+            functionmodel = Function(descr=function.descr, name=function.__name__)
+            db.session.add(functionmodel)
+    db.session.commit()
+    return "done"
+
+# must be done before map_functions_assets
+def map_functions_components():
+    db.session.execute(func_comp_mapping.delete())
+    for function in FunctionClass.__subclasses__():
+        functionmodel = Function.query.filter_by(name=function.__name__).one()
+        for component_type_reqd in function.components_required:
+            type = ComponentType.query.filter_by(name=component_type_reqd).one()
+            functionmodel.component_types.append(type)
+            
+    db.session.commit()
+    return "done"
+
+def map_functions_assets():
     db.session.execute(asset_func_mapping.delete())
     for a in Asset.query.all():
         for f in Function.query.all():
@@ -152,80 +224,114 @@ def map_functions():
     db.session.commit()
     return "done"
 
-##
+###################################
 ## functional checks
-##
+###################################
+    
+def check_asset(asset):
+    result_string = ""
+    for function in asset.functions:
+        data={}
+        for component in asset.components:
+            if component.type in function.component_types:
+                value_list = LogTimeValue.query.filter_by(parent_id=component.loggedentity_id).order_by(LogTimeValue.datetimestamp.desc()).limit(1000).from_self().order_by(LogTimeValue.datetimestamp.asc()).all()
+                data[component.type.name] = value_list
+        [result,passed] = function.run(data)
+        save_result(asset,function,result,passed)
+        result_string += "{}: {},  Result = {}\n".format(function.descr,"Passed" if passed==True else "Failed",result)
+    return result_string
 
-# run checks
-@app.route('/check/AHU/4/<int:eid>')
-def airtemp_heating_check(eid):
-    result = True
-    healthy = True
-    save_result(eid,4,result,healthy)
-    return str(healthy)
+class FunctionClass():
+    pass
+    
+class airtemp_heating_check(FunctionClass):
+    components_required = ['Room Air Temp Sensor','Room Air Temp Setpoint','Heating Coil']
+    name = "Room air temp higher than setpoint while heating on"
+    def run(data):
+        result = 0.1
+        healthy = False
+        return [result,healthy]
 
-@app.route('/check/AHU/8/<int:eid>')
-def simult_heatcool_check(eid):
-    result = True
-    healthy = True
-    save_result(eid,8,result,healthy)
-    return str(healthy)
+class simult_heatcool_check(FunctionClass):
+    components_required = ['Chilled Water Valve','Heating Coil']
+    name = "Simultaneous heating and cooling"
+    def run(data):
+        totaltime = datetime.timedelta(0)
+        result = datetime.timedelta(0)
+        for i in range(1, len(data['Chilled Water Valve'])):
+            
+            current_time = data['Chilled Water Valve'][i].datetimestamp
+            date_candidates = [value.datetimestamp for value in data['Heating Coil'] if value.datetimestamp < current_time]
+            
+            if len(date_candidates) > 0:
+                current_time_matched = max(date_candidates)
+                j = [value.datetimestamp for value in data['Heating Coil']].index(current_time_matched)
+                timediff = data['Chilled Water Valve'][i].datetimestamp - data['Chilled Water Valve'][i-1].datetimestamp
+                totaltime += timediff
 
-@app.route('/check/AHU/13/<int:eid>')
-def fan_unoccupied_check(eid):
-    result = True
-    healthy = True
-    save_result(eid,13,result,healthy)
-    return str(healthy)
+                if data['Chilled Water Valve'][i].float_value > 0 and data['Heating Coil'][j].float_value > 0:
+                    result += timediff
+                    
+        result = result/totaltime
+        healthy = False
+        return [result,healthy]
 
-@app.route('/check/AHU/14/<int:eid>')
-def ahu_occupied_check(eid):
-    result = False
-    healthy = False
-    save_result(eid,14,result,healthy)
-    return str(healthy)
+class fan_unoccupied_check(FunctionClass):
+    components_required = ['Zone Fan','Zone Occupancy Sensor']
+    name = "Zone fan on while unoccupied"
+    def run(data):    
+        result = 0
+        healthy = True
+        return [result,healthy]
 
-@app.route('/check/AHU/16/<int:eid>')
-def chw_hunting_check(eid):
-    result = False
-    healthy = False
-    save_result(eid,16,result,healthy)
-    return str(healthy)
+class ahu_occupied_check(FunctionClass):
+    components_required = ['Power Switch','Zone Occupancy Sensor']
+    name = "Zone occupied, AHU off"
+    def run(data):
+        result = 0
+        healthy = True
+        return [result,healthy]
 
-@app.route('/check/AHU/19/<int:eid>')
-def run_hours_check(eid):
-    result = False
-    healthy = False
-    save_result(eid,19,result,healthy)
-    return str(healthy)
+class chw_hunting_check(FunctionClass):
+    components_required = ['Chilled Water Valve']
+    name = "Chilled water valve actuator hunting"
+    def run(data):
+        result = False
+        healthy = True
+        return [result,healthy]
 
-@app.route('/check/AHU/all/<int:eid>')
-def check_all(eid):
-    airtemp_heating_check(eid)
-    simult_heatcool_check(eid)
-    fan_unoccupied_check(eid)
-    ahu_occupied_check(eid)
-    chw_hunting_check(eid)
-    run_hours_check(eid)
-    return "Checks done"
+class run_hours_check(FunctionClass):
+    components_required = ['Power Switch']
+    name = "Run hours"
+    def run(data):
+        result = 0
+        for i in range(1, len(data['Power Switch'])):
+            timediff = data['Power Switch'][i].datetimestamp - data['Power Switch'][i-1].datetimestamp
+            result += timediff.total_seconds() * data['Power Switch'][i].float_value
+        result = result/3600
+        healthy = False
+        return [result,healthy]
 
-@app.route('/test')
-def test():
-    asset=Asset.query.filter_by(eid=20440).first()
-    function=Function.query.filter_by(id=1).first()
-    result = 10
-    passed = True
-    save_result(asset,function,result,passed)
+class testfunc(FunctionClass):
+    components_required = []
+    name = "Test"
+    def run(data):
+        print("Test!")
+        #print(data.keys())
+        result = True
+        healthy = True
+        return [result,healthy]
 
 # save the check results
 def save_result(asset,function,value,passed):
-    result = Result(timestamp=datetime.datetime.now(), asset_id=asset.eid, function_id=function.id, value=value, passed=passed)
+    result = Result(timestamp=datetime.datetime.now(), asset_id=asset.id, function_id=function.id, value=value, passed=passed)
     db.session.add(result)
     db.session.commit()
 
-##
-##  non app.route functions
-##
+
+###################################
+##  inbuildings functions
+###################################
 
 # generic inbuildings request
 def inbuildings_request(data):
@@ -266,11 +372,11 @@ def inbuildings_asset_request():
 
     #create or update
     for asset in resp:
-        if Asset.query.filter_by(eid=asset['eid']).first() is None:
+        if Asset.query.filter_by(id=asset['eid']).first() is None:
             db_asset = Asset(asset['eid'],asset['name'],asset['location'],asset['group'])
             db.session.add(db_asset)
         else:
-            db_asset = Asset.query.filter_by(eid=asset['eid']).first()
+            db_asset = Asset.query.filter_by(id=asset['eid']).first()
             db_asset.name = asset['name']
             db_asset.location = asset['location']
             db_asset.group = asset['group']  
@@ -278,4 +384,4 @@ def inbuildings_asset_request():
 
 if __name__ == '__main__':
     db.create_all(bind='medusa')
-    app.run(debug=True)
+    app.run(debug=True,host='192.168.8.150')
