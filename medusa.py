@@ -10,8 +10,8 @@ import sys
 
 app = Flask(__name__)
 binds = {
-    'sbo':      'mssql+pyodbc://admin:password@192.168.1.10\SQLEXPRESS/StruxureWareReportsDB?driver=SQL+Server+Native+Client+10.0',
-    'medusa':   'mssql+pyodbc://admin:password@192.168.1.10\SQLEXPRESS/Medusa?driver=SQL+Server+Native+Client+10.0'
+    'sbo':      'mssql+pyodbc://admin:password@MedusaTest\SQLEXPRESS/StruxureWareReportsDB?driver=SQL+Server+Native+Client+10.0',
+    'medusa':   'mssql+pyodbc://admin:password@MedusaTest\SQLEXPRESS/Medusa?driver=SQL+Server+Native+Client+10.0'
 }
 app.config['SQLALCHEMY_BINDS'] = binds
 app.config['SECRET_KEY'] = 'random string'
@@ -384,4 +384,4 @@ def inbuildings_asset_request():
 
 if __name__ == '__main__':
     db.create_all(bind='medusa')
-    app.run(debug=True,host='0.0.0.0')
+    app.run(debug=True,host='192.168.1.150')
