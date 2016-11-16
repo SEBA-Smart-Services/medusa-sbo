@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h2>Results</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Asset</th>
+        <th>Algorithm</th>
+        <th>Passed</th>
+        <th>Result</th>
+        <th>Unresolved</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for result in results %}
+        <tr>
+          <td>{{result.timestamp}}</td>
+          <td>{{result.asset.name}}</td>
+          <td>{{result.algorithm.name}}</td>
+          <td>{{result.passed}}</td>
+          <td>{{result.value}}</td>
+          <td>{{result.unresolved}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

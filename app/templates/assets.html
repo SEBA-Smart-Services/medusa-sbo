@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h2>Asset List</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Health</th>
+        <th>Type</th>
+        <th>Location</th>
+        <th>Group</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for asset in assets %}
+        <tr>
+          <th scope="row">{{asset.name}}</th>
+          <td>{{asset.health.health*100}}%</td>
+          <td>{{asset.subtype.type}}</td>
+          <td>{{asset.location}}</td>
+          <td>{{asset.group}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
