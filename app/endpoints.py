@@ -3,22 +3,34 @@ from app.models import LoggedEntity, LogTimeValue, Asset, AssetComponent, Compon
 from app.checks import check_asset
 from app.mapping import generate_algorithms, map_algorithms, map_asset_subtypes
 from app.inbuildings import inbuildings_asset_request
-from flask import request, render_template
+from flask import request, render_template, url_for, redirect
 
 ###################################
 ## endpoint functions
 ###################################
+
+@app.route('/<string:sitename>')
+def homepage(sitename):
+    return redirect(url_for('asset_list', sitename=sitename))
 
 @app.route('/<string:sitename>/assets')
 def asset_list(sitename):
     site = Site.query.filter_by(name=sitename).one()
     return render_template('assets.html', assets=site.assets, site=site)
 
-@app.route('/<string:sitename>/results')
-def result_list(sitename):
+@app.route('/<string:sitename>/unresolved')
+def unresolved_list(sitename):
     site = Site.query.filter_by(name=sitename).one()
-    results = Result.query.all()
-    return render_template('results.html', results=results, site=site)
+    results = Result.query.filter_by(unresolved=True).all()
+    return render_template('unresolved.html', results=results, site=site)
+
+@app.route('/<string:sitename>/results/<string:assetname>')
+def result_list(sitename, assetname):
+    site = Site.query.filter_by(name=sitename).one()
+    asset = Asset.query.filter_by(name=assetname, site=site).one()
+    recent_results = Result.query.filter_by(asset=asset, recent=True).all()
+    unresolved_results = Result.query.filter_by(asset=asset, unresolved=True).all()
+    return render_template('results.html', asset=asset, site=site, recent_results=recent_results, unresolved_results=unresolved_results)
 
 # map algorithms in database
 @app.route('/map')

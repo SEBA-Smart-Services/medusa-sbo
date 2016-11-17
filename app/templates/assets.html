@@ -14,7 +14,7 @@
     <tbody>
       {% for asset in assets %}
         <tr>
-          <th scope="row">{{asset.name}}</th>
+          <th scope="row"><a href="results/{{asset.name}}">{{asset.name}}</a></th>
           <td>{{asset.health.health*100}}%</td>
           <td>{{asset.subtype.type}}</td>
           <td>{{asset.location}}</td>

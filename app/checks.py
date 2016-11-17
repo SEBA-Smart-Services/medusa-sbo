@@ -13,6 +13,10 @@ def check_asset(asset):
     results_string = ""
     passed_string = ""
 
+    # clear 'most recent' status on previous results
+    for result in Result.query.filter_by(asset=asset, recent=True):
+        result.recent = False
+
     for algorithm in set(asset.subtype.algorithms) - set(asset.exclusions):
         data={}
         component_list = []
@@ -149,6 +153,6 @@ class testfunc(AlgorithmClass):
 
 # save the check results
 def save_result(asset, algorithm, value, passed, component_list):
-    result = Result(timestamp=datetime.datetime.now(), asset_id=asset.id, algorithm_id=algorithm.id, value=value, passed=passed, unresolved=not passed, components=component_list)
+    result = Result(timestamp=datetime.datetime.now(), asset_id=asset.id, algorithm_id=algorithm.id, value=value, passed=passed, unresolved=not passed, components=component_list, recent=True)
     db.session.add(result)
     db.session.commit()

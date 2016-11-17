@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h2>All Unresolved Issues</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Asset</th>
+        <th>Algorithm</th>
+        <th>Passed</th>
+        <th>Result</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for result in results %}
+        <tr>
+          <td>{{result.timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+          <td>{{result.asset.name}}</td>
+          <td>{{result.algorithm.descr}}</td>
+          <td>{{result.passed}}</td>
+          <td>{{result.value|round(4)}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

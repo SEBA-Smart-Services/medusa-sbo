@@ -255,6 +255,7 @@ class Result(db.Model):
     value = db.Column('Result', db.Float)
     passed = db.Column('Passed', db.Boolean)
     unresolved = db.Column('Unresolved', db.Boolean)
+    recent = db.Column('Recent', db.Boolean)
     components = db.relationship('AssetComponent', secondary=components_checked, backref='results')
 
     def __repr__(self):
