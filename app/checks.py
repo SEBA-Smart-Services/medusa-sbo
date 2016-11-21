@@ -1,4 +1,4 @@
-from app.models import LogTimeValue, AssetHealth, Result
+from app.models import LogTimeValue, Result
 from app import db
 import datetime
 
@@ -47,8 +47,7 @@ def check_asset(asset):
 
     # save results to asset health table
     health = 0.5
-    health_db = AssetHealth(asset_id=asset.id, health=health, summary=summary_string, tests=tests_string, results=results_string, passed=passed_string)
-    db.session.merge(health_db)
+    asset.health = health
     db.session.commit()
     
 # dummy class used to access all the algorithm checks
