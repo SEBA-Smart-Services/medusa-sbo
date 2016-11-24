@@ -143,13 +143,13 @@ class Algorithm(db.Model):
     @orm.reconstructor
     def init_on_load(self):
         # find the corresponding class in the code that matches the 'name' field
-        self.algorithm = getattr(sys.modules['app.checks'], self.name)
+        self.algorithm = getattr(sys.modules['app.algorithms'], self.name)
 
     # call the code from the actual algorithm
     def run(self, *args, **kwargs):
         return self.algorithm.run(*args, **kwargs)
 
-    # update mappings to component types and assets
+    # update mappings to component types and asset subtypes
     def map(self):
         # update matching component types based on specified component_type attribute in .algorithm
         self.component_types.clear()
@@ -219,7 +219,7 @@ class Asset(db.Model):
     health = db.Column('Health', db.Float)
     site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'))
     subtype_id = db.Column('Subtype_id', db.Integer, db.ForeignKey('asset_subtype.ID'))
-    components = db.relationship('AssetComponent', backref='asset', cascade="save-update, merge, delete, delete-orphan")
+    components = db.relationship('AssetComponent', backref='asset', cascade='save-update, merge, delete, delete-orphan')
     results = db.relationship('Result', backref='asset')
     inbuildings = db.relationship('InbuildingsAsset', backref='asset')
     exclusions = db.relationship('Algorithm', secondary=algo_exclusions, backref='exclusions')

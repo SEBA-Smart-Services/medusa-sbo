@@ -1,6 +1,6 @@
 from app.models import Algorithm, Asset
-from app.checks import AlgorithmClass
-from app import app, db
+from app.algorithms import AlgorithmClass
+from app import db, app
 
 ###################################
 ## mapping functions
@@ -16,6 +16,7 @@ def generate_algorithms():
         if algorithm_db == None:
             algorithm_db = Algorithm(descr=algorithm.descr, name=algorithm.__name__)
             db.session.add(algorithm_db)
+            algorithm_db.map()
 
     db.session.commit()
 
@@ -31,3 +32,9 @@ def map_asset_subtypes():
         asset_subtype.map_all()
     db.session.commit()
 
+# route for manual triggering of mapping
+@app.route('/map')
+def map_all():
+    generate_algorithms()
+    map_algorithms()
+    return "Done"

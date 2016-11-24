@@ -1,4 +1,4 @@
-from app.models import LogTimeValue, Result
+from app.models import LogTimeValue, Result, Asset
 from app import db
 import datetime
 
@@ -6,7 +6,7 @@ import datetime
 ## algorithm checks
 ###################################
 
-# perform all the checks against a single asset
+# apply all the algorithms against a single asset
 def check_asset(asset):
     summary_string = ""
     tests_string = ""
@@ -38,17 +38,17 @@ def check_asset(asset):
         # save result to result table
         save_result(asset, algorithm, result, passed, component_list)
 
-        # save results in a string to pass back to SBO
-        summary_string += "{}: {},  Result = {}\n".format(algorithm.descr,"Passed" if passed==True else "Failed",result)
-        tests_string += "{}\n".format(algorithm.descr)
-        passed_string += "{}\n".format("Passed" if passed==True else "Failed")
-        results_string += "{}\n".format(result)
-
-
     # save results to asset health table
     health = 0.5
     asset.health = health
     db.session.commit()
+
+# run algorithms on all assets
+def check_all():
+    for asset in Asset.query.all():
+        for result in Result.query.filter_by(asset=asset, unresolved=True).all():
+            result.unresolved = False
+        check_asset(asset)
     
 # dummy class used to access all the algorithm checks
 # 'components_required' specifies which components each algorithm will request data for
@@ -144,7 +144,7 @@ class testfunc(AlgorithmClass):
     components_required = []
     name = "Test"
     def run(data):
-        print("Test!")
+        #print("Test!")
         #print(data.keys())
         result = True
         passed = True
