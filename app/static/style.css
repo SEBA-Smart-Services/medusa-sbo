@@ -248,3 +248,21 @@ Wide styles
 		border-bottom: 0;
 	}
 }
+
+
+/* -----------------------
+Custom
+------------------------*/
+
+.formfields
+{
+	border: none;
+}
+
+.formfields td
+{
+	padding: .5em 2em .5em 0em;
+	vertical-align: top;
+	text-align: left;
+	border: none;
+}

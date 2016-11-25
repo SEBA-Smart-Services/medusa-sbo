@@ -220,7 +220,7 @@ class Asset(db.Model):
     site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'))
     subtype_id = db.Column('Subtype_id', db.Integer, db.ForeignKey('asset_subtype.ID'))
     components = db.relationship('AssetComponent', backref='asset', cascade='save-update, merge, delete, delete-orphan')
-    results = db.relationship('Result', backref='asset')
+    results = db.relationship('Result', backref='asset', cascade='save-update, merge, delete, delete-orphan')
     inbuildings = db.relationship('InbuildingsAsset', backref='asset')
     exclusions = db.relationship('Algorithm', secondary=algo_exclusions, backref='exclusions')
 
