@@ -17,15 +17,15 @@
       </tr>
       <tr>
         <td>Name:</td>
-        <td><input type=text size=30 name=name></td>
+        <td><input type=text size=30 name=name autocomplete=off></td>
       </tr>
       <tr>
         <td>Location:</td>
-        <td><input type=text size=30 name=location></td>
+        <td><input type=text size=30 name=location autocomplete=off></td>
       </tr>
       <tr>
         <td>Group:</td>
-        <td><input type=text size=30 name=group></td>
+        <td><input type=text size=30 name=group autocomplete=off></td>
       </tr>
     </table>
     <br>
@@ -81,7 +81,7 @@
               var $component_row = $('<tr>');
               var $checkbox_col = $('<td>');
               var $dropdown_col = $('<td>');
-              $checkbox_col.append($('<input type="checkbox" class="component" checked/>').val(this).attr('name', 'component' + i));
+              $checkbox_col.append($('<input type=hidden class="component"/>').val(this).attr('name', 'component' + i));
               $checkbox_col.append(' ' + this);
               $dropdown_col.append($loglist.clone().attr('name', 'log' + i));
               $component_row.append($checkbox_col);

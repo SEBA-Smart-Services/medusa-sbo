@@ -17,6 +17,9 @@ def check_asset(asset):
     for result in Result.query.filter_by(asset=asset, recent=True):
         result.recent = False
 
+    algorithms_run = 0
+    algorithms_passed = 0
+
     for algorithm in set(asset.subtype.algorithms) - set(asset.exclusions):
         data={}
         component_list = []
@@ -38,9 +41,11 @@ def check_asset(asset):
         # save result to result table
         save_result(asset, algorithm, result, passed, component_list)
 
+        algorithms_run += 1
+        algorithms_passed += passed
+
     # save results to asset health table
-    health = 0.5
-    asset.health = health
+    asset.health = algorithms_passed/algorithms_run
     db.session.commit()
 
 # run algorithms on all assets

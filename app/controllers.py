@@ -1,11 +1,11 @@
 from app import app, db
-from app.models import Asset, Site, AssetComponent, AssetType, Algorithm, AssetHealth, AssetSubtype, ComponentType, Result, SubtypeComponent, LoggedEntity, LogTimeValue
+from app.models import Asset, Site, AssetComponent, AssetType, Algorithm, AssetSubtype, ComponentType, Result, SubtypeComponent, LoggedEntity, LogTimeValue
 from app.algorithms import check_asset
 from flask import json, request, render_template, url_for, redirect, jsonify
 
 
 ###################################
-## endpoints
+## main pages
 ###################################
 
 @app.route('/')
@@ -30,7 +30,19 @@ def unresolved_list(sitename):
     results = Result.query.filter_by(unresolved=True).all()
     return render_template('unresolved.html', results=results, site=site)
 
+# show results for a single asset
+@app.route('/site/<sitename>/results/<assetname>')
+def result_list(sitename, assetname):
+    site = Site.query.filter_by(name=sitename).one()
+    asset = Asset.query.filter_by(name=assetname, site=site).one()
+    recent_results = Result.query.filter_by(asset=asset, recent=True).all()
+    unresolved_results = Result.query.filter_by(asset=asset, unresolved=True).all()
+    return render_template('results.html', asset=asset, site=site, recent_results=recent_results, unresolved_results=unresolved_results)
+
+
+###################################
 ## add asset
+###################################
 
 # page to add an asset to the site
 @app.route('/site/<sitename>/add')
@@ -89,14 +101,13 @@ def add_asset_submit(sitename):
     # generate components
     for i in range(1, len(subtype.components) + 1):
         component_type_name = request.form.get('component' + str(i))
-        if not component_type_name is None:
-            component_type = ComponentType.query.filter_by(name=component_type_name).one()
-            component = AssetComponent(type=component_type, asset=asset)
-            log_path = request.form.get('log' + str(i))
-            if not log_path is None:
-                log = LoggedEntity.query.filter_by(path=log_path).one()
-                component.loggedentity_id = log.id
-            db.session.add(component)
+        component_type = ComponentType.query.filter_by(name=component_type_name).one()
+        component = AssetComponent(type=component_type, asset=asset, name=component_type_name)
+        log_path = request.form.get('log' + str(i))
+        if not log_path is None:
+            log = LoggedEntity.query.filter_by(path=log_path).one()
+            component.loggedentity_id = log.id
+        db.session.add(component)
 
     # set excluded algorithms
     exclusion_list = request.form.getlist('exclusion')
@@ -107,14 +118,56 @@ def add_asset_submit(sitename):
     db.session.commit()
     return redirect(url_for('asset_list', sitename=sitename))
 
+
+###################################
 ## edit asset
+###################################
 
 # page to edit an asset on the site
 @app.route('/site/<sitename>/edit/<assetname>')
 def edit_asset(sitename, assetname):
     site = Site.query.filter_by(name=sitename).one()
     asset = Asset.query.filter(Asset.name == assetname, Asset.site.has(name=sitename)).one()
-    return render_template('edit.html', site=site, asset=asset)
+
+    # set available logs
+    LoggedEntity.__table__.info['bind_key'] = site.db_name
+    logs = LoggedEntity.query.filter_by(type='trend.ETLog').all()
+
+    return render_template('edit.html', site=site, asset=asset, logs=logs)
+
+# process an asset edit
+@app.route('/site/<sitename>/edit/<assetname>/_submit', methods=['POST'])
+def edit_asset_submit(sitename, assetname):
+    asset = Asset.query.filter(Asset.name == assetname, Asset.site.has(name=sitename)).one()
+
+    # set asset attributes
+    asset.name = request.form['name']
+    asset.location = request.form['location']
+    asset.group = request.form['group']
+    
+    # select database
+    LoggedEntity.__table__.info['bind_key'] = asset.site.db_name
+
+    # @@ need a better system of reading in values than string-matching component1 and log1
+    # assign log ids to components
+    for i in range(1, len(asset.components) + 1):
+        component_type_name = request.form.get('component' + str(i))
+        component_type = ComponentType.query.filter_by(name=component_type_name).one()
+        component = AssetComponent.query.filter_by(type=component_type, asset=asset).one()
+        log_path = request.form.get('log' + str(i))
+        if not log_path is None:
+            log = LoggedEntity.query.filter_by(path=log_path).one()
+            component.loggedentity_id = log.id
+
+    # set excluded algorithms
+    asset.exclusions.clear()
+    exclusion_list = request.form.getlist('exclusion')
+    for algorithm_descr in exclusion_list:
+        exclusion = Algorithm.query.filter_by(descr=algorithm_descr).one()
+        asset.exclusions.append(exclusion)
+
+    db.session.commit()
+    return redirect(url_for('asset_list', sitename=sitename))
 
 
 # delete asset
@@ -124,12 +177,3 @@ def delete_asset(sitename, assetname):
     db.session.delete(asset)
     db.session.commit()
     return redirect(url_for('asset_list', sitename=sitename))
-
-# show results for a single asset
-@app.route('/site/<sitename>/results/<assetname>')
-def result_list(sitename, assetname):
-    site = Site.query.filter_by(name=sitename).one()
-    asset = Asset.query.filter_by(name=assetname, site=site).one()
-    recent_results = Result.query.filter_by(asset=asset, recent=True).all()
-    unresolved_results = Result.query.filter_by(asset=asset, unresolved=True).all()
-    return render_template('results.html', asset=asset, site=site, recent_results=recent_results, unresolved_results=unresolved_results)

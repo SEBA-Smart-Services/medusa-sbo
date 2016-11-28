@@ -103,8 +103,8 @@ class SubtypeComponent(db.Model):
     __bind_key__ = 'medusa'
     id = db.Column('ID', db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512))
-    subtype_id = db.Column('Subtype_id', db.Integer, db.ForeignKey('asset_subtype.ID'))
     type_id = db.Column('Type_id', db.Integer, db.ForeignKey('component_type.ID'))
+    subtype_id = db.Column('Subtype_id', db.Integer, db.ForeignKey('asset_subtype.ID'))
 
     def __repr__(self):
         if not self.name is None:
@@ -260,13 +260,3 @@ class Result(db.Model):
 
     def __repr__(self):
         return str(self.timestamp)
-
-# health results of the latest checks performed against each asset
-class AssetHealth(db.Model):
-    __bind_key__ = 'medusa'
-    asset_id = db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'), primary_key=True)
-    health = db.Column('Health', db.Float)
-    summary = db.Column('Summary', db.String(4000))
-    tests = db.Column('Tests', db.String(4000))
-    results = db.Column('Results', db.String(4000))
-    passed = db.Column('Passed', db.String(4000))
