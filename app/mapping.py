@@ -10,11 +10,11 @@ from app import db, app
 def generate_algorithms():
     # algorithms are subclasses of AlgorithmClass
     for algorithm in AlgorithmClass.__subclasses__():
-        algorithm_db = Algorithm.query.filter_by(name=algorithm.__name__).all()
+        algorithm_db = Algorithm.query.filter_by(name=algorithm.__name__).first()
 
         # if the algorithm doesn't exist in the database, create it
         if algorithm_db == None:
-            algorithm_db = Algorithm(descr=algorithm.descr, name=algorithm.__name__)
+            algorithm_db = Algorithm(descr=algorithm.name, name=algorithm.__name__)
             db.session.add(algorithm_db)
             algorithm_db.map()
 
@@ -29,7 +29,7 @@ def map_algorithms():
 # generate the entire mapping table for algorithms-asset subtypes
 def map_asset_subtypes():
     for asset_subtype in AssetSubtype.query.all():
-        asset_subtype.map_all()
+        asset_subtype.map()
     db.session.commit()
 
 # route for manual triggering of mapping

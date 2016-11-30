@@ -16,6 +16,10 @@ class LogTimeValue(db.Model):
     parent_id = db.Column('ParentID',db.Integer,primary_key=True)
     odometer_value = db.Column('OdometerValue',db.Float)
 
+class SiteLogTimeValue(LogTimeValue):
+    def __init__(self, bind_key):
+        self.__table__.info['bind_key'] = bind_key
+
 # list of trend logs, stored in report server
 class LoggedEntity(db.Model):
     __bind_key__ = 'sbo'
@@ -77,7 +81,7 @@ class AssetSubtype(db.Model):
         return [component.type for component in self.components]
 
     # update the mapping between this subtype and all algorithms
-    def map_all(self):
+    def map(self):
         #delete the current mapping
         self.algorithms.clear()
         for algorithms in Algorithm.query.all():
@@ -132,12 +136,10 @@ class Algorithm(db.Model):
     component_types = db.relationship('ComponentType', secondary=algo_comp_mapping, backref=db.backref('algorithms'))
     results = db.relationship('Result', backref='algorithm')
 
-    def __init__(self, name, descr, component_types, results):
-        self.name = name
-        self.descr = descr
-        self.component_types = component_types
-        self.results = results
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.init_on_load()
+        self.map()
 
     # this triggers when loading from the db
     @orm.reconstructor
@@ -164,6 +166,13 @@ class Algorithm(db.Model):
 
     def __repr__(self):
         return self.name
+
+# status of issue
+class Status(db.Model):
+    __bind_key__ = 'medusa'
+    id = db.Column('ID', db.Integer, primary_key=True)
+    descr = db.Column('Descr', db.String(512))
+    results = db.relationship('Result', backref='status')
 
 ###################################
 ## real world models
@@ -254,9 +263,9 @@ class Result(db.Model):
     algorithm_id = db.Column('Algorithm_id', db.Integer, db.ForeignKey('algorithm.ID'))
     value = db.Column('Result', db.Float)
     passed = db.Column('Passed', db.Boolean)
-    unresolved = db.Column('Unresolved', db.Boolean)
     recent = db.Column('Recent', db.Boolean)
     components = db.relationship('AssetComponent', secondary=components_checked, backref='results')
+    status_id = db.Column('Status_id', db.Integer, db.ForeignKey('status.ID'))
 
     def __repr__(self):
         return str(self.timestamp)

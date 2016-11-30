@@ -1,6 +1,6 @@
 from app.models import LogTimeValue, Result, Asset
-from app import db
-import datetime
+from app import db, app
+import datetime, time
 
 ###################################
 ## algorithm checks
@@ -19,6 +19,7 @@ def check_asset(asset):
 
     algorithms_run = 0
     algorithms_passed = 0
+    t=time.time()
 
     for algorithm in set(asset.subtype.algorithms) - set(asset.exclusions):
         data={}
@@ -27,7 +28,7 @@ def check_asset(asset):
         # find all the component types belonging to this asset which are being checked by this algorithm
         for component in asset.components:
             if component.type in algorithm.component_types:
-                # set the database that the trend log resides in
+                # set the database that the trend log resides in print(logtimevalue.table.info(bindkey))
                 LogTimeValue.__table__.info['bind_key'] = asset.site.db_name
                 # add the trend log to a dictionary of data
                 # currently only selects the newest 1000 entries
@@ -47,13 +48,16 @@ def check_asset(asset):
     # save results to asset health table
     asset.health = algorithms_passed/algorithms_run
     db.session.commit()
+    print('Ran checks on {}, took {}'.format(asset.name,time.time()-t))
 
+@app.route('/check')
 # run algorithms on all assets
 def check_all():
     for asset in Asset.query.all():
-        for result in Result.query.filter_by(asset=asset, unresolved=True).all():
-            result.unresolved = False
+        for result in Result.query.filter(Result.asset==asset, Result.status_id not in [1,5]).all():
+            result.status_id = 1
         check_asset(asset)
+    return 'done'
     
 # dummy class used to access all the algorithm checks
 # 'components_required' specifies which components each algorithm will request data for
@@ -63,30 +67,49 @@ class AlgorithmClass():
 # check if room air temp is higher than setpoint while heating is on
 class airtemp_heating_check(AlgorithmClass):
     components_required = ['Room Air Temp', 'Heater Enable', 'Room Air Temp Setpoint']
-    name = "Room air temp higher than setpoint while heating on"
+    format = "{:.1%}"
     def run(data):
-        result = 0.1
-        passed = False
+        totaltime = datetime.timedelta(0)
+        result = datetime.timedelta(0)
+
+        # for each air temp data point, find the nearest (timestamp less than or equal to) data point for setpoint and heater
+        for i in range(1, len(data['Room Air Temp'])):
+            
+            current_time = data['Room Air Temp'][i].datetimestamp
+            j = find_nearest_date(data['Room Air Temp Setpoint'], current_time)
+            k = find_nearest_date(data['Heater Enable'], current_time)
+            
+            if not j is None and not k is None:
+                # calculate duration of data sample, add to total time
+                timediff = data['Room Air Temp'][i].datetimestamp - data['Room Air Temp'][i-1].datetimestamp
+                totaltime += timediff
+
+                # if room air temp > setpoint while heating is on, add duration to time sum
+                if data['Room Air Temp'][i].float_value > data['Room Air Temp Setpoint'][j].float_value and data['Heater Enable'][k].float_value > 0:
+                    result += timediff
+            
+        # find percent of time that the conditions were true
+        result = result/totaltime
+        passed = True if result < 0.2 else False
         return [result, passed]
 
 # check if heating and cooling are simultaneously on
 class simult_heatcool_check(AlgorithmClass):
     components_required = ['Heater Enable', 'Chilled Water Valve Enable']
     name = "Simultaneous heating and cooling"
-    def run(data):
+    format = "{:.1%}"
+
+    def run(self, data):
         totaltime = datetime.timedelta(0)
         result = datetime.timedelta(0)
-
+        
         # for each chw data point, find the nearest (timestamp less than or equal to) data point for heater
         for i in range(1, len(data['Chilled Water Valve Enable'])):
             
             current_time = data['Chilled Water Valve Enable'][i].datetimestamp
-            date_candidates = [value.datetimestamp for value in data['Heater Enable'] if value.datetimestamp < current_time]
+            j = find_nearest_date(data['Heater Enable'], current_time)
             
-            if len(date_candidates) > 0:
-                current_time_matched = max(date_candidates)
-                j = [value.datetimestamp for value in data['Heater Enable']].index(current_time_matched)
-
+            if not j is None:
                 # calculate duration of data sample, add to total time
                 timediff = data['Chilled Water Valve Enable'][i].datetimestamp - data['Chilled Water Valve Enable'][i-1].datetimestamp
                 totaltime += timediff
@@ -94,16 +117,17 @@ class simult_heatcool_check(AlgorithmClass):
                 # if heating and cooling are both on, add duration to time sum
                 if data['Chilled Water Valve Enable'][i].float_value > 0 and data['Heater Enable'][j].float_value > 0:
                     result += timediff
-        
+            
         # find percent of time that heating and cooling were simulaneously on
         result = result/totaltime
-        passed = True if result < 0.5 else False
+        passed = True if result < 0.2 else False
         return [result, passed]
 
 # check if zone fan is on while zone is unoccupied
 class fan_unoccupied_check(AlgorithmClass):
     components_required = ['Room Occupancy', 'Fan Enable']
     name = "Zone fan on while unoccupied"
+    format = "{:.1%}"
     def run(data):    
         result = 0
         passed = True
@@ -113,6 +137,7 @@ class fan_unoccupied_check(AlgorithmClass):
 class ahu_occupied_check(AlgorithmClass):
     components_required = ['Room Occupancy', 'Fan Enable']
     name = "Zone occupied, AHU off"
+    format = "{:.1%}"
     def run(data):
         result = 0
         passed = True
@@ -122,6 +147,7 @@ class ahu_occupied_check(AlgorithmClass):
 class chw_hunting_check(AlgorithmClass):
     components_required = ['Chilled Water Valve', 'Supply Air Temp']
     name = "Chilled water valve actuator hunting"
+    format = "bool"
     def run(data):
         result = False
         passed = True
@@ -131,6 +157,7 @@ class chw_hunting_check(AlgorithmClass):
 class run_hours_check(AlgorithmClass):
     components_required = ['Fan Enable', 'Run Hours Maintenance Setpoint']
     name = "Run hours"
+    format = "{:.1f}h"
     def run(data):
         timeon = 0
 
@@ -148,6 +175,7 @@ class run_hours_check(AlgorithmClass):
 class testfunc(AlgorithmClass):
     components_required = []
     name = "Test"
+    format = "bool"
     def run(data):
         #print("Test!")
         #print(data.keys())
@@ -157,6 +185,14 @@ class testfunc(AlgorithmClass):
 
 # save the check results
 def save_result(asset, algorithm, value, passed, component_list):
-    result = Result(timestamp=datetime.datetime.now(), asset_id=asset.id, algorithm_id=algorithm.id, value=value, passed=passed, unresolved=not passed, components=component_list, recent=True)
+    result = Result(timestamp=datetime.datetime.now(), asset_id=asset.id, algorithm_id=algorithm.id, value=value, passed=passed, status_id=int(not passed)+1, components=component_list, recent=True)
     db.session.add(result)
     db.session.commit()
+
+# find the index of the nearest less than or equal to timestamp in a log
+def find_nearest_date(data, timestamp):
+    date_candidates = [value.datetimestamp for value in data if value.datetimestamp <= timestamp]
+    if len(date_candidates) > 0:
+        current_time_matched = max(date_candidates)
+        index = date_candidates.index(current_time_matched)
+    return index

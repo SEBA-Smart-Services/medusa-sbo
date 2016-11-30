@@ -10,6 +10,7 @@
         <th>Algorithm</th>
         <th>Passed</th>
         <th>Result</th>
+        <th>Status</th>
       </tr>
     </thead>
     <tbody>
@@ -18,7 +19,14 @@
           <td>{{result.timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
           <td>{{result.algorithm.descr}}</td>
           <td>{{result.passed}}</td>
-          <td>{{result.value|round(4)}}</td>
+
+          {% if result.algorithm.algorithm.format == 'bool' %}
+          <td>{{result.value != 0}}</td>
+          {% else %}
+          <td>{{result.algorithm.algorithm.format.format(result.value)}}</td>
+          {% endif %}
+          
+          <td>{{result.status.descr}}</td>
         </tr>
       {% endfor %}
     </tbody>
@@ -33,7 +41,7 @@
         <th>Algorithm</th>
         <th>Passed</th>
         <th>Result</th>
-        <th>Unresolved</th>
+        <th>Status</th>
       </tr>
     </thead>
     <tbody>
@@ -42,8 +50,14 @@
           <td>{{result.timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
           <td>{{result.algorithm.descr}}</td>
           <td>{{result.passed}}</td>
-          <td>{{result.value|round(4)}}</td>
-          <td>{{result.unresolved}}</td>
+
+          {% if result.algorithm.algorithm.format == 'bool' %}
+          <td>{{result.value != 0}}</td>
+          {% else %}
+          <td>{{result.algorithm.algorithm.format.format(result.value)}}</td>
+          {% endif %}
+
+          <td>{{result.status.descr}}</td>
         </tr>
       {% endfor %}
     </tbody>

@@ -27,7 +27,7 @@ def asset_list(sitename):
 @app.route('/site/<sitename>/unresolved')
 def unresolved_list(sitename):
     site = Site.query.filter_by(name=sitename).one()
-    results = Result.query.filter_by(unresolved=True).all()
+    results = Result.query.filter(Result.status_id > 1, Result.status_id < 5).all()
     return render_template('unresolved.html', results=results, site=site)
 
 # show results for a single asset
@@ -36,7 +36,7 @@ def result_list(sitename, assetname):
     site = Site.query.filter_by(name=sitename).one()
     asset = Asset.query.filter_by(name=assetname, site=site).one()
     recent_results = Result.query.filter_by(asset=asset, recent=True).all()
-    unresolved_results = Result.query.filter_by(asset=asset, unresolved=True).all()
+    unresolved_results = Result.query.filter(Result.asset==asset, Result.status_id > 1, Result.status_id < 5).all()
     return render_template('results.html', asset=asset, site=site, recent_results=recent_results, unresolved_results=unresolved_results)
 
 

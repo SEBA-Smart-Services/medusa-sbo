@@ -19,7 +19,7 @@ JOBS = [
         'id': 'inbuildings_assets',
         'func': 'app.inbuildings.controllers:inbuildings_all_sites',
         'trigger': 'interval',
-        'minutes': 15,
+        'hours': 24,
         'misfire_grace_time': 10
     }
 ]

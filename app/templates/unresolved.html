@@ -18,7 +18,11 @@
           <td>{{result.asset.name}}</td>
           <td>{{result.algorithm.descr}}</td>
           <td>{{result.passed}}</td>
-          <td>{{result.value|round(4)}}</td>
+          {% if result.algorithm.algorithm.format == 'bool' %}
+          <td>{{result.value != 0}}</td>
+          {% else %}
+          <td>{{result.algorithm.algorithm.format.format(result.value)}}</td>
+          {% endif %}
         </tr>
       {% endfor %}
     </tbody>
