@@ -3,7 +3,6 @@ from app.models import Asset, Site, AssetComponent, AssetType, Algorithm, AssetS
 from app.algorithms import check_asset
 from flask import json, request, render_template, url_for, redirect, jsonify
 
-
 ###################################
 ## main pages
 ###################################

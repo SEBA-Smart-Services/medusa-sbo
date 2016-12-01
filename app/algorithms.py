@@ -1,6 +1,24 @@
 from app.models import LogTimeValue, Result, Asset
 from app import db, app
-import datetime, time
+import datetime, time, pandas
+
+class DataGrab():
+
+    @classmethod
+    def latest_qty(cls, log_id, quantity):
+        value_list = LogTimeValue.query.filter_by(parent_id=log_id).order_by(LogTimeValue.datetimestamp.desc()).limit(quantity).all()
+        return cls.to_dataframe(value_list)
+
+    @classmethod
+    def latest_time(cls, log_id, time):
+        value_list = LogTimeValue.query.filter(LogTimeValue.parent_id == log_id, LogTimeValue.datetimestamp >= time).all()
+        return cls.to_dataframe(value_list)
+
+    def to_dataframe(logtimevalue_list):
+        timestamps = [entry.datetimestamp for entry in value_list]
+        values = [entry.float_value for entry in value_list]
+        dataframe = pandas.DataFrame(values, index=timestamps)
+        return dataframe
 
 ###################################
 ## algorithm checks
@@ -32,7 +50,7 @@ def check_asset(asset):
                 LogTimeValue.__table__.info['bind_key'] = asset.site.db_name
                 # add the trend log to a dictionary of data
                 # currently only selects the newest 1000 entries
-                value_list = LogTimeValue.query.filter_by(parent_id=component.loggedentity_id).order_by(LogTimeValue.datetimestamp.desc()).limit(1000).from_self().order_by(LogTimeValue.datetimestamp.asc()).all()
+                values = DataGrab.latest(component.loggedentity_id, 1000)
                 data[component.type.name] = value_list
                 component_list.append(component)
 

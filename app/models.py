@@ -16,10 +16,6 @@ class LogTimeValue(db.Model):
     parent_id = db.Column('ParentID',db.Integer,primary_key=True)
     odometer_value = db.Column('OdometerValue',db.Float)
 
-class SiteLogTimeValue(LogTimeValue):
-    def __init__(self, bind_key):
-        self.__table__.info['bind_key'] = bind_key
-
 # list of trend logs, stored in report server
 class LoggedEntity(db.Model):
     __bind_key__ = 'sbo'
