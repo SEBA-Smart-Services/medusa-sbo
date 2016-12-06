@@ -1,24 +1,24 @@
 from app.models import LogTimeValue, Result, Asset
 from app import db, app
-import datetime, time, pandas
+import datetime, time, pandas, random
 
 class DataGrab():
 
     @classmethod
-    def latest_qty(cls, log_id, quantity):
-        value_list = LogTimeValue.query.filter_by(parent_id=log_id).order_by(LogTimeValue.datetimestamp.desc()).limit(quantity).all()
-        return cls.to_dataframe(value_list)
+    def latest_qty(cls, component, quantity):
+        value_list = LogTimeValue.query.filter_by(parent_id=component.loggedentity_id).order_by(LogTimeValue.datetimestamp.desc()).limit(quantity).all()
+        return cls.to_series(value_list)
 
     @classmethod
-    def latest_time(cls, log_id, time):
-        value_list = LogTimeValue.query.filter(LogTimeValue.parent_id == log_id, LogTimeValue.datetimestamp >= time).all()
-        return cls.to_dataframe(value_list)
+    def latest_time(cls, component, time):
+        value_list = LogTimeValue.query.filter(LogTimeValue.parent_id == component.loggedentity_id, LogTimeValue.datetimestamp >= time).all()
+        return cls.to_series(value_list)
 
-    def to_dataframe(logtimevalue_list):
-        timestamps = [entry.datetimestamp for entry in value_list]
-        values = [entry.float_value for entry in value_list]
-        dataframe = pandas.DataFrame(values, index=timestamps)
-        return dataframe
+    def to_series(logtimevalue_list):
+        timestamps = [entry.datetimestamp for entry in logtimevalue_list]
+        values = [entry.float_value for entry in logtimevalue_list]
+        series = pandas.Series(values, index=timestamps)
+        return series
 
 ###################################
 ## algorithm checks
@@ -50,8 +50,8 @@ def check_asset(asset):
                 LogTimeValue.__table__.info['bind_key'] = asset.site.db_name
                 # add the trend log to a dictionary of data
                 # currently only selects the newest 1000 entries
-                values = DataGrab.latest(component.loggedentity_id, 1000)
-                data[component.type.name] = value_list
+                values = DataGrab.latest_qty(component, 1000)
+                data[component.type.name] = values
                 component_list.append(component)
 
         # call each algorithm which is mapped to the asset
@@ -87,27 +87,7 @@ class airtemp_heating_check(AlgorithmClass):
     components_required = ['Room Air Temp', 'Heater Enable', 'Room Air Temp Setpoint']
     format = "{:.1%}"
     def run(data):
-        totaltime = datetime.timedelta(0)
-        result = datetime.timedelta(0)
-
-        # for each air temp data point, find the nearest (timestamp less than or equal to) data point for setpoint and heater
-        for i in range(1, len(data['Room Air Temp'])):
-            
-            current_time = data['Room Air Temp'][i].datetimestamp
-            j = find_nearest_date(data['Room Air Temp Setpoint'], current_time)
-            k = find_nearest_date(data['Heater Enable'], current_time)
-            
-            if not j is None and not k is None:
-                # calculate duration of data sample, add to total time
-                timediff = data['Room Air Temp'][i].datetimestamp - data['Room Air Temp'][i-1].datetimestamp
-                totaltime += timediff
-
-                # if room air temp > setpoint while heating is on, add duration to time sum
-                if data['Room Air Temp'][i].float_value > data['Room Air Temp Setpoint'][j].float_value and data['Heater Enable'][k].float_value > 0:
-                    result += timediff
-            
-        # find percent of time that the conditions were true
-        result = result/totaltime
+        result = random.random()
         passed = True if result < 0.2 else False
         return [result, passed]
 
@@ -117,27 +97,8 @@ class simult_heatcool_check(AlgorithmClass):
     name = "Simultaneous heating and cooling"
     format = "{:.1%}"
 
-    def run(self, data):
-        totaltime = datetime.timedelta(0)
-        result = datetime.timedelta(0)
-        
-        # for each chw data point, find the nearest (timestamp less than or equal to) data point for heater
-        for i in range(1, len(data['Chilled Water Valve Enable'])):
-            
-            current_time = data['Chilled Water Valve Enable'][i].datetimestamp
-            j = find_nearest_date(data['Heater Enable'], current_time)
-            
-            if not j is None:
-                # calculate duration of data sample, add to total time
-                timediff = data['Chilled Water Valve Enable'][i].datetimestamp - data['Chilled Water Valve Enable'][i-1].datetimestamp
-                totaltime += timediff
-
-                # if heating and cooling are both on, add duration to time sum
-                if data['Chilled Water Valve Enable'][i].float_value > 0 and data['Heater Enable'][j].float_value > 0:
-                    result += timediff
-            
-        # find percent of time that heating and cooling were simulaneously on
-        result = result/totaltime
+    def run(data):
+        result = random.random()
         passed = True if result < 0.2 else False
         return [result, passed]
 
@@ -177,16 +138,18 @@ class run_hours_check(AlgorithmClass):
     name = "Run hours"
     format = "{:.1f}h"
     def run(data):
-        timeon = 0
+        # timeon = 0
 
-        # add up durations for each sample where fan was on
-        for i in range(1, len(data['Fan Enable'])):
-            timediff = data['Fan Enable'][i].datetimestamp - data['Fan Enable'][i-1].datetimestamp
-            timeon += timediff.total_seconds() * data['Fan Enable'][i].float_value
+        # # add up durations for each sample where fan was on
+        # for i in range(1, len(data['Fan Enable'])):
+        #     timediff = data['Fan Enable'][i].datetimestamp - data['Fan Enable'][i-1].datetimestamp
+        #     timeon += timediff.total_seconds() * data['Fan Enable'][i].float_value
 
-        #convert to hours
-        result = timeon/3600
-        passed = True if result < data['Run Hours Maintenance Setpoint'][0].float_value else False
+        # #convert to hours
+        # result = timeon/3600
+        # passed = True if result < data['Run Hours Maintenance Setpoint'][0].float_value else False
+        result = random.random()
+        passed = True if result < 0.5 else False
         return [result, passed]
 
 # dummy test fuction

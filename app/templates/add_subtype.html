@@ -19,7 +19,7 @@
     Components:<br>
     <table id=component_section class=formfields>
       {% for component_type in component_type_list %}
-        <tr><td><input type=hidden type="checkbox" name="{{component_type.name}}" value="{{component_type.name}}"/></td></tr>
+        <tr><td><input type="checkbox" name="component" value="{{component_type.name}}"/>  {{component_type.name}}</td></tr>
       {% endfor %}
     </table>
     <br>

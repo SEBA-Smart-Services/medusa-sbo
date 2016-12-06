@@ -70,7 +70,7 @@ class AssetSubtype(db.Model):
     name = db.Column('Name', db.String(512))
     type_id = db.Column('Type_id', db.Integer, db.ForeignKey('asset_type.ID'))
     assets = db.relationship('Asset', backref='subtype')
-    components = db.relationship('SubtypeComponent', backref='subtype')
+    components = db.relationship('SubtypeComponent', backref='subtype', cascade='save-update, merge, delete, delete-orphan')
     algorithms = db.relationship('Algorithm', secondary=subtype_algo_mapping, backref='asset_subtypes')
 
     def get_component_types(self):
