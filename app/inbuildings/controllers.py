@@ -1,5 +1,5 @@
 from app.models import Asset, InbuildingsAsset, Site
-from app import db
+from app import db, app
 import requests
 
 ###################################
@@ -59,7 +59,24 @@ def inbuildings_asset_request(site):
         db.session.add(db_asset)
     db.session.commit()
 
+@app.route('/inbuildings')
 # request assets for all sites
 def inbuildings_all_sites():
     for site in Site.query.all():
         inbuildings_asset_request(site)
+
+# raise a new job
+def inbuildings_raise_job(asset, message, priority):
+    # setup request parameters
+    key = asset.site.inbuildings_key
+    mode = "equipmentlist"
+    equip_id = str(asset.inbuildings.id)
+    priority_id = str(priority)
+    data = {'key': key, 'mode': mode, 'eid': equip_id, 'pid': priority_id, 'body': message}
+
+    # send request
+    try:
+        resp = inbuildings_request(data)
+    except requests.exceptions.ConnectionError:
+        # abort if no connection
+        return

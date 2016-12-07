@@ -222,11 +222,12 @@ class Asset(db.Model):
     location = db.Column('Location', db.String(512))
     group = db.Column('Group', db.String(512))
     health = db.Column('Health', db.Float)
+    priority = db.Column('Priority', db.Integer)
     site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'))
     subtype_id = db.Column('Subtype_id', db.Integer, db.ForeignKey('asset_subtype.ID'))
     components = db.relationship('AssetComponent', backref='asset', cascade='save-update, merge, delete, delete-orphan')
     results = db.relationship('Result', backref='asset', cascade='save-update, merge, delete, delete-orphan')
-    inbuildings = db.relationship('InbuildingsAsset', backref='asset')
+    inbuildings = db.relationship('InbuildingsAsset', backref='asset', uselist=False)
     exclusions = db.relationship('Algorithm', secondary=algo_exclusions, backref='exclusions')
 
     def get_component_types(self):

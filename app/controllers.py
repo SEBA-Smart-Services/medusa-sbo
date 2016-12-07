@@ -90,7 +90,7 @@ def add_asset_submit(sitename):
     # create asset with 0 health
     site = Site.query.filter_by(name=sitename).one()
     subtype = AssetSubtype.query.filter_by(name=request.form['subtype']).one()
-    asset = Asset(subtype=subtype, name=request.form['name'], location=request.form['location'], group=request.form['group'], site=site, health=0)
+    asset = Asset(subtype=subtype, name=request.form['name'], location=request.form['location'], group=request.form['group'], priority=request.form['priority'], site=site, health=0)
     db.session.add(asset)
 
     # select database
@@ -143,6 +143,7 @@ def edit_asset_submit(sitename, assetname):
     asset.name = request.form['name']
     asset.location = request.form['location']
     asset.group = request.form['group']
+    asset.priority = request.form['priority']
     
     # select database
     LoggedEntity.__table__.info['bind_key'] = asset.site.db_name

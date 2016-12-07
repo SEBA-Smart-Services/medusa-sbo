@@ -37,10 +37,10 @@ def check_asset(asset):
 
     algorithms_run = 0
     algorithms_passed = 0
-    t=time.time()
+    t = time.time()
 
     for algorithm in set(asset.subtype.algorithms) - set(asset.exclusions):
-        data={}
+        data = {}
         component_list = []
 
         # find all the component types belonging to this asset which are being checked by this algorithm

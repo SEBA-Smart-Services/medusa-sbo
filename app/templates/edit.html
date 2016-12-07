@@ -15,6 +15,14 @@
         <td>Group:</td>
         <td><input type=text size=30 name=group value='{{asset.group}}' autocomplete=off></td>
       </tr>
+      <tr>
+        <td>Priority:</td>
+        <td><select name=priority>
+          {% for i in range(0,10) %}
+            <option value="{{i}}">{{i}}</option>
+          {% endfor %}
+        </select></td>
+      </tr>
     </table>
     <br>
     Components:<br>
