@@ -1,13 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
-  <h3>Results for {{asset.name}}</h3>
+  <h2>Results for {{asset.name}}</h2>
   <br>
-  <h4>Unresolved Issues</h4>
-  <table class="mdl-data-table mdl-js-data-table full-width">
+  <h3>Unresolved Issues</h3>
+  <table class="table table-striped">
     <thead>
       <tr>
-        <th class="mdl-data-table__cell--non-numeric">Timestamp</th>
-        <th class="mdl-data-table__cell--non-numeric">Algorithm</th>
+        <th>Timestamp</th>
+        <th>Algorithm</th>
         <th>Passed</th>
         <th>Result</th>
         <th>Status</th>
@@ -16,8 +16,8 @@
     <tbody>
       {% for result in unresolved_results %}
         <tr>
-          <td class="mdl-data-table__cell--non-numeric">{{result.timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
-          <td class="mdl-data-table__cell--non-numeric">{{result.algorithm.descr}}</td>
+          <td>{{result.timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+          <td>{{result.algorithm.descr}}</td>
           <td>{{result.passed}}</td>
 
           {% if result.algorithm.algorithm.format == 'bool' %}
@@ -33,12 +33,12 @@
   </table>
   <br>
   <br>
-  <h4>Most Recent Check</h4>
-  <table class="mdl-data-table mdl-js-data-table full-width">
+  <h3>Most Recent Check</h3>
+  <table class="table table-striped">
     <thead>
       <tr>
-        <th class="mdl-data-table__cell--non-numeric">Timestamp</th>
-        <th class="mdl-data-table__cell--non-numeric">Algorithm</th>
+        <th>Timestamp</th>
+        <th>Algorithm</th>
         <th>Passed</th>
         <th>Result</th>
         <th>Status</th>
@@ -47,8 +47,8 @@
     <tbody>
       {% for result in recent_results %}
         <tr>
-          <td class="mdl-data-table__cell--non-numeric">{{result.timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
-          <td class="mdl-data-table__cell--non-numeric">{{result.algorithm.descr}}</td>
+          <td>{{result.timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+          <td>{{result.algorithm.descr}}</td>
           <td>{{result.passed}}</td>
 
           {% if result.algorithm.algorithm.format == 'bool' %}

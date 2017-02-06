@@ -197,9 +197,18 @@ class Site(db.Model):
     inbuildings_key = db.Column('Inbuildings_key', db.String(512))
     assets = db.relationship('Asset', backref='site')
     inbuildings_assets = db.relationship('InbuildingsAsset', backref='site')
+    issue_history = db.relationship('IssueHistory', backref='site')
 
     def __repr__(self):
         return self.name
+
+    def get_unresolved(self):
+        issues = Result.query.join(Result.asset).filter(Result.status_id > 1, Result.status_id < 5, Asset.site == self).all()
+        return issues
+
+    def get_unresolved_by_priority(self):
+        issue = Result.query.join(Result.asset).filter(Result.status_id > 1, Result.status_id < 5, Asset.site == self).order_by(Asset.priority.asc()).all()
+        return issue
 
 # data pulled from inbuildings
 class InbuildingsAsset(db.Model):
@@ -266,3 +275,33 @@ class Result(db.Model):
 
     def __repr__(self):
         return str(self.timestamp)
+
+    @classmethod
+    def get_unresolved(cls):
+        issues = cls.query.filter(cls.status_id > 1, cls.status_id < 5).all()
+        return issues
+
+    @classmethod
+    def get_unresolved_by_priority(cls):
+        issue = cls.query.join(cls.asset).filter(cls.status_id > 1, Result.status_id < 5).order_by(Asset.priority.asc()).all()
+        return issue
+
+
+###################################
+## charting info
+###################################
+
+# timestamped list containing the results of all algorithms ever applied to each asset
+class IssueHistoryTimestamp(db.Model):
+    __bind_key__ = 'medusa'
+    id = db.Column('ID', db.Integer, primary_key=True)
+    timestamp = db.Column('Timestamp', db.DateTime)
+    issues = db.relationship('IssueHistory', backref='timestamp')
+
+# timestamped list containing the results of all algorithms ever applied to each asset
+class IssueHistory(db.Model):
+    __bind_key__ = 'medusa'
+    id = db.Column('ID', db.Integer, primary_key=True)
+    issues = db.Column('Issues', db.Integer)
+    timestamp_id = db.Column('Timestamp_id', db.Integer, db.ForeignKey('issue_history_timestamp.ID'))
+    site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'))

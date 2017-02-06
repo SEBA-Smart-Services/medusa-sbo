@@ -85,6 +85,7 @@ class AlgorithmClass():
 # check if room air temp is higher than setpoint while heating is on
 class airtemp_heating_check(AlgorithmClass):
     components_required = ['Room Air Temp', 'Heater Enable', 'Room Air Temp Setpoint']
+    name = "Air temp higher than setpoint while heating on"
     format = "{:.1%}"
     def run(data):
         result = random.random()
@@ -135,7 +136,7 @@ class chw_hunting_check(AlgorithmClass):
 # check the run hours
 class run_hours_check(AlgorithmClass):
     components_required = ['Fan Enable', 'Run Hours Maintenance Setpoint']
-    name = "Run hours"
+    name = "Run hours exceeded limit"
     format = "{:.1f}h"
     def run(data):
         # timeon = 0

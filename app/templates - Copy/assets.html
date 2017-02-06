@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h2>Asset List</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Health</th>
+        <th>Type</th>
+        <th>Location</th>
+        <th>Group</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for asset in assets %}
+        <tr>
+          <th scope="row"><a href="results/{{asset.name}}">{{asset.name}}</a></th>
+          <td>{{(asset.health*100)|round(1)}}%</td>
+          <td>{{asset.subtype.type}}</td>
+          <td>{{asset.location}}</td>
+          <td>{{asset.group}}</td>
+          <td>
+            <a href={{url_for('edit_asset', assetname=asset.name, sitename=site.name)}}>Edit</a> / 
+            <a href={{url_for('delete_asset', assetname=asset.name, sitename=site.name)}} class="confirmation">Delete</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <script type="text/javascript">
+    $('.confirmation').on('click', function () {
+        return confirm('Are you sure you wish to delete this asset?');
+    });
+  </script>
+{% endblock %}

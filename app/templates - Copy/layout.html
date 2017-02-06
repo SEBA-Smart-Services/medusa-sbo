@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <title>Medusa</title>
+
+    <!-- CSS Rules -->
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='jquery.js') }}"></script>
+    <script type=text/javascript>
+      $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
+    <meta http-equiv="refresh" content="300" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        {% if allsites == True %}
+        <h1 class="header-heading">Sites Overview</h1>
+        {% else %}
+        <h1 class="header-heading">{{site.name}}</h1>
+        {% endif %}
+      </div>
+    </div>
+    <div class="nav-bar">
+      <div class="container">
+        <ul class="nav">
+          {% if allsites == True %}
+          <li><a href="/site/all/dashboard">Dashboard</a></li>
+          <li><a href="/site/all/sites">Sites</a></li>
+          <li><a href="/site/all/unresolved">Unresolved Issues</a></li>
+          <li><a href="/site/all/unresolved-chart">Unresolved Chart</a></li>
+          <li><a href="/admin">Admin</a></li>
+          {% else %}
+          <li><a href="/site/{{site.name}}/dashboard">Dashboard</a></li>
+          <li><a href="/site/{{site.name}}/assets">Asset List</a></li>
+          <li><a href="/site/{{site.name}}/unresolved">Unresolved Issues</a></li>
+          <li><a href="/site/{{site.name}}/add_asset">Add Asset</a></li>
+          <li><a href="/site/{{site.name}}/add_subtype">Add Subtype</a></li>
+          <li><a href="/admin">Admin</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+    <div class="content">
+      <div class="container">
+        <div class="main">
+          {% block content %}{% endblock %}
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <div class="container">
+        &copy; Copyright Schneider Electric 2017
+      </div>
+    </div>
+  </body>
+</html>

@@ -17,6 +17,9 @@ def generate_algorithms():
             algorithm_db = Algorithm(descr=algorithm.name, name=algorithm.__name__)
             db.session.add(algorithm_db)
             algorithm_db.map()
+        # else update it
+        else:
+            algorithm_db.descr = algorithm.name
 
     db.session.commit()
 

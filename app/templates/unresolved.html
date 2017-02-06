@@ -1,30 +1,52 @@
 {% extends "layout.html" %}
 {% block content %}
-  <h2>All Unresolved Issues</h2>
-  <table class="table table-striped">
+  <h3>All Unresolved Issues</h3>
+  <table id="unresolved-table" class="mdl-data-table mdl-js-data-table full-width">
     <thead>
       <tr>
-        <th>Timestamp</th>
-        <th>Asset</th>
-        <th>Algorithm</th>
-        <th>Passed</th>
-        <th>Result</th>
+        <th class="sort mdl-data-table__cell--non-numeric" data-sort="timestamp">Timestamp</th>
+        <th class="sort mdl-data-table__cell--non-numeric" data-sort="asset">Asset</th>
+        {% if allsites == True %}
+        <th class="sort mdl-data-table__cell--non-numeric" data-sort="site">Site</th>
+        {% endif %}
+        <th class="sort mdl-data-table__cell--non-numeric" data-sort="algorithm">Algorithm</th>
+        <th class="sort mdl-data-table__cell--non-numeric" data-sort="passed">Passed</th>
+        <th class="sort" data-sort="result">Result</th>
+        <th class="sort mdl-data-table__cell--non-numeric" data-sort="status">Status</th>
+        <th class="sort" data-sort="priority">Priority</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody class="list">
       {% for result in results %}
-        <tr>
-          <td>{{result.timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
-          <td>{{result.asset.name}}</td>
-          <td>{{result.algorithm.descr}}</td>
-          <td>{{result.passed}}</td>
-          {% if result.algorithm.algorithm.format == 'bool' %}
-          <td>{{result.value != 0}}</td>
-          {% else %}
-          <td>{{result.algorithm.algorithm.format.format(result.value)}}</td>
-          {% endif %}
-        </tr>
+        {% if allsites == True or result.asset.site.name == site.name %}
+          <tr>
+            <td class="timestamp mdl-data-table__cell--non-numeric">{{result.timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+            <td class="asset mdl-data-table__cell--non-numeric">{{result.asset.name}}</td>
+            {% if allsites == True %}
+            <td class="site mdl-data-table__cell--non-numeric">{{result.asset.site.name}}</td>
+            {% endif %}
+            <td class="algorithm mdl-data-table__cell--non-numeric">{{result.algorithm.descr}}</td>
+            <td class="passed mdl-data-table__cell--non-numeric">{{result.passed}}</td>
+            <td class="result">
+            {% if result.algorithm.algorithm.format == 'bool' %}
+            {{result.value != 0}}
+            {% else %}
+            {{result.algorithm.algorithm.format.format(result.value)}}
+            {% endif %}
+            </td>
+            <td class="status mdl-data-table__cell--non-numeric">{{result.status.descr}}</td>
+            <td class="priority">{{result.asset.priority}}</td>
+          </tr>
+        {% endif %}
       {% endfor %}
     </tbody>
   </table>
+
+  <script type="text/javascript">
+    var options = {
+        valueNames: ['timestamp', 'asset', 'site', 'algorithm', 'passed', 'result', 'status', 'priority']
+      }
+    var documentTable = new List('unresolved-table', options);
+    documentTable.sort("timestamp",{order:"desc"});
+  </script>
 {% endblock %}

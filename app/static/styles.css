@@ -1,0 +1,92 @@
+.full-width {
+    width: 100%;
+}
+
+.formfields
+{
+  background-color: transparent;
+  border-spacing: 0;
+  border-collapse: collapse;
+  border-top: 1px solid #ddd;
+  border: none;
+}
+
+.formfields td
+{
+  padding: .5em 2em .5em 0em;
+  vertical-align: top;
+  text-align: left;
+  border: none;
+}
+
+
+th.sort {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  min-width: 75px;
+}
+th.sort:hover {
+  cursor: pointer;
+  text-decoration: none;
+}
+th.sort:focus {
+  outline: none;
+}
+th.sort:after {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  content: "";
+  position: relative;
+  top: -10px;
+  right: -5px;
+}
+th.sort.asc:after {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #000;
+  content: "";
+  position: relative;
+  top: 4px;
+  right: -5px;
+}
+th.sort.desc:after {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid #000;
+  content: "";
+  position: relative;
+  top: -4px;
+  right: -5px;
+}
+
+.circle_animation {
+  stroke-dasharray: 2.5;
+  stroke-dashoffset: 0;
+}
+
+.circle_animation {
+    -webkit-animation: circle_animation 1s ease-in forwards;
+    animation: circle_animation 1s ease-in forwards;
+}
+
+@-webkit-keyframes circle_animation {
+  to {
+    stroke-dashoffset: 2.5;
+  }
+}
+
+@keyframes circle_animation {
+  to {
+    stroke-dashoffset: -2.5;
+  }
+}

@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h2>All Unresolved Issues</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Asset</th>
+        {% if allsites == True %}
+        <th>Site</th>
+        {% endif %}
+        <th>Algorithm</th>
+        <th>Passed</th>
+        <th>Result</th>
+        <th>Status</th>
+        <th>Priority</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for result in results %}
+        {% if allsites == True or result.asset.site.name == site.name %}
+          <tr>
+            <td>{{result.timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+            <td>{{result.asset.name}}</td>
+            {% if allsites == True %}
+            <td>{{result.asset.site.name}}</td>
+            {% endif %}
+            <td>{{result.algorithm.descr}}</td>
+            <td>{{result.passed}}</td>
+            {% if result.algorithm.algorithm.format == 'bool' %}
+            <td>{{result.value != 0}}</td>
+            {% else %}
+            <td>{{result.algorithm.algorithm.format.format(result.value)}}</td>
+            {% endif %}
+            <td>{{result.status.descr}}</td>
+            <td>{{result.asset.priority}}</td>
+          </tr>
+        {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

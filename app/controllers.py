@@ -1,20 +1,92 @@
 from app import app, db
-from app.models import Asset, Site, AssetComponent, AssetType, Algorithm, AssetSubtype, ComponentType, Result, SubtypeComponent, LoggedEntity, LogTimeValue
+from app.models import Asset, Site, AssetComponent, AssetType, Algorithm, AssetSubtype, ComponentType, Result, SubtypeComponent, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp
 from app.algorithms import check_asset
 from flask import json, request, render_template, url_for, redirect, jsonify
+from statistics import mean
+import datetime, time
 
 ###################################
-## main pages
+## main pages for all sites
 ###################################
 
+# default path
 @app.route('/')
 def main():
-    return redirect(url_for('asset_list', sitename='TestSite'))
+    return redirect(url_for('homepage_all'))
+
+# set homepage for overall view
+@app.route('/site/all')
+def homepage_all():
+    return redirect(url_for('dashboard_all'))
+
+# show overview dashboard
+@app.route('/site/all/dashboard')
+def dashboard_all():
+    results = Result.get_unresolved_by_priority()[0:4]
+    num_results = len(Result.get_unresolved())
+    if not Result.get_unresolved_by_priority():
+        top_priority = "-"
+    else:
+        top_priority = Result.get_unresolved_by_priority()[0].asset.priority
+    avg_health = mean([asset.health for asset in Asset.query.all()])
+    low_health_assets = len(Asset.query.filter(Asset.health < 0.5).all())
+    return render_template('dashboard.html', results=results, num_results=num_results, top_priority=top_priority, avg_health=avg_health, low_health_assets=low_health_assets, allsites=True)
+
+# list all sites
+@app.route('/site/all/sites')
+def site_list():
+    sites = Site.query.all()
+    issues = {}
+    priority = {}
+    for site in sites:
+        issues[site.name] = len(site.get_unresolved())
+        if not site.get_unresolved_by_priority():
+            top_priority = "-"
+        else:
+            top_priority = site.get_unresolved_by_priority()[0].asset.priority
+    return render_template('sites.html', sites=sites, issues=issues, priority=priority, allsites=True)
+
+# list all unresolved issues
+@app.route('/site/all/unresolved')
+def unresolved_list_all():
+    results = Result.get_unresolved()
+    return render_template('unresolved.html', results=results, allsites=True)
+
+# display chart of unresolved issues over time
+@app.route('/site/all/issue-chart')
+def unresolved_chart():
+    sites = Site.query.all()
+    history = IssueHistoryTimestamp.query.filter(IssueHistoryTimestamp.timestamp > datetime.datetime.now()-datetime.timedelta(hours=24)).all()
+    return render_template('issue_chart.html', sites=sites, history=history, allsites=True)
+
+@app.template_filter('date_to_millis')
+def date_to_millis(d):
+    """Converts a datetime object to the number of milliseconds since the unix epoch."""
+    return int(time.mktime(d.timetuple())) * 1000
+
+
+###################################
+## main pages for single site
+###################################
 
 # set homepage for the site
 @app.route('/site/<sitename>')
 def homepage(sitename):
-    return redirect(url_for('asset_list', sitename=sitename))
+    return redirect(url_for('dashboard_site', sitename=sitename))
+
+# show site overview dashboard
+@app.route('/site/<sitename>/dashboard')
+def dashboard_site(sitename):
+    site = Site.query.filter_by(name=sitename).one()
+    results = site.get_unresolved_by_priority()[0:4]
+    num_results = len(site.get_unresolved())
+    if not site.get_unresolved_by_priority():
+        top_priority = "-"
+    else:
+        top_priority = site.get_unresolved_by_priority()[0].asset.priority
+    avg_health = mean([asset.health for asset in site.assets])
+    low_health_assets = len(Asset.query.filter(Asset.site == site, Asset.health < 0.5).all())
+    return render_template('dashboard.html', results=results, num_results=num_results, top_priority=top_priority, avg_health=avg_health, low_health_assets=low_health_assets, site=site)
 
 # list assets on the site
 @app.route('/site/<sitename>/assets')
@@ -26,7 +98,7 @@ def asset_list(sitename):
 @app.route('/site/<sitename>/unresolved')
 def unresolved_list(sitename):
     site = Site.query.filter_by(name=sitename).one()
-    results = Result.query.filter(Result.status_id > 1, Result.status_id < 5).all()
+    results = site.get_unresolved()
     return render_template('unresolved.html', results=results, site=site)
 
 # show results for a single asset
