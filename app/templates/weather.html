@@ -1,0 +1,35 @@
+{% extends "layout-empty.html" %}
+{% block content %}
+	<div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
+		<h3>Weather</h3>
+	</div>
+	<div class="mdl-cell mdl-cell--1-col"></div>
+  <div class="mdl-cell mdl-cell--5-col mdl-shadow--8dp">
+  	<iframe src="https://www.meteoblue.com/en/weather/widget/three/brisbane_australia_2174003?geoloc=fixed&nocurrent=0&noforecast=0&days=5&tempunit=CELSIUS&windunit=KILOMETER_PER_HOUR&layout=image"  frameborder="0" scrolling="NO" allowtransparency="true" sandbox="allow-same-origin allow-scripts allow-popups" style="width: 100%;height: 603px"></iframe>
+  </div>
+  <div class="mdl-cell mdl-cell--5-col mdl-grid">
+  	<div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-grid">
+  		<div class="mdl-cell mdl-cell--6-col centered">
+	  		<h1>Economy<br>Mode</h1>
+	  	</div>
+	  	<div class="mdl-cell mdl-cell--6-col centered">
+	  		<h1>
+	  		{% if economy == True %}
+	  			<span style="color:green">Available</span>
+	  		{% else %}
+	  			<span style="color:red">Not<br>Available</span>
+	  		{% endif%}
+	  		</h1>
+  		</div>
+  	</div>
+  	<div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-grid">
+  		<div class="mdl-cell mdl-cell--6-col centered">
+	  		<h1>Energy<br>Savings</h1>
+	  	</div>
+	  	<div class="mdl-cell mdl-cell--6-col centered">
+	  		<h1 style="color:green; font-size:800%">{{savings|round(0)|int}}%</h1>
+  		</div>
+  	</div>
+	</div>
+	<div class="mdl-cell mdl-cell--1-col"></div>
+{% endblock %}

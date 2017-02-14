@@ -22,7 +22,7 @@ JOBS = [
     #     'trigger': 'interval',
     #     'hours': 24,
     #     'misfire_grace_time': 10
-    # }
+    # },
     {
     	'id': 'record_issues',
     	'func': 'app.scheduled:record_issues',
@@ -30,6 +30,13 @@ JOBS = [
     	'minutes': 5,
     	'misfire_grace_time': 10
     }
+    # {
+    #     'id': 'get_weather',
+    #     'func': 'app.weather.controllers:get_weather',
+    #     'trigger': 'interval',
+    #     'minutes': 30,
+    #     'misfire_grace_time': 10
+    # }
 ]
 
 SCHEDULER_VIEWS_ENABLED = True
