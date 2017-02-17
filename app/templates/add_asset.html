@@ -49,9 +49,13 @@
     </form>
     <br>
     <h3>Add via upload</h3>
+    <form action="{{ url_for('add_asset_download', sitename=site.name) }}">
+      <input type=submit value="Get Template">
+    </form>
+    <br>
     <form action="{{ url_for('add_asset_upload', sitename=site.name) }}" method=post enctype=multipart/form-data>
       <p><input type=file name=file>
-         <input type=submit value=Upload>
+        <input type=submit value=Upload>
     </form>
 
   <script type="text/javascript">

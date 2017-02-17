@@ -1,75 +1,75 @@
 {% extends "layout-empty.html" %}
 {% block content %}
-	<div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
-		{% if allsites == True %}
-			<h3>All Sites Overview</h3>
-		{% else %}
-			<h3>Site Overview</h3>
-		{% endif %}
-	</div>
-	<div class="mdl-cell mdl-cell--2-col"></div>
-	<div class="mdl-cell mdl-cell--2-col mdl-grid">
-		<div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
-			<h3>Total Issues</h3>
-			<h1 style="font-size: 700%">{{num_results}}</h1>
-		</div>
-		<div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
-			<h3>Average Asset Health</h3>
-	    <svg width="200px" height="200px" viewBox="0 0 1 1">
-		    <g id="piechart">
-	        <circle cx=0.5 cy=0.5 r=0.44 stroke="blue" stroke-width="0.09" stroke-dasharray="2.5" stroke-dashoffset="{{2.5-avg_health*2.5}}" fill="none" transform='rotate(-90 0.5 0.5)'/>
-	        <circle class="circle_animation" cx=0.5 cy=0.5 r=0.44 stroke="white" stroke-width="0.1" fill="none" transform='rotate(-90 0.5 0.5)'/>
-	      </g>
-	      <text x="0.5" y="0.5" font-family="Roboto" font-size="0.3" fill="#888" text-anchor="middle" dy="0.1">{{(avg_health*100)|round(1)}}<tspan dy="-0.07" font-size="0.2">%</tspan></text>
-	    </svg>
-			<br><br>
-		</div>
-	</div>
+  <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
+    {% if allsites == True %}
+      <h3>All Sites Overview</h3>
+    {% else %}
+      <h3>Site Overview</h3>
+    {% endif %}
+  </div>
+  <div class="mdl-cell mdl-cell--2-col"></div>
   <div class="mdl-cell mdl-cell--2-col mdl-grid">
-  	<div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
-			<h3>Highest Issue Priority</h3>
-			<h1 style="font-size: 700%">{{top_priority}}</h1>
-		</div>
-		<div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
-			<h3>Low Health Assets</h3>
-			<h1 style="font-size: 700%">{{low_health_assets}}</h1>
-		</div>
+    <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+      <h3>Total Issues</h3>
+      <h1 style="font-size: 700%">{{num_results}}</h1>
+    </div>
+    <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+      <h3>Average Asset Health</h3>
+      <svg width="200px" height="200px" viewBox="0 0 1 1">
+        <g id="piechart">
+          <circle cx=0.5 cy=0.5 r=0.44 stroke="blue" stroke-width="0.09" stroke-dasharray="2.5" stroke-dashoffset="{{2.5-avg_health*2.5}}" fill="none" transform='rotate(-90 0.5 0.5)'/>
+          <circle class="circle_animation" cx=0.5 cy=0.5 r=0.44 stroke="white" stroke-width="0.1" fill="none" transform='rotate(-90 0.5 0.5)'/>
+        </g>
+        <text x="0.5" y="0.5" font-family="Roboto" font-size="0.3" fill="#888" text-anchor="middle" dy="0.1">{{(avg_health*100)|round(1)}}<tspan dy="-0.07" font-size="0.2">%</tspan></text>
+      </svg>
+      <br><br>
+    </div>
+  </div>
+  <div class="mdl-cell mdl-cell--2-col mdl-grid">
+    <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+      <h3>Highest Issue Priority</h3>
+      <h1 style="font-size: 700%">{{top_priority}}</h1>
+    </div>
+    <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+      <h3>Low Health Assets</h3>
+      <h1 style="font-size: 700%">{{low_health_assets}}</h1>
+    </div>
   </div>
   <div class="mdl-cell mdl-cell--5-col mdl-grid">
-	  <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
-  	  <h3>Top Issues</h3>
-		  <table class="mdl-data-table mdl-js-data-table" style="width:100%;table-layout:fixed;white-space: normal">
-		    <thead>
-		      <tr>
-			      {% if allsites == True %}
-							<th class="mdl-data-table__cell--non-numeric"">Site</th>
-						{% endif %}
-		        <th class="mdl-data-table__cell--non-numeric"">Asset</th>
-		        <th class="mdl-data-table__cell--non-numeric" style="width:45%">Algorithm</th>
-		        <th class="mdl-data-table__cell--non-numeric"">Status</th>
-		        <th>Priority</th>
-		      </tr>
-		    </thead>
-		    <tbody>
-		      {% for result in results %}
-		        {% if allsites == True or result.asset.site.name == site.name %}
-		          <tr>
-		          	{% if allsites == True %}
-									<td class="mdl-data-table__cell--non-numeric"">{{result.asset.site.name}}</td>
-								{% endif %}
-		            <td class="mdl-data-table__cell--non-numeric">{{result.asset.name}}</td>
-		            <td class="mdl-data-table__cell--non-numeric">{{result.algorithm.descr}}</td>
-		            <td class="mdl-data-table__cell--non-numeric">{{result.status.descr}}</td>
-		            <td>{{result.asset.priority}}</td>
-		          </tr>
-		        {% endif %}
-		      {% endfor %}
-		    </tbody>
-		  </table>
-	  </div>
-	</div>
+    <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+      <h3>Top Issues</h3>
+      <table class="mdl-data-table mdl-js-data-table" style="width:100%;table-layout:fixed;white-space: normal">
+        <thead>
+          <tr>
+            {% if allsites == True %}
+              <th class="mdl-data-table__cell--non-numeric"">Site</th>
+            {% endif %}
+            <th class="mdl-data-table__cell--non-numeric"">Asset</th>
+            <th class="mdl-data-table__cell--non-numeric" style="width:45%">Algorithm</th>
+            <th class="mdl-data-table__cell--non-numeric"">Status</th>
+            <th>Priority</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for result in results %}
+            {% if allsites == True or result.asset.site.name == site.name %}
+              <tr>
+                {% if allsites == True %}
+            <td class="mdl-data-table__cell--non-numeric"">{{result.asset.site.name}}</td>
+          {% endif %}
+                <td class="mdl-data-table__cell--non-numeric">{{result.asset.name}}</td>
+                <td class="mdl-data-table__cell--non-numeric">{{result.algorithm.descr}}</td>
+                <td class="mdl-data-table__cell--non-numeric">{{result.status.descr}}</td>
+                <td>{{result.asset.priority}}</td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-	<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" style="position: fixed; left: -1000px; height: -1000px;">
+  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" style="position: fixed; left: -1000px; height: -1000px;">
 
   </svg>
 {% endblock %}

@@ -19,7 +19,11 @@
         <td>Priority:</td>
         <td><select name=priority>
           {% for i in range(0,10) %}
-            <option value="{{i}}">{{i}}</option>
+            <option value="{{i}}"
+            {% if i == asset.priority %}
+            selected="selected"
+            {% endif %}
+            >{{i}}</option>
           {% endfor %}
         </select></td>
       </tr>

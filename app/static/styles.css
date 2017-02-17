@@ -1,5 +1,14 @@
 .full-width {
-    width: 100%;
+  width: 100%;
+}
+
+.wrap-text td {
+  white-space: normal;
+}
+
+.mdl-data-table {
+  white-space: normal;
+  background-color: red;
 }
 
 .formfields

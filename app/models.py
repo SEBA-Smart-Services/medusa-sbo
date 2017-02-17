@@ -253,6 +253,7 @@ class AssetComponent(db.Model):
     asset_id = db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'))
     type_id = db.Column('Type_id', db.Integer, db.ForeignKey('component_type.ID'))
     loggedentity_id = db.Column('LoggedEntity_id', db.Integer)
+    loggedentity_path = db.Column('LoggedEntity_path_temp', db.String(1024))
 
     def __repr__(self):
         if not self.name is None:

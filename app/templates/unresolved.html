@@ -1,13 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
   <h3>All Unresolved Issues</h3>
-  <table id="unresolved-table" class="mdl-data-table mdl-js-data-table full-width">
+  <table id="unresolved-table" class="mdl-data-table mdl-js-data-table wrap-text">
     <thead>
       <tr>
         <th class="sort mdl-data-table__cell--non-numeric" data-sort="timestamp">Timestamp</th>
         <th class="sort mdl-data-table__cell--non-numeric" data-sort="asset">Asset</th>
         {% if allsites == True %}
-        <th class="sort mdl-data-table__cell--non-numeric" data-sort="site">Site</th>
+          <th class="sort mdl-data-table__cell--non-numeric" data-sort="site">Site</th>
         {% endif %}
         <th class="sort mdl-data-table__cell--non-numeric" data-sort="algorithm">Algorithm</th>
         <th class="sort mdl-data-table__cell--non-numeric" data-sort="passed">Passed</th>
@@ -23,16 +23,16 @@
             <td class="timestamp mdl-data-table__cell--non-numeric">{{result.timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
             <td class="asset mdl-data-table__cell--non-numeric">{{result.asset.name}}</td>
             {% if allsites == True %}
-            <td class="site mdl-data-table__cell--non-numeric">{{result.asset.site.name}}</td>
+              <td class="site mdl-data-table__cell--non-numeric">{{result.asset.site.name}}</td>
             {% endif %}
             <td class="algorithm mdl-data-table__cell--non-numeric">{{result.algorithm.descr}}</td>
             <td class="passed mdl-data-table__cell--non-numeric">{{result.passed}}</td>
             <td class="result">
-            {% if result.algorithm.algorithm.format == 'bool' %}
-            {{result.value != 0}}
-            {% else %}
-            {{result.algorithm.algorithm.format.format(result.value)}}
-            {% endif %}
+              {% if result.algorithm.algorithm.format == 'bool' %}
+                {{result.value != 0}}
+              {% else %}
+                {{result.algorithm.algorithm.format.format(result.value)}}
+              {% endif %}
             </td>
             <td class="status mdl-data-table__cell--non-numeric">{{result.status.descr}}</td>
             <td class="priority">{{result.asset.priority}}</td>

@@ -1,10 +1,8 @@
 {% extends "frame.html" %}
 {% block layout %}
-	<div class="mdl-grid">
-	  <div class="mdl-cell mdl-cell--2-col"></div>
-    <div class="mdl-cell mdl-cell--8-col">
-      {% block content %}{% endblock %}
-    </div>
-	  <div class="mdl-cell mdl-cell--2-col"></div>
+	<div class="mdl-grid centered">
+	    <div class="mdl-cell mdl-cell--8-col">
+	    	{% block content %}{% endblock %}
+	    </div>
 	</div>
 {% endblock %}

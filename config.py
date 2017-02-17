@@ -13,7 +13,7 @@ JOBS = [
         'id': 'runchecks',
         'func': 'app.algorithms:check_all',
         'trigger': 'interval',
-        'minutes': 2,
+        'minutes': 15,
         'misfire_grace_time': 10
     },
     # {
@@ -27,7 +27,7 @@ JOBS = [
     	'id': 'record_issues',
     	'func': 'app.scheduled:record_issues',
     	'trigger': 'interval',
-    	'minutes': 5,
+    	'minutes': 15,
     	'misfire_grace_time': 10
     }
     # {
