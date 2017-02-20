@@ -1,6 +1,6 @@
 from app import app, db
 from app.models import Asset, Site, AssetComponent, AssetType, Algorithm, AssetSubtype, ComponentType, Result, SubtypeComponent, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp
-from flask import json, request, render_template, url_for, redirect, jsonify, flash
+from flask import json, request, render_template, url_for, redirect, jsonify, flash, make_response
 from statistics import mean
 import datetime, time
 
@@ -57,6 +57,14 @@ def unresolved_chart():
     sites = Site.query.all()
     history = IssueHistoryTimestamp.query.filter(IssueHistoryTimestamp.timestamp > datetime.datetime.now()-datetime.timedelta(hours=24)).all()
     return render_template('issue_chart.html', sites=sites, history=history, allsites=True)
+
+# show map of all tech locations
+@app.route('/site/all/map')
+def map():
+    response = make_response(render_template('map.html', allsites=True))
+    response.set_cookie('ARRAffinity', 'd5fb9e944f8abbefd6bc0a9a39c159ffc6fbb4084e000bed662582769266cb00', domain='.inbuildings.info')
+    response.set_cookie('PHPSESSID', 'pudr7sj47olg948h1ollv8vrv7', domain='inbuildings.info')
+    return response
 
 # conversion tool for adding entries to the issue chart
 @app.template_filter('date_to_millis')

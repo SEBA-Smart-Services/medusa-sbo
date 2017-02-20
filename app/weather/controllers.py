@@ -23,13 +23,16 @@ def get_weather():
 @app.route('/site/all/weather')
 def weather_page():
 	
+	# grab weather from cache
 	weather = Weather.query.filter_by(location='Brisbane').one()
 	outside_t = weather.temperature
 	outside_r = weather.humidity
-	supply_t = 16
+
+	# estimates taken from 'typical' system. Should be improved upon later / in winter
+	supply_t = 18
 	supply_r = 0.5
-	return_t = 26
-	return_r = 0.5
+	return_t = 25.5
+	return_r = 0.6
 
 	# calculate enthalpies
 	supply_h = HAPropsSI('H','T',273.15+supply_t,'P',101325,'R',supply_r)

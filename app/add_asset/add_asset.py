@@ -6,6 +6,7 @@ from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.utils import get_column_letter
 from openpyxl.writer.excel import save_virtual_workbook
 from io import BytesIO
+from xml.etree.ElementTree import ElementTree, Element, SubElement
 
 # page to add an asset to the site
 @app.route('/site/<sitename>/add_asset')
@@ -154,6 +155,7 @@ def add_asset_upload(sitename):
     ws = wb.worksheets[0]
 
     # generate asset for each non-blank row in the worksheet
+    asset_list = []
     for row in tuple(ws.rows)[1:]:
         if not row[0].value is None and not row[3].value is None and not row[4].value is None and not row[5].value is None:
             name = row[0].value
@@ -171,6 +173,7 @@ def add_asset_upload(sitename):
             asset = Asset(name=name, location=location, group=group, subtype=subtype, priority=priority, site=site, health=0)
 
             db.session.add(asset)
+            asset_list.append(asset)
 
     # generate components
     for subtype_component in subtype.components:
@@ -183,4 +186,26 @@ def add_asset_upload(sitename):
 
     db.session.commit()
 
-    return redirect(url_for('asset_list', sitename=sitename))
+    # generate xml import to SBO
+    object_set = Element('ObjectSet')
+    object_set.attrib = {'ExportMode':'Standard', 'Version':'1.8.1.87', 'Note':'TypesFirst'}
+    exported_objects = SubElement(object_set, 'ExportedObjects')
+    for asset in asset_list:
+        oi_folder = SubElement(exported_objects, 'OI')
+        oi_folder.attrib = {'NAME':asset.name, 'TYPE':'system.base.Folder'}
+        for component in asset.components:
+            oi_trend = SubElement(oi_folder, 'OI')
+            oi_trend.attrib = {'NAME':'{} Extended'.format(component.name), 'TYPE':'trend.ETLog'}
+            pi = SubElement(oi_trend, 'PI')
+            pi.attrib = {'Name':'IncludeInReports', 'Value':'1'}
+
+    # save file
+    out = BytesIO()
+    tree = ElementTree(object_set)
+    tree.write(out, encoding='utf-8', xml_declaration=True)
+    out.seek(0)
+
+    # prevent browser from caching the download
+    response = make_response(send_file(out, attachment_filename='Import.xml', as_attachment=True))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return response

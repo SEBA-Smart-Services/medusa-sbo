@@ -34,7 +34,7 @@
     	{% for component in asset.components %}
     		<tr>
     			<td><input type=hidden class="component" name='component{{loop.index}}' value='{{component.type.name}}'/> {{component.type.name}}</td>
-    			<td><select name='log{{loop.index}}' class=dropdown>
+    			<td><select name='log{{loop.index}}' class=dropdown id='log{{loop.index}}'>
     				{% for log in logs %}
     					<option value='{{log.path}}' {% if component.loggedentity_id == log.id %}selected{% endif %}>{{log.path}}</option>
     				{% endfor %}
@@ -54,4 +54,18 @@
     <br>
     <input type=submit value=Submit>
   </form>
+
+  <!-- Material design auto 'upgrades' the elements, causing selectedIndex to revert to not -1. Hacky method here to delay this until after MDL is done upgrading stuff-->
+  <script type="text/javascript">
+    $(function() {
+      setTimeout(function() {
+        {% for component in asset.components %}
+          {% if component.loggedentity_id == None %}
+            $('#log{{loop.index}}').prop("selectedIndex", -1);
+          {% endif %}
+        {% endfor %}
+      }, 50);
+    });
+  </script>
+
 {% endblock %}

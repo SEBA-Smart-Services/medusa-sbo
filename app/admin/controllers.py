@@ -21,6 +21,7 @@ class AssetView(ModelView):
 class AssetComponentView(ModelView):
     column_filters = (Asset.name, ComponentType.name)
     column_searchable_list = ('name', Asset.name)
+    column_default_sort = ('asset_id')
     form_excluded_columns = ['results']
 
 class ComponentTypeView(ModelView):
