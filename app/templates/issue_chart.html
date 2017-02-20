@@ -1,7 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
-  <h3>All Unresolved Issues</h3>
-  <div id="chart_div" style="width: 100%; height: 900px;"></div>
+  <div class='mdl-typography--text-center'>
+    <h3>All Unresolved Issues</h3>
+    <div id="chart_div" style="width: 100%; height: 700px;"></div>
+  </div>
 
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script type="text/javascript">
@@ -26,9 +28,9 @@
 
       var options = {
         isStacked: true,
-        title: 'Site Issues',
-        hAxis: {title: 'Time',  titleTextStyle: {color: '#333'}},// ticks: [new Date(2017,1,27,9), new Date(2017,1,27,10), new Date(2017,1,27,11), new Date(2017,1,27,12)] },
-        vAxis: {minValue: 0}
+        hAxis: {title: 'Time',  titleTextStyle: {color: '#333'}},
+        vAxis: {minValue: 0},
+        chartArea: {height: '80%', width: '70%'}
       };
 
       var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));

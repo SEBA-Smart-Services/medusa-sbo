@@ -14,28 +14,24 @@ JOBS = [
         'func': 'app.algorithms:check_all',
         'trigger': 'interval',
         'minutes': 15,
-        'misfire_grace_time': 10
     },
     # {
     #     'id': 'inbuildings_assets',
     #     'func': 'app.inbuildings.controllers:inbuildings_all_sites',
     #     'trigger': 'interval',
     #     'hours': 24,
-    #     'misfire_grace_time': 10
     # },
     {
     	'id': 'record_issues',
     	'func': 'app.scheduled:record_issues',
     	'trigger': 'interval',
     	'minutes': 15,
-    	'misfire_grace_time': 10
     }
     # {
     #     'id': 'get_weather',
     #     'func': 'app.weather.controllers:get_weather',
     #     'trigger': 'interval',
     #     'minutes': 30,
-    #     'misfire_grace_time': 10
     # }
 ]
 

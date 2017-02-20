@@ -43,6 +43,7 @@ def site_list():
             top_priority = "-"
         else:
             top_priority = site.get_unresolved_by_priority()[0].asset.priority
+        priority[site.name] = top_priority
     return render_template('sites.html', sites=sites, issues=issues, priority=priority, allsites=True)
 
 # list all unresolved issues
