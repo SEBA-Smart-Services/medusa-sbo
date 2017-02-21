@@ -1,7 +1,7 @@
 from app.admin import controllers
 from app.inbuildings import controllers
 from app.weather import controllers
-from app.add_asset import add_asset, edit_asset, add_subtype
+from app.add import add_asset, edit_asset, add_subtype
 from app import app, db, scheduler, models, algorithms, mapping, controllers
 import os
 

@@ -2,21 +2,30 @@
 {% block content %}
     <h3>Add Site</h3>
     <form action="{{ url_for('add_site_submit') }}" method=post>
-      <table class=formfields>
+      <table class=full-width>
         <tr>
-          <td>Name:</td>
-          <td><input type=text size=30 name=name autocomplete=off></td>
+          <td style="width:250px"><h4>Name:</h4></td>
+          <td><div class="mdl-textfield mdl-js-textfield">
+            <input class="mdl-textfield__input" type="text" name="name" autocomplete="off" id="name">
+            <label class="mdl-textfield__label" for="name"></label>
+          </div></td>
         </tr>
         <tr>
-          <td>Database Key:</td>
-          <td><input type=text size=100 name=database_key autocomplete=off></td>
+          <td><h4>Database Key:</h4></td>
+          <td><div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield">
+            <input class="mdl-textfield__input" type="text" name="database_key" autocomplete="off" id="database_key">
+            <label class="mdl-textfield__label" for="database_key"></label>
+          </div></td>
         </tr>
         <tr>
-          <td>Inbuildings Key:</td>
-          <td><input type=text size=100 name=inbuildings_key autocomplete=off></td>
+          <td><h4>Inbuildings Key:</h4></td>
+          <td><div class="mdl-textfield mdl-textfield--full-width mdl-js-textfield">
+            <input class="mdl-textfield__input" type="text" name="inbuildings_key" autocomplete="off" id="inbuildings_key">
+            <label class="mdl-textfield__label" for="inbuildings_key"></label>
+          </div></td>
         </tr>
       </table>
-      <br>
-      <input type=submit value=Submit>
+      <br><br>
+      <input type=submit value=Submit class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     </form>
 {% endblock %}
