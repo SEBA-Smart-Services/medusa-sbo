@@ -28,11 +28,21 @@
   border: none;
 }
 
+.checkbox-list {
+  line-height: 30px;
+}
+
 .centered {
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
+.shiftdown {
+  top: 5px;
+}
+
+/* stuff for pie chart + animation */
 
 th.sort {
   -webkit-user-select: none;

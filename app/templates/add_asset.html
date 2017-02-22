@@ -2,68 +2,94 @@
 {% block content %}
     <h3>Add Asset</h3>
     <form action="{{ url_for('add_asset_submit', sitename=site.name) }}" method=post>
-      <table class=formfields>
+      <table>
         <tr>
-          <td>Type:</td>
-          <td><select name=type id=type_list>
-            {% for asset_type in asset_types %}
-              <option value="{{asset_type.name}}">{{asset_type.name}}</option>
-            {% endfor %}
-          </select></td>
+          <td style="width:250px"><h4>Type:</h4></td>
+          <td><div id="type_list_div" class="mdl-selectfield mdl-js-selectfield shiftdown is-upgraded">
+            <select id="type_list" name="type" class="mdl-selectfield__select">
+              {% for asset_type in asset_types %}
+                <option value="{{asset_type.name}}">{{asset_type.name}}</option>
+              {% endfor %}
+            </select>
+          </div></td>
         </tr>
         <tr>
-          <td>Subtype:</td>
-          <td><select name=subtype id=subtype_list></select></td>
+          <td><h4>Subtype:</h4></td>
+          <td><div id="subtype_list_div" class="mdl-selectfield mdl-js-selectfield shiftdown">
+            <select id="subtype_list" name="subtype" class="mdl-selectfield__select"></select>
+          </div></td>
         </tr>
         <tr>
-          <td>Name:</td>
-          <td><input type=text size=30 name=name autocomplete=off></td>
+          <td><h4>Name:</h4></td>
+          <td><div class="mdl-textfield mdl-js-textfield shiftdown">
+              <input class="mdl-textfield__input" type="text" name="name" autocomplete="off" id="name">
+              <label class="mdl-textfield__label" for="name"></label>
+          </div></td>
         </tr>
         <tr>
-          <td>Location:</td>
-          <td><input type=text size=30 name=location autocomplete=off></td>
+          <td><h4>Location:</h4></td>
+          <td><div class="mdl-textfield mdl-js-textfield shiftdown">
+              <input class="mdl-textfield__input" type="text" name="location" autocomplete="off" id="location">
+              <label class="mdl-textfield__label" for="location"></label>
+          </div></td>
         </tr>
         <tr>
-          <td>Group:</td>
-          <td><input type=text size=30 name=group autocomplete=off></td>
+          <td><h4>Group:</h4></td>
+          <td><div class="mdl-textfield mdl-js-textfield shiftdown">
+              <input class="mdl-textfield__input" type="text" name="group" autocomplete="off" id="group">
+              <label class="mdl-textfield__label" for="group"></label>
+          </div></td>
         </tr>
         <tr>
-          <td>Priority:</td>
-          <td><select name=priority>
-            {% for i in range(0,10) %}
-              <option value="{{i}}">{{i}}</option>
-            {% endfor %}
-          </select></td>
+          <td><h4>Priority:</h4></td>
+          <td><div class="mdl-selectfield mdl-js-selectfield shiftdown">
+            <select name="priority" class="mdl-selectfield__select">
+              {% for i in range(0,10) %}
+                <option value="{{i}}">{{i}}</option>
+              {% endfor %}
+          </select></div></td>
         </tr>
       </table>
-      <br>
-      Components:<br>
-      <table id=component_section class=formfields>
+      <h4>Components:</h4>
+      <table id=component_section>
       </table>
       <br>
-      Exclude Algorithms:<br>
-      <table id=exclusion_section class=formfields>
-      </table>
-      <br>
-      <input type=submit value=Submit>
+      <h4>Exclude Algorithms:</h4>
+      <div class="checkbox-list" id="exclusion_section"></div>
+      <br><br>
+      <input type=submit value=Submit class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     </form>
-    <br>
+    <br><br><br>
     <h3>Add via upload</h3>
     <form action="{{ url_for('add_asset_download', sitename=site.name) }}">
-      <input type=submit value="Get Template">
+      <input type=submit value="Get Template" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     </form>
     <br>
     <form action="{{ url_for('add_asset_upload', sitename=site.name) }}" method=post enctype=multipart/form-data>
-      <p><input type=file name=file>
-        <input type=submit value=Upload>
+      <div class="element file mdl-file mdl-js-file mdl-file--floating-label">
+        <input type="file" name="file" id="file" accept=".xlsx,.xlsm">
+        <label class="mdl-file__label" for="avatar"></label>
+      </div>
+      <input type=submit value=Upload class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     </form>
+    <div id=test></div>
 
   <script type="text/javascript">
     $(function() {
 
-      $('#type_list').prop("selectedIndex", -1);
+
+
+      // I don't understand why but you have to add an option during runtime in order for selectedindex = -1 to work... ¯\_(ツ)_/¯
+      var type_list = $('#type_list');
+      type_list.append($('<option id=temp/>'));
+      $('#temp').remove();
+      type_list.prop("selectedIndex", -1);
 
       $('#type_list').change(function() {
+
+        // MDL doesn't properly upgrade this element - do it manually
+        $('#type_list_div').attr('data-upgraded',',MaterialSelectfield');
+
         $.getJSON($SCRIPT_ROOT + '{{ url_for('return_subtypes', sitename=site.name) }}', {
           type: $('select[name="type"]').val(),
         }, function(data) {
@@ -79,6 +105,9 @@
 
       $('#subtype_list').change(function() {
 
+        // MDL doesn't properly upgrade this element - do it manually
+        $('#subtype_list_div').attr('data-upgraded',',MaterialSelectfield');
+
         $.getJSON($SCRIPT_ROOT + '{{ url_for('return_components', sitename=site.name) }}', {
           type: $('select[name="type"]').val(),
           subtype: $('select[name="subtype"]').val(),
@@ -88,27 +117,36 @@
             type: $('select[name="type"]').val(),
           }, function(loggedentity_data) {
 
-            var $loglist = $('<select name=log class=dropdown></select>')
+            var $loglist = $('<div class="mdl-selectfield mdl-js-selectfield mdl-textfield--full-width">');
+            var $loglist_select = $('<select id="log" class="mdl-selectfield__select">');
             $.each(loggedentity_data, function() {
-              $loglist.append($('<option />').val(this).text(this));
+              $loglist_select.append($('<option />').val(this).text(this));
             })
+            $loglist.append($loglist_select);
+
+            //var $loglist = $('<select name=log class=dropdown></select>')
+            //$.each(loggedentity_data, function() {
+            //  $loglist.append($('<option />').val(this).text(this));
+            //})
 
             var component_section = $('#component_section');
             component_section.html('');
             var i = 1;
             $.each(component_data, function() {
               var $component_row = $('<tr>');
-              var $checkbox_col = $('<td>');
+              var $label_col = $('<td style="width:250px">');
               var $dropdown_col = $('<td>');
-              $checkbox_col.append($('<input type=hidden class="component"/>').val(this).attr('name', 'component' + i));
-              $checkbox_col.append(' ' + this);
+
+              // add hidden input to match component name with component trend log
+              $label_col.append($('<input type=hidden class="component"/>').val(this).attr('name', 'component' + i));
+              $label_col.append(' ' + this);
               $dropdown_col.append($loglist.clone().attr('name', 'log' + i));
-              $component_row.append($checkbox_col);
+              $component_row.append($label_col);
               $component_row.append($dropdown_col);
               component_section.append($component_row);
               i = i + 1;
             })
-            
+            componentHandler.upgradeAllRegistered()
             $('.dropdown').prop("selectedIndex", -1)
 
           });
@@ -121,12 +159,18 @@
         }, function(data) {
           var exclusion_section = $('#exclusion_section')
           exclusion_section.html('')
+          var i = 1;
           $.each(data, function() {
-            var $exclusion_row = $('<td>');
-            $exclusion_row.append($('<input type="checkbox" name="exclusion"/>').val(this));
-            $exclusion_row.append(' ' + this);
-            exclusion_section.append($('<tr>').append($exclusion_row));
+            var $exclusion = $('<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="exclusion' + i + '">');
+            var $exclusion_checkbox = $('<input type="checkbox" name="exclusion" id="exclusion' + i + '" class="mdl-checkbox__input">').val(this);
+            var $exclusion_label = $('<span class="mdl-checkbox__label">' + this + '</span>');
+            $exclusion.append($exclusion_checkbox);
+            $exclusion.append($exclusion_label);
+            exclusion_section.append($exclusion);
+            i = i + 1;
           })
+          //componentHandler.upgradeDom();
+
         });
 
         return false;

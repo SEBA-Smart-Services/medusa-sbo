@@ -5,14 +5,13 @@
     <table>
       <tr>
         <td style="width:100px"><h4>Type:</h4></td>
-        <td>
-                                <div class="mdl-selectfield mdl-js-selectfield mdl-selectfield--floating-label">
-                                    <select id="type_list" name="type" class="mdl-selectfield__select">
-          {% for asset_type in asset_types %}
-            <option value="{{asset_type.name}}">{{asset_type.name}}</option>
-          {% endfor %}
-        </select>
-        </td>
+        <td><div class="mdl-selectfield mdl-js-selectfield mdl-selectfield--floating-label">
+          <select id="type_list" name="type" class="mdl-selectfield__select">
+            {% for asset_type in asset_types %}
+              <option value="{{asset_type.name}}">{{asset_type.name}}</option>
+            {% endfor %}
+          </select>
+        </div></td>
       </tr>
       <tr>
         <td><h4>Name:</h4></td>
@@ -23,7 +22,7 @@
       </tr>
     </table>
     <h4>Components:</h4>
-    <div style="line-height:30px">
+    <div class="checkbox-list">
       {% for component_type in component_type_list %}
         <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox-{{loop.index}}">
           <input type="checkbox" name="component" value="{{component_type.name}}" id="checkbox-{{loop.index}}" class="mdl-checkbox__input">
