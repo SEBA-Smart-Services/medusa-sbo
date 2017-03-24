@@ -1,14 +1,34 @@
-from app import db
-from sqlalchemy import orm
+from app import db, app
+from sqlalchemy import orm, create_engine
+from sqlalchemy.engine.url import make_url
+from flask import _app_ctx_stack
 import sys
 
 ###################################
-## classes in report server database
+## models in report server database
 ###################################
+
+# stores a session for each WebReports server. Configured to match default Flask-SQLalchemy configs
+class SessionRegistry(object):
+    _registry = {}
+
+    def get(self, url):
+        if url not in self._registry:
+
+            options = {'convert_unicode': True}
+            echo = app.config['SQLALCHEMY_ECHO']
+            if echo:
+                options['echo'] = echo
+            engine = create_engine(make_url(url), **options)
+
+            session_factory = orm.sessionmaker(bind=engine, autocommit=False, autoflush=True, query_cls=db.Query)
+            session = orm.scoped_session(session_factory, scopefunc=_app_ctx_stack.__ident_func__)
+            self._registry[url] = session
+
+        return self._registry[url]
 
 # trend log values, stored in report server
 class LogTimeValue(db.Model):
-    __bind_key__ = 'sbo'
     __tablename__ = 'tbLogTimeValues'
     datetimestamp = db.Column('DateTimeStamp',db.DateTime)
     seqno = db.Column('SeqNo',db.BigInteger,primary_key=True)
@@ -18,7 +38,6 @@ class LogTimeValue(db.Model):
 
 # list of trend logs, stored in report server
 class LoggedEntity(db.Model):
-    __bind_key__ = 'sbo'
     __tablename__ = 'tbLoggedEntities'
     id = db.Column('ID',db.Integer,primary_key=True)
     guid = db.Column('GUID',db.String(50))

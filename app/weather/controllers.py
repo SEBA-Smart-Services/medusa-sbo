@@ -28,10 +28,29 @@ def weather_page():
 	outside_t = weather.temperature
 	outside_r = weather.humidity
 
+
+	# calculate savings from setpoint offset
+	setpoint = 24
+	min_offset = -1
+	min_temp = 19
+	max_offset = 1
+	max_temp = 29
+	savings_per_degree = 7.5	# taken from gov website, need a better system for calculating savings
+
+	offset = (outside_t - min_temp) / (max_temp - min_temp) * (max_offset - min_offset) + min_offset
+
+	# bound offset
+	offset = max(min_offset, min(max_offset, offset))
+
+	savings = offset * savings_per_degree
+
+
+	# calculate savings from economy cycle
 	# estimates taken from 'typical' system. Should be improved upon later / in winter
-	supply_t = 18
+	setpoint = setpoint + offset
+	supply_t = setpoint - 6
 	supply_r = 0.5
-	return_t = 25.5
+	return_t = setpoint + 1.5
 	return_r = 0.6
 
 	# calculate enthalpies
@@ -39,16 +58,11 @@ def weather_page():
 	outside_h = HAPropsSI('H','T',273.15+outside_t,'P',101325,'R',outside_r)
 	return_h = HAPropsSI('H','T',273.15+return_t,'P',101325,'R',return_r)
 
-	# is economy mode available
-	economy = outside_h < return_h
+	# is economy mode available. economy mode does not apply if we are in heating mode
+	economy = (outside_h < return_h) and (outside_h > supply_h)
 
 	# calculate power savings
 	if economy == True:
-		if outside_h < supply_h:
-			savings = 100
-		else:
-			savings = 100 - (outside_h - supply_h) / (return_h - supply_h) * 100
-	else:
-		savings = 0
+		savings = savings + 100 - (outside_h - supply_h) / (return_h - supply_h) * 100
 
-	return render_template('weather.html', economy=economy, savings=savings, allsites=True)
+	return render_template('weather.html', offset=offset, economy=economy, savings=savings, allsites=True)
