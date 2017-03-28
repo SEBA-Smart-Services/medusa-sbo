@@ -11,17 +11,17 @@ class DataGrab():
         self.asset = asset
 
     def latest_qty(self, component_name, quantity):
-        component = AssetComponent.query.filter_by(name=component_name).one()
+        component = AssetComponent.query.filter(AssetComponent.type.has(name=component_name), AssetComponent.asset==self.asset).one()
         value_list = self.session.query(LogTimeValue).filter_by(parent_id=component.loggedentity_id).order_by(LogTimeValue.datetimestamp.desc()).limit(quantity).all()
         return self.to_series(value_list)
 
     def latest_time(self, component_name, timedelta):
-        component = AssetComponent.query.filter_by(name=component_name).one()
+        component = AssetComponent.query.filter(AssetComponent.type.has(name=component_name), AssetComponent.asset==self.asset).one()
         value_list = self.session.query(LogTimeValue).filter(LogTimeValue.parent_id == component.loggedentity_id, LogTimeValue.datetimestamp >= datetime.datetime.now()-timedelta).all()
         return self.to_series(value_list)
 
     def time_range(self, component_name, timedelta_start, timedelta_finish):
-        component = AssetComponent.query.filter_by(name=component_name).one()
+        component = AssetComponent.query.filter(AssetComponent.type.has(name=component_name), AssetComponent.asset==self.asset).one()
         value_list = self.session.query(LogTimeValue).filter(LogTimeValue.parent_id == component.loggedentity_id, LogTimeValue.datetimestamp >= datetime.datetime.now()-timedelta_start, \
             LogTimeValue.datetimestamp <= datetime.datetime.now()-timedelta_finish).all()
         return self.to_series(value_list)
@@ -29,6 +29,8 @@ class DataGrab():
     def to_series(self, logtimevalue_list):
         timestamps = [entry.datetimestamp for entry in logtimevalue_list]
         values = [entry.float_value for entry in logtimevalue_list]
+        if logtimevalue_list == []:
+            timestamps = pandas.DatetimeIndex([])
         series = pandas.Series(values, index=timestamps)
         return series
 
@@ -58,12 +60,6 @@ def check_asset(asset):
         # find all the component types belonging to this asset which are being checked by this algorithm
         for component in asset.components:
             if component.type in algorithm.component_types:
-                # set the database that the trend log resides in print(logtimevalue.table.info(bindkey))
-                #LogTimeValue.__table__.info['bind_key'] = asset.site.db_name
-                # add the trend log to a dictionary of data
-                # currently only selects the newest 1000 entries
-                #values = DataGrab.latest_qty(component, 1000)
-                #data[component.type.name] = values
                 component_list.append(component)
 
         # call each algorithm which is mapped to the asset
@@ -179,7 +175,7 @@ class ahu_occupied_check(AlgorithmClass):
 
 # check if chilled water valve actuator is hunting
 class chw_hunting_check(AlgorithmClass):
-    components_required = ['Chilled Water Valve']
+    components_required = ['Chilled Water Valve 100%']
     name = "Chilled water valve actuator hunting"
     format = "bool"
 
@@ -189,22 +185,25 @@ class chw_hunting_check(AlgorithmClass):
         min_period = 1/60
         freq_sums = {}
         
-        for hours in range(24, 0, -1):
-            valve = data.time_range('Chilled Water Valve', datetime.timedelta(hours=hours), datetime.timedelta(hours=hours-1))
+        for hours in range(24, 1, -1):
+            valve = data.time_range('Chilled Water Valve 100%', datetime.timedelta(hours=hours), datetime.timedelta(hours=hours-1))
             # FFT needs evenly spaced samples to work. Resample to 1 minute rather than 1 second because computationally expensive - gives max resolution of 1 oscillation per 2 minutes
             # up (interpolate) and downsample (first) since the sample rate is unknown and variable
             valve_mins = valve.resample('1Min').first().interpolate(method='quadratic')
 
             N = len(valve_mins)
-            x_fft = numpy.linspace(0, 1, N)
-            valve_fft = fft(valve_mins)
+            if N > 0:
+                x_fft = numpy.linspace(0, 1, N)
+                valve_fft = fft(valve_mins)
 
-            i = numpy.argmax(x_fft > min_period)
-            # we only care about oscillations faster than our min period. Also only take half the range since the FFT is mirrored, avoid doubling up
-            sum_range = valve_fft[i:int(N/2)]
+                i = numpy.argmax(x_fft > min_period)
+                # we only care about oscillations faster than our min period. Also only take half the range since the FFT is mirrored, avoid doubling up
+                sum_range = valve_fft[i:int(N/2)]
 
-            # metric to judge overall instability, sum of frequency components
-            freq_sums[hours] = sum(numpy.abs(sum_range))
+                # metric to judge overall instability, sum of frequency components
+                freq_sums[hours] = sum(numpy.abs(sum_range))
+            else:
+                freq_sums[hours] = 0
 
         # this is the tuning parameter
         freq_cutoff = 100

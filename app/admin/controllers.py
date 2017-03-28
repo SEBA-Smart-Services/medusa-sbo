@@ -39,8 +39,14 @@ class ResultView(ModelView):
 class StatusView(ModelView):
 	form_excluded_columns = ['results']
 
-admin.add_view(ModelView(Site, db.session))
-admin.add_view(ModelView(AssetType, db.session))
+class SiteView(ModelView):
+    form_excluded_columns = ['issue_history']
+
+class AssetTypeView(ModelView):
+    pass
+
+admin.add_view(SiteView(Site, db.session))
+admin.add_view(AssetTypeView(AssetType, db.session))
 admin.add_view(AssetSubtypeView(AssetSubtype, db.session))
 admin.add_view(SubtypeComponentView(SubtypeComponent, db.session))
 admin.add_view(AssetView(Asset, db.session))

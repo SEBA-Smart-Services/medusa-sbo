@@ -117,17 +117,13 @@
             type: $('select[name="type"]').val(),
           }, function(loggedentity_data) {
 
+            // build component list
             var $loglist = $('<div class="mdl-selectfield mdl-js-selectfield mdl-textfield--full-width">');
             var $loglist_select = $('<select id="log" class="mdl-selectfield__select">');
             $.each(loggedentity_data, function() {
               $loglist_select.append($('<option />').val(this).text(this));
             })
             $loglist.append($loglist_select);
-
-            //var $loglist = $('<select name=log class=dropdown></select>')
-            //$.each(loggedentity_data, function() {
-            //  $loglist.append($('<option />').val(this).text(this));
-            //})
 
             var component_section = $('#component_section');
             component_section.html('');
@@ -140,7 +136,9 @@
               // add hidden input to match component name with component trend log
               $label_col.append($('<input type=hidden class="component"/>').val(this).attr('name', 'component' + i));
               $label_col.append(' ' + this);
-              $dropdown_col.append($loglist.clone().attr('name', 'log' + i));
+              var $loglist_clone = $loglist.clone();
+              $loglist_clone.find('select').attr('name', 'log' + i)
+              $dropdown_col.append($loglist_clone);
               $component_row.append($label_col);
               $component_row.append($dropdown_col);
               component_section.append($component_row);
@@ -153,6 +151,7 @@
 
         });
 
+        // build exclusion list
         $.getJSON($SCRIPT_ROOT + '{{ url_for('return_exclusions', sitename=site.name) }}', {
           type: $('select[name="type"]').val(),
           subtype: $('select[name="subtype"]').val(),

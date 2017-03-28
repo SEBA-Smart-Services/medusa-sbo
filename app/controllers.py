@@ -118,7 +118,11 @@ def dashboard_site(sitename):
 @app.route('/site/<sitename>/assets')
 def asset_list(sitename):
     site = Site.query.filter_by(name=sitename).one()
-    return render_template('assets.html', assets=site.assets, site=site)
+    asset_types = AssetType.query.all()
+    asset_quantity = {}
+    for asset_type in asset_types:
+        asset_quantity[asset_type.name] = len(Asset.query.filter(Asset.site==site, Asset.subtype.has(type=asset_type)).all())
+    return render_template('assets.html', assets=site.assets, asset_quantity=asset_quantity, asset_types=asset_types, site=site)
 
 # list unresolved issues on the site
 @app.route('/site/<sitename>/unresolved')

@@ -1,4 +1,4 @@
-from app import app, db
+from app import app, db, registry
 from app.models import Site, AssetType, AssetSubtype, LoggedEntity, Asset, ComponentType, AssetComponent, SubtypeComponent
 from flask import request, render_template, url_for, redirect, flash, send_file, make_response, jsonify
 from openpyxl import load_workbook, Workbook
@@ -27,10 +27,10 @@ def return_subtypes(sitename):
 def return_loggedentities(sitename):
     site = Site.query.filter_by(name=sitename).one()
 
-    # select database
-    LoggedEntity.__table__.info['bind_key'] = site.db_name
+    # get database session for this site
+    session = registry.get(site.db_name)
 
-    logs = LoggedEntity.query.filter_by(type='trend.ETLog').all()
+    logs = session.query(LoggedEntity).filter_by(type='trend.ETLog').all()
     log_paths = [log.path for log in logs]
     return jsonify(log_paths)
 
@@ -58,8 +58,8 @@ def add_asset_submit(sitename):
     asset = Asset(subtype=subtype, name=request.form['name'], location=request.form['location'], group=request.form['group'], priority=request.form['priority'], site=site, health=0)
     db.session.add(asset)
 
-    # select database
-    LoggedEntity.__table__.info['bind_key'] = site.db_name
+    # get database session for this site
+    session = registry.get(site.db_name)
 
     # @@ need a better system of reading in values than string-matching component1 and log1
     # generate components
@@ -68,8 +68,9 @@ def add_asset_submit(sitename):
         component_type = ComponentType.query.filter_by(name=component_type_name).one()
         component = AssetComponent(type=component_type, asset=asset, name=component_type_name)
         log_path = request.form.get('log' + str(i))
+        print(log_path)
         if not log_path is None:
-            log = LoggedEntity.query.filter_by(path=log_path).one()
+            log = session.query(LoggedEntity).filter_by(path=log_path).one()
             component.loggedentity_id = log.id
         db.session.add(component)
 
@@ -108,7 +109,7 @@ def add_asset_download(sitename):
             ws_options.cell(column=x, row=y).value = subtype.name
             y += 1
         x += 1
-        wb.create_named_range(asset_type.name, ws_options, "${}$2:${}${}".format(get_column_letter(x-1), get_column_letter(x-1), y))
+        wb.create_named_range(asset_type.name, ws_options, "${}$2:${}${}".format(get_column_letter(x-1), get_column_letter(x-1), y-1))
     cols = len(tuple(ws_options.columns))
     wb.create_named_range("Types", ws_options, '$A$1:${}$1'.format(get_column_letter(cols)))
 
