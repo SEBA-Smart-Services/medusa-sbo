@@ -43,38 +43,43 @@ def check_asset(asset):
 
     # get database session for this asset
     session = registry.get(asset.site.db_name)
-    datagrab = DataGrab(session, asset)
 
-    # clear 'most recent' status on previous results
-    for result in Result.query.filter_by(asset=asset, recent=True):
-        result.recent = False
+    if not session is None:
+        datagrab = DataGrab(session, asset)
 
-    algorithms_run = 0
-    algorithms_passed = 0
-    t = time.time()
+        # clear 'most recent' status on previous results
+        for result in Result.query.filter_by(asset=asset, recent=True):
+            result.recent = False
 
-    for algorithm in set(asset.subtype.algorithms) - set(asset.exclusions):
-        #data = {}
-        component_list = []
+        algorithms_run = 0
+        algorithms_passed = 0
+        t = time.time()
 
-        # find all the component types belonging to this asset which are being checked by this algorithm
-        for component in asset.components:
-            if component.type in algorithm.component_types:
-                component_list.append(component)
+        for algorithm in set(asset.subtype.algorithms) - set(asset.exclusions):
+            #data = {}
+            component_list = []
 
-        # call each algorithm which is mapped to the asset
-        [result, passed] = algorithm.run(datagrab)
+            # find all the component types belonging to this asset which are being checked by this algorithm
+            for component in asset.components:
+                if component.type in algorithm.component_types:
+                    component_list.append(component)
 
-        # save result to result table
-        save_result(asset, algorithm, result, passed, component_list)
+            # call each algorithm which is mapped to the asset
+            [result, passed] = algorithm.run(datagrab)
 
-        algorithms_run += 1
-        algorithms_passed += passed
+            # save result to result table
+            save_result(asset, algorithm, result, passed, component_list)
 
-    # save results to asset health table
-    asset.health = algorithms_passed/algorithms_run
-    session.commit()
-    print('Ran checks on {}, took {}'.format(asset.name,time.time()-t))
+            algorithms_run += 1
+            algorithms_passed += passed
+
+        # save results to asset health table
+        asset.health = algorithms_passed/algorithms_run
+        session.commit()
+        print('Ran checks on {}, took {}'.format(asset.name,time.time()-t))
+
+    else:
+        print('Could not connect to database for {}'.format(asset.name))
 
 @app.route('/check')
 # run algorithms on all assets

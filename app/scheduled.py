@@ -16,9 +16,10 @@ def record_issues():
 def register_components():
     for component in AssetComponent.query.filter(AssetComponent.loggedentity_path != '').all():
         session = registry.get(component.asset.site.db_name)
-        loggedentity = session.query(LoggedEntity).filter_by(path=component.loggedentity_path).first()
-        if not loggedentity is None:
-            component.loggedentity_id = loggedentity.id
-            component.loggedentity_path = ''
-            print("{} - {} log registered".format(component.asset.name, component.name))
-        db.session.commit()
+        if not session is None:
+            loggedentity = session.query(LoggedEntity).filter_by(path=component.loggedentity_path).first()
+            if not loggedentity is None:
+                component.loggedentity_id = loggedentity.id
+                component.loggedentity_path = ''
+                print("{} - {} log registered".format(component.asset.name, component.name))
+            db.session.commit()

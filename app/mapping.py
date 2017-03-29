@@ -1,5 +1,5 @@
 from app.models import Algorithm, Asset
-from app.algorithms import AlgorithmClass
+from app.algorithms.algorithms import AlgorithmClass
 from app import db, app
 
 ###################################

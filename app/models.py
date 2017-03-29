@@ -9,23 +9,33 @@ import sys
 ###################################
 
 # stores a session for each WebReports server. Configured to match default Flask-SQLalchemy configs
+# IMPORTANT this does not use default Flask-SQLAlchemy behaviour. WebReports models must be referenced as 
+# session.query(LogTimeValue) or session.query(LoggedEntity) rather than LogtimeValue.query
 class SessionRegistry(object):
     _registry = {}
 
     def get(self, url):
-        if url not in self._registry:
+        try:
+            if url not in self._registry:
 
-            options = {'convert_unicode': True}
-            echo = app.config['SQLALCHEMY_ECHO']
-            if echo:
-                options['echo'] = echo
-            engine = create_engine(make_url(url), **options)
+                options = {'convert_unicode': True}
+                echo = app.config['SQLALCHEMY_ECHO']
+                if echo:
+                    options['echo'] = echo
+                engine = create_engine(make_url(url), **options)
 
-            session_factory = orm.sessionmaker(bind=engine, autocommit=False, autoflush=True, query_cls=db.Query)
-            session = orm.scoped_session(session_factory, scopefunc=_app_ctx_stack.__ident_func__)
-            self._registry[url] = session
+                session_factory = orm.sessionmaker(bind=engine, autocommit=False, autoflush=True, query_cls=db.Query)
+                session = orm.scoped_session(session_factory, scopefunc=_app_ctx_stack.__ident_func__)
+                self._registry[url] = session
 
-        return self._registry[url]
+            # trigger an event to check database connection
+            self._registry[url].commit()
+            return self._registry[url]
+
+        # return empty session if it can't connect
+        except:
+            return None
+        
 
 # trend log values, stored in report server
 class LogTimeValue(db.Model):
@@ -160,7 +170,7 @@ class Algorithm(db.Model):
     @orm.reconstructor
     def init_on_load(self):
         # find the corresponding class in the code that matches the 'name' field
-        self.algorithm = getattr(sys.modules['app.algorithms'], self.name)
+        self.algorithm = getattr(sys.modules['app.algorithms.algorithms'], self.name)
 
     # call the code from the actual algorithm
     def run(self, *args, **kwargs):

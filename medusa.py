@@ -1,7 +1,7 @@
 # packages
-from app import add, admin, inbuildings, weather
+from app import add, admin, inbuildings, weather, algorithms
 # modules
-from app import models, algorithms, mapping, controllers
+from app import models, mapping, controllers
 # from init file
 from app import app, db, scheduler
 import os

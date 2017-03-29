@@ -30,8 +30,11 @@ def return_loggedentities(sitename):
     # get database session for this site
     session = registry.get(site.db_name)
 
-    logs = session.query(LoggedEntity).filter_by(type='trend.ETLog').all()
-    log_paths = [log.path for log in logs]
+    if not session is None:
+        logs = session.query(LoggedEntity).filter_by(type='trend.ETLog').all()
+        log_paths = [log.path for log in logs]
+    else:
+        log_paths = []
     return jsonify(log_paths)
 
 # return list of components through AJAX
@@ -52,35 +55,38 @@ def return_exclusions(sitename):
 @app.route('/site/<sitename>/add/_submit', methods=['POST'])
 def add_asset_submit(sitename):
 
-    # create asset with 0 health
-    site = Site.query.filter_by(name=sitename).one()
-    subtype = AssetSubtype.query.filter_by(name=request.form['subtype']).one()
-    asset = Asset(subtype=subtype, name=request.form['name'], location=request.form['location'], group=request.form['group'], priority=request.form['priority'], site=site, health=0)
-    db.session.add(asset)
-
     # get database session for this site
     session = registry.get(site.db_name)
 
-    # @@ need a better system of reading in values than string-matching component1 and log1
-    # generate components
-    for i in range(1, len(subtype.components) + 1):
-        component_type_name = request.form.get('component' + str(i))
-        component_type = ComponentType.query.filter_by(name=component_type_name).one()
-        component = AssetComponent(type=component_type, asset=asset, name=component_type_name)
-        log_path = request.form.get('log' + str(i))
-        print(log_path)
-        if not log_path is None:
-            log = session.query(LoggedEntity).filter_by(path=log_path).one()
-            component.loggedentity_id = log.id
-        db.session.add(component)
+    if not session is None:
 
-    # set excluded algorithms
-    exclusion_list = request.form.getlist('exclusion')
-    for algorithm_descr in exclusion_list:
-        exclusion = Algorithm.query.filter_by(descr=algorithm_descr).one()
-        asset.exclusions.append(exclusion)
+        # create asset with 0 health
+        site = Site.query.filter_by(name=sitename).one()
+        subtype = AssetSubtype.query.filter_by(name=request.form['subtype']).one()
+        asset = Asset(subtype=subtype, name=request.form['name'], location=request.form['location'], group=request.form['group'], priority=request.form['priority'], site=site, health=0)
+        db.session.add(asset)
+    
+        # @@ need a better system of reading in values than string-matching component1 and log1
+        # generate components
+        for i in range(1, len(subtype.components) + 1):
+            component_type_name = request.form.get('component' + str(i))
+            component_type = ComponentType.query.filter_by(name=component_type_name).one()
+            component = AssetComponent(type=component_type, asset=asset, name=component_type_name)
+            log_path = request.form.get('log' + str(i))
+            print(log_path)
+            if not log_path is None:
+                log = session.query(LoggedEntity).filter_by(path=log_path).one()
+                component.loggedentity_id = log.id
+            db.session.add(component)
 
-    db.session.commit()
+        # set excluded algorithms
+        exclusion_list = request.form.getlist('exclusion')
+        for algorithm_descr in exclusion_list:
+            exclusion = Algorithm.query.filter_by(descr=algorithm_descr).one()
+            asset.exclusions.append(exclusion)
+
+        db.session.commit()
+
     return redirect(url_for('asset_list', sitename=sitename))
 
 # generate a downloadable Excel template for uploading assets
