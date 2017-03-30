@@ -45,7 +45,7 @@
     <br>
     Exclude Algorithms:<br>
     <table id=exclusion_section class=formfields>
-    	{% for algorithm in asset.subtype.algorithms %}
+    	{% for algorithm in asset.algorithms %}
     		<tr><td>
     			<input type="checkbox" name="exclusion" value='{{algorithm.descr}}' {% if algorithm in asset.exclusions %}checked{% endif %}/> {{algorithm.descr}}</input>
     		</td></tr>

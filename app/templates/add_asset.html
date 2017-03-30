@@ -14,12 +14,6 @@
           </div></td>
         </tr>
         <tr>
-          <td><h4>Subtype:</h4></td>
-          <td><div id="subtype_list_div" class="mdl-selectfield mdl-js-selectfield shiftdown">
-            <select id="subtype_list" name="subtype" class="mdl-selectfield__select"></select>
-          </div></td>
-        </tr>
-        <tr>
           <td><h4>Name:</h4></td>
           <td><div class="mdl-textfield mdl-js-textfield shiftdown">
               <input class="mdl-textfield__input" type="text" name="name" autocomplete="off" id="name">
@@ -50,9 +44,11 @@
           </select></div></td>
         </tr>
       </table>
+      <h4>Process Functions:</h4>
+      <div class="checkbox-list" id="process_function_section"></div>
+      <br>
       <h4>Components:</h4>
-      <table id=component_section>
-      </table>
+      <table id="component_section"></table>
       <br>
       <h4>Exclude Algorithms:</h4>
       <div class="checkbox-list" id="exclusion_section"></div>
@@ -77,8 +73,7 @@
   <script type="text/javascript">
     $(function() {
 
-
-
+      // populate the type list
       // I don't understand why but you have to add an option during runtime in order for selectedindex = -1 to work... ¯\_(ツ)_/¯
       var type_list = $('#type_list');
       type_list.append($('<option id=temp/>'));
@@ -90,27 +85,9 @@
         // MDL doesn't properly upgrade this element - do it manually
         $('#type_list_div').attr('data-upgraded',',MaterialSelectfield');
 
-        $.getJSON($SCRIPT_ROOT + '{{ url_for('return_subtypes', sitename=site.name) }}', {
-          type: $('select[name="type"]').val(),
-        }, function(data) {
-          var subtype_list = $('#subtype_list');
-          subtype_list.html('');
-          $.each(data, function() {
-            subtype_list.append($('<option />').val(this).text(this));
-          })
-          subtype_list.prop("selectedIndex", -1);
-        });
-        return false;
-      });
-
-      $('#subtype_list').change(function() {
-
-        // MDL doesn't properly upgrade this element - do it manually
-        $('#subtype_list_div').attr('data-upgraded',',MaterialSelectfield');
-
+        // build component list
         $.getJSON($SCRIPT_ROOT + '{{ url_for('return_components', sitename=site.name) }}', {
           type: $('select[name="type"]').val(),
-          subtype: $('select[name="subtype"]').val(),
         }, function(component_data) {
 
           $.getJSON($SCRIPT_ROOT + '{{ url_for('return_loggedentities', sitename=site.name) }}', {
@@ -151,10 +128,28 @@
 
         });
 
+        // build process function list
+        $.getJSON($SCRIPT_ROOT + '{{ url_for('return_functions', sitename=site.name) }}', {
+          type: $('select[name="type"]').val(),
+        }, function(data) {
+          var process_function_section = $('#process_function_section')
+          process_function_section.html('')
+          var i = 1;
+          $.each(data, function() {
+            var $process_function = $('<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="function' + i + '">');
+            var $process_function_checkbox = $('<input type="checkbox" name="function" id="function' + i + '" class="mdl-checkbox__input">').val(this);
+            var $process_function_label = $('<span class="mdl-checkbox__label">' + this + '</span>');
+            $process_function.append($process_function_checkbox);
+            $process_function.append($process_function_label);
+            process_function_section.append($process_function);
+            i = i + 1;
+          })
+
+        });
+
         // build exclusion list
         $.getJSON($SCRIPT_ROOT + '{{ url_for('return_exclusions', sitename=site.name) }}', {
           type: $('select[name="type"]').val(),
-          subtype: $('select[name="subtype"]').val(),
         }, function(data) {
           var exclusion_section = $('#exclusion_section')
           exclusion_section.html('')
@@ -168,7 +163,6 @@
             exclusion_section.append($exclusion);
             i = i + 1;
           })
-          //componentHandler.upgradeDom();
 
         });
 

@@ -23,16 +23,16 @@ def generate_algorithms():
 
     db.session.commit()
 
-# generate the entire mapping tables for algorithms-components and algorithms-asset subtypes
+# generate the entire mapping tables for algorithms-components and algorithms-assets
 def map_algorithms():
     for algorithm in Algorithm.query.all():
         algorithm.map()
     db.session.commit()
 
-# generate the entire mapping table for algorithms-asset subtypes
-def map_asset_subtypes():
-    for asset_subtype in AssetSubtype.query.all():
-        asset_subtype.map()
+# generate the entire mapping table for algorithms-assets
+def map_assets():
+    for asset in Asset.query.all():
+        asset.map()
     db.session.commit()
 
 # route for manual triggering of mapping

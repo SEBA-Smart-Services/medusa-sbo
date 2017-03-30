@@ -1,5 +1,5 @@
 from app import app, db
-from app.models import Asset, Site, AssetComponent, AssetType, Algorithm, AssetSubtype, ComponentType, Result, SubtypeComponent, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp
+from app.models import Asset, Site, AssetComponent, AssetType, Algorithm, AssetFunction, ComponentType, Result, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp
 from flask import json, request, render_template, url_for, redirect, jsonify, flash, make_response
 from statistics import mean
 import datetime, time
@@ -121,7 +121,7 @@ def asset_list(sitename):
     asset_types = AssetType.query.all()
     asset_quantity = {}
     for asset_type in asset_types:
-        asset_quantity[asset_type.name] = len(Asset.query.filter(Asset.site==site, Asset.subtype.has(type=asset_type)).all())
+        asset_quantity[asset_type.name] = len(Asset.query.filter_by(site=site, type=asset_type).all())
     return render_template('assets.html', assets=site.assets, asset_quantity=asset_quantity, asset_types=asset_types, site=site)
 
 # list unresolved issues on the site

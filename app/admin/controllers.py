@@ -1,7 +1,7 @@
 from app import app, db
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
-from app.models import Asset, Site, AssetComponent, AssetType, Algorithm, AssetSubtype, ComponentType, InbuildingsAsset, Result, SubtypeComponent, LoggedEntity, LogTimeValue, Status
+from app.models import Asset, Site, AssetComponent, AssetType, Algorithm, AssetFunction, ComponentType, InbuildingsAsset, Result, LoggedEntity, LogTimeValue, Status
 
 # configuration of views for Admin page
 # some columns (eg results) are excluded, since it tries to load and display >10,000 entries and crashes the page
@@ -9,11 +9,8 @@ from app.models import Asset, Site, AssetComponent, AssetType, Algorithm, AssetS
 
 admin = Admin(app)
 
-class AssetSubtypeView(ModelView):
-	form_excluded_columns = ['algorithms']
-
-class SubtypeComponentView(ModelView):
-	column_default_sort = 'subtype_id'
+class AssetFunctionView(ModelView):
+    pass
 
 class AssetView(ModelView):
 	form_excluded_columns = ['results']
@@ -47,8 +44,7 @@ class AssetTypeView(ModelView):
 
 admin.add_view(SiteView(Site, db.session))
 admin.add_view(AssetTypeView(AssetType, db.session))
-admin.add_view(AssetSubtypeView(AssetSubtype, db.session))
-admin.add_view(SubtypeComponentView(SubtypeComponent, db.session))
+admin.add_view(AssetFunctionView(AssetFunction, db.session))
 admin.add_view(AssetView(Asset, db.session))
 admin.add_view(AssetComponentView(AssetComponent, db.session))
 admin.add_view(ComponentTypeView(ComponentType, db.session))

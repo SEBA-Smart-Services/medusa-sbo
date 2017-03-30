@@ -1,4 +1,4 @@
-from app import app, db
+from app import app, db, registry
 from app.models import Site, Asset, LoggedEntity, ComponentType, AssetComponent
 from flask import request, render_template, url_for, redirect
 
@@ -8,11 +8,16 @@ def edit_asset(sitename, assetname):
     site = Site.query.filter_by(name=sitename).one()
     asset = Asset.query.filter(Asset.name == assetname, Asset.site.has(name=sitename)).one()
 
-    # set available logs
-    LoggedEntity.__table__.info['bind_key'] = site.db_name
-    logs = LoggedEntity.query.filter_by(type='trend.ETLog').all()
+    # get database session for this site
+    session = registry.get(site.db_name)
 
-    return render_template('edit.html', site=site, asset=asset, logs=logs)
+    # set available logs
+    if not session is None:
+        logs = session.query(LoggedEntity).filter_by(type='trend.ETLog').all()
+    else:
+        logs = []
+
+    return render_template('edit_asset.html', site=site, asset=asset, logs=logs)
 
 # process an asset edit
 @app.route('/site/<sitename>/edit/<assetname>/_submit', methods=['POST'])
@@ -25,8 +30,8 @@ def edit_asset_submit(sitename, assetname):
     asset.group = request.form['group']
     asset.priority = request.form['priority']
     
-    # select database
-    LoggedEntity.__table__.info['bind_key'] = asset.site.db_name
+    # get database session for this site
+    session = registry.get(site.db_name)
 
     # @@ need a better system of reading in values than string-matching component1 and log1
     # assign log ids to components
@@ -35,9 +40,16 @@ def edit_asset_submit(sitename, assetname):
         component_type = ComponentType.query.filter_by(name=component_type_name).one()
         component = AssetComponent.query.filter_by(type=component_type, asset=asset).one()
         log_path = request.form.get('log' + str(i))
-        if not log_path is None:
+        if not log_path and not session is None:
             log = LoggedEntity.query.filter_by(path=log_path).one()
             component.loggedentity_id = log.id
+
+    # set process functions
+    asset.functions.clear()
+    function_list = request.form.getlist('function')
+    for function_name in function_list:
+        function = AssetFunction.query.filter_by(name=function_name).one()
+        asset.functions.append(function)
 
     # set excluded algorithms
     asset.exclusions.clear()

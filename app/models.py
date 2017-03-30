@@ -68,17 +68,17 @@ class LoggedEntity(db.Model):
 ## abstract models
 ###################################
 
-# many-many mapping table between asset subtypes and the algorithms that apply to them
-subtype_algo_mapping = db.Table('subtype_algo_mapping',
-    db.Column('Subtype_id', db.Integer, db.ForeignKey('asset_subtype.ID'), primary_key=True),
-    db.Column('Algorithm_id', db.Integer, db.ForeignKey('algorithm.ID'), primary_key=True),
-    info={'bind_key': 'medusa'}
-)
-
 # many-many mapping table between algorithms and the component types they require
 algo_comp_mapping = db.Table('algo_comp_mapping',
     db.Column('Algorithm_id', db.Integer, db.ForeignKey('algorithm.ID'), primary_key=True),
     db.Column('Component_type_id', db.Integer, db.ForeignKey('component_type.ID'), primary_key=True),
+    info={'bind_key': 'medusa'}
+)
+
+# many-many mapping table between algorithms and the process functions they require
+algo_function_mapping = db.Table('algo_function_mapping',
+    db.Column('Algorithm_id', db.Integer, db.ForeignKey('algorithm.ID'), primary_key=True),
+    db.Column('AssetFunction_id', db.Integer, db.ForeignKey('asset_function.ID'), primary_key=True),
     info={'bind_key': 'medusa'}
 )
 
@@ -87,67 +87,28 @@ class AssetType(db.Model):
     __bind_key__ = 'medusa'
     id = db.Column('ID', db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512))
-    subtypes = db.relationship('AssetSubtype', backref='type')
+    assets = db.relationship('Asset', backref='type')
+    functions = db.relationship('AssetFunction', backref='type')
 
     def __repr__(self):
         return self.name
 
-# asset subtypes
-class AssetSubtype(db.Model):
+# process functions
+class AssetFunction(db.Model):
     __bind_key__ = 'medusa'
-    id = db.Column('ID', db.Integer, primary_key=True)
+    id = db.Column('ID',db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512))
     type_id = db.Column('Type_id', db.Integer, db.ForeignKey('asset_type.ID'))
-    assets = db.relationship('Asset', backref='subtype')
-    components = db.relationship('SubtypeComponent', backref='subtype', cascade='save-update, merge, delete, delete-orphan')
-    algorithms = db.relationship('Algorithm', secondary=subtype_algo_mapping, backref='asset_subtypes')
-
-    def get_component_types(self):
-        return [component.type for component in self.components]
-
-    # update the mapping between this subtype and all algorithms
-    def map(self):
-        #delete the current mapping
-        self.algorithms.clear()
-        for algorithms in Algorithm.query.all():
-            self.map_algorithm(algorithm)
-
-    def map_algorithm(self, algorithm):
-        # map this asset subtype to a single algorithm based on previously generated relationship between subtype-components-component_types-algorithms
-        passed = True
-        # check the components required by algorithm against the components the asset subtype actually has
-        for component in algorithm.component_types:
-            if not component in self.get_component_types():
-                passed = False
-
-        # if all are matching, add the relationship
-        if passed == True:
-            self.algorithms.append(algorithm)
 
     def __repr__(self):
         return self.name
-
-# components that each subtype has - there may be multiple of the same type
-class SubtypeComponent(db.Model):
-    __bind_key__ = 'medusa'
-    id = db.Column('ID', db.Integer, primary_key=True)
-    name = db.Column('Name', db.String(512))
-    type_id = db.Column('Type_id', db.Integer, db.ForeignKey('component_type.ID'))
-    subtype_id = db.Column('Subtype_id', db.Integer, db.ForeignKey('asset_subtype.ID'))
-
-    def __repr__(self):
-        if not self.name is None:
-            return self.name
-        else:
-            return "Unnamed - {}".format(self.type.name)
 
 # component types
 class ComponentType(db.Model):
     __bind_key__ = 'medusa'
-    id = db.Column('ID',db.Integer,primary_key=True)
+    id = db.Column('ID',db.Integer, primary_key=True)
     name = db.Column('Name',db.String(512))
     asset_components = db.relationship('AssetComponent', backref='type')
-    subtype_components = db.relationship('SubtypeComponent', backref='type')
 
     def __repr__(self):
         return self.name
@@ -159,6 +120,7 @@ class Algorithm(db.Model):
     name = db.Column('Name', db.String(512))
     descr = db.Column('Descr', db.String(512))
     component_types = db.relationship('ComponentType', secondary=algo_comp_mapping, backref=db.backref('algorithms'))
+    functions = db.relationship('AssetFunction', secondary=algo_function_mapping, backref=db.backref('algorithms'))
     results = db.relationship('Result', backref='algorithm')
 
     def __init__(self, *args, **kwargs):
@@ -176,18 +138,30 @@ class Algorithm(db.Model):
     def run(self, *args, **kwargs):
         return self.algorithm.run(*args, **kwargs)
 
-    # update mappings to component types and asset subtypes
+    # update mappings to component types and assets
     def map(self):
-        # update matching component types based on specified component_type attribute in .algorithm
-        self.component_types.clear()
-        for component_type_reqd in self.algorithm.components_required:
-            component_type = ComponentType.query.filter_by(name=component_type_reqd).one()
-            self.component_types.append(component_type)
+        try:
+            # update required component types based on specified component_type attribute in .algorithm
+            self.component_types.clear()
+            for component_type_reqd in self.algorithm.components_required:
+                component_type = ComponentType.query.filter_by(name=component_type_reqd).one()
+                self.component_types.append(component_type)
 
-        # update asset subtype mappings
-        self.asset_subtypes.clear()
-        for asset_subtype in AssetSubtype.query.all():
-            asset_subtype.map_algorithm(self)
+            # update required process functions
+            self.functions.clear()
+            for function_reqd in self.algorithm.functions_required:
+                function = AssetFunction.query.filter_by(name=function_reqd).one()
+                self.functions.append(function)
+            
+        # the component or process function required for the algorithm is not defined
+        except:
+            self.assets.clear()
+            return
+
+        # update asset mappings
+        self.assets.clear()
+        for asset in Asset.query.all():
+            asset.map_algorithm(self)
 
     def __repr__(self):
         return self.name
@@ -202,6 +176,20 @@ class Status(db.Model):
 ###################################
 ## real world models
 ###################################
+
+# many-many mapping table between assets and the process functions that apply to them
+asset_function_mapping = db.Table('asset_function_mapping',
+    db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'), primary_key=True),
+    db.Column('AssetFunction_id', db.Integer, db.ForeignKey('asset_function.ID'), primary_key=True),
+    info={'bind_key': 'medusa'}
+)
+
+# many-many mapping table between assets and the algorithms that apply to them
+asset_algo_mapping = db.Table('asset_algo_mapping',
+    db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'), primary_key=True),
+    db.Column('Algorithm_id', db.Integer, db.ForeignKey('algorithm.ID'), primary_key=True),
+    info={'bind_key': 'medusa'}
+)
 
 # many-many mapping table defining algorithms that are excluded from operating on an assets
 algo_exclusions = db.Table('algo_exclusions',
@@ -262,11 +250,37 @@ class Asset(db.Model):
     health = db.Column('Health', db.Float)
     priority = db.Column('Priority', db.Integer)
     site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'))
-    subtype_id = db.Column('Subtype_id', db.Integer, db.ForeignKey('asset_subtype.ID'))
+    type_id = db.Column('Type_id', db.Integer, db.ForeignKey('asset_type.ID'))
     components = db.relationship('AssetComponent', backref='asset', cascade='save-update, merge, delete, delete-orphan')
     results = db.relationship('Result', backref='asset', cascade='save-update, merge, delete, delete-orphan')
     inbuildings = db.relationship('InbuildingsAsset', backref='asset', uselist=False)
     exclusions = db.relationship('Algorithm', secondary=algo_exclusions, backref='exclusions')
+    algorithms = db.relationship('Algorithm', secondary=asset_algo_mapping, backref='assets')
+    functions = db.relationship('AssetFunction', secondary=asset_function_mapping, backref='assets')
+
+    # update the mapping between this asset and all algorithms
+    def map(self):
+        # delete the current mapping
+        self.algorithms.clear()
+        for algorithms in Algorithm.query.all():
+            self.map_algorithm(algorithm)
+
+    # map this asset to a single algorithm based on previously generated relationship between asset-component_types-algorithms
+    def map_algorithm(self, algorithm):
+        passed = True
+        # check the components required by algorithm against the components the asset actually has
+        for component in algorithm.component_types:
+            if not component in self.get_component_types():
+                passed = False
+
+        # check the process functions required by algorithm against the process functions the asset actually has
+        for function in algorithm.functions:
+            if not function in self.functions:
+                passed = False
+
+        # if all are matching, add the relationship
+        if passed == True:
+            self.algorithms.append(algorithm)
 
     def get_component_types(self):
         return [component.type for component in self.components]
@@ -280,7 +294,7 @@ class AssetComponent(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512))
     asset_id = db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'))
-    type_id = db.Column('Type_id', db.Integer, db.ForeignKey('component_type.ID'))
+    type_id = db.Column('ComponentType_id', db.Integer, db.ForeignKey('component_type.ID'))
     loggedentity_id = db.Column('LoggedEntity_id', db.Integer)
     loggedentity_path = db.Column('LoggedEntity_path_temp', db.String(1024))
 

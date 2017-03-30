@@ -5,6 +5,9 @@ from flask_apscheduler import APScheduler
 app = Flask(__name__)
 app.config.from_object('config')
 db = SQLAlchemy(app)
+
+from . import models
+from .weather import models
 db.create_all(bind='medusa')
 
 from app.models import SessionRegistry

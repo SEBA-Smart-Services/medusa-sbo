@@ -13,11 +13,11 @@ def get_weather():
 	weather_live = owm.weather_at_id(city_id).get_weather()
 
 	# store in cache
-	weather_cache = Weather()
-	weather_cache.temperature = weather.get_temperature(unit='celsius')['temp']
-	weather_cache.humidity = weather.get_humidity() / 100
+	weather_cache = Weather.query.filter_by(name='Brisbane').one()
+	weather_cache.temperature = weather_live.get_temperature(unit='celsius')['temp']
+	weather_cache.humidity = weather_live.get_humidity() / 100
 
-	print('Weather recorded as {}C {}%').format(weather_cache.temperature, weather_cache.humidity*100)
+	print('Weather recorded as {}C {}%'.format(weather_cache.temperature, weather_cache.humidity*100))
 
 # show weather page
 @app.route('/site/all/weather')

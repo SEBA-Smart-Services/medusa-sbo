@@ -55,8 +55,8 @@ def check_asset(asset):
         algorithms_passed = 0
         t = time.time()
 
-        for algorithm in set(asset.subtype.algorithms) - set(asset.exclusions):
-            #data = {}
+        for algorithm in set(asset.algorithms) - set(asset.exclusions):
+            
             component_list = []
 
             # find all the component types belonging to this asset which are being checked by this algorithm
@@ -92,8 +92,10 @@ def check_all():
     
 # dummy class used to access all the algorithm checks
 # 'components_required' specifies which components each algorithm will request data for
+# 'functions_required' specifies the process functions that the algorithm requires to operate
 class AlgorithmClass():
-    pass
+    components_required = []
+    functions_required = []
     
 # check if room air temp is higher than setpoint while heating is on
 class airtemp_heating_check(AlgorithmClass):
