@@ -28,7 +28,7 @@ def return_loggedentities(sitename):
     site = Site.query.filter_by(name=sitename).one()
 
     # get database session for this site
-    session = registry.get(site.db_name)
+    session = registry.get(site.db_key)
 
     if not session is None:
         logs = session.query(LoggedEntity).filter_by(type='trend.ETLog').all()
@@ -58,7 +58,7 @@ def add_asset_submit(sitename):
     site = Site.query.filter_by(name=sitename).one()
 
     # get database session for this site
-    session = registry.get(site.db_name)
+    session = registry.get(site.db_key)
 
     # create asset with 0 health
     type = AssetType.query.filter_by(name=request.form['type']).one()

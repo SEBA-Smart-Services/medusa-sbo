@@ -54,7 +54,7 @@ class DataGrab():
 def check_asset(asset):
 
     # get database session for this asset
-    session = registry.get(asset.site.db_name)
+    session = registry.get(asset.site.db_key)
 
     if not session is None:
         datagrab = DataGrab(session, asset)

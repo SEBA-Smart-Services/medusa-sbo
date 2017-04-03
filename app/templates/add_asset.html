@@ -2,6 +2,7 @@
 {% block content %}
     <h3>Add Asset</h3>
     <form action="{{ url_for('add_asset_submit', sitename=site.name) }}" method=post>
+
       <table>
         <tr>
           <td style="width:250px"><h4>Type:</h4></td>
@@ -44,22 +45,47 @@
           </select></div></td>
         </tr>
       </table>
+
       <h4>Process Functions:</h4>
-      <div class="checkbox-list" id="process_function_section"></div>
+      <table class="checkbox-list" id="process_function_section"></table>
+      <table>
+        <tr>
+          <td>
+            <div id="function_list_div" class="mdl-selectfield mdl-js-selectfield shiftdown">
+              <select id="function_list" class="mdl-selectfield__select">
+              </select>
+            </div>
+          </td>
+          <td>
+            <button type="button" onclick="addFunction()" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+              Add
+            </button>
+          </td>
+        </tr>
+      </table>
+      
       <br>
       <h4>Components:</h4>
       <table id="component_section"></table>
+      <button type="button" onclick="addComponent()" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        Add
+      </button>
+
       <br>
-      <h4>Exclude Algorithms:</h4>
+      <h4>Algorithms:</h4>
       <div class="checkbox-list" id="exclusion_section"></div>
       <br><br>
+
       <input type=submit value=Submit class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+
     </form>
+
     <br><br><br>
     <h3>Add via upload</h3>
     <form action="{{ url_for('add_asset_download', sitename=site.name) }}">
       <input type=submit value="Get Template" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     </form>
+
     <br>
     <form action="{{ url_for('add_asset_upload', sitename=site.name) }}" method=post enctype=multipart/form-data>
       <div class="element file mdl-file mdl-js-file mdl-file--floating-label">
@@ -68,13 +94,29 @@
       </div>
       <input type=submit value=Upload class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     </form>
-    <div id=test></div>
+
 
   <script type="text/javascript">
+    function addFunction() {
+      var function_text = $('#function_list').val();
+      var $function_row = $('<tr/>');
+      var $col = $('<td/>');
+      $function_row.append($col.clone().append(function_text));
+      $function_row.append($col.clone().append('&nbsp<button type=button onclick="removeFunction(this)">X</button>'));
+      $('#process_function_section').append($function_row);
+    }
+
+    function removeFunction(e) {
+      $(e).parent().parent().remove();
+    }
+
     $(function() {
 
       // populate the type list
       // I don't understand why but you have to add an option during runtime in order for selectedindex = -1 to work... ¯\_(ツ)_/¯
+      // update: now this doesn't work either. Nothing has been changed, unknown cause
+      // update 2: sometimes it works and sometimes it doesn't. this is why I hate javascript
+      // update 3: it works only when loading the page for the first time, but not when refreshing
       var type_list = $('#type_list');
       type_list.append($('<option id=temp/>'));
       $('#temp').remove();
@@ -82,8 +124,13 @@
 
       $('#type_list').change(function() {
 
-        // MDL doesn't properly upgrade this element - do it manually
+        // MDL doesn't properly upgrade these elements - do it manually
+        // WARNING: if dropdowns seem to randomly freeze when populated via javascript, it's probably something to do with this.
+        // not sure what exactly. spent 8 hours at least trying to debug this and it still comes and goes
+        // UPDATE: seriously, fuck the non-deterministic nature of javascript. i restart the backend without changing this file,
+        // and it goes from working to broken
         $('#type_list_div').attr('data-upgraded',',MaterialSelectfield');
+        $('#function_list_div').attr('data-upgraded',',MaterialSelectfield');
 
         // build component list
         $.getJSON($SCRIPT_ROOT + '{{ url_for('return_components', sitename=site.name) }}', {
@@ -132,17 +179,10 @@
         $.getJSON($SCRIPT_ROOT + '{{ url_for('return_functions', sitename=site.name) }}', {
           type: $('select[name="type"]').val(),
         }, function(data) {
-          var process_function_section = $('#process_function_section')
-          process_function_section.html('')
-          var i = 1;
+          var $function_dropdown = $('#function_list')
+          $function_dropdown.html('')
           $.each(data, function() {
-            var $process_function = $('<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="function' + i + '">');
-            var $process_function_checkbox = $('<input type="checkbox" name="function" id="function' + i + '" class="mdl-checkbox__input">').val(this);
-            var $process_function_label = $('<span class="mdl-checkbox__label">' + this + '</span>');
-            $process_function.append($process_function_checkbox);
-            $process_function.append($process_function_label);
-            process_function_section.append($process_function);
-            i = i + 1;
+            $function_dropdown.append($('<option />').val(this).text(this));
           })
 
         });
@@ -170,5 +210,12 @@
       });
 
     });
+
+    
+
+    function addComponent() {
+
+    }
+
   </script>
 {% endblock %}

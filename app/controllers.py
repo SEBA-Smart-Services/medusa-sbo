@@ -84,7 +84,7 @@ def add_site():
 # handle creation of a new site
 @app.route('/site/all/add_site/_submit', methods=['POST'])
 def add_site_submit():
-    site = Site(name=request.form['name'], db_name=request.form['database_key'], inbuildings_key=request.form['inbuildings_key'])
+    site = Site(name=request.form['name'], db_key=request.form['database_key'], inbuildings_key=request.form['inbuildings_key'])
     db.session.add(site)
     db.session.commit()
     return redirect(url_for('site_list'))

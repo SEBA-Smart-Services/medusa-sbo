@@ -9,7 +9,7 @@ def edit_asset(sitename, assetname):
     asset = Asset.query.filter(Asset.name == assetname, Asset.site.has(name=sitename)).one()
 
     # get database session for this site
-    session = registry.get(site.db_name)
+    session = registry.get(site.db_key)
 
     # set available logs
     if not session is None:
@@ -31,7 +31,7 @@ def edit_asset_submit(sitename, assetname):
     asset.priority = request.form['priority']
     
     # get database session for this site
-    session = registry.get(asset.site.db_name)
+    session = registry.get(asset.site.db_key)
 
     # @@ need a better system of reading in values than string-matching component1 and log1
     # assign log ids to components

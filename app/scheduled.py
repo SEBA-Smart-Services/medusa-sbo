@@ -15,7 +15,7 @@ def record_issues():
 # link medusa assets to webreports logs. XML file must have been imported first for this to work
 def register_components():
     for component in AssetComponent.query.filter(AssetComponent.loggedentity_path != '').all():
-        session = registry.get(component.asset.site.db_name)
+        session = registry.get(component.asset.site.db_key)
         if not session is None:
             # search to see if the XML generated file exists in the WebReports server
             loggedentity = session.query(LoggedEntity).filter_by(path=component.loggedentity_path).first()
