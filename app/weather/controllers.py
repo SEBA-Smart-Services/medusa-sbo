@@ -1,4 +1,4 @@
-from app import app
+from app import app, db
 from CoolProp.HumidAirProp import HAPropsSI
 from flask import render_template
 from pyowm import OWM
@@ -13,9 +13,10 @@ def get_weather():
 	weather_live = owm.weather_at_id(city_id).get_weather()
 
 	# store in cache
-	weather_cache = Weather.query.filter_by(name='Brisbane').one()
+	weather_cache = Weather.query.filter_by(location='Brisbane').one()
 	weather_cache.temperature = weather_live.get_temperature(unit='celsius')['temp']
 	weather_cache.humidity = weather_live.get_humidity() / 100
+	db.session.commit()
 
 	print('Weather recorded as {}C {}%'.format(weather_cache.temperature, weather_cache.humidity*100))
 
@@ -27,7 +28,6 @@ def weather_page():
 	weather = Weather.query.filter_by(location='Brisbane').one()
 	outside_t = weather.temperature
 	outside_r = weather.humidity
-
 
 	# calculate savings from setpoint offset
 	setpoint = 24

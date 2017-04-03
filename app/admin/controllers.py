@@ -1,7 +1,7 @@
 from app import app, db
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
-from app.models import Asset, Site, AssetComponent, AssetType, Algorithm, AssetFunction, ComponentType, InbuildingsAsset, Result, LoggedEntity, LogTimeValue, Status
+from app.models import Asset, Site, AssetComponent, AssetType, Algorithm, FunctionalDescriptor, ComponentType, InbuildingsAsset, Result, Status
 
 # configuration of views for Admin page
 # some columns (eg results) are excluded, since it tries to load and display >10,000 entries and crashes the page
@@ -9,7 +9,7 @@ from app.models import Asset, Site, AssetComponent, AssetType, Algorithm, AssetF
 
 admin = Admin(app)
 
-class AssetFunctionView(ModelView):
+class FunctionalDescriptorView(ModelView):
     pass
 
 class AssetView(ModelView):
@@ -44,7 +44,7 @@ class AssetTypeView(ModelView):
 
 admin.add_view(SiteView(Site, db.session))
 admin.add_view(AssetTypeView(AssetType, db.session))
-admin.add_view(AssetFunctionView(AssetFunction, db.session))
+admin.add_view(FunctionalDescriptorView(FunctionalDescriptor, db.session))
 admin.add_view(AssetView(Asset, db.session))
 admin.add_view(AssetComponentView(AssetComponent, db.session))
 admin.add_view(ComponentTypeView(ComponentType, db.session))

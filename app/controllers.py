@@ -1,5 +1,5 @@
 from app import app, db
-from app.models import Asset, Site, AssetComponent, AssetType, Algorithm, AssetFunction, ComponentType, Result, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp
+from app.models import Asset, Site, AssetComponent, AssetType, Algorithm, FunctionalDescriptor, ComponentType, Result, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp
 from flask import json, request, render_template, url_for, redirect, jsonify, flash, make_response
 from statistics import mean
 import datetime, time
@@ -24,6 +24,7 @@ def dashboard_all():
     results = Result.get_unresolved_by_priority()[0:4]
     num_results = len(Result.get_unresolved())
     if not Result.get_unresolved_by_priority():
+        # there are no issues across any sites. Celebrate!
         top_priority = "-"
     else:
         top_priority = Result.get_unresolved_by_priority()[0].asset.priority
@@ -40,6 +41,7 @@ def site_list():
     for site in sites:
         issues[site.name] = len(site.get_unresolved())
         if not site.get_unresolved_by_priority():
+            # there are no issues at this site
             top_priority = "-"
         else:
             top_priority = site.get_unresolved_by_priority()[0].asset.priority
@@ -62,6 +64,7 @@ def unresolved_chart():
 # show map of all tech locations
 @app.route('/site/all/map')
 def map():
+    # TODO: figure out how to auto sign into the inbuildings page. Attempt at cookies below doesn't work
     response = make_response(render_template('map.html', allsites=True))
     response.set_cookie('ARRAffinity', 'd5fb9e944f8abbefd6bc0a9a39c159ffc6fbb4084e000bed662582769266cb00', domain='.inbuildings.info')
     response.set_cookie('PHPSESSID', 'pudr7sj47olg948h1ollv8vrv7', domain='inbuildings.info')
@@ -78,6 +81,7 @@ def date_to_millis(d):
 def add_site():
     return render_template('add_site.html', allsites=True)
 
+# handle creation of a new site
 @app.route('/site/all/add_site/_submit', methods=['POST'])
 def add_site_submit():
     site = Site(name=request.form['name'], db_name=request.form['database_key'], inbuildings_key=request.form['inbuildings_key'])
@@ -102,6 +106,7 @@ def dashboard_site(sitename):
     num_results = len(site.get_unresolved())
 
     if not site.get_unresolved_by_priority():
+        # no issues at this site
         top_priority = "-"
     else:
         top_priority = site.get_unresolved_by_priority()[0].asset.priority

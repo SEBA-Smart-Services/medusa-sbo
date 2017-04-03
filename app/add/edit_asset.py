@@ -1,5 +1,5 @@
 from app import app, db, registry
-from app.models import Site, Asset, LoggedEntity, ComponentType, AssetComponent
+from app.models import Site, Asset, LoggedEntity, ComponentType, AssetComponent, FunctionalDescriptor, Algorithm
 from flask import request, render_template, url_for, redirect
 
 # page to edit an asset on the site
@@ -31,7 +31,7 @@ def edit_asset_submit(sitename, assetname):
     asset.priority = request.form['priority']
     
     # get database session for this site
-    session = registry.get(site.db_name)
+    session = registry.get(asset.site.db_name)
 
     # @@ need a better system of reading in values than string-matching component1 and log1
     # assign log ids to components
@@ -48,7 +48,7 @@ def edit_asset_submit(sitename, assetname):
     asset.functions.clear()
     function_list = request.form.getlist('function')
     for function_name in function_list:
-        function = AssetFunction.query.filter_by(name=function_name).one()
+        function = FunctionalDescriptor.query.filter_by(name=function_name).one()
         asset.functions.append(function)
 
     # set excluded algorithms

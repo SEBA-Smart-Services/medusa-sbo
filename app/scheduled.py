@@ -2,7 +2,7 @@ from app.models import IssueHistory, IssueHistoryTimestamp, Site, AssetComponent
 from app import db, registry, app
 import datetime
 
-# make a record of the quantity of issues at each site
+# make a record of the quantity of issues at each site. Used for graphing performance over time
 def record_issues():
 	timestamp = IssueHistoryTimestamp(timestamp=datetime.datetime.now())
 	for site in Site.query.all():
@@ -12,11 +12,12 @@ def record_issues():
 		db.session.add(timestamp)
 		db.session.commit()
 
-# link medusa assets to webreports logs. XML file must have been imported first
+# link medusa assets to webreports logs. XML file must have been imported first for this to work
 def register_components():
     for component in AssetComponent.query.filter(AssetComponent.loggedentity_path != '').all():
         session = registry.get(component.asset.site.db_name)
         if not session is None:
+            # search to see if the XML generated file exists in the WebReports server
             loggedentity = session.query(LoggedEntity).filter_by(path=component.loggedentity_path).first()
             if not loggedentity is None:
                 component.loggedentity_id = loggedentity.id

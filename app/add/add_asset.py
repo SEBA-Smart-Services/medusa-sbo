@@ -1,5 +1,5 @@
 from app import app, db, registry
-from app.models import Site, AssetType, AssetFunction, LoggedEntity, Asset, ComponentType, AssetComponent, Algorithm
+from app.models import Site, AssetType, FunctionalDescriptor, LoggedEntity, Asset, ComponentType, AssetComponent, Algorithm
 from flask import request, render_template, url_for, redirect, flash, send_file, make_response, jsonify
 from openpyxl import load_workbook, Workbook
 from openpyxl.worksheet.datavalidation import DataValidation
@@ -81,7 +81,7 @@ def add_asset_submit(sitename):
     # set process functions
     function_list = request.form.getlist('function')
     for function_name in function_list:
-        function = AssetFunction.query.filter_by(name=function_name).one()
+        function = FunctionalDescriptor.query.filter_by(name=function_name).one()
         asset.functions.append(function)
 
     # set excluded algorithms
@@ -181,7 +181,7 @@ def add_asset_upload(sitename):
             subtype_name = row[4].value
             priority = row[5].value
             asset_type = AssetType.query.filter_by(name=type_name).one()
-            subtype = AssetFunction.query.filter_by(name=subtype_name, type=asset_type).one()
+            subtype = FunctionalDescriptor.query.filter_by(name=subtype_name, type=asset_type).one()
             asset = Asset(name=name, location=location, group=group, subtype=subtype, priority=priority, site=site, health=0)
 
             db.session.add(asset)

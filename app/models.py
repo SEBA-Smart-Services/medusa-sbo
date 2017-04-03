@@ -8,7 +8,7 @@ import sys
 ## models in report server database
 ###################################
 
-# stores a session for each WebReports server. Configured to match default Flask-SQLalchemy configs
+# stores a session for each WebReports server. Configured to match default Flask-SQLAlchemy configs
 # IMPORTANT this does not use default Flask-SQLAlchemy behaviour. WebReports models must be referenced as 
 # session.query(LogTimeValue) or session.query(LoggedEntity) rather than LogtimeValue.query
 class SessionRegistry(object):
@@ -18,6 +18,7 @@ class SessionRegistry(object):
         try:
             if url not in self._registry:
 
+                # existing Flask-SQLAlchemy settings
                 options = {'convert_unicode': True}
                 echo = app.config['SQLALCHEMY_ECHO']
                 if echo:
@@ -78,7 +79,7 @@ algo_comp_mapping = db.Table('algo_comp_mapping',
 # many-many mapping table between algorithms and the process functions they require
 algo_function_mapping = db.Table('algo_function_mapping',
     db.Column('Algorithm_id', db.Integer, db.ForeignKey('algorithm.ID'), primary_key=True),
-    db.Column('AssetFunction_id', db.Integer, db.ForeignKey('asset_function.ID'), primary_key=True),
+    db.Column('FunctionalDescriptor_id', db.Integer, db.ForeignKey('functional_descriptor.ID'), primary_key=True),
     info={'bind_key': 'medusa'}
 )
 
@@ -88,13 +89,13 @@ class AssetType(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512))
     assets = db.relationship('Asset', backref='type')
-    functions = db.relationship('AssetFunction', backref='type')
+    functions = db.relationship('FunctionalDescriptor', backref='type')
 
     def __repr__(self):
         return self.name
 
 # process functions
-class AssetFunction(db.Model):
+class FunctionalDescriptor(db.Model):
     __bind_key__ = 'medusa'
     id = db.Column('ID',db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512))
@@ -120,7 +121,7 @@ class Algorithm(db.Model):
     name = db.Column('Name', db.String(512))
     descr = db.Column('Descr', db.String(512))
     component_types = db.relationship('ComponentType', secondary=algo_comp_mapping, backref=db.backref('algorithms'))
-    functions = db.relationship('AssetFunction', secondary=algo_function_mapping, backref=db.backref('algorithms'))
+    functions = db.relationship('FunctionalDescriptor', secondary=algo_function_mapping, backref=db.backref('algorithms'))
     results = db.relationship('Result', backref='algorithm')
 
     def __init__(self, *args, **kwargs):
@@ -150,7 +151,7 @@ class Algorithm(db.Model):
             # update required process functions
             self.functions.clear()
             for function_reqd in self.algorithm.functions_required:
-                function = AssetFunction.query.filter_by(name=function_reqd).one()
+                function = FunctionalDescriptor.query.filter_by(name=function_reqd).one()
                 self.functions.append(function)
             
         # the component or process function required for the algorithm is not defined
@@ -180,12 +181,12 @@ class Status(db.Model):
 # many-many mapping table between assets and the process functions that apply to them
 asset_function_mapping = db.Table('asset_function_mapping',
     db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'), primary_key=True),
-    db.Column('AssetFunction_id', db.Integer, db.ForeignKey('asset_function.ID'), primary_key=True),
+    db.Column('FunctionalDescriptor_id', db.Integer, db.ForeignKey('functional_descriptor.ID'), primary_key=True),
     info={'bind_key': 'medusa'}
 )
 
 # many-many mapping table between assets and the algorithms that apply to them
-asset_algo_mapping = db.Table('asset_algo_mapping',
+algo_asset_mapping = db.Table('algo_asset_mapping',
     db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'), primary_key=True),
     db.Column('Algorithm_id', db.Integer, db.ForeignKey('algorithm.ID'), primary_key=True),
     info={'bind_key': 'medusa'}
@@ -210,7 +211,7 @@ class Site(db.Model):
     __bind_key__ = 'medusa'
     id = db.Column('ID', db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512))
-    db_name = db.Column('DB_Name', db.String(512))
+    db_key = db.Column('DB_key', db.String(512))
     inbuildings_key = db.Column('Inbuildings_key', db.String(512))
     assets = db.relationship('Asset', backref='site')
     inbuildings_assets = db.relationship('InbuildingsAsset', backref='site')
@@ -255,14 +256,14 @@ class Asset(db.Model):
     results = db.relationship('Result', backref='asset', cascade='save-update, merge, delete, delete-orphan')
     inbuildings = db.relationship('InbuildingsAsset', backref='asset', uselist=False)
     exclusions = db.relationship('Algorithm', secondary=algo_exclusions, backref='exclusions')
-    algorithms = db.relationship('Algorithm', secondary=asset_algo_mapping, backref='assets')
-    functions = db.relationship('AssetFunction', secondary=asset_function_mapping, backref='assets')
+    algorithms = db.relationship('Algorithm', secondary=algo_asset_mapping, backref='assets')
+    functions = db.relationship('FunctionalDescriptor', secondary=asset_function_mapping, backref='assets')
 
     # update the mapping between this asset and all algorithms
     def map(self):
         # delete the current mapping
         self.algorithms.clear()
-        for algorithms in Algorithm.query.all():
+        for algorithm in Algorithm.query.all():
             self.map_algorithm(algorithm)
 
     # map this asset to a single algorithm based on previously generated relationship between asset-component_types-algorithms
@@ -335,14 +336,14 @@ class Result(db.Model):
 ## charting info
 ###################################
 
-# timestamped list containing the results of all algorithms ever applied to each asset
+# table of timestamps. Simplifies graphing if IssueHistory for different sites is grouped under the same timestamp object
 class IssueHistoryTimestamp(db.Model):
     __bind_key__ = 'medusa'
     id = db.Column('ID', db.Integer, primary_key=True)
     timestamp = db.Column('Timestamp', db.DateTime)
     issues = db.relationship('IssueHistory', backref='timestamp')
 
-# timestamped list containing the results of all algorithms ever applied to each asset
+# timestamped list containing the quantity of issues present at each site over time
 class IssueHistory(db.Model):
     __bind_key__ = 'medusa'
     id = db.Column('ID', db.Integer, primary_key=True)

@@ -1,7 +1,11 @@
 from app.models import LogTimeValue, Result, Asset, AssetComponent
 from app import db, app, registry
-import datetime, time, pandas, random, numpy, scipy
+import datetime
+import time
+import pandas
+import numpy
 from scipy.fftpack import fft
+
 
 # class used to select data
 class DataGrab():
@@ -10,33 +14,41 @@ class DataGrab():
         self.session = session
         self.asset = asset
 
+    # grab a fixed number of samples
     def latest_qty(self, component_name, quantity):
         component = AssetComponent.query.filter(AssetComponent.type.has(name=component_name), AssetComponent.asset==self.asset).one()
         value_list = self.session.query(LogTimeValue).filter_by(parent_id=component.loggedentity_id).order_by(LogTimeValue.datetimestamp.desc()).limit(quantity).all()
         return self.to_series(value_list)
 
+    # grab a time-based range of samples, ending at now
     def latest_time(self, component_name, timedelta):
         component = AssetComponent.query.filter(AssetComponent.type.has(name=component_name), AssetComponent.asset==self.asset).one()
         value_list = self.session.query(LogTimeValue).filter(LogTimeValue.parent_id == component.loggedentity_id, LogTimeValue.datetimestamp >= datetime.datetime.now()-timedelta).all()
         return self.to_series(value_list)
 
+    # grab a time-based range of samples, with defined start and end time
     def time_range(self, component_name, timedelta_start, timedelta_finish):
         component = AssetComponent.query.filter(AssetComponent.type.has(name=component_name), AssetComponent.asset==self.asset).one()
         value_list = self.session.query(LogTimeValue).filter(LogTimeValue.parent_id == component.loggedentity_id, LogTimeValue.datetimestamp >= datetime.datetime.now()-timedelta_start, \
             LogTimeValue.datetimestamp <= datetime.datetime.now()-timedelta_finish).all()
         return self.to_series(value_list)
 
+    # convert samples to Pandas Series object
     def to_series(self, logtimevalue_list):
         timestamps = [entry.datetimestamp for entry in logtimevalue_list]
         values = [entry.float_value for entry in logtimevalue_list]
+
+        # if list is empty, index is automatically assigned as Index rather than DatetimeIndex. So manually fix this
         if logtimevalue_list == []:
             timestamps = pandas.DatetimeIndex([])
         series = pandas.Series(values, index=timestamps)
         return series
 
+
 ###################################
-## algorithm checks
+# algorithm checks
 ###################################
+
 
 # apply all the algorithms against a single asset
 def check_asset(asset):
@@ -73,30 +85,35 @@ def check_asset(asset):
             algorithms_run += 1
             algorithms_passed += passed
 
-        # save results to asset health table
+        # save asset health. Currently computed as just the percentage of algorithms passed
         asset.health = algorithms_passed/algorithms_run
         session.commit()
-        print('Ran checks on {}, took {}'.format(asset.name,time.time()-t))
+        print('Ran checks on {} - {}, took {}'.format(asset.site.name, asset.name, time.time()-t))
 
     else:
-        print('Could not connect to database for {}'.format(asset.name))
+        print('Could not connect to database for {} - {}'.format(asset.site.name, asset.name))
 
-@app.route('/check')
+
 # run algorithms on all assets
+@app.route('/check')
 def check_all():
     for asset in Asset.query.all():
+        # result status is not being used atm, so clear it to stop repeats of the algorithm checks showing up as issues
+        # TODO: figure out a way to represent long-standing issues that were present from previous checks
         for result in Result.query.filter(Result.asset==asset, Result.status_id not in [1,5]).all():
             result.status_id = 1
         check_asset(asset)
     return 'done'
-    
+
+
 # dummy class used to access all the algorithm checks
 # 'components_required' specifies which components each algorithm will request data for
 # 'functions_required' specifies the process functions that the algorithm requires to operate
 class AlgorithmClass():
     components_required = []
     functions_required = []
-    
+
+
 # check if room air temp is higher than setpoint while heating is on
 class airtemp_heating_check(AlgorithmClass):
     components_required = ['Room Air Temp', 'Heater Enable', 'Room Air Temp Setpoint']
@@ -119,6 +136,7 @@ class airtemp_heating_check(AlgorithmClass):
         passed = result < 0.05
         return [result, passed]
 
+
 # check if heating and cooling are simultaneously on
 class simult_heatcool_check(AlgorithmClass):
     components_required = ['Heater Enable', 'Chilled Water Valve Enable']
@@ -139,6 +157,7 @@ class simult_heatcool_check(AlgorithmClass):
         passed = result == 0
         return [result, passed]
 
+
 # check if zone fan is on while zone is unoccupied
 class fan_unoccupied_check(AlgorithmClass):
     components_required = ['Room Occupancy', 'Fan Enable']
@@ -158,6 +177,7 @@ class fan_unoccupied_check(AlgorithmClass):
         result = seconds_occupied_while_off/86400
         passed = result < 0.05
         return [result, passed]
+
 
 # check if zone is occupied and AHU is off
 class ahu_occupied_check(AlgorithmClass):
@@ -180,6 +200,7 @@ class ahu_occupied_check(AlgorithmClass):
         passed = result < 0.05
         return [result, passed]
 
+
 # check if chilled water valve actuator is hunting
 class chw_hunting_check(AlgorithmClass):
     components_required = ['Chilled Water Valve 100%']
@@ -189,7 +210,7 @@ class chw_hunting_check(AlgorithmClass):
     def run(data):
         # using units of minutes in this algorithm
         # only check for oscilations with a period of less than 60 minutes
-        min_period = 1/60
+        min_period = 1/60.0
         freq_sums = {}
         
         for hours in range(24, 1, -1):
@@ -220,6 +241,7 @@ class chw_hunting_check(AlgorithmClass):
 
         return [result, passed]
 
+
 # check the run hours
 class run_hours_check(AlgorithmClass):
     components_required = ['Fan Enable', 'Run Hours Maintenance Setpoint']
@@ -233,9 +255,10 @@ class run_hours_check(AlgorithmClass):
 
         seconds_active = enable.resample('1S').ffill().sum()
 
-        result = seconds_active/3600
+        result = seconds_active / 3600
         passed = seconds_active < setpoint[0]
         return [result, passed]
+
 
 # dummy test fuction
 class testfunc(AlgorithmClass):
@@ -244,13 +267,13 @@ class testfunc(AlgorithmClass):
     format = "bool"
 
     def run(data):
-        #print("Test!")
         result = True
         passed = True
         return [result, passed]
 
+
 # save the check results
 def save_result(asset, algorithm, value, passed, component_list):
-    result = Result(timestamp=datetime.datetime.now(), asset_id=asset.id, algorithm_id=algorithm.id, value=value, passed=passed, status_id=int(not passed)+1, components=component_list, recent=True)
+    result = Result(timestamp=datetime.datetime.now(), asset_id=asset.id, algorithm_id=algorithm.id, value=value, passed=passed, status_id=int(not passed) + 1, components=component_list, recent=True)
     db.session.add(result)
     db.session.commit()
