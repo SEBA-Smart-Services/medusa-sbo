@@ -1,17 +1,22 @@
 {% extends "layout.html" %}
 {% block content %}
     <h3>Add Asset</h3>
+
     <form action="{{ url_for('add_asset_submit', sitename=site.name) }}" method=post>
 
       <table>
         <tr>
           <td style="width:250px"><h4>Type:</h4></td>
-          <td><div id="type_list_div" class="mdl-selectfield mdl-js-selectfield shiftdown is-upgraded">
-            <select id="type_list" name="type" class="mdl-selectfield__select">
+          <td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
+            <input class="mdl-textfield__input" type="text" id="type_list" name="type" value="" readonly tabIndex="-1">
+            <label for="type_list">
+              <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
+            </label>
+            <ul for="type_list" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
               {% for asset_type in asset_types %}
-                <option value="{{asset_type.name}}">{{asset_type.name}}</option>
+                <li class="mdl-menu__item" data-val="{{asset_type.name}}">{{asset_type.name}}</li>
               {% endfor %}
-            </select>
+            </ul>
           </div></td>
         </tr>
         <tr>
@@ -37,12 +42,17 @@
         </tr>
         <tr>
           <td><h4>Priority:</h4></td>
-          <td><div class="mdl-selectfield mdl-js-selectfield shiftdown">
-            <select name="priority" class="mdl-selectfield__select">
+          <td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
+            <input class="mdl-textfield__input" type="text" id="priority_list" name="priority" value="" readonly tabIndex="-1">
+            <label for="priority_list">
+              <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
+            </label>
+            <ul for="priority_list" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
               {% for i in range(0,10) %}
-                <option value="{{i}}">{{i}}</option>
+                <li class="mdl-menu__item" data-val="{{i}}">{{i}}</li>
               {% endfor %}
-          </select></div></td>
+            </ul>
+          </div></td>
         </tr>
       </table>
 
@@ -51,9 +61,13 @@
       <table>
         <tr>
           <td>
-            <div id="function_list_div" class="mdl-selectfield mdl-js-selectfield shiftdown">
-              <select id="function_list" class="mdl-selectfield__select">
-              </select>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
+              <input class="mdl-textfield__input" type="text" id="function_list" value="" readonly tabIndex="-1">
+              <label for="function_list">
+                <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
+              </label>
+              <ul id="function_list_ul" for="function_list" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+              </ul>
             </div>
           </td>
           <td>
@@ -66,14 +80,30 @@
       
       <br>
       <h4>Components:</h4>
-      <table id="component_section"></table>
-      <button type="button" onclick="addComponent()" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
-        Add
-      </button>
+      <table class="checkbox-list" id="component_section"></table>
+      <table>
+        <tr>
+          <td>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
+              <input class="mdl-textfield__input" type="text" id="component_list" value="" readonly tabIndex="-1">
+              <label for="component_list">
+                <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
+              </label>
+              <ul id="component_list_ul" for="component_list" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+              </ul>
+            </div>
+          </td>
+          <td>
+            <button type="button" onclick="addComponent()" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+              Add
+            </button>
+          </td>
+        </tr>
+      </table>
 
       <br>
       <h4>Algorithms:</h4>
-      <div class="checkbox-list" id="exclusion_section"></div>
+      <div class="checkbox-list" id="algorithm_section"></div>
       <br><br>
 
       <input type=submit value=Submit class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
@@ -97,125 +127,133 @@
 
 
   <script type="text/javascript">
+
+    // set up trend log list
+    var $loglist;
+    $loglist = $('<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height">');
+    var $loglist_input = $('<input class="mdl-textfield__input" type="text" id="loglist" value="" readonly tabIndex="-1">');
+    var $loglist_label = $('<label for="loglist"><i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i></label>')
+    var $loglist_ul = $('<ul id="loglist_ul" for="loglist" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">');
+    $loglist.append($loglist_input);
+    $loglist.append($loglist_label);
+    $loglist.append($loglist_ul);
+
+    // component counter
+    var i = 1;
+
+    // add a process function to the list
     function addFunction() {
-      var function_text = $('#function_list').val();
-      var $function_row = $('<tr/>');
-      var $col = $('<td/>');
-      $function_row.append($col.clone().append(function_text));
-      $function_row.append($col.clone().append('&nbsp<button type=button onclick="removeFunction(this)">X</button>'));
+      var function_name = $('#function_list').val();
+      var $function_row = $('<tr>');
+      var $col = $('<td style="width:250px">');
+      $function_row.append($col.clone().append(function_name));
+      $function_row.append($col.clone().append('<button type=button onclick="removeFunction(this)">X</button>'));
+
+      // add hidden input to create the actual input
+      $function_row.append($('<input type=hidden name="function"/>').val(function_name));
+
       $('#process_function_section').append($function_row);
     }
 
+    // add a component to the list
+    function addComponent() {
+      var component_name = $('#component_list').val();
+      var $component_row = $('<tr>');
+      var $col = $('<td style="width:250px">');
+      $component_row.append($col.clone().append(component_name));
+      $loglist_input.attr('name', 'log' + i).attr('id', 'loglist' + i);
+      $loglist_label.attr('for', 'loglist' + i);
+      $loglist_ul.attr('for', 'loglist' + i);
+      $component_row.append($col.clone().append($loglist.clone()));
+      $component_row.append($col.clone().append('<button type=button onclick="removeComponent(this)">X</button>'));
+
+      // add hidden input to match component name with component trend log
+      $component_row.append($('<input type=hidden class="component"/>').val(component_name).attr('name', 'component' + i));
+
+      $('#component_section').append($component_row);
+
+      // re-init the dropdown box
+      getmdlSelect.init(".getmdl-select");
+
+      i = i + 1;
+
+    }
+
+    // remove a process function from the list
     function removeFunction(e) {
       $(e).parent().parent().remove();
     }
 
+    // remove a component from the list
+    function removeComponent(e) {
+      $(e).parent().parent().remove();
+      i = i - 1;
+    }
+
     $(function() {
 
-      // populate the type list
-      // I don't understand why but you have to add an option during runtime in order for selectedindex = -1 to work... ¯\_(ツ)_/¯
-      // update: now this doesn't work either. Nothing has been changed, unknown cause
-      // update 2: sometimes it works and sometimes it doesn't. this is why I hate javascript
-      // update 3: it works only when loading the page for the first time, but not when refreshing
-      var type_list = $('#type_list');
-      type_list.append($('<option id=temp/>'));
-      $('#temp').remove();
-      type_list.prop("selectedIndex", -1);
-
+      // update stuff when a type is selected
       $('#type_list').change(function() {
 
-        // MDL doesn't properly upgrade these elements - do it manually
-        // WARNING: if dropdowns seem to randomly freeze when populated via javascript, it's probably something to do with this.
-        // not sure what exactly. spent 8 hours at least trying to debug this and it still comes and goes
-        // UPDATE: seriously, fuck the non-deterministic nature of javascript. i restart the backend without changing this file,
-        // and it goes from working to broken
-        $('#type_list_div').attr('data-upgraded',',MaterialSelectfield');
-        $('#function_list_div').attr('data-upgraded',',MaterialSelectfield');
-
-        // build component list
-        $.getJSON($SCRIPT_ROOT + '{{ url_for('return_components', sitename=site.name) }}', {
-          type: $('select[name="type"]').val(),
-        }, function(component_data) {
-
-          $.getJSON($SCRIPT_ROOT + '{{ url_for('return_loggedentities', sitename=site.name) }}', {
-            type: $('select[name="type"]').val(),
-          }, function(loggedentity_data) {
-
-            // build component list
-            var $loglist = $('<div class="mdl-selectfield mdl-js-selectfield mdl-textfield--full-width">');
-            var $loglist_select = $('<select id="log" class="mdl-selectfield__select">');
-            $.each(loggedentity_data, function() {
-              $loglist_select.append($('<option />').val(this).text(this));
-            })
-            $loglist.append($loglist_select);
-
-            var component_section = $('#component_section');
-            component_section.html('');
-            var i = 1;
-            $.each(component_data, function() {
-              var $component_row = $('<tr>');
-              var $label_col = $('<td style="width:250px">');
-              var $dropdown_col = $('<td>');
-
-              // add hidden input to match component name with component trend log
-              $label_col.append($('<input type=hidden class="component"/>').val(this).attr('name', 'component' + i));
-              $label_col.append(' ' + this);
-              var $loglist_clone = $loglist.clone();
-              $loglist_clone.find('select').attr('name', 'log' + i)
-              $dropdown_col.append($loglist_clone);
-              $component_row.append($label_col);
-              $component_row.append($dropdown_col);
-              component_section.append($component_row);
-              i = i + 1;
-            })
-            componentHandler.upgradeAllRegistered()
-            $('.dropdown').prop("selectedIndex", -1)
-
-          });
-
+        // build log list
+        $.getJSON($SCRIPT_ROOT + '{{ url_for('return_loggedentities', sitename=site.name) }}', {
+          type: $('#type_list').val(),
+        }, function(loglist_data) {
+          $.each(loglist_data, function() {
+            $loglist_ul.append($('<li class="mdl-menu__item"/>').attr('data-val', this).text(this));
+          })
         });
 
         // build process function list
-        $.getJSON($SCRIPT_ROOT + '{{ url_for('return_functions', sitename=site.name) }}', {
-          type: $('select[name="type"]').val(),
+        $.getJSON($SCRIPT_ROOT + '{{ url_for('return_components', sitename=site.name) }}', {
+          type: $('#type_list').val(),
         }, function(data) {
-          var $function_dropdown = $('#function_list')
-          $function_dropdown.html('')
+          var $component_dropdown = $('#component_list_ul')
+          $component_dropdown.html('')
           $.each(data, function() {
-            $function_dropdown.append($('<option />').val(this).text(this));
+            $component_dropdown.append($('<li class="mdl-menu__item"/>').attr('data-val', this).text(this));
           })
-
+          // re-init the dropdown box
+          getmdlSelect.init(".getmdl-select");
         });
 
-        // build exclusion list
-        $.getJSON($SCRIPT_ROOT + '{{ url_for('return_exclusions', sitename=site.name) }}', {
-          type: $('select[name="type"]').val(),
+        // build component list
+        $.getJSON($SCRIPT_ROOT + '{{ url_for('return_functions', sitename=site.name) }}', {
+          type: $('#type_list').val(),
         }, function(data) {
-          var exclusion_section = $('#exclusion_section')
-          exclusion_section.html('')
+          var $function_dropdown = $('#function_list_ul')
+          $function_dropdown.html('')
+          $.each(data, function() {
+            $function_dropdown.append($('<li class="mdl-menu__item"/>').attr('data-val', this).text(this));
+          })
+          // re-init the dropdown box
+          getmdlSelect.init(".getmdl-select");
+        });
+
+        // build algorithm list
+        $.getJSON($SCRIPT_ROOT + '{{ url_for('return_algorithms', sitename=site.name) }}', {
+          type: $('#type_list').val(),
+        }, function(data) {
+          var algorithm_section = $('#algorithm_section')
+          algorithm_section.html('')
           var i = 1;
           $.each(data, function() {
-            var $exclusion = $('<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="exclusion' + i + '">');
-            var $exclusion_checkbox = $('<input type="checkbox" name="exclusion" id="exclusion' + i + '" class="mdl-checkbox__input">').val(this);
-            var $exclusion_label = $('<span class="mdl-checkbox__label">' + this + '</span>');
-            $exclusion.append($exclusion_checkbox);
-            $exclusion.append($exclusion_label);
-            exclusion_section.append($exclusion);
+            var $algorithm = $('<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="algorithm' + i + '">');
+            var $algorithm_checkbox = $('<input type="checkbox" name="algorithm" id="algorithm' + i + '" class="mdl-checkbox__input" checked>').val(this);
+            var $algorithm_label = $('<span class="mdl-checkbox__label">' + this + '</span>');
+            $algorithm.append($algorithm_checkbox);
+            $algorithm.append($algorithm_label);
+            algorithm_section.append($algorithm);
             i = i + 1;
           })
-
+          // upgrade checkboxes
+          componentHandler.upgradeAllRegistered()
         });
 
         return false;
       });
 
     });
-
-    
-
-    function addComponent() {
-
-    }
 
   </script>
 {% endblock %}

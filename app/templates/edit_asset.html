@@ -29,25 +29,48 @@
       </tr>
     </table>
     <br>
-    Components:<br>
-    <table id=component_section class=formfields>
+
+    <h4>Process Functions:</h4>
+      <table>
+        {% for function in asset.functions %}
+          <tr><td>
+            {{function.name}}
+            <input type=hidden name="function" value="{{function.name}}"/>
+          </td></tr>
+        {% endfor %}
+      </table>
+    <br>
+
+    <h4>Components:</h4>
+    <table>
     	{% for component in asset.components %}
     		<tr>
     			<td><input type=hidden class="component" name='component{{loop.index}}' value='{{component.type.name}}'/> {{component.type.name}}</td>
-    			<td><select name='log{{loop.index}}' class=dropdown id='log{{loop.index}}'>
-    				{% for log in logs %}
-    					<option value='{{log.path}}' {% if component.loggedentity_id == log.id %}selected{% endif %}>{{log.path}}</option>
-    				{% endfor %}
-    			</select><td>
+    			<td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height">
+            <input class="mdl-textfield__input" type="text" id='log{{loop.index}}' name='log{{loop.index}}'
+              {% for log in logs %}
+                {% if component.loggedentity_id == log.id %}value='{{log.path}}'{% endif %}
+              {% endfor %}
+            readonly tabIndex="-1">
+            <label for='log{{loop.index}}'>
+              <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
+            </label>
+            <ul for='log{{loop.index}}' class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+              {% for log in logs %}
+                <li class="mdl-menu__item" data-val="{{log.path}}">{{log.path}}</li>
+              {% endfor %}
+            </ul>
+          </div></td>
     		</tr>
     	{% endfor %}
     </table>
     <br>
-    Exclude Algorithms:<br>
-    <table id=exclusion_section class=formfields>
+
+    <h4>Algorithms:</h4>
+    <table>
     	{% for algorithm in asset.algorithms %}
     		<tr><td>
-    			<input type="checkbox" name="exclusion" value='{{algorithm.descr}}' {% if algorithm in asset.exclusions %}checked{% endif %}/> {{algorithm.descr}}</input>
+    			<input type="checkbox" name="algorithm" value='{{algorithm.descr}}' {% if not algorithm in asset.exclusions %}checked{% endif %}/> {{algorithm.descr}}</input>
     		</td></tr>
     	{% endfor %}
     </table>

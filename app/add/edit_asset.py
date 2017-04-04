@@ -40,8 +40,8 @@ def edit_asset_submit(sitename, assetname):
         component_type = ComponentType.query.filter_by(name=component_type_name).one()
         component = AssetComponent.query.filter_by(type=component_type, asset=asset).one()
         log_path = request.form.get('log' + str(i))
-        if not log_path and not session is None:
-            log = LoggedEntity.query.filter_by(path=log_path).one()
+        if not log_path is None and not session is None:
+            log = session.query(LoggedEntity).filter_by(path=log_path).one()
             component.loggedentity_id = log.id
 
     # set process functions
@@ -53,10 +53,12 @@ def edit_asset_submit(sitename, assetname):
 
     # set excluded algorithms
     asset.exclusions.clear()
-    exclusion_list = request.form.getlist('exclusion')
-    for algorithm_descr in exclusion_list:
-        exclusion = Algorithm.query.filter_by(descr=algorithm_descr).one()
-        asset.exclusions.append(exclusion)
+    inclusions = []
+    included_list = request.form.getlist('algorithm')
+    for algorithm_descr in included_list:
+        inclusions.append(Algorithm.query.filter_by(descr=algorithm_descr).one())
+    exclusions = set(Algorithm.query.all()) - set(inclusions)
+    asset.exclusions.extend(exclusions)
 
     db.session.commit()
     return redirect(url_for('asset_list', sitename=sitename))

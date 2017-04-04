@@ -16,7 +16,7 @@ def add_asset_input(sitename):
     return render_template('add_asset.html', site=site, asset_types=asset_types)
 
 # return list of process functions through AJAX
-@app.route('/site/<sitename>/add/_functions')
+@app.route('/site/<sitename>/add/_function')
 def return_functions(sitename):
     asset_type = AssetType.query.filter_by(name=request.args['type']).one()
     function_names = [function.name for function in asset_type.functions]
@@ -44,9 +44,9 @@ def return_components(sitename):
     component_names = [component.name for component in components]
     return jsonify(component_names)
 
-# return list of algorithms to exclude through AJAX
-@app.route('/site/<sitename>/add/_exclusion')
-def return_exclusions(sitename):
+# return list of algorithms through AJAX
+@app.route('/site/<sitename>/add/_algorithm')
+def return_algorithms(sitename):
     algorithms = Algorithm.query.all()
     algorithm_names = [algorithm.descr for algorithm in algorithms]
     return jsonify(algorithm_names)
@@ -65,7 +65,7 @@ def add_asset_submit(sitename):
     asset = Asset(type=type, name=request.form['name'], location=request.form['location'], group=request.form['group'], priority=request.form['priority'], site=site, health=0)
     db.session.add(asset)
 
-    # @@ need a better system of reading in values than string-matching component1 and log1
+    # TODO: need a better system of reading in values than string-matching component1 and log1
     # generate components
     for i in range(1, len(ComponentType.query.all()) + 1):
         component_type_name = request.form.get('component' + str(i))
@@ -73,7 +73,7 @@ def add_asset_submit(sitename):
             component_type = ComponentType.query.filter_by(name=component_type_name).one()
             component = AssetComponent(type=component_type, name=component_type_name)
             log_path = request.form.get('log' + str(i))
-            if not log_path and not session is None:
+            if not log_path is None and not session is None:
                 log = session.query(LoggedEntity).filter_by(path=log_path).one()
                 component.loggedentity_id = log.id
             asset.components.append(component)
@@ -85,10 +85,12 @@ def add_asset_submit(sitename):
         asset.functions.append(function)
 
     # set excluded algorithms
-    exclusion_list = request.form.getlist('exclusion')
-    for algorithm_descr in exclusion_list:
-        exclusion = Algorithm.query.filter_by(descr=algorithm_descr).one()
-        asset.exclusions.append(exclusion)
+    inclusions = []
+    included_list = request.form.getlist('algorithm')
+    for algorithm_descr in included_list:
+        inclusions.append(Algorithm.query.filter_by(descr=algorithm_descr).one())
+    exclusions = set(Algorithm.query.all()) - set(inclusions)
+    asset.exclusions.extend(exclusions)
 
     db.session.commit()
 
