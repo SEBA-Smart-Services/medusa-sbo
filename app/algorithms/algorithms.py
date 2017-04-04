@@ -90,6 +90,9 @@ def check_asset(asset):
         session.commit()
         print('Ran checks on {} - {}, took {}'.format(asset.site.name, asset.name, time.time()-t))
 
+        session.close()
+        db.session.close()
+
     else:
         print('Could not connect to database for {} - {}'.format(asset.site.name, asset.name))
 

@@ -1,16 +1,17 @@
 from app.models import IssueHistory, IssueHistoryTimestamp, Site, AssetComponent, LoggedEntity
-from app import db, registry, app
+from app import db, registry
 import datetime
 
 # make a record of the quantity of issues at each site. Used for graphing performance over time
 def record_issues():
-	timestamp = IssueHistoryTimestamp(timestamp=datetime.datetime.now())
-	for site in Site.query.all():
-		issues = site.get_unresolved()
-		site_history = IssueHistory(issues=len(issues), site=site, timestamp=timestamp)
-		timestamp.issues.append(site_history)
-		db.session.add(timestamp)
-		db.session.commit()
+    timestamp = IssueHistoryTimestamp(timestamp=datetime.datetime.now())
+    for site in Site.query.all():
+        issues = site.get_unresolved()
+        site_history = IssueHistory(issues=len(issues), site=site, timestamp=timestamp)
+        timestamp.issues.append(site_history)
+        db.session.add(timestamp)
+        db.session.commit()
+        db.session.close()
 
 # link medusa assets to webreports logs. XML file must have been imported first for this to work
 def register_components():
@@ -24,3 +25,5 @@ def register_components():
                 component.loggedentity_path = ''
                 print("{} - {} log registered".format(component.asset.name, component.name))
             db.session.commit()
+            db.session.close()
+            session.close()

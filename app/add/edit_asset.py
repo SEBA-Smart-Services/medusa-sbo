@@ -14,6 +14,7 @@ def edit_asset(sitename, assetname):
     # set available logs
     if not session is None:
         logs = session.query(LoggedEntity).filter_by(type='trend.ETLog').all()
+        session.close()
     else:
         logs = []
 
@@ -43,6 +44,7 @@ def edit_asset_submit(sitename, assetname):
         if not log_path is None and not session is None:
             log = session.query(LoggedEntity).filter_by(path=log_path).one()
             component.loggedentity_id = log.id
+            session.close()
 
     # set process functions
     asset.functions.clear()
@@ -61,6 +63,7 @@ def edit_asset_submit(sitename, assetname):
     asset.exclusions.extend(exclusions)
 
     db.session.commit()
+
     return redirect(url_for('asset_list', sitename=sitename))
 
 # delete asset

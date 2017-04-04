@@ -33,8 +33,10 @@ def return_loggedentities(sitename):
     if not session is None:
         logs = session.query(LoggedEntity).filter_by(type='trend.ETLog').all()
         log_paths = [log.path for log in logs]
+        session.close()
     else:
         log_paths = []
+
     return jsonify(log_paths)
 
 # return list of components through AJAX
@@ -76,6 +78,7 @@ def add_asset_submit(sitename):
             if not log_path is None and not session is None:
                 log = session.query(LoggedEntity).filter_by(path=log_path).one()
                 component.loggedentity_id = log.id
+                session.close()
             asset.components.append(component)
 
     # set process functions
