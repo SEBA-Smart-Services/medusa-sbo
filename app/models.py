@@ -16,6 +16,7 @@ class SessionRegistry(object):
 
     def get(self, url):
         try:
+            # reuse scoped_sessions if they already exist for that database, otherwise create one
             if url not in self._registry:
 
                 # existing Flask-SQLAlchemy settings
@@ -24,8 +25,10 @@ class SessionRegistry(object):
                 if echo:
                     options['echo'] = echo
                 engine = create_engine(make_url(url), **options)
-                
                 session_factory = orm.sessionmaker(bind=engine, autocommit=False, autoflush=True, query_cls=db.Query)
+
+                # scoped session handles serving same/different session depending on which thread is calling
+                # scoped to a each web request
                 session = orm.scoped_session(session_factory, scopefunc=_app_ctx_stack.__ident_func__)
                 self._registry[url] = session
 
@@ -77,10 +80,10 @@ class LoggedEntity(db.Model):
 ## abstract models
 ###################################
 
-# many-many mapping table between algorithms and the component types they require
-algo_comp_mapping = db.Table('algo_comp_mapping',
+# many-many mapping table between algorithms and the point types they require
+algo_point_mapping = db.Table('algo_point_mapping',
     db.Column('Algorithm_id', db.Integer, db.ForeignKey('algorithm.ID'), primary_key=True),
-    db.Column('Component_type_id', db.Integer, db.ForeignKey('component_type.ID'), primary_key=True),
+    db.Column('Point_type_id', db.Integer, db.ForeignKey('point_type.ID'), primary_key=True),
     info={'bind_key': 'medusa'}
 )
 
@@ -112,12 +115,12 @@ class FunctionalDescriptor(db.Model):
     def __repr__(self):
         return self.name
 
-# component types
-class ComponentType(db.Model):
+# point types
+class PointType(db.Model):
     __bind_key__ = 'medusa'
     id = db.Column('ID',db.Integer, primary_key=True)
     name = db.Column('Name',db.String(512))
-    asset_components = db.relationship('AssetComponent', backref='type')
+    asset_points = db.relationship('AssetPoint', backref='type')
 
     def __repr__(self):
         return self.name
@@ -128,7 +131,7 @@ class Algorithm(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512))
     descr = db.Column('Descr', db.String(512))
-    component_types = db.relationship('ComponentType', secondary=algo_comp_mapping, backref=db.backref('algorithms'))
+    point_types = db.relationship('PointType', secondary=algo_point_mapping, backref=db.backref('algorithms'))
     functions = db.relationship('FunctionalDescriptor', secondary=algo_function_mapping, backref=db.backref('algorithms'))
     results = db.relationship('Result', backref='algorithm')
 
@@ -147,14 +150,14 @@ class Algorithm(db.Model):
     def run(self, *args, **kwargs):
         return self.algorithm.run(*args, **kwargs)
 
-    # update mappings to component types and assets
+    # update mappings to point types and assets
     def map(self):
         try:
-            # update required component types based on specified component_type attribute in .algorithm
-            self.component_types.clear()
-            for component_type_reqd in self.algorithm.components_required:
-                component_type = ComponentType.query.filter_by(name=component_type_reqd).one()
-                self.component_types.append(component_type)
+            # update required point types based on specified point_type attribute in .algorithm
+            self.point_types.clear()
+            for point_type_reqd in self.algorithm.points_required:
+                point_type = PointType.query.filter_by(name=point_type_reqd).one()
+                self.point_types.append(point_type)
 
             # update required process functions
             self.functions.clear()
@@ -162,7 +165,7 @@ class Algorithm(db.Model):
                 function = FunctionalDescriptor.query.filter_by(name=function_reqd).one()
                 self.functions.append(function)
             
-        # the component or process function required for the algorithm is not defined
+        # the point or process function required for the algorithm is not defined
         except:
             self.assets.clear()
             return
@@ -207,10 +210,10 @@ algo_exclusions = db.Table('algo_exclusions',
     info={'bind_key': 'medusa'}
 )
 
-# many-many mapping table defining which components were checked for each algorithm result
-components_checked = db.Table('components_checked',
+# many-many mapping table defining which points were checked for each algorithm result
+points_checked = db.Table('points_checked',
     db.Column('Result_id', db.Integer, db.ForeignKey('result.ID'), primary_key=True),
-    db.Column('Component_id', db.Integer, db.ForeignKey('asset_component.ID'), primary_key=True),
+    db.Column('Point_id', db.Integer, db.ForeignKey('asset_point.ID'), primary_key=True),
     info={'bind_key': 'medusa'}
 )
 
@@ -220,10 +223,10 @@ class Site(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512))
     db_key = db.Column('DB_key', db.String(512))
-    inbuildings_key = db.Column('Inbuildings_key', db.String(512))
     assets = db.relationship('Asset', backref='site')
     inbuildings_assets = db.relationship('InbuildingsAsset', backref='site')
     issue_history = db.relationship('IssueHistory', backref='site')
+    cmms_configs = db.relationship('CMMSConfig', backref='site')
 
     def __repr__(self):
         return self.name
@@ -260,7 +263,7 @@ class Asset(db.Model):
     priority = db.Column('Priority', db.Integer)
     site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'))
     type_id = db.Column('Type_id', db.Integer, db.ForeignKey('asset_type.ID'))
-    components = db.relationship('AssetComponent', backref='asset', cascade='save-update, merge, delete, delete-orphan')
+    points = db.relationship('AssetPoint', backref='asset', cascade='save-update, merge, delete, delete-orphan')
     results = db.relationship('Result', backref='asset', cascade='save-update, merge, delete, delete-orphan')
     inbuildings = db.relationship('InbuildingsAsset', backref='asset', uselist=False)
     exclusions = db.relationship('Algorithm', secondary=algo_exclusions, backref='exclusions')
@@ -274,12 +277,12 @@ class Asset(db.Model):
         for algorithm in Algorithm.query.all():
             self.map_algorithm(algorithm)
 
-    # map this asset to a single algorithm based on previously generated relationship between asset-component_types-algorithms
+    # map this asset to a single algorithm based on previously generated relationship between asset-point_types-algorithms
     def map_algorithm(self, algorithm):
         passed = True
-        # check the components required by algorithm against the components the asset actually has
-        for component in algorithm.component_types:
-            if not component in self.get_component_types():
+        # check the points required by algorithm against the points the asset actually has
+        for point in algorithm.point_types:
+            if not point in self.get_point_types():
                 passed = False
 
         # check the process functions required by algorithm against the process functions the asset actually has
@@ -291,19 +294,19 @@ class Asset(db.Model):
         if passed == True:
             self.algorithms.append(algorithm)
 
-    def get_component_types(self):
-        return [component.type for component in self.components]
+    def get_point_types(self):
+        return [point.type for point in self.points]
 
     def __repr__(self):
         return self.name
 
-# components that each asset has - there may be multiple of the same type
-class AssetComponent(db.Model):
+# points that each asset has - there may be multiple of the same type
+class AssetPoint(db.Model):
     __bind_key__ = 'medusa'
     id = db.Column('ID', db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512))
     asset_id = db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'))
-    type_id = db.Column('ComponentType_id', db.Integer, db.ForeignKey('component_type.ID'))
+    type_id = db.Column('PointType_id', db.Integer, db.ForeignKey('point_type.ID'))
     loggedentity_id = db.Column('LoggedEntity_id', db.Integer)
     loggedentity_path = db.Column('LoggedEntity_path_temp', db.String(1024))
 
@@ -323,7 +326,7 @@ class Result(db.Model):
     value = db.Column('Result', db.Float)
     passed = db.Column('Passed', db.Boolean)
     recent = db.Column('Recent', db.Boolean)
-    components = db.relationship('AssetComponent', secondary=components_checked, backref='results')
+    points = db.relationship('AssetPoint', secondary=points_checked, backref='results')
     status_id = db.Column('Status_id', db.Integer, db.ForeignKey('status.ID'))
 
     def __repr__(self):
@@ -338,6 +341,24 @@ class Result(db.Model):
     def get_unresolved_by_priority(cls):
         issue = cls.query.join(cls.asset).filter(cls.status_id > 1, Result.status_id < 5).order_by(Asset.priority.asc()).all()
         return issue
+
+# list of CMMS interfaces
+class CMMSInterface(db.Model):
+    __bind_key__ = 'medusa'
+    __tablename__ = 'cmms_interface'
+    id = db.Column('ID', db.Integer, primary_key=True)
+    name = db.Column('Name', db.String(512))
+    configs = db.relationship('CMMSConfig', backref='interface')
+
+# config properties for CMMS interface
+class CMMSConfig(db.Model):
+    __bind_key__ = 'medusa'
+    __tablename__ = 'cmms_config'
+    id = db.Column('ID', db.Integer, primary_key=True)
+    site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'))
+    interface_id = db.Column('Interface_id', db.Integer, db.ForeignKey('cmms_interface.ID'))
+    enabled = db.Column('Enabled', db.Boolean)
+    key = db.Column('Connection_key', db.String(512))
 
 
 ###################################

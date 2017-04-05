@@ -1,4 +1,4 @@
-from app.models import LogTimeValue, Result, Asset, AssetComponent
+from app.models import LogTimeValue, Result, Asset, AssetPoint
 from app import db, app, registry
 import datetime
 import time
@@ -15,21 +15,21 @@ class DataGrab():
         self.asset = asset
 
     # grab a fixed number of samples
-    def latest_qty(self, component_name, quantity):
-        component = AssetComponent.query.filter(AssetComponent.type.has(name=component_name), AssetComponent.asset==self.asset).one()
-        value_list = self.session.query(LogTimeValue).filter_by(parent_id=component.loggedentity_id).order_by(LogTimeValue.datetimestamp.desc()).limit(quantity).all()
+    def latest_qty(self, point_name, quantity):
+        point = AssetPoint.query.filter(AssetPoint.type.has(name=point_name), AssetPoint.asset==self.asset).one()
+        value_list = self.session.query(LogTimeValue).filter_by(parent_id=point.loggedentity_id).order_by(LogTimeValue.datetimestamp.desc()).limit(quantity).all()
         return self.to_series(value_list)
 
     # grab a time-based range of samples, ending at now
-    def latest_time(self, component_name, timedelta):
-        component = AssetComponent.query.filter(AssetComponent.type.has(name=component_name), AssetComponent.asset==self.asset).one()
-        value_list = self.session.query(LogTimeValue).filter(LogTimeValue.parent_id == component.loggedentity_id, LogTimeValue.datetimestamp >= datetime.datetime.now()-timedelta).all()
+    def latest_time(self, point_name, timedelta):
+        point = AssetPoint.query.filter(AssetPoint.type.has(name=point_name), AssetPoint.asset==self.asset).one()
+        value_list = self.session.query(LogTimeValue).filter(LogTimeValue.parent_id == point.loggedentity_id, LogTimeValue.datetimestamp >= datetime.datetime.now()-timedelta).all()
         return self.to_series(value_list)
 
     # grab a time-based range of samples, with defined start and end time
-    def time_range(self, component_name, timedelta_start, timedelta_finish):
-        component = AssetComponent.query.filter(AssetComponent.type.has(name=component_name), AssetComponent.asset==self.asset).one()
-        value_list = self.session.query(LogTimeValue).filter(LogTimeValue.parent_id == component.loggedentity_id, LogTimeValue.datetimestamp >= datetime.datetime.now()-timedelta_start, \
+    def time_range(self, point_name, timedelta_start, timedelta_finish):
+        point = AssetPoint.query.filter(AssetPoint.type.has(name=point_name), AssetPoint.asset==self.asset).one()
+        value_list = self.session.query(LogTimeValue).filter(LogTimeValue.parent_id == point.loggedentity_id, LogTimeValue.datetimestamp >= datetime.datetime.now()-timedelta_start, \
             LogTimeValue.datetimestamp <= datetime.datetime.now()-timedelta_finish).all()
         return self.to_series(value_list)
 
@@ -69,18 +69,18 @@ def check_asset(asset):
 
         for algorithm in set(asset.algorithms) - set(asset.exclusions):
             
-            component_list = []
+            point_list = []
 
-            # find all the component types belonging to this asset which are being checked by this algorithm
-            for component in asset.components:
-                if component.type in algorithm.component_types:
-                    component_list.append(component)
+            # find all the point types belonging to this asset which are being checked by this algorithm
+            for point in asset.points:
+                if point.type in algorithm.point_types:
+                    point_list.append(point)
 
             # call each algorithm which is mapped to the asset
             [result, passed] = algorithm.run(datagrab)
 
             # save result to result table
-            save_result(asset, algorithm, result, passed, component_list)
+            save_result(asset, algorithm, result, passed, point_list)
 
             algorithms_run += 1
             algorithms_passed += passed
@@ -110,16 +110,16 @@ def check_all():
 
 
 # dummy class used to access all the algorithm checks
-# 'components_required' specifies which components each algorithm will request data for
+# 'points_required' specifies which points each algorithm will request data for
 # 'functions_required' specifies the process functions that the algorithm requires to operate
 class AlgorithmClass():
-    components_required = []
+    points_required = []
     functions_required = []
 
 
 # check if room air temp is higher than setpoint while heating is on
 class airtemp_heating_check(AlgorithmClass):
-    components_required = ['Room Air Temp', 'Heater Enable', 'Room Air Temp Setpoint']
+    points_required = ['Room Air Temp', 'Heater Enable', 'Room Air Temp Setpoint']
     name = "Air temp higher than setpoint while heating on"
     format = "{:.1%}"
 
@@ -142,7 +142,7 @@ class airtemp_heating_check(AlgorithmClass):
 
 # check if heating and cooling are simultaneously on
 class simult_heatcool_check(AlgorithmClass):
-    components_required = ['Heater Enable', 'Chilled Water Valve Enable']
+    points_required = ['Heater Enable', 'Chilled Water Valve Enable']
     name = "Simultaneous heating and cooling"
     format = "{:.1%}"
 
@@ -163,7 +163,7 @@ class simult_heatcool_check(AlgorithmClass):
 
 # check if zone fan is on while zone is unoccupied
 class fan_unoccupied_check(AlgorithmClass):
-    components_required = ['Room Occupancy', 'Fan Enable']
+    points_required = ['Room Occupancy', 'Fan Enable']
     name = "Zone fan on while unoccupied"
     format = "{:.1%}"
 
@@ -184,7 +184,7 @@ class fan_unoccupied_check(AlgorithmClass):
 
 # check if zone is occupied and AHU is off
 class ahu_occupied_check(AlgorithmClass):
-    components_required = ['Room Occupancy', 'Fan Enable']
+    points_required = ['Room Occupancy', 'Fan Enable']
     name = "Zone occupied, AHU off"
     format = "{:.1%}"
 
@@ -206,7 +206,7 @@ class ahu_occupied_check(AlgorithmClass):
 
 # check if chilled water valve actuator is hunting
 class chw_hunting_check(AlgorithmClass):
-    components_required = ['Chilled Water Valve 100%']
+    points_required = ['Chilled Water Valve 100%']
     name = "Chilled water valve actuator hunting"
     format = "bool"
 
@@ -231,7 +231,7 @@ class chw_hunting_check(AlgorithmClass):
                 # we only care about oscillations faster than our min period. Also only take half the range since the FFT is mirrored, avoid doubling up
                 sum_range = valve_fft[i:int(N/2)]
 
-                # metric to judge overall instability, sum of frequency components
+                # metric to judge overall instability, sum of frequency points
                 freq_sums[hours] = sum(numpy.abs(sum_range))
             else:
                 freq_sums[hours] = 0
@@ -247,7 +247,7 @@ class chw_hunting_check(AlgorithmClass):
 
 # check the run hours
 class run_hours_check(AlgorithmClass):
-    components_required = ['Fan Enable', 'Run Hours Maintenance Setpoint']
+    points_required = ['Fan Enable', 'Run Hours Maintenance Setpoint']
     name = "Run hours exceeded limit"
     format = "{:.1f}h"
 
@@ -265,7 +265,7 @@ class run_hours_check(AlgorithmClass):
 
 # dummy test fuction
 class testfunc(AlgorithmClass):
-    components_required = []
+    points_required = []
     name = "Test"
     format = "bool"
 
@@ -276,7 +276,7 @@ class testfunc(AlgorithmClass):
 
 
 # save the check results
-def save_result(asset, algorithm, value, passed, component_list):
-    result = Result(timestamp=datetime.datetime.now(), asset_id=asset.id, algorithm_id=algorithm.id, value=value, passed=passed, status_id=int(not passed) + 1, components=component_list, recent=True)
+def save_result(asset, algorithm, value, passed, point_list):
+    result = Result(timestamp=datetime.datetime.now(), asset_id=asset.id, algorithm_id=algorithm.id, value=value, passed=passed, status_id=int(not passed) + 1, points=point_list, recent=True)
     db.session.add(result)
     db.session.commit()

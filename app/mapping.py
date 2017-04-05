@@ -23,7 +23,7 @@ def generate_algorithms():
 
     db.session.commit()
 
-# generate the entire mapping tables for algorithms-components and algorithms-assets
+# generate the entire mapping tables for algorithms-points and algorithms-assets
 def map_algorithms():
     for algorithm in Algorithm.query.all():
         algorithm.map()

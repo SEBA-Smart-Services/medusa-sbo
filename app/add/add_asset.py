@@ -1,5 +1,5 @@
 from app import app, db, registry
-from app.models import Site, AssetType, FunctionalDescriptor, LoggedEntity, Asset, ComponentType, AssetComponent, Algorithm
+from app.models import Site, AssetType, FunctionalDescriptor, LoggedEntity, Asset, PointType, AssetPoint, Algorithm
 from flask import request, render_template, url_for, redirect, flash, send_file, make_response, jsonify
 from openpyxl import load_workbook, Workbook
 from openpyxl.worksheet.datavalidation import DataValidation
@@ -39,12 +39,12 @@ def return_loggedentities(sitename):
 
     return jsonify(log_paths)
 
-# return list of components through AJAX
-@app.route('/site/<sitename>/add/_component')
-def return_components(sitename):
-    components = ComponentType.query.all()
-    component_names = [component.name for component in components]
-    return jsonify(component_names)
+# return list of points through AJAX
+@app.route('/site/<sitename>/add/_point')
+def return_points(sitename):
+    points = PointType.query.all()
+    point_names = [point.name for point in points]
+    return jsonify(point_names)
 
 # return list of algorithms through AJAX
 @app.route('/site/<sitename>/add/_algorithm')
@@ -67,19 +67,19 @@ def add_asset_submit(sitename):
     asset = Asset(type=type, name=request.form['name'], location=request.form['location'], group=request.form['group'], priority=request.form['priority'], site=site, health=0)
     db.session.add(asset)
 
-    # TODO: need a better system of reading in values than string-matching component1 and log1
-    # generate components
-    for i in range(1, len(ComponentType.query.all()) + 1):
-        component_type_name = request.form.get('component' + str(i))
-        if not component_type_name is None:
-            component_type = ComponentType.query.filter_by(name=component_type_name).one()
-            component = AssetComponent(type=component_type, name=component_type_name)
+    # TODO: need a better system of reading in values than string-matching point1 and log1
+    # generate points
+    for i in range(1, len(PointType.query.all()) + 1):
+        point_type_name = request.form.get('point' + str(i))
+        if not point_type_name is None:
+            point_type = PointType.query.filter_by(name=point_type_name).one()
+            point = AssetPoint(type=point_type, name=point_type_name)
             log_path = request.form.get('log' + str(i))
             if not log_path is None and not session is None:
                 log = session.query(LoggedEntity).filter_by(path=log_path).one()
-                component.loggedentity_id = log.id
+                point.loggedentity_id = log.id
                 session.close()
-            asset.components.append(component)
+            asset.points.append(point)
 
     # set process functions
     function_list = request.form.getlist('function')
@@ -192,14 +192,14 @@ def add_asset_upload(sitename):
             db.session.add(asset)
             asset_list.append(asset)
 
-    # generate components
-    for subtype_component in subtype.components:
-        component = AssetComponent(type=subtype_component.type, asset=asset, name=subtype_component.type.name)
+    # generate points
+    for subtype_point in subtype.points:
+        point = AssetPoint(type=subtype_point.type, asset=asset, name=subtype_point.type.name)
 
         # set destination folder
-        component.loggedentity_path = "/Server 1/Medusa/Trends/{}/{} Extended".format(asset.name, component.name)
+        point.loggedentity_path = "/Server 1/Medusa/Trends/{}/{} Extended".format(asset.name, point.name)
 
-        db.session.add(component)
+        db.session.add(point)
 
     db.session.commit()
 
@@ -210,9 +210,9 @@ def add_asset_upload(sitename):
     for asset in asset_list:
         oi_folder = SubElement(exported_objects, 'OI')
         oi_folder.attrib = {'NAME':asset.name, 'TYPE':'system.base.Folder'}
-        for component in asset.components:
+        for point in asset.points:
             oi_trend = SubElement(oi_folder, 'OI')
-            oi_trend.attrib = {'NAME':'{} Extended'.format(component.name), 'TYPE':'trend.ETLog'}
+            oi_trend.attrib = {'NAME':'{} Extended'.format(point.name), 'TYPE':'trend.ETLog'}
             pi = SubElement(oi_trend, 'PI')
             pi.attrib = {'Name':'IncludeInReports', 'Value':'1'}
 

@@ -1,5 +1,5 @@
 from app import app, db, registry
-from app.models import Site, Asset, LoggedEntity, ComponentType, AssetComponent, FunctionalDescriptor, Algorithm
+from app.models import Site, Asset, LoggedEntity, PointType, AssetPoint, FunctionalDescriptor, Algorithm
 from flask import request, render_template, url_for, redirect
 
 # page to edit an asset on the site
@@ -34,16 +34,16 @@ def edit_asset_submit(sitename, assetname):
     # get database session for this site
     session = registry.get(asset.site.db_key)
 
-    # @@ need a better system of reading in values than string-matching component1 and log1
-    # assign log ids to components
-    for i in range(1, len(asset.components) + 1):
-        component_type_name = request.form.get('component' + str(i))
-        component_type = ComponentType.query.filter_by(name=component_type_name).one()
-        component = AssetComponent.query.filter_by(type=component_type, asset=asset).one()
+    # @@ need a better system of reading in values than string-matching point1 and log1
+    # assign log ids to points
+    for i in range(1, len(asset.points) + 1):
+        point_type_name = request.form.get('point' + str(i))
+        point_type = PointType.query.filter_by(name=point_type_name).one()
+        point = AssetPoint.query.filter_by(type=point_type, asset=asset).one()
         log_path = request.form.get('log' + str(i))
         if not log_path is None and not session is None:
             log = session.query(LoggedEntity).filter_by(path=log_path).one()
-            component.loggedentity_id = log.id
+            point.loggedentity_id = log.id
             session.close()
 
     # set process functions

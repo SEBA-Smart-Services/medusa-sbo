@@ -79,22 +79,22 @@
       </table>
       
       <br>
-      <h4>Components:</h4>
-      <table class="checkbox-list" id="component_section"></table>
+      <h4>Points:</h4>
+      <table class="checkbox-list" id="point_section"></table>
       <table>
         <tr>
           <td>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
-              <input class="mdl-textfield__input" type="text" id="component_list" value="" readonly tabIndex="-1">
-              <label for="component_list">
+              <input class="mdl-textfield__input" type="text" id="point_list" value="" readonly tabIndex="-1">
+              <label for="point_list">
                 <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
               </label>
-              <ul id="component_list_ul" for="component_list" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+              <ul id="point_list_ul" for="point_list" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
               </ul>
             </div>
           </td>
           <td>
-            <button type="button" onclick="addComponent()" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+            <button type="button" onclick="addPoint()" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
               Add
             </button>
           </td>
@@ -138,7 +138,7 @@
     $loglist.append($loglist_label);
     $loglist.append($loglist_ul);
 
-    // component counter
+    // point counter
     var i = 1;
 
     // add a process function to the list
@@ -155,22 +155,22 @@
       $('#process_function_section').append($function_row);
     }
 
-    // add a component to the list
-    function addComponent() {
-      var component_name = $('#component_list').val();
-      var $component_row = $('<tr>');
+    // add a point to the list
+    function addPoint() {
+      var point_name = $('#point_list').val();
+      var $point_row = $('<tr>');
       var $col = $('<td style="width:250px">');
-      $component_row.append($col.clone().append(component_name));
+      $point_row.append($col.clone().append(point_name));
       $loglist_input.attr('name', 'log' + i).attr('id', 'loglist' + i);
       $loglist_label.attr('for', 'loglist' + i);
       $loglist_ul.attr('for', 'loglist' + i);
-      $component_row.append($col.clone().append($loglist.clone()));
-      $component_row.append($col.clone().append('<button type=button onclick="removeComponent(this)">X</button>'));
+      $point_row.append($col.clone().append($loglist.clone()));
+      $point_row.append($col.clone().append('<button type=button onclick="removePoint(this)">X</button>'));
 
-      // add hidden input to match component name with component trend log
-      $component_row.append($('<input type=hidden class="component"/>').val(component_name).attr('name', 'component' + i));
+      // add hidden input to match point name with point trend log
+      $point_row.append($('<input type=hidden class="point"/>').val(point_name).attr('name', 'point' + i));
 
-      $('#component_section').append($component_row);
+      $('#point_section').append($point_row);
 
       // re-init the dropdown box
       getmdlSelect.init(".getmdl-select");
@@ -184,8 +184,8 @@
       $(e).parent().parent().remove();
     }
 
-    // remove a component from the list
-    function removeComponent(e) {
+    // remove a point from the list
+    function removePoint(e) {
       $(e).parent().parent().remove();
       i = i - 1;
     }
@@ -205,19 +205,19 @@
         });
 
         // build process function list
-        $.getJSON($SCRIPT_ROOT + '{{ url_for('return_components', sitename=site.name) }}', {
+        $.getJSON($SCRIPT_ROOT + '{{ url_for('return_points', sitename=site.name) }}', {
           type: $('#type_list').val(),
         }, function(data) {
-          var $component_dropdown = $('#component_list_ul')
-          $component_dropdown.html('')
+          var $point_dropdown = $('#point_list_ul')
+          $point_dropdown.html('')
           $.each(data, function() {
-            $component_dropdown.append($('<li class="mdl-menu__item"/>').attr('data-val', this).text(this));
+            $point_dropdown.append($('<li class="mdl-menu__item"/>').attr('data-val', this).text(this));
           })
           // re-init the dropdown box
           getmdlSelect.init(".getmdl-select");
         });
 
-        // build component list
+        // build point list
         $.getJSON($SCRIPT_ROOT + '{{ url_for('return_functions', sitename=site.name) }}', {
           type: $('#type_list').val(),
         }, function(data) {
@@ -247,7 +247,7 @@
             i = i + 1;
           })
           // upgrade checkboxes
-          componentHandler.upgradeAllRegistered()
+          pointHandler.upgradeAllRegistered()
         });
 
         return false;

@@ -1,5 +1,5 @@
 from app import app, db
-from app.models import Asset, Site, AssetComponent, AssetType, Algorithm, FunctionalDescriptor, ComponentType, Result, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp
+from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, PointType, Result, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp, CMMSInterface, CMMSConfig
 from flask import json, request, render_template, url_for, redirect, jsonify, flash, make_response
 from statistics import mean
 import datetime, time
@@ -84,7 +84,10 @@ def add_site():
 # handle creation of a new site
 @app.route('/site/all/add_site/_submit', methods=['POST'])
 def add_site_submit():
-    site = Site(name=request.form['name'], db_key=request.form['database_key'], inbuildings_key=request.form['inbuildings_key'])
+    site = Site(name=request.form['name'], db_key=request.form['database_key'])
+    for interface in CMMSInterface.query.all():
+        cmms_config = CMMSConfig(interface=interface, enabled=False)
+        site.cmms_configs.append(cmms_config)
     db.session.add(site)
     db.session.commit()
     return redirect(url_for('site_list'))
@@ -144,3 +147,26 @@ def result_list(sitename, assetname):
     recent_results = Result.query.filter_by(asset=asset, recent=True).all()
     unresolved_results = Result.query.filter(Result.asset==asset, Result.status_id > 1, Result.status_id < 5).all()
     return render_template('results.html', asset=asset, site=site, recent_results=recent_results, unresolved_results=unresolved_results)
+
+# show CMMS integration page
+@app.route('/site/<sitename>/CMMS')
+def CMMS(sitename):
+    site = Site.query.filter_by(name=sitename).one()
+    inbuildings = CMMSInterface.query.filter_by(name='Inbuildings').one()
+    astea = CMMSInterface.query.filter_by(name='Astea').one()
+    inbuildings_config = CMMSConfig.query.filter_by(site=site, interface=inbuildings).one()
+    astea_config = CMMSConfig.query.filter_by(site=site, interface=astea).one()
+    return render_template('CMMS.html', inbuildings_config=inbuildings_config, astea_config=astea_config, site=site)
+
+# update CMMS config for a site
+@app.route('/site/<sitename>/CMMS/_submit', methods=['POST'])
+def CMMS_submit(sitename):
+    site = Site.query.filter_by(name=sitename).one()
+    print(request.form)
+    for interface in CMMSInterface.query.all():
+        config = CMMSConfig.query.filter_by(site=site, interface=interface).one()
+        config.enabled = request.form.get(interface.name, False)
+        config.key = request.form.get(interface.name + '_key')
+        print(config)
+    db.session.commit()
+    return redirect(url_for('homepage', sitename=sitename))

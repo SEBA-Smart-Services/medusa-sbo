@@ -41,15 +41,15 @@
       </table>
     <br>
 
-    <h4>Components:</h4>
+    <h4>Points:</h4>
     <table>
-    	{% for component in asset.components %}
+    	{% for point in asset.points %}
     		<tr>
-    			<td><input type=hidden class="component" name='component{{loop.index}}' value='{{component.type.name}}'/> {{component.type.name}}</td>
+    			<td><input type=hidden class="point" name='point{{loop.index}}' value='{{point.type.name}}'/> {{point.type.name}}</td>
     			<td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height">
             <input class="mdl-textfield__input" type="text" id='log{{loop.index}}' name='log{{loop.index}}'
               {% for log in logs %}
-                {% if component.loggedentity_id == log.id %}value='{{log.path}}'{% endif %}
+                {% if point.loggedentity_id == log.id %}value='{{log.path}}'{% endif %}
               {% endfor %}
             readonly tabIndex="-1">
             <label for='log{{loop.index}}'>
@@ -82,8 +82,8 @@
   <script type="text/javascript">
     $(function() {
       setTimeout(function() {
-        {% for component in asset.components %}
-          {% if component.loggedentity_id == None %}
+        {% for point in asset.points %}
+          {% if point.loggedentity_id == None %}
             $('#log{{loop.index}}').prop("selectedIndex", -1);
           {% endif %}
         {% endfor %}

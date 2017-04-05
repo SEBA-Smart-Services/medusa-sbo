@@ -1,4 +1,4 @@
-from app.models import IssueHistory, IssueHistoryTimestamp, Site, AssetComponent, LoggedEntity
+from app.models import IssueHistory, IssueHistoryTimestamp, Site, AssetPoint, LoggedEntity
 from app import db, registry
 import datetime
 
@@ -14,16 +14,16 @@ def record_issues():
         db.session.close()
 
 # link medusa assets to webreports logs. XML file must have been imported first for this to work
-def register_components():
-    for component in AssetComponent.query.filter(AssetComponent.loggedentity_path != '').all():
-        session = registry.get(component.asset.site.db_key)
+def register_points():
+    for point in AssetPoint.query.filter(AssetPoint.loggedentity_path != '').all():
+        session = registry.get(point.asset.site.db_key)
         if not session is None:
             # search to see if the XML generated file exists in the WebReports server
-            loggedentity = session.query(LoggedEntity).filter_by(path=component.loggedentity_path).first()
+            loggedentity = session.query(LoggedEntity).filter_by(path=point.loggedentity_path).first()
             if not loggedentity is None:
-                component.loggedentity_id = loggedentity.id
-                component.loggedentity_path = ''
-                print("{} - {} log registered".format(component.asset.name, component.name))
+                point.loggedentity_id = loggedentity.id
+                point.loggedentity_path = ''
+                print("{} - {} log registered".format(point.asset.name, point.name))
             db.session.commit()
             db.session.close()
             session.close()
