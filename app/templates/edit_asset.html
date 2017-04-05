@@ -2,30 +2,41 @@
 {% block content %}
 	 <h2>Edit Asset</h2>
   <form action="{{ url_for('edit_asset_submit', sitename=site.name, assetname=asset.name) }}" method=post>
-    <table class=formfields>
+    <table>
       <tr>
-        <td>Name:</td>
-        <td><input type=text size=30 name=name value='{{asset.name}}' autocomplete=off></td>
+        <td style="width:250px"><h4>Name:</h4></td>
+        <td><div class="mdl-textfield mdl-js-textfield shiftdown">
+            <input class="mdl-textfield__input" type="text" name="name" autocomplete="off" id="name" value='{{asset.name}}'>
+            <label class="mdl-textfield__label" for="name"></label>
+        </div></td>
       </tr>
       <tr>
-        <td>Location:</td>
-        <td><input type=text size=30 name=location value='{{asset.location}}' autocomplete=off></td>
+      <td><h4>Location:</h4></td>
+        <td><div class="mdl-textfield mdl-js-textfield shiftdown">
+            <input class="mdl-textfield__input" type="text" name="location" autocomplete="off" id="location" value='{{asset.location}}'>
+            <label class="mdl-textfield__label" for="location"></label>
+        </div></td>
       </tr>
       <tr>
-        <td>Group:</td>
-        <td><input type=text size=30 name=group value='{{asset.group}}' autocomplete=off></td>
+        <td><h4>Group:</h4></td>
+        <td><div class="mdl-textfield mdl-js-textfield shiftdown">
+            <input class="mdl-textfield__input" type="text" name="group" autocomplete="off" id="group" value='{{asset.group}}'>
+            <label class="mdl-textfield__label" for="group"></label>
+        </div></td>
       </tr>
       <tr>
-        <td>Priority:</td>
-        <td><select name=priority>
-          {% for i in range(0,10) %}
-            <option value="{{i}}"
-            {% if i == asset.priority %}
-            selected="selected"
-            {% endif %}
-            >{{i}}</option>
-          {% endfor %}
-        </select></td>
+        <td><h4>Priority:</h4></td>
+        <td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
+          <input class="mdl-textfield__input" type="text" id="priority_list" name="priority" value="{{asset.priority}}" readonly tabIndex="-1">
+          <label for="priority_list">
+            <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
+          </label>
+          <ul for="priority_list" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+            {% for i in range(0,10) %}
+              <li class="mdl-menu__item" data-val="{{i}}">{{i}}</li>
+            {% endfor %}
+          </ul>
+        </div></td>
       </tr>
     </table>
     <br>
@@ -45,7 +56,7 @@
     <table>
     	{% for point in asset.points %}
     		<tr>
-    			<td><input type=hidden class="point" name='point{{loop.index}}' value='{{point.type.name}}'/> {{point.type.name}}</td>
+    			<td style="width:250px"><input type=hidden class="point" name='point{{loop.index}}' value='{{point.type.name}}'/> {{point.type.name}}</td>
     			<td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height">
             <input class="mdl-textfield__input" type="text" id='log{{loop.index}}' name='log{{loop.index}}'
               {% for log in logs %}
@@ -70,12 +81,17 @@
     <table>
     	{% for algorithm in asset.algorithms %}
     		<tr><td>
-    			<input type="checkbox" name="algorithm" value='{{algorithm.descr}}' {% if not algorithm in asset.exclusions %}checked{% endif %}/> {{algorithm.descr}}</input>
+          <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="algorithm' + i + '">
+            <input type="checkbox" name="algorithm" value='{{algorithm.descr}}' class="mdl-checkbox__input" {% if not algorithm in asset.exclusions %}checked{% endif %}/>
+            <span class="mdl-checkbox__label">{{algorithm.descr}}</span>
+          </label>
     		</td></tr>
     	{% endfor %}
     </table>
-    <br>
-    <input type=submit value=Submit>
+    <br><br>
+
+    <input type=submit value=Submit class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+
   </form>
 
   <!-- Material design auto 'upgrades' the elements, causing selectedIndex to revert to not -1. Hacky method here to delay this until after MDL is done upgrading stuff-->
