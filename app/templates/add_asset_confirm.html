@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h3>Upload Confirmation</h3>
+
+  <form action='{{ url_for('asset_list', sitename=site.name) }}' onsubmit="sendUpload()">
+    <table class="mdl-data-table mdl-js-data-table full-width" id='asset_table'>
+      <thead>
+        <tr>
+          <th class="mdl-data-table__cell--non-numeric">Name</th>
+          <th class="mdl-data-table__cell--non-numeric">Type</th>
+          <th class="mdl-data-table__cell--non-numeric">Location</th>
+          <th class="mdl-data-table__cell--non-numeric">Group</th>
+          <th class="mdl-data-table__cell--non-numeric">Priority</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for asset in assets %}
+          <tr class='assetrow'>
+            <td class="mdl-data-table__cell--non-numeric">{{asset.name}}</td>
+            <td class="mdl-data-table__cell--non-numeric">{{asset.type}}</td>
+            <td class="mdl-data-table__cell--non-numeric">{{asset.location}}</td>
+            <td class="mdl-data-table__cell--non-numeric">{{asset.group}}</td>
+            <td class="mdl-data-table__cell--non-numeric">{{asset.priority}}</td>
+            <input type='hidden' id='name' name='name' value='{{asset.name}}'>
+            <input type='hidden' id='type' name='type' value='{{asset.type}}'>
+            <input type='hidden' id='location' name='location' value='{{asset.location}}'>
+            <input type='hidden' id='group' name='group' value='{{asset.group}}'>
+            <input type='hidden' id='priority' name='priority' value='{{asset.priority}}'>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <br>
+    <input type=button onclick="window.location.href='{{ url_for('add_asset_input', sitename=site.name) }}'" value="Cancel" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+    <input type=submit value=Submit class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+  </form>
+
+  <script type="text/javascript">
+    function sendUpload() {
+      var assets = {};
+      $('.assetrow').each(function(i) {
+        assets[i] = {};
+        assets[i].name = $(this).find('#name').val();
+        assets[i].type = $(this).find('#type').val();
+        assets[i].location = $(this).find('#location').val();
+        assets[i].group = $(this).find('#group').val();
+        assets[i].priority = $(this).find('#priority').val();
+      });
+      $.post($SCRIPT_ROOT + '{{ url_for('add_asset_confirm', sitename=site.name) }}', JSON.stringify(assets));
+    }
+  </script>
+{% endblock %}

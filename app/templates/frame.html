@@ -24,7 +24,7 @@
     </script>
 
     <!-- refresh pages every 5 min - maybe better way to keep information up to date? -->
-    <meta http-equiv="refresh" content="300" />
+    <!-- meta http-equiv="refresh" content="300" /-->
 
     <!-- Display flashes -->
     {% with messages = get_flashed_messages() %}
@@ -37,6 +37,8 @@
         </script>
       {% endif %}
     {% endwith %}
+
+    {% block head %}{% endblock %}
 
   </head>
 
@@ -67,7 +69,7 @@
             <a class="mdl-navigation__link" href="/site/{{site.name}}/dashboard">Dashboard</a>
             <a class="mdl-navigation__link" href="/site/{{site.name}}/unresolved">Unresolved Issues</a>
             <a class="mdl-navigation__link" href="/site/{{site.name}}/assets">Asset List</a>
-            <a class="mdl-navigation__link" href="/site/{{site.name}}/add_asset">Add Asset</a>
+            <a class="mdl-navigation__link" href="/site/{{site.name}}/add">Add Asset</a>
             <a class="mdl-navigation__link" href="/site/{{site.name}}/CMMS">CMMS</a>
             <a class="mdl-navigation__link" href="/site/all">All Sites</a>
             {% endif %}

@@ -13,6 +13,7 @@
             <th class="mdl-data-table__cell--non-numeric">Type</th>
             <th class="mdl-data-table__cell--non-numeric">Location</th>
             <th class="mdl-data-table__cell--non-numeric">Group</th>
+            <th class="mdl-data-table__cell--non-numeric">Priority</th>
             <th class="mdl-data-table__cell--non-numeric"></th>
           </tr>
         </thead>
@@ -25,6 +26,7 @@
                 <td class="mdl-data-table__cell--non-numeric">{{asset.type}}</td>
                 <td class="mdl-data-table__cell--non-numeric">{{asset.location}}</td>
                 <td class="mdl-data-table__cell--non-numeric">{{asset.group}}</td>
+                <td class="mdl-data-table__cell--non-numeric">{{asset.priority}}</td>
                 <td class="mdl-data-table__cell--non-numeric">
                   <a href={{url_for('edit_asset', assetname=asset.name, sitename=site.name)}}>Edit</a> / 
                   <a href={{url_for('delete_asset', assetname=asset.name, sitename=site.name)}} class="confirmation">Delete</a>
