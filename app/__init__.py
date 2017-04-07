@@ -17,6 +17,12 @@ registry = SessionRegistry()
 scheduler = APScheduler()
 scheduler.init_app(app)
 
+# packages
+from app import add, admin, cmms, weather, algorithms
+# modules
+from app import models, mapping, controllers
+
+
 # THIS MUST BE MOVED, ALONG WITH  mapping.py TO OUTSIDE OF THE PRODUCTION APP
 # re-map all algorithms, as these may have been edited
 # from app.mapping import map_all
