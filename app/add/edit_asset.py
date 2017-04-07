@@ -34,17 +34,36 @@ def edit_asset_submit(sitename, assetname):
     # get database session for this site
     session = registry.get(asset.site.db_key)
 
-    # @@ need a better system of reading in values than string-matching point1 and log1
-    # assign log ids to points
-    for i in range(1, len(asset.points) + 1):
+    # record previous points
+    old_points = list(asset.points)
+
+    # TODO: need a better system of reading in values than string-matching point1 and log1
+    # update points
+    for i in range(1, len(PointType.query.all()) + 1):
         point_type_name = request.form.get('point' + str(i))
-        point_type = PointType.query.filter_by(name=point_type_name).one()
-        point = AssetPoint.query.filter_by(type=point_type, asset=asset).one()
-        log_path = request.form.get('log' + str(i))
-        if not log_path is None and not session is None:
-            log = session.query(LoggedEntity).filter_by(path=log_path).one()
-            point.loggedentity_id = log.id
-            session.close()
+        if not point_type_name is None:
+            point_type = PointType.query.filter_by(name=point_type_name).one()
+
+            # check if the point already exists on the asset
+            point = AssetPoint.query.filter_by(name=point_type_name, asset=asset).first()
+
+            # if the point isn't an existing one, create a new one
+            if point is None:
+                point = AssetPoint(type=point_type, name=point_type_name)
+                asset.points.append(point)
+            # else mark the point as updated
+            else:
+                old_points.remove(point)
+
+            # assign the log id to the point
+            log_path = request.form.get('log' + str(i))
+            if not log_path is None and not session is None:
+                log = session.query(LoggedEntity).filter_by(path=log_path).one()
+                point.loggedentity_id = log.id
+
+    # delete points that have been removed
+    for point in old_points:
+        db.session.delete(point)
 
     # set process functions
     asset.functions.clear()
@@ -63,6 +82,7 @@ def edit_asset_submit(sitename, assetname):
     asset.exclusions.extend(exclusions)
 
     db.session.commit()
+    session.close()
 
     return redirect(url_for('asset_list', sitename=sitename))
 

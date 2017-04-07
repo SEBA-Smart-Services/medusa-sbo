@@ -1,7 +1,17 @@
 {% extends "layout.html" %}
+{% block head %}
+  <meta id="initial_points" content="{{asset.points|length}}">
+  <meta id="return_loggedentities" content="{{ url_for('return_loggedentities', sitename=site.name) }}">
+  <meta id="return_points" content="{{ url_for('return_points', sitename=site.name) }}">
+  <meta id="return_functions" content="{{ url_for('return_functions', sitename=site.name) }}">
+  <meta id="return_algorithms" content="{{ url_for('return_algorithms', sitename=site.name) }}">
+  <meta id="asset_type" content="{{asset.type}}">
+{% endblock %}
 {% block content %}
 	 <h2>Edit Asset</h2>
+
   <form action="{{ url_for('edit_asset_submit', sitename=site.name, assetname=asset.name) }}" method=post>
+
     <table>
       <tr>
         <td style="width:250px"><h4>Name:</h4></td>
@@ -11,7 +21,7 @@
         </div></td>
       </tr>
       <tr>
-      <td><h4>Location:</h4></td>
+        <td><h4>Location:</h4></td>
         <td><div class="mdl-textfield mdl-js-textfield shiftdown">
             <input class="mdl-textfield__input" type="text" name="location" autocomplete="off" id="location" value='{{asset.location}}'>
             <label class="mdl-textfield__label" for="location"></label>
@@ -39,72 +49,106 @@
         </div></td>
       </tr>
     </table>
-    <br>
 
     <h4>Process Functions:</h4>
-      <table>
-        {% for function in asset.functions %}
-          <tr><td>
+    <table class="checkbox-list" id="process_function_section">
+      {% for function in asset.functions %}
+        <tr>
+          <td style="width:250px">
             {{function.name}}
-            <input type=hidden name="function" value="{{function.name}}"/>
-          </td></tr>
-        {% endfor %}
-      </table>
-    <br>
-
-    <h4>Points:</h4>
+          </td>
+          <td>
+            <button type=button onclick="removeFunction(this)">X</button>
+          </td>
+          <input type=hidden name="function" value="{{function.name}}"/>
+        </tr>
+      {% endfor %}
+    </table>
     <table>
-    	{% for point in asset.points %}
-    		<tr>
-    			<td style="width:250px"><input type=hidden class="point" name='point{{loop.index}}' value='{{point.type.name}}'/> {{point.type.name}}</td>
-    			<td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height">
-            <input class="mdl-textfield__input" type="text" id='log{{loop.index}}' name='log{{loop.index}}'
-              {% for log in logs %}
-                {% if point.loggedentity_id == log.id %}value='{{log.path}}'{% endif %}
-              {% endfor %}
-            readonly tabIndex="-1">
-            <label for='log{{loop.index}}'>
+      <tr>
+        <td>
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
+            <input class="mdl-textfield__input" type="text" id="function_list" value="" readonly tabIndex="-1">
+            <label for="function_list">
               <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
             </label>
-            <ul for='log{{loop.index}}' class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
-              {% for log in logs %}
-                <li class="mdl-menu__item" data-val="{{log.path}}">{{log.path}}</li>
-              {% endfor %}
+            <ul id="function_list_ul" for="function_list" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
             </ul>
-          </div></td>
+          </div>
+        </td>
+        <td>
+          <button type="button" onclick="addFunction()" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+            Add
+          </button>
+        </td>
+      </tr>
+    </table>
+    
+    <br>
+    <h4>Points:</h4>
+    <table class="checkbox-list" id="point_section">
+    	{% for point in asset.points %}
+    		<tr>
+    			<td style="width:250px">{{point.type.name}}</td>
+    			<td>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height">
+              <input class="mdl-textfield__input" type="text" id='log{{loop.index}}' name='log{{loop.index}}'
+                {% for log in logs %}
+                  {% if point.loggedentity_id == log.id %}value='{{log.path}}'{% endif %}
+                {% endfor %}
+              readonly tabIndex="-1">
+              <label for='log{{loop.index}}'>
+                <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
+              </label>
+              <ul for='log{{loop.index}}' class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+                {% for log in logs %}
+                  <li class="mdl-menu__item" data-val="{{log.path}}">{{log.path}}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          </td>
+          <td>
+            <button type=button onclick="removePoint(this)">X</button>
+          </td>
+          <input type=hidden class="point" name='point{{loop.index}}' value='{{point.type.name}}'/> 
     		</tr>
     	{% endfor %}
     </table>
-    <br>
-
-    <h4>Algorithms:</h4>
     <table>
-    	{% for algorithm in asset.algorithms %}
-    		<tr><td>
-          <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="algorithm' + i + '">
-            <input type="checkbox" name="algorithm" value='{{algorithm.descr}}' class="mdl-checkbox__input" {% if not algorithm in asset.exclusions %}checked{% endif %}/>
-            <span class="mdl-checkbox__label">{{algorithm.descr}}</span>
-          </label>
-    		</td></tr>
-    	{% endfor %}
+      <tr>
+        <td>
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
+            <input class="mdl-textfield__input" type="text" id="point_list" value="" readonly tabIndex="-1">
+            <label for="point_list">
+              <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
+            </label>
+            <ul id="point_list_ul" for="point_list" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+            </ul>
+          </div>
+        </td>
+        <td>
+          <button type="button" onclick="addPoint()" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+            Add
+          </button>
+        </td>
+      </tr>
     </table>
+
+    <br>
+    <h4>Algorithms:</h4>
+    <div class="checkbox-list" id="algorithm_section">
+    	{% for algorithm in asset.algorithms %}
+        <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="algorithm{{loop.index}}">
+          <input type="checkbox" name="algorithm" id="algorithm{{loop.index}}" value='{{algorithm.descr}}' class="mdl-checkbox__input" {% if not algorithm in asset.exclusions %}checked{% endif %}/>
+          <span class="mdl-checkbox__label">{{algorithm.descr}}</span>
+        </label>
+    	{% endfor %}
+    </div>
     <br><br>
 
     <input type=submit value=Submit class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
 
   </form>
 
-  <!-- Material design auto 'upgrades' the elements, causing selectedIndex to revert to not -1. Hacky method here to delay this until after MDL is done upgrading stuff-->
-  <script type="text/javascript">
-    $(function() {
-      setTimeout(function() {
-        {% for point in asset.points %}
-          {% if point.loggedentity_id == None %}
-            $('#log{{loop.index}}').prop("selectedIndex", -1);
-          {% endif %}
-        {% endfor %}
-      }, 50);
-    });
-  </script>
-
+  <script type="text/javascript" src="{{ url_for('static', filename='asset.js') }}"></script>
 {% endblock %}

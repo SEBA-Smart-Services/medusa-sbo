@@ -86,7 +86,10 @@ def check_asset(asset):
             algorithms_passed += passed
 
         # save asset health. Currently computed as just the percentage of algorithms passed
-        asset.health = algorithms_passed/algorithms_run
+        if algorithms_run > 0:
+            asset.health = algorithms_passed/algorithms_run
+        else:
+            asset.health = 0
         session.commit()
         print('Ran checks on {} - {}, took {}'.format(asset.site.name, asset.name, time.time()-t))
 

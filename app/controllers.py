@@ -23,12 +23,18 @@ def homepage_all():
 def dashboard_all():
     results = Result.get_unresolved_by_priority()[0:4]
     num_results = len(Result.get_unresolved())
+
     if not Result.get_unresolved_by_priority():
         # there are no issues across any sites. Celebrate!
         top_priority = "-"
     else:
         top_priority = Result.get_unresolved_by_priority()[0].asset.priority
-    avg_health = mean([asset.health for asset in Asset.query.all()])
+
+    if len(Asset.query.all()) > 0:
+        avg_health = mean([asset.health for asset in Asset.query.all()])
+    else:
+        avg_health = 0
+
     low_health_assets = len(Asset.query.filter(Asset.health < 0.5).all())
     return render_template('dashboard.html', results=results, num_results=num_results, top_priority=top_priority, avg_health=avg_health, low_health_assets=low_health_assets, allsites=True)
 

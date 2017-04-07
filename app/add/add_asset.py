@@ -72,13 +72,16 @@ def add_asset_submit(sitename):
     for i in range(1, len(PointType.query.all()) + 1):
         point_type_name = request.form.get('point' + str(i))
         if not point_type_name is None:
+
             point_type = PointType.query.filter_by(name=point_type_name).one()
             point = AssetPoint(type=point_type, name=point_type_name)
+
+            # assign the log id to the point
             log_path = request.form.get('log' + str(i))
             if not log_path is None and not session is None:
                 log = session.query(LoggedEntity).filter_by(path=log_path).one()
                 point.loggedentity_id = log.id
-                session.close()
+
             asset.points.append(point)
 
     # set process functions
@@ -96,6 +99,7 @@ def add_asset_submit(sitename):
     asset.exclusions.extend(exclusions)
 
     db.session.commit()
+    session.close()
 
     return redirect(url_for('asset_list', sitename=sitename))
 
