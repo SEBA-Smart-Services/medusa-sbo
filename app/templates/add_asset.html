@@ -1,4 +1,10 @@
 {% extends "layout.html" %}
+{% block head %}
+  <meta id="return_loggedentities" content="{{ url_for('return_loggedentities', sitename=site.name) }}">
+  <meta id="return_points" content="{{ url_for('return_points', sitename=site.name) }}">
+  <meta id="return_functions" content="{{ url_for('return_functions', sitename=site.name) }}">
+  <meta id="return_algorithms" content="{{ url_for('return_algorithms', sitename=site.name) }}">
+{% endblock %}
 {% block content %}
   <h3>Add Asset</h3>
 
@@ -125,7 +131,6 @@
     <input type=submit value=Upload class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
   </form>
 
-
   <script type="text/javascript">
 
     // set up trend log list
@@ -196,7 +201,7 @@
       $('#type_list').change(function() {
 
         // build log list
-        $.getJSON($SCRIPT_ROOT + '{{ url_for('return_loggedentities', sitename=site.name) }}', {
+        $.getJSON($('#return_loggedentities').attr('content'), {
           type: $('#type_list').val(),
         }, function(loglist_data) {
           $.each(loglist_data, function() {
@@ -205,7 +210,7 @@
         });
 
         // build process function list
-        $.getJSON($SCRIPT_ROOT + '{{ url_for('return_points', sitename=site.name) }}', {
+        $.getJSON($('#return_points').attr('content'), {
           type: $('#type_list').val(),
         }, function(data) {
           var $point_dropdown = $('#point_list_ul')
@@ -218,7 +223,7 @@
         });
 
         // build point list
-        $.getJSON($SCRIPT_ROOT + '{{ url_for('return_functions', sitename=site.name) }}', {
+        $.getJSON($('#return_functions').attr('content'), {
           type: $('#type_list').val(),
         }, function(data) {
           var $function_dropdown = $('#function_list_ul')
@@ -231,7 +236,7 @@
         });
 
         // build algorithm list
-        $.getJSON($SCRIPT_ROOT + '{{ url_for('return_algorithms', sitename=site.name) }}', {
+        $.getJSON($('#return_algorithms').attr('content'), {
           type: $('#type_list').val(),
         }, function(data) {
           var algorithm_section = $('#algorithm_section')
