@@ -87,6 +87,7 @@ def edit_asset_submit(sitename, assetname):
     return redirect(url_for('asset_list', sitename=sitename))
 
 # delete asset
+# NOTE: asset name must not be blank or will error
 @app.route('/site/<sitename>/delete/<assetname>')
 def delete_asset(sitename, assetname):
     asset = Asset.query.filter(Asset.name == assetname, Asset.site.has(name=sitename)).one()
