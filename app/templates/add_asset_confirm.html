@@ -1,4 +1,7 @@
 {% extends "layout.html" %}
+{% block head %}
+  <meta id="add_asset_confirm" content="{{ url_for('add_asset_confirm', sitename=site.name) }}">
+{% endblock %}
 {% block content %}
   <h3>Upload Confirmation</h3>
 
@@ -35,18 +38,5 @@
     <input type=submit value=Submit class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
   </form>
 
-  <script type="text/javascript">
-    function sendUpload() {
-      var assets = {};
-      $('.assetrow').each(function(i) {
-        assets[i] = {};
-        assets[i].name = $(this).find('#name').val();
-        assets[i].type = $(this).find('#type').val();
-        assets[i].location = $(this).find('#location').val();
-        assets[i].group = $(this).find('#group').val();
-        assets[i].priority = $(this).find('#priority').val();
-      });
-      $.post($SCRIPT_ROOT + '{{ url_for('add_asset_confirm', sitename=site.name) }}', JSON.stringify(assets));
-    }
-  </script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/asset.js') }}"></script>
 {% endblock %}

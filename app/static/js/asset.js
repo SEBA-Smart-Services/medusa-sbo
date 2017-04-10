@@ -46,7 +46,6 @@ function addPoint() {
   getmdlSelect.init(".getmdl-select");
 
   point_counter = point_counter + 1;
-
 }
 
 // remove a process function from the list
@@ -120,6 +119,20 @@ function buildAlgorithmList(type) {
   });
 }
 
+// post uploaded asset data from excel sheet to server for saving
+function sendUpload() {
+  var assets = {};
+  $('.assetrow').each(function(i) {
+    assets[i] = {};
+    assets[i].name = $(this).find('#name').val();
+    assets[i].type = $(this).find('#type').val();
+    assets[i].location = $(this).find('#location').val();
+    assets[i].group = $(this).find('#group').val();
+    assets[i].priority = $(this).find('#priority').val();
+  });
+  $.post($('#add_asset_confirm').attr('content'), JSON.stringify(assets));
+}
+
 // startup code checks if we are on asset add or edit page
 $(function() {
   //check if asset type is pre-defined (edit page)
@@ -128,7 +141,7 @@ $(function() {
     buildLogList(type);
     buildPointList(type);
     buildFunctionList(type);
-  } else {
+  } else if ($('#type_list').length) {
     // update stuff when a type is selected (add page)
     $('#type_list').change(function() {
       var type = $('#type_list').val();
