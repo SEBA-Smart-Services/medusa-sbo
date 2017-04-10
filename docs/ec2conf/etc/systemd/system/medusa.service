@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve medusa
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/medusa
+Environment="PATH=/var/www/medusa/env/bin"
+ExecStart=/var/www/medusa/env/bin/uwsgi --ini medusa.ini
+
+[Install]
+WantedBy=multi-user.target
