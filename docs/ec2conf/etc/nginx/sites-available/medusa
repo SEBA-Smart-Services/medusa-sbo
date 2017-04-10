@@ -1,0 +1,9 @@
+server {
+    listen 8013;
+    server_name medusa.sebbqld.com;
+
+    location / {
+        include uwsgi_params;
+        uwsgi_pass unix:/var/www/medusa/medusa.sock;
+    }
+}
