@@ -10,7 +10,7 @@
 {% block content %}
 	 <h2>Edit Asset</h2>
 
-  <form action="{{ url_for('edit_asset_submit', sitename=site.name, assetname=asset.name) }}" method=post>
+  <form action="{{ url_for('edit_asset_submit', sitename=site.name, asset_id=asset.id) }}" method=post>
 
     <table>
       <tr>
@@ -50,8 +50,8 @@
       </tr>
     </table>
 
-    <h4>Process Functions:</h4>
-    <table class="checkbox-list" id="process_function_section">
+    <h4>Functional Descriptors:</h4>
+    <table class="checkbox-list" id="functional_descriptor_section">
       {% for function in asset.functions %}
         <tr>
           <td style="width:250px">

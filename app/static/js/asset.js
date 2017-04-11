@@ -11,7 +11,7 @@ $loglist.append($loglist_ul);
 // point counter
 var point_counter = parseInt($('#initial_points').attr('content')) + 1;
 
-// add a process function to the list
+// add a functional descriptor to the list
 function addFunction() {
   var function_name = $('#function_list').val();
   var $function_row = $('<tr>');
@@ -22,7 +22,7 @@ function addFunction() {
   // add hidden input to create the actual input
   $function_row.append($('<input type=hidden name="function"/>').val(function_name));
 
-  $('#process_function_section').append($function_row);
+  $('#functional_descriptor_section').append($function_row);
 }
 
 // add a point to the list
@@ -48,7 +48,7 @@ function addPoint() {
   point_counter = point_counter + 1;
 }
 
-// remove a process function from the list
+// remove a functional descriptor from the list
 function removeFunction(e) {
   $(e).parent().parent().remove();
 }
@@ -79,12 +79,14 @@ function buildPointList(type) {
     $.each(data, function() {
       $point_dropdown.append($('<li class="mdl-menu__item"/>').attr('data-val', this).text(this));
     });
+    // set initial value
+    $('#point_list').val(data[0]);
     // re-init the dropdown box
     getmdlSelect.init(".getmdl-select");
   });
 }
 
-// generate the list of available process functions for that asset type
+// generate the list of available functional descriptors for that asset type
 function buildFunctionList(type) {
   $.getJSON($('#return_functions').attr('content'), {
     type: type,
@@ -94,6 +96,8 @@ function buildFunctionList(type) {
     $.each(data, function() {
       $function_dropdown.append($('<li class="mdl-menu__item"/>').attr('data-val', this).text(this));
     })
+    // set initial value
+    $('#function_list').val(data[0]);
     // re-init the dropdown box
     getmdlSelect.init(".getmdl-select");
   });
@@ -133,6 +137,13 @@ function sendUpload() {
   $.post($('#add_asset_confirm').attr('content'), JSON.stringify(assets));
 }
 
+// unhide buttons when they become relevant
+function unhideButtons() {
+  $('#functional_descriptor_add').removeAttr('hidden');
+  $('#point_add').removeAttr('hidden');
+  $('#submit').removeAttr('hidden');
+}
+
 // startup code checks if we are on asset add or edit page
 $(function() {
   //check if asset type is pre-defined (edit page)
@@ -149,6 +160,7 @@ $(function() {
       buildPointList(type);
       buildFunctionList(type);
       buildAlgorithmList(type);
+      unhideButtons();
       return false;
     });
   }

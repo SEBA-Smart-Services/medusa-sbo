@@ -15,7 +15,7 @@ def add_asset_input(sitename):
     asset_types = AssetType.query.all()
     return render_template('add_asset.html', site=site, asset_types=asset_types)
 
-# return list of process functions through AJAX
+# return list of functional descriptors through AJAX
 @app.route('/site/<sitename>/add/_function')
 def return_functions(sitename):
     asset_type = AssetType.query.filter_by(name=request.args['type']).one()
@@ -63,8 +63,8 @@ def add_asset_submit(sitename):
     session = registry.get(site.db_key)
 
     # create asset with 0 health
-    type = AssetType.query.filter_by(name=request.form['type']).one()
-    asset = Asset(type=type, name=request.form['name'], location=request.form['location'], group=request.form['group'], priority=request.form['priority'], site=site, health=0)
+    asset_type = AssetType.query.filter_by(name=request.form['type']).one()
+    asset = Asset(type=asset_type, name=request.form['name'], location=request.form['location'], group=request.form['group'], priority=request.form['priority'], site=site, health=0)
     db.session.add(asset)
 
     # TODO: need a better system of reading in values than string-matching point1 and log1
@@ -78,13 +78,13 @@ def add_asset_submit(sitename):
 
             # assign the log id to the point
             log_path = request.form.get('log' + str(i))
-            if not log_path is None and not session is None:
+            if not log_path == '' and not session is None:
                 log = session.query(LoggedEntity).filter_by(path=log_path).one()
                 point.loggedentity_id = log.id
 
             asset.points.append(point)
 
-    # set process functions
+    # set functional descriptors
     function_list = request.form.getlist('function')
     for function_name in function_list:
         function = FunctionalDescriptor.query.filter_by(name=function_name).one()

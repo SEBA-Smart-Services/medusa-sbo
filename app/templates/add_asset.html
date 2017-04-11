@@ -9,128 +9,132 @@
 {% block content %}
   <h3>Add Asset</h3>
 
-  <form action="{{ url_for('add_asset_submit', sitename=site.name) }}" method=post>
+  {% if asset_types|length > 0 %}
+    <form action="{{ url_for('add_asset_submit', sitename=site.name) }}" method=post>
 
-    <table>
-      <tr>
-        <td style="width:250px"><h4>Type:</h4></td>
-        <td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
-          <input class="mdl-textfield__input" type="text" id="type_list" name="type" value="" readonly tabIndex="-1">
-          <label for="type_list">
-            <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
-          </label>
-          <ul for="type_list" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
-            {% for asset_type in asset_types %}
-              <li class="mdl-menu__item" data-val="{{asset_type.name}}">{{asset_type.name}}</li>
-            {% endfor %}
-          </ul>
-        </div></td>
-      </tr>
-      <tr>
-        <td><h4>Name:</h4></td>
-        <td><div class="mdl-textfield mdl-js-textfield shiftdown">
-            <input class="mdl-textfield__input" type="text" name="name" autocomplete="off" id="name">
-            <label class="mdl-textfield__label" for="name"></label>
-        </div></td>
-      </tr>
-      <tr>
-        <td><h4>Location:</h4></td>
-        <td><div class="mdl-textfield mdl-js-textfield shiftdown">
-            <input class="mdl-textfield__input" type="text" name="location" autocomplete="off" id="location">
-            <label class="mdl-textfield__label" for="location"></label>
-        </div></td>
-      </tr>
-      <tr>
-        <td><h4>Group:</h4></td>
-        <td><div class="mdl-textfield mdl-js-textfield shiftdown">
-            <input class="mdl-textfield__input" type="text" name="group" autocomplete="off" id="group">
-            <label class="mdl-textfield__label" for="group"></label>
-        </div></td>
-      </tr>
-      <tr>
-        <td><h4>Priority:</h4></td>
-        <td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
-          <input class="mdl-textfield__input" type="text" id="priority_list" name="priority" value="" readonly tabIndex="-1">
-          <label for="priority_list">
-            <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
-          </label>
-          <ul for="priority_list" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
-            {% for i in range(0,10) %}
-              <li class="mdl-menu__item" data-val="{{i}}">{{i}}</li>
-            {% endfor %}
-          </ul>
-        </div></td>
-      </tr>
-    </table>
-
-    <h4>Process Functions:</h4>
-    <table class="checkbox-list" id="process_function_section"></table>
-    <table>
-      <tr>
-        <td>
-          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
-            <input class="mdl-textfield__input" type="text" id="function_list" value="" readonly tabIndex="-1">
-            <label for="function_list">
+      <table>
+        <tr>
+          <td style="width:250px"><h4>Type:</h4></td>
+          <td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
+            <input class="mdl-textfield__input" type="text" id="type_list" name="type" value="" readonly tabIndex="-1">
+            <label for="type_list">
               <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
             </label>
-            <ul id="function_list_ul" for="function_list" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+            <ul for="type_list" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+              {% for asset_type in asset_types %}
+                <li class="mdl-menu__item" data-val="{{asset_type.name}}">{{asset_type.name}}</li>
+              {% endfor %}
             </ul>
-          </div>
-        </td>
-        <td>
-          <button type="button" onclick="addFunction()" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
-            Add
-          </button>
-        </td>
-      </tr>
-    </table>
+          </div></td>
+        </tr>
+        <tr>
+          <td><h4>Name:</h4></td>
+          <td><div class="mdl-textfield mdl-js-textfield shiftdown">
+              <input class="mdl-textfield__input" type="text" name="name" autocomplete="off" id="name">
+              <label class="mdl-textfield__label" for="name"></label>
+          </div></td>
+        </tr>
+        <tr>
+          <td><h4>Location:</h4></td>
+          <td><div class="mdl-textfield mdl-js-textfield shiftdown">
+              <input class="mdl-textfield__input" type="text" name="location" autocomplete="off" id="location">
+              <label class="mdl-textfield__label" for="location"></label>
+          </div></td>
+        </tr>
+        <tr>
+          <td><h4>Group:</h4></td>
+          <td><div class="mdl-textfield mdl-js-textfield shiftdown">
+              <input class="mdl-textfield__input" type="text" name="group" autocomplete="off" id="group">
+              <label class="mdl-textfield__label" for="group"></label>
+          </div></td>
+        </tr>
+        <tr>
+          <td><h4>Priority:</h4></td>
+          <td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
+            <input class="mdl-textfield__input" type="text" id="priority_list" name="priority" value="" readonly tabIndex="-1">
+            <label for="priority_list">
+              <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
+            </label>
+            <ul for="priority_list" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+              {% for i in range(0,10) %}
+                <li class="mdl-menu__item" data-val="{{i}}">{{i}}</li>
+              {% endfor %}
+            </ul>
+          </div></td>
+        </tr>
+      </table>
+
+      <h4>Functional Descriptors:</h4>
+      <table class="checkbox-list" id="functional_descriptor_section"></table>
+      <table id="functional_descriptor_add" hidden>
+        <tr>
+          <td>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
+              <input class="mdl-textfield__input" type="text" id="function_list" value="" readonly tabIndex="-1">
+              <label for="function_list">
+                <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
+              </label>
+              <ul id="function_list_ul" for="function_list" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+              </ul>
+            </div>
+          </td>
+          <td>
+            <button type="button" onclick="addFunction()" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+              Add
+            </button>
+          </td>
+        </tr>
+      </table>
+      
+      <br>
+      <h4>Points:</h4>
+      <table class="checkbox-list" id="point_section"></table>
+      <table id="point_add" hidden>
+        <tr>
+          <td>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
+              <input class="mdl-textfield__input" type="text" id="point_list" value="" readonly tabIndex="-1">
+              <label for="point_list">
+                <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
+              </label>
+              <ul id="point_list_ul" for="point_list" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+              </ul>
+            </div>
+          </td>
+          <td>
+            <button type="button" onclick="addPoint()" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+              Add
+            </button>
+          </td>
+        </tr>
+      </table>
+
+      <br>
+      <h4>Algorithms:</h4>
+      <div class="checkbox-list" id="algorithm_section"></div>
+      <br><br>
+
+      <input id=submit type=submit value=Submit class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" hidden>
+
+    </form>
+
+    <br><br><br>
+    <h3>Add via upload</h3>
     
+    <form action="{{ url_for('add_asset_download', sitename=site.name) }}">
+      <input type=submit value="Get Template" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+    </form>
     <br>
-    <h4>Points:</h4>
-    <table class="checkbox-list" id="point_section"></table>
-    <table>
-      <tr>
-        <td>
-          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
-            <input class="mdl-textfield__input" type="text" id="point_list" value="" readonly tabIndex="-1">
-            <label for="point_list">
-              <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
-            </label>
-            <ul id="point_list_ul" for="point_list" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
-            </ul>
-          </div>
-        </td>
-        <td>
-          <button type="button" onclick="addPoint()" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
-            Add
-          </button>
-        </td>
-      </tr>
-    </table>
-
-    <br>
-    <h4>Algorithms:</h4>
-    <div class="checkbox-list" id="algorithm_section"></div>
-    <br><br>
-
-    <input type=submit value=Submit class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-
-  </form>
-
-  <br><br><br>
-  <h3>Add via upload</h3>
-  <form action="{{ url_for('add_asset_download', sitename=site.name) }}">
-    <input type=submit value="Get Template" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-  </form>
-
-  <br>
-  <form action="{{ url_for('add_asset_upload', sitename=site.name) }}" method=post enctype=multipart/form-data>
-    <div class="element file mdl-file mdl-js-file mdl-file--floating-label">
-      <input type="file" name="file" id="file" accept=".xlsx,.xlsm">
-      <label class="mdl-file__label" for="avatar"></label>
-    </div>
-    <input type=submit value=Upload class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-  </form>
+    <form action="{{ url_for('add_asset_upload', sitename=site.name) }}" method=post enctype=multipart/form-data>
+      <div class="element file mdl-file mdl-js-file mdl-file--floating-label">
+        <input type="file" name="file" id="file" accept=".xlsx,.xlsm">
+        <label class="mdl-file__label" for="avatar"></label>
+      </div>
+      <input type=submit value=Upload class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+    </form>
+  {% else %}
+  <h4>Not available: No asset types registered in system</h4>
+  {% endif %}
 
   <script type="text/javascript" src="{{ url_for('static', filename='js/asset.js') }}"></script>
 {% endblock %}

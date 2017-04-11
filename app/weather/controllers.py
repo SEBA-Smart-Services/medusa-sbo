@@ -3,19 +3,36 @@ from CoolProp.HumidAirProp import HAPropsSI
 from flask import render_template
 from pyowm import OWM
 from app.weather.models import Weather
+import pyowm
 
 # get weather info from OpenWeatherMap via API
 def get_weather():
-	# get weather info
-	API_key = '810702d017860accf696debebee47df5'
-	city_id = 2174003
-	owm = OWM(API_key)
-	weather_live = owm.weather_at_id(city_id).get_weather()
+
+	try:
+		# get weather info
+		API_key = '810702d017860accf696debebee47df5'
+		city_id = 2174003
+		owm = OWM(API_key)
+		weather_live = owm.weather_at_id(city_id).get_weather()
+		temperature = weather_live.get_temperature(unit='celsius')['temp']
+		humidity = weather_live.get_humidity() / 100
+	except pyowm.exceptions.api_call_error.APICallError:
+		# can't connect, so throw some dummy info in here for now
+		# TODO: don't use dummy info, but instead display '-' for weather related stats on the UI
+		temperature = 24
+		humidity = 0.5
+
+	# get cache object
+	weather_cache = Weather.query.filter_by(location='Brisbane').first()
+
+	# if doesn't exist, then create
+	if weather_cache is None:
+		weather_cache = Weather(location='Brisbane')
+		db.session.add(weather_cache)
 
 	# store in cache
-	weather_cache = Weather.query.filter_by(location='Brisbane').one()
-	weather_cache.temperature = weather_live.get_temperature(unit='celsius')['temp']
-	weather_cache.humidity = weather_live.get_humidity() / 100
+	weather_cache.temperature = temperature
+	weather_cache.humidity = humidity
 	db.session.commit()
 
 	print('Weather recorded as {}C {}%'.format(weather_cache.temperature, weather_cache.humidity*100))
@@ -25,7 +42,12 @@ def get_weather():
 def weather_page():
 	
 	# grab weather from cache
-	weather = Weather.query.filter_by(location='Brisbane').one()
+	weather = Weather.query.filter_by(location='Brisbane').first()
+
+	if weather is None:
+		get_weather()
+		weather = Weather.query.filter_by(location='Brisbane').first()
+
 	outside_t = weather.temperature
 	outside_r = weather.humidity
 

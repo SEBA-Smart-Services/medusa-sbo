@@ -114,7 +114,7 @@ def check_all():
 
 # dummy class used to access all the algorithm checks
 # 'points_required' specifies which points each algorithm will request data for
-# 'functions_required' specifies the process functions that the algorithm requires to operate
+# 'functions_required' specifies the functional descriptors that the algorithm requires to operate
 class AlgorithmClass():
     points_required = []
     functions_required = []

@@ -31,7 +31,16 @@ def dashboard_all():
         top_priority = Result.get_unresolved_by_priority()[0].asset.priority
 
     if len(Asset.query.all()) > 0:
-        avg_health = mean([asset.health for asset in Asset.query.all()])
+        try:
+            avg_health = mean([asset.health for asset in Asset.query.all()])
+        except TypeError:
+            # one of the asset healths is Null
+            for asset in Asset.query.all():
+                if asset.health is None:
+                    asset.health = 0
+            db.session.commit()
+            avg_health = mean([asset.health for asset in Asset.query.all()])
+
     else:
         avg_health = 0
 
@@ -65,7 +74,27 @@ def unresolved_list_all():
 def unresolved_chart():
     sites = Site.query.all()
     history = IssueHistoryTimestamp.query.filter(IssueHistoryTimestamp.timestamp > datetime.datetime.now()-datetime.timedelta(hours=24)).all()
-    return render_template('issue_chart.html', sites=sites, history=history, allsites=True)
+
+    # generate array to be converted into chart
+    # header row
+    array = "[['Time',"
+    for site in sites:
+        array += "'" + site.name + "',"
+    array += "],"
+    # data rows
+    for timestamp in history:
+        array += "[new Date(" + str(date_to_millis(timestamp.timestamp)) + "),"
+        for site in sites:
+            # if issues were not recorded for a site at a particular timestamp, use a value of 0
+            issues_temp = 0
+            for issues in timestamp.issues:
+                if (site == issues.site):
+                    issues_temp = issues.issues
+            array += str(issues_temp) + ","
+        array += "],"
+    array += "]"
+
+    return render_template('issue_chart.html', sites=sites, array=array, allsites=True)
 
 # show map of all tech locations
 @app.route('/site/all/map')
@@ -121,7 +150,15 @@ def dashboard_site(sitename):
         top_priority = site.get_unresolved_by_priority()[0].asset.priority
 
     if len(site.assets) > 0:
-        avg_health = mean([asset.health for asset in site.assets])
+        try:
+            avg_health = mean([asset.health for asset in site.assets])
+        except TypeError:
+            # one of the asset healths is Null
+            for asset in site.assets:
+                if asset.health is None:
+                    asset.health = 0
+            db.session.commit()
+            avg_health = mean([asset.health for asset in site.assets])
     else:
         avg_health = 0
 
@@ -146,10 +183,10 @@ def unresolved_list(sitename):
     return render_template('unresolved.html', results=results, site=site)
 
 # show results for a single asset
-@app.route('/site/<sitename>/results/<assetname>')
-def result_list(sitename, assetname):
+@app.route('/site/<sitename>/results/<asset_id>')
+def result_list(sitename, asset_id):
     site = Site.query.filter_by(name=sitename).one()
-    asset = Asset.query.filter_by(name=assetname, site=site).one()
+    asset = Asset.query.filter_by(id=asset_id).one()
     recent_results = Result.query.filter_by(asset=asset, recent=True).all()
     unresolved_results = Result.query.filter(Result.asset==asset, Result.status_id > 1, Result.status_id < 5).all()
     return render_template('results.html', asset=asset, site=site, recent_results=recent_results, unresolved_results=unresolved_results)

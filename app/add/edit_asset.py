@@ -3,10 +3,10 @@ from app.models import Site, Asset, LoggedEntity, PointType, AssetPoint, Functio
 from flask import request, render_template, url_for, redirect
 
 # page to edit an asset on the site
-@app.route('/site/<sitename>/edit/<assetname>')
-def edit_asset(sitename, assetname):
+@app.route('/site/<sitename>/edit/<asset_id>')
+def edit_asset(sitename, asset_id):
     site = Site.query.filter_by(name=sitename).one()
-    asset = Asset.query.filter(Asset.name == assetname, Asset.site.has(name=sitename)).one()
+    asset = Asset.query.filter_by(id=asset_id).one()
 
     # get database session for this site
     session = registry.get(site.db_key)
@@ -21,9 +21,9 @@ def edit_asset(sitename, assetname):
     return render_template('edit_asset.html', site=site, asset=asset, logs=logs)
 
 # process an asset edit
-@app.route('/site/<sitename>/edit/<assetname>/_submit', methods=['POST'])
-def edit_asset_submit(sitename, assetname):
-    asset = Asset.query.filter(Asset.name == assetname, Asset.site.has(name=sitename)).one()
+@app.route('/site/<sitename>/edit/<asset_id>/_submit', methods=['POST'])
+def edit_asset_submit(sitename, asset_id):
+    asset = Asset.query.filter_by(id=asset_id).one()
 
     # set asset attributes
     asset.name = request.form['name']
@@ -57,7 +57,7 @@ def edit_asset_submit(sitename, assetname):
 
             # assign the log id to the point
             log_path = request.form.get('log' + str(i))
-            if not log_path is None and not session is None:
+            if not log_path == '' and not session is None:
                 log = session.query(LoggedEntity).filter_by(path=log_path).one()
                 point.loggedentity_id = log.id
 
@@ -65,7 +65,7 @@ def edit_asset_submit(sitename, assetname):
     for point in old_points:
         db.session.delete(point)
 
-    # set process functions
+    # set functional descriptor
     asset.functions.clear()
     function_list = request.form.getlist('function')
     for function_name in function_list:
@@ -88,9 +88,9 @@ def edit_asset_submit(sitename, assetname):
 
 # delete asset
 # NOTE: asset name must not be blank or will error
-@app.route('/site/<sitename>/delete/<assetname>')
-def delete_asset(sitename, assetname):
-    asset = Asset.query.filter(Asset.name == assetname, Asset.site.has(name=sitename)).one()
+@app.route('/site/<sitename>/delete/<asset_id>')
+def delete_asset(sitename, asset_id):
+    asset = Asset.query.filter_by(id=asset_id).one()
     db.session.delete(asset)
     db.session.commit()
     return redirect(url_for('asset_list', sitename=sitename))

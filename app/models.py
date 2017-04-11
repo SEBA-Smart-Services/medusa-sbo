@@ -87,7 +87,7 @@ algo_point_mapping = db.Table('algo_point_mapping',
     info={'bind_key': 'medusa'}
 )
 
-# many-many mapping table between algorithms and the process functions they require
+# many-many mapping table between algorithms and the functional descriptors they require
 algo_function_mapping = db.Table('algo_function_mapping',
     db.Column('Algorithm_id', db.Integer, db.ForeignKey('algorithm.ID'), primary_key=True),
     db.Column('FunctionalDescriptor_id', db.Integer, db.ForeignKey('functional_descriptor.ID'), primary_key=True),
@@ -105,7 +105,7 @@ class AssetType(db.Model):
     def __repr__(self):
         return self.name
 
-# process functions
+# functional descriptors
 class FunctionalDescriptor(db.Model):
     __bind_key__ = 'medusa'
     id = db.Column('ID',db.Integer, primary_key=True)
@@ -159,13 +159,13 @@ class Algorithm(db.Model):
                 point_type = PointType.query.filter_by(name=point_type_reqd).one()
                 self.point_types.append(point_type)
 
-            # update required process functions
+            # update required functional descriptors
             self.functions.clear()
             for function_reqd in self.algorithm.functions_required:
                 function = FunctionalDescriptor.query.filter_by(name=function_reqd).one()
                 self.functions.append(function)
             
-        # the point or process function required for the algorithm is not defined
+        # the point or functional descriptor required for the algorithm is not defined
         except:
             self.assets.clear()
             return
@@ -189,7 +189,7 @@ class Status(db.Model):
 ## real world models
 ###################################
 
-# many-many mapping table between assets and the process functions that apply to them
+# many-many mapping table between assets and the functional descriptors that apply to them
 asset_function_mapping = db.Table('asset_function_mapping',
     db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'), primary_key=True),
     db.Column('FunctionalDescriptor_id', db.Integer, db.ForeignKey('functional_descriptor.ID'), primary_key=True),
@@ -285,7 +285,7 @@ class Asset(db.Model):
             if not point in self.get_point_types():
                 passed = False
 
-        # check the process functions required by algorithm against the process functions the asset actually has
+        # check the functional descriptors required by algorithm against the functional descriptors the asset actually has
         for function in algorithm.functions:
             if not function in self.functions:
                 passed = False
