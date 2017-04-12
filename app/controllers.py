@@ -94,7 +94,7 @@ def unresolved_chart():
         array += "],"
     array += "]"
 
-    return render_template('issue_chart.html', sites=sites, array=array, allsites=True)
+    return render_template('issue_chart.html', sites=sites, array=array, history=history, allsites=True)
 
 # show map of all tech locations
 @app.route('/site/all/map')
