@@ -5,7 +5,7 @@
 {% block content %}
   <h3>Upload Confirmation</h3>
 
-  <form action='{{ url_for('asset_list', sitename=site.name) }}' onsubmit="sendUpload()">
+  <form action='{{ url_for('asset_list', sitename=site.name) }}' onsubmit="sendUpload()" method=post>
     <table class="mdl-data-table mdl-js-data-table full-width" id='asset_table'>
       <thead>
         <tr>

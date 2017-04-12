@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+{% block content %}
+    <form action="{{ url_for('site_config_submit', sitename=site.name) }}" method=post>
+      <h3>WebReports Connection</h3>
+      <table class=full-width>
+        <tr>
+          <td style="width:250px"><h4>Username:</h4></td>
+          <td><div class="mdl-textfield mdl-js-textfield">
+            <input class="mdl-textfield__input" type="text" name="db_username" autocomplete="off" id="db_username" value="{{site.db_username}}">
+            <label class="mdl-textfield__label" for="db_username"></label>
+          </div></td>
+        </tr>
+        <tr>
+          <td style="width:250px"><h4>Password:</h4></td>
+          <td><div class="mdl-textfield mdl-js-textfield">
+            <input class="mdl-textfield__input" type="text" name="db_password" autocomplete="off" id="db_password" value="{{site.db_password}}">
+            <label class="mdl-textfield__label" for="db_password"></label>
+          </div></td>
+        </tr>
+        <tr>
+          <td style="width:250px"><h4>Server Address:</h4></td>
+          <td><div class="mdl-textfield mdl-js-textfield">
+            <input class="mdl-textfield__input" type="text" name="db_address" autocomplete="off" id="db_address" value="{{site.db_address}}">
+            <label class="mdl-textfield__label" for="db_address"></label>
+          </div></td>
+        </tr>
+        <tr>
+          <td style="width:250px"><h4>Port:</h4></td>
+          <td><div class="mdl-textfield mdl-js-textfield">
+            <input class="mdl-textfield__input" type="text" name="db_port" autocomplete="off" id="db_port" value="{{site.db_port}}">
+            <label class="mdl-textfield__label" for="db_port"></label>
+          </div></td>
+        </tr>
+        <tr>
+          <td style="width:250px"><h4>Database Name:</h4></td>
+          <td><div class="mdl-textfield mdl-js-textfield">
+            <input class="mdl-textfield__input" type="text" name="db_name" autocomplete="off" id="db_name" value="{{site.db_name}}">
+            <label class="mdl-textfield__label" for="db_name"></label>
+          </div></td>
+        </tr>
+      </table>
+
+      <br><br>
+      <h3>CMMS Integration</h3>
+      <table class=full-width>
+        <tr>
+          <td style="width:40px">
+            <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="inbuildings">
+              <input type="checkbox" name="inbuildings" id="inbuildings" class="mdl-checkbox__input" value="True"
+              {% if inbuildings_config.enabled == True %} checked {% endif %}>
+            </label>
+          </td>
+          <td>
+            <h4>Inbuildings</h4>
+          </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>
+            Site Key:
+            <div class="mdl-textfield mdl-js-textfield" style="width: 700px">
+              <input class="mdl-textfield__input" type="text" name="inbuildings_key" autocomplete="off" id="inbuildings_key" value="{{inbuildings_config.key}}">
+              <label class="mdl-textfield__label" for="Inbuildings_key"></label>
+            </div>
+          </td>
+        </tr>
+      </table>
+      <br><br>
+      <input type=submit value=Submit class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+    </form>
+{% endblock %}

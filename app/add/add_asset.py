@@ -108,32 +108,24 @@ def add_asset_submit(sitename):
 def add_asset_download(sitename):
 
     wb = Workbook()
-    ws_input = wb.worksheets[0]
 
-    # generate input page
-    ws_input.title = "Input"
-    ws_input['A1'] = "Name"
-    ws_input['B1'] = "Location"
-    ws_input['C1'] = "Group"
-    ws_input['D1'] = "Type"
-    ws_input['E1'] = "Priority"
+    # delete initial sheet
+    ws_initial = wb.get_sheet_by_name('Sheet')
+    wb.remove_sheet(ws_initial)
 
-    # generate page with all the options (for data validation)
-    ws_options = wb.create_sheet("Options")
-    x = 1
     for asset_type in AssetType.query.all():
-        ws_options.cell(column=x, row=1).value = asset_type.name
-        x += 1
-    cols = len(tuple(ws_options.columns))
-    wb.create_named_range("Types", ws_options, '$A$1:${}$1'.format(get_column_letter(cols)))
+        # generate input sheet for each asset type
+        ws_input = wb.create_sheet(asset_type.name)
+        ws_input['A1'] = "Name"
+        ws_input['B1'] = "Location"
+        ws_input['C1'] = "Group"
+        ws_input['D1'] = "Priority"
+        ws_input['E1'] = "Notes"
 
-    # apply data validation to input page
-    type_dv = DataValidation(type='list', formula1='Types', allow_blank=True)
-    priority_dv = DataValidation(type='whole', operator='between', formula1=0, formula2=9)
-    ws_input.add_data_validation(type_dv)
-    ws_input.add_data_validation(priority_dv)
-    type_dv.ranges.append('D2:D1000')
-    priority_dv.ranges.append('E2:E1000')
+        # apply data validation
+        priority_dv = DataValidation(type='whole', operator='between', formula1=0, formula2=9)
+        ws_input.add_data_validation(priority_dv)
+        priority_dv.ranges.append('D2:D1000')
 
     # save file
     out = BytesIO(save_virtual_workbook(wb))
@@ -164,25 +156,28 @@ def add_asset_upload(sitename):
         return redirect(url_for('add_asset_input', sitename=sitename))
 
     wb = load_workbook(file)
-    ws = wb.worksheets[0]
-
-    # generate asset for each non-blank row in the worksheet
     asset_list = []
-    for row in tuple(ws.rows)[1:]:
-        # skip if not all required information is present
-        if not row[0].value is None and not row[3].value is None and not row[4].value is None:
-            name = row[0].value
-            location = row[1].value
-            if location is None:
-                location = ""
-            group = row[2].value
-            if group is None:
-                group = ""
-            type_name = row[3].value
-            priority = row[4].value
-            asset_type = AssetType.query.filter_by(name=type_name).one()
-            asset = Asset(name=name, location=location, group=group, type=asset_type, priority=priority)
-            asset_list.append(asset)
+
+    for ws in wb.worksheets:
+        asset_type = AssetType.query.filter_by(name=ws.title).one()
+
+        # generate asset for each non-blank row in the worksheet
+        for row in tuple(ws.rows)[1:]:
+            # skip if not all required information is present
+            if not row[0].value is None and not row[1].value is None and not row[3].value is None:
+                name = str(row[0].value)
+                location = str(row[1].value)
+                if location == "None":
+                    location = ""
+                group = str(row[2].value)
+                if group == "None":
+                    group = ""
+                priority = row[3].value
+                notes = str(row[4].value)
+                if notes == "None":
+                    notes = ""
+                asset = Asset(name=name, location=location, group=group, type=asset_type, priority=priority, notes=notes)
+                asset_list.append(asset)
 
     return render_template('add_asset_confirm.html', assets=asset_list, site=site)
 
@@ -199,8 +194,8 @@ def add_asset_confirm(sitename):
         asset_type = AssetType.query.filter_by(name=asset_json['type']).one()
         asset = Asset(name=asset_json['name'], location=asset_json['location'], group=asset_json['group'], type=asset_type, priority=asset_json['priority'], health=0, site=site)
         db.session.add(asset)
-        print(asset)
     db.session.commit()
+    return True
 
 
 # OLD CODE FOR GENERATING XML IMPORT - LEFT HERE TO BE REUSED LATER

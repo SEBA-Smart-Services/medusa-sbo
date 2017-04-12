@@ -1,5 +1,5 @@
 from app import app, db
-from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, PointType, Result, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp, CMMSInterface, CMMSConfig
+from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, PointType, Result, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp, InbuildingsConfig
 from flask import json, request, render_template, url_for, redirect, jsonify, flash, make_response
 from statistics import mean
 import datetime, time
@@ -119,10 +119,17 @@ def add_site():
 # handle creation of a new site
 @app.route('/site/all/add_site/_submit', methods=['POST'])
 def add_site_submit():
-    site = Site(name=request.form['name'], db_key=request.form['database_key'])
-    for interface in CMMSInterface.query.all():
-        cmms_config = CMMSConfig(interface=interface, enabled=False)
-        site.cmms_configs.append(cmms_config)
+    site = Site(name=request.form['name'])
+    site.inbuildings_config = InbuildingsConfig(enabled=False, key="")
+
+    # set webreports database settings
+    site.db_username = request.form.get('db_username')
+    site.db_password = request.form.get('db_password')
+    site.db_address = request.form.get('db_address')
+    site.db_port = request.form.get('db_port')
+    site.db_name = request.form.get('db_name')
+    site.generate_key()
+
     db.session.add(site)
     db.session.commit()
     return redirect(url_for('site_list'))
@@ -166,7 +173,7 @@ def dashboard_site(sitename):
     return render_template('dashboard.html', results=results, num_results=num_results, top_priority=top_priority, avg_health=avg_health, low_health_assets=low_health_assets, site=site)
 
 # list assets on the site
-@app.route('/site/<sitename>/assets')
+@app.route('/site/<sitename>/assets',  methods=['GET', 'POST'])
 def asset_list(sitename):
     site = Site.query.filter_by(name=sitename).one()
     asset_types = AssetType.query.all()
@@ -191,25 +198,30 @@ def result_list(sitename, asset_id):
     unresolved_results = Result.query.filter(Result.asset==asset, Result.status_id > 1, Result.status_id < 5).all()
     return render_template('results.html', asset=asset, site=site, recent_results=recent_results, unresolved_results=unresolved_results)
 
-# show CMMS integration page
-@app.route('/site/<sitename>/CMMS')
-def CMMS(sitename):
+# show site config page
+@app.route('/site/<sitename>/config')
+def site_config(sitename):
     site = Site.query.filter_by(name=sitename).one()
-    inbuildings = CMMSInterface.query.filter_by(name='Inbuildings').one()
-    astea = CMMSInterface.query.filter_by(name='Astea').one()
-    inbuildings_config = CMMSConfig.query.filter_by(site=site, interface=inbuildings).one()
-    astea_config = CMMSConfig.query.filter_by(site=site, interface=astea).one()
-    return render_template('CMMS.html', inbuildings_config=inbuildings_config, astea_config=astea_config, site=site)
+    inbuildings_config = InbuildingsConfig.query.filter_by(site=site).one()
+    return render_template('site_config.html', inbuildings_config=inbuildings_config, site=site)
 
-# update CMMS config for a site
-@app.route('/site/<sitename>/CMMS/_submit', methods=['POST'])
-def CMMS_submit(sitename):
+# update config for a site
+@app.route('/site/<sitename>/config/_submit', methods=['POST'])
+def site_config_submit(sitename):
     site = Site.query.filter_by(name=sitename).one()
-    print(request.form)
-    for interface in CMMSInterface.query.all():
-        config = CMMSConfig.query.filter_by(site=site, interface=interface).one()
-        config.enabled = request.form.get(interface.name, False)
-        config.key = request.form.get(interface.name + '_key')
-        print(config)
+
+    # update webreports database settings
+    site.db_username = request.form.get('db_username')
+    site.db_password = request.form.get('db_password')
+    site.db_address = request.form.get('db_address')
+    site.db_port = request.form.get('db_port')
+    site.db_name = request.form.get('db_name')
+    site.generate_key()
+
+    # update inbuildings settings
+    inbuildings_config = InbuildingsConfig.query.filter_by(site=site).one()
+    inbuildings_config.enabled = request.form.get('inbuildings', False)
+    inbuildings_config.key = request.form.get('inbuildings_key')
+
     db.session.commit()
     return redirect(url_for('homepage', sitename=sitename))

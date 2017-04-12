@@ -223,13 +223,21 @@ class Site(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512))
     db_key = db.Column('DB_key', db.String(512))
+    db_username = db.Column('DB_username', db.String(512))
+    db_password = db.Column('DB_password', db.String(512))
+    db_address = db.Column('DB_address', db.String(512))
+    db_port = db.Column('DB_port', db.String(512))
+    db_name = db.Column('DB_name', db.String(512))
     assets = db.relationship('Asset', backref='site')
     inbuildings_assets = db.relationship('InbuildingsAsset', backref='site')
+    inbuildings_config = db.relationship('InbuildingsConfig', backref='site', uselist=False)
     issue_history = db.relationship('IssueHistory', backref='site')
-    cmms_configs = db.relationship('CMMSConfig', backref='site')
 
     def __repr__(self):
         return self.name
+
+    def generate_key(self):
+        self.db_key = ''.join(['mssql+pymssql://', self.db_username, ':', self.db_password, '@', self.db_address, ':', self.db_port, '/', self.db_name])
 
     def get_unresolved(self):
         issues = Result.query.join(Result.asset).filter(Result.status_id > 1, Result.status_id < 5, Asset.site == self).all()
@@ -261,6 +269,7 @@ class Asset(db.Model):
     group = db.Column('Group', db.String(512))
     health = db.Column('Health', db.Float)
     priority = db.Column('Priority', db.Integer)
+    notes = db.Column('Notes', db.Text)
     site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'))
     type_id = db.Column('Type_id', db.Integer, db.ForeignKey('asset_type.ID'))
     points = db.relationship('AssetPoint', backref='asset', cascade='save-update, merge, delete, delete-orphan')
@@ -342,21 +351,11 @@ class Result(db.Model):
         issue = cls.query.join(cls.asset).filter(cls.status_id > 1, Result.status_id < 5).order_by(Asset.priority.asc()).all()
         return issue
 
-# list of CMMS interfaces
-class CMMSInterface(db.Model):
+# config properties for Inbuildings interface
+class InbuildingsConfig(db.Model):
     __bind_key__ = 'medusa'
-    __tablename__ = 'cmms_interface'
-    id = db.Column('ID', db.Integer, primary_key=True)
-    name = db.Column('Name', db.String(512))
-    configs = db.relationship('CMMSConfig', backref='interface')
-
-# config properties for CMMS interface
-class CMMSConfig(db.Model):
-    __bind_key__ = 'medusa'
-    __tablename__ = 'cmms_config'
     id = db.Column('ID', db.Integer, primary_key=True)
     site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'))
-    interface_id = db.Column('Interface_id', db.Integer, db.ForeignKey('cmms_interface.ID'))
     enabled = db.Column('Enabled', db.Boolean)
     key = db.Column('Connection_key', db.String(512))
 
