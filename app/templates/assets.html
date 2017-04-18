@@ -39,7 +39,9 @@
     {% endif %}
   {% endfor %}
   <br><br>
+  {% if assets|length > 0%}
   <input type=button onclick="window.location.href='{{ url_for('asset_xml_select', sitename=site.name) }}'" value="Download XML" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+  {% endif %}
 
   <script type="text/javascript">
     $('.confirmation').on('click', function () {
