@@ -85,7 +85,7 @@
           </td>
         </tr>
       </table>
-      
+
       <br>
       <h4>Points:</h4>
       <table class="checkbox-list" id="point_section"></table>
@@ -112,6 +112,13 @@
       <br>
       <h4>Algorithms:</h4>
       <div class="checkbox-list" id="algorithm_section"></div>
+
+      <br>
+      <h4>Notes:</h4>
+      <div class="mdl-textfield mdl-js-textfield">
+        <textarea class="mdl-textfield__input" type="text" name="notes" rows= "2" id="notes" ></textarea>
+        <label class="mdl-textfield__label" for="notes">Notes...</label>
+      </div>
       <br><br>
 
       <input id=submit type=submit value=Submit class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" hidden>
@@ -120,7 +127,7 @@
 
     <br><br><br>
     <h3>Add via upload</h3>
-    
+
     <form action="{{ url_for('add_asset_download', sitename=site.name) }}">
       <input type=submit value="Get Template" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     </form>

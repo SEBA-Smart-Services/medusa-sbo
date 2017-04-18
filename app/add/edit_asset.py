@@ -30,6 +30,7 @@ def edit_asset_submit(sitename, asset_id):
     asset.location = request.form['location']
     asset.group = request.form['group']
     asset.priority = request.form['priority']
+    asset.notes = request.form['notes']
 
     # get database session for this site
     session = registry.get(asset.site.db_key)

@@ -83,7 +83,7 @@
         </td>
       </tr>
     </table>
-    
+
     <br>
     <h4>Points:</h4>
     <table class="checkbox-list" id="point_section">
@@ -110,7 +110,7 @@
           <td>
             <button type=button onclick="removePoint(this)">X</button>
           </td>
-          <input type=hidden class="point" name='point{{loop.index}}' value='{{point.type.name}}'/> 
+          <input type=hidden class="point" name='point{{loop.index}}' value='{{point.type.name}}'/>
     		</tr>
     	{% endfor %}
     </table>
@@ -144,8 +144,15 @@
         </label>
     	{% endfor %}
     </div>
-    <br><br>
 
+    <br>
+    <h4>Notes:</h4>
+    <div class="mdl-textfield mdl-js-textfield" style="width:600px">
+      <textarea class="mdl-textfield__input" type="text" name="notes" rows= "2" id="notes">{{asset.notes}}</textarea>
+      <label class="mdl-textfield__label" for="notes">Notes...</label>
+    </div>
+
+    <br><br>
     <input type=submit value=Submit class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
 
   </form>

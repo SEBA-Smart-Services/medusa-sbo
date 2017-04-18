@@ -14,7 +14,7 @@ def record_issues():
         db.session.commit()
         db.session.close()
 
-# link medusa assets to webreports logs. XML file must have been imported first for this to work
+# link medusa assets to webreports logs. XML file must have been imported and bound first for this to work
 @app.route('/register')
 def register_points():
     for point in AssetPoint.query.filter(AssetPoint.loggedentity_id == None).all():

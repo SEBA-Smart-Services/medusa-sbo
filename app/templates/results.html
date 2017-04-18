@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
-  <h3>Results for {{asset.name}}</h3>
+  <h3>{{asset.name}}</h3>
+  <h3>Results</h3>
   <br>
   <h4>Unresolved Issues</h4>
   <table class="mdl-data-table mdl-js-data-table full-width">
@@ -25,7 +26,7 @@
           {% else %}
           <td>{{result.algorithm.algorithm.format.format(result.value)}}</td>
           {% endif %}
-          
+
           <td>{{result.status.descr}}</td>
         </tr>
       {% endfor %}
@@ -62,4 +63,60 @@
       {% endfor %}
     </tbody>
   </table>
+
+  <br><br><br>
+  <h3>Details</h3>
+
+  <table>
+    <tr>
+      <td style="width:250px"><h4>Name:</h4></td>
+      <td>{{asset.name}}</td>
+    </tr>
+    <tr>
+      <td><h4>Location:</h4></td>
+      <td>{{asset.location}}</td>
+    </tr>
+    <tr>
+      <td><h4>Group:</h4></td>
+      <td>{{asset.group}}</td>
+    </tr>
+    <tr>
+      <td><h4>Priority:</h4></td>
+      <td>{{asset.priority}}</td>
+    </tr>
+  </table>
+
+  <h4>Functional Descriptors:</h4>
+  <table class="checkbox-list" id="functional_descriptor_section">
+    {% for function in asset.functions %}
+      <tr>
+        <td style="width:250px">
+          {{function.name}}
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+
+  <br>
+  <h4>Points:</h4>
+  <table class="checkbox-list" id="point_section">
+    {% for point in asset.points %}
+      <tr>
+        <td style="width:250px">{{point.type.name}}</td>
+      </tr>
+    {% endfor %}
+  </table>
+
+  <br>
+  <h4>Algorithms:</h4>
+  <div class="checkbox-list" id="algorithm_section">
+    {% for algorithm in algorithms %}
+      {{algorithm.descr}}
+    {% endfor %}
+  </div>
+
+  <br>
+  <h4>Notes:</h4>
+  {{asset.notes}}
+
 {% endblock %}

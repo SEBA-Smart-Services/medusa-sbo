@@ -68,7 +68,7 @@ def check_asset(asset):
         t = time.time()
 
         for algorithm in set(asset.algorithms) - set(asset.exclusions):
-            
+
             point_list = []
 
             # find all the point types belonging to this asset which are being checked by this algorithm
@@ -94,7 +94,6 @@ def check_asset(asset):
         print('Ran checks on {} - {}, took {}'.format(asset.site.name, asset.name, time.time()-t))
 
         session.close()
-        db.session.close()
 
     else:
         print('Could not connect to database for {} - {}'.format(asset.site.name, asset.name))
@@ -109,6 +108,7 @@ def check_all():
         for result in Result.query.filter(Result.asset==asset, Result.status_id not in [1,5]).all():
             result.status_id = 1
         check_asset(asset)
+    db.session.close()
     return 'done'
 
 
@@ -170,7 +170,7 @@ class fan_unoccupied_check(AlgorithmClass):
     name = "Zone fan on while unoccupied"
     format = "{:.1%}"
 
-    def run(data):    
+    def run(data):
         occupancy = data.latest_time('Room Occupancy', datetime.timedelta(hours=24))
         enable = data.latest_time('Fan Enable', datetime.timedelta(hours=24))
 
@@ -218,7 +218,7 @@ class chw_hunting_check(AlgorithmClass):
         # only check for oscilations with a period of less than 60 minutes
         min_period = 1/60.0
         freq_sums = {}
-        
+
         for hours in range(24, 1, -1):
             valve = data.time_range('Chilled Water Valve 100%', datetime.timedelta(hours=hours), datetime.timedelta(hours=hours-1))
             # FFT needs evenly spaced samples to work. Resample to 1 minute rather than 1 second because computationally expensive - gives max resolution of 1 oscillation per 2 minutes

@@ -3,9 +3,9 @@
   <h3>Download XML</h3>
 
   <form action="{{ url_for('asset_xml_download', sitename=site.name) }}" method=post>
-    {% for asset_type in asset_types %}
-      {% if asset_quantity[asset_type.name] > 0 %}
-        <h4>{{asset_type.name}}</h4>
+    {# for asset_type in asset_types #}
+      {# if asset_quantity[asset_type.name] > 0 #}
+        <!--h4>{#asset_type.name#}</h4-->
         <table class="mdl-data-table mdl-js-data-table full-width">
           <thead>
             <tr>
@@ -16,11 +16,12 @@
               <th class="mdl-data-table__cell--non-numeric">Location</th>
               <th class="mdl-data-table__cell--non-numeric">Group</th>
               <th class="mdl-data-table__cell--non-numeric">Priority</th>
+              <th class="mdl-data-table__cell--non-numeric">Notes</th>
             </tr>
           </thead>
           <tbody>
             {% for asset in assets %}
-              {% if asset.type == asset_type %}
+              {# if asset.type == asset_type #}
                 <tr>
                   <td class="mdl-data-table__cell--non-numeric">
                     <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="{{asset.id}}">
@@ -33,13 +34,14 @@
                   <td class="mdl-data-table__cell--non-numeric">{{asset.location}}</td>
                   <td class="mdl-data-table__cell--non-numeric">{{asset.group}}</td>
                   <td class="mdl-data-table__cell--non-numeric">{{asset.priority}}</td>
+                  <td class="mdl-data-table__cell--non-numeric">{{asset.notes[:80]}}</td>
                 </tr>
-              {% endif %}
+              {# endif #}
             {% endfor %}
           </tbody>
         </table>
-      {% endif %}
-    {% endfor %}
+      {# endif #}
+    {# endfor #}
     <br><br>
     <input type=submit value=Download class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
   </form>

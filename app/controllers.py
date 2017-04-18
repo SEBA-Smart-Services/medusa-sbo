@@ -196,7 +196,8 @@ def result_list(sitename, asset_id):
     asset = Asset.query.filter_by(id=asset_id).one()
     recent_results = Result.query.filter_by(asset=asset, recent=True).all()
     unresolved_results = Result.query.filter(Result.asset==asset, Result.status_id > 1, Result.status_id < 5).all()
-    return render_template('results.html', asset=asset, site=site, recent_results=recent_results, unresolved_results=unresolved_results)
+    algorithms = set(asset.algorithms) - set(asset.exclusions)
+    return render_template('results.html', asset=asset, site=site, recent_results=recent_results, unresolved_results=unresolved_results, algorithms=algorithms)
 
 # show site config page
 @app.route('/site/<sitename>/config')

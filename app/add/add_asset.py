@@ -64,7 +64,7 @@ def add_asset_submit(sitename):
 
     # create asset with 0 health
     asset_type = AssetType.query.filter_by(name=request.form['type']).one()
-    asset = Asset(type=asset_type, name=request.form['name'], location=request.form['location'], group=request.form['group'], priority=request.form['priority'], site=site, health=0)
+    asset = Asset(type=asset_type, name=request.form['name'], location=request.form['location'], group=request.form['group'], priority=request.form['priority'], notes=request.form['notes'], site=site, health=0)
     db.session.add(asset)
 
     # TODO: need a better system of reading in values than string-matching point1 and log1
