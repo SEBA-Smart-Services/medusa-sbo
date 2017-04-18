@@ -30,7 +30,7 @@ def edit_asset_submit(sitename, asset_id):
     asset.location = request.form['location']
     asset.group = request.form['group']
     asset.priority = request.form['priority']
-    
+
     # get database session for this site
     session = registry.get(asset.site.db_key)
 
@@ -82,7 +82,8 @@ def edit_asset_submit(sitename, asset_id):
     asset.exclusions.extend(exclusions)
 
     db.session.commit()
-    session.close()
+    if not session is None:
+        session.close()
 
     return redirect(url_for('asset_list', sitename=sitename))
 

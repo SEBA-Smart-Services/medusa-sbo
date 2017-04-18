@@ -3,10 +3,10 @@ from app.models import Site, AssetType, FunctionalDescriptor, LoggedEntity, Asse
 from flask import request, render_template, url_for, redirect, flash, send_file, make_response, jsonify
 from openpyxl import load_workbook, Workbook
 from openpyxl.worksheet.datavalidation import DataValidation
-from openpyxl.utils import get_column_letter
 from openpyxl.writer.excel import save_virtual_workbook
 from io import BytesIO
 from xml.etree.ElementTree import ElementTree, Element, SubElement
+from base64 import b64encode
 
 # page to add an asset to the site
 @app.route('/site/<sitename>/add')
@@ -197,84 +197,53 @@ def add_asset_confirm(sitename):
     db.session.commit()
     return True
 
+# page to choose xml downloads
+@app.route('/site/<sitename>/assets/download')
+def asset_xml_select(sitename):
+    site = Site.query.filter_by(name=sitename).one()
+    asset_types = AssetType.query.all()
+    asset_quantity = {}
+    for asset_type in asset_types:
+        asset_quantity[asset_type.name] = len(Asset.query.filter_by(site=site, type=asset_type).all())
+    return render_template('asset_select.html', assets=site.assets, asset_quantity=asset_quantity, asset_types=asset_types, site=site)
 
-# OLD CODE FOR GENERATING XML IMPORT - LEFT HERE TO BE REUSED LATER
+# download xml to import to SBO
+@app.route('/site/<sitename>/assets/download/_submit', methods=['POST'])
+def asset_xml_download(sitename):
 
-# # process an asset addition via upload
-# @app.route('/site/<sitename>/add/_upload', methods=['POST'])
-# def add_asset_upload(sitename):
+    # select assets
+    asset_list = []
+    for asset_id in request.form.getlist('asset_id'):
+        asset = Asset.query.filter_by(id=asset_id).one()
+        asset_list.append(asset)
 
-#     site = Site.query.filter_by(name=sitename).one()
+    # generate xml import to SBO
+    object_set = Element('ObjectSet')
+    object_set.attrib = {'ExportMode':'Standard', 'Version':'1.8.1.87', 'Note':'TypesFirst'}
+    exported_objects = SubElement(object_set, 'ExportedObjects')
+    for asset in asset_list:
+        oi_folder = SubElement(exported_objects, 'OI')
+        oi_folder.attrib = {'NAME':asset.name, 'TYPE':'system.base.Folder'}
+        for point in asset.points:
+            # generate unique identifier as base64encode(siteID.assetID.pointID)
+            # unique id is used for matching medusa points to webreports logs
+            identifier = 'DONOTMODIFY:' + str(b64encode('{}.{}.{}'.format(asset.site.id, asset.id, point.id).encode('ascii')).decode('ascii'))
 
-#     # check if file was uploaded
-#     if 'file' not in request.files:
-#         flash('No file part')
-#         return redirect(url_for('add_asset_input', sitename=sitename))
-#     file = request.files['file']
-#     if file.filename =='':
-#         flash('No file selected')
-#         return redirect(url_for('add_asset_input', sitename=sitename))
+            # create trend log for each point
+            oi_trend = SubElement(oi_folder, 'OI')
+            oi_trend.attrib = {'NAME':'{} Extended'.format(point.name), 'TYPE':'trend.ETLog', 'DESCR':identifier}
 
-#     # check if file is correct type
-#     if not (file and ('.' in file.filename) and (file.filename.rsplit('.',1)[1].lower() in ['xlsx','xlsm'])):
-#         flash('File must be xlsx/xlsm')
-#         return redirect(url_for('add_asset_input', sitename=sitename))
+            # flag to include in webreports
+            pi = SubElement(oi_trend, 'PI')
+            pi.attrib = {'Name':'IncludeInReports', 'Value':'1'}
 
-#     wb = load_workbook(file)
-#     ws = wb.worksheets[0]
+    # save file
+    out = BytesIO()
+    tree = ElementTree(object_set)
+    tree.write(out, encoding='utf-8', xml_declaration=True)
+    out.seek(0)
 
-#     # generate asset for each non-blank row in the worksheet
-#     asset_list = []
-#     for row in tuple(ws.rows)[1:]:
-#         if not row[0].value is None and not row[3].value is None and not row[4].value is None and not row[5].value is None:
-#             name = row[0].value
-#             location = row[1].value
-#             if location is None:
-#                 location = ""
-#             group = row[2].value
-#             if group is None:
-#                 group = ""
-#             type_name = row[3].value
-#             subtype_name = row[4].value
-#             priority = row[5].value
-#             asset_type = AssetType.query.filter_by(name=type_name).one()
-#             subtype = FunctionalDescriptor.query.filter_by(name=subtype_name, type=asset_type).one()
-#             asset = Asset(name=name, location=location, group=group, subtype=subtype, priority=priority, site=site, health=0)
-
-#             db.session.add(asset)
-#             asset_list.append(asset)
-
-#     # generate points
-#     for subtype_point in subtype.points:
-#         point = AssetPoint(type=subtype_point.type, asset=asset, name=subtype_point.type.name)
-
-#         # set destination folder
-#         point.loggedentity_path = "/Server 1/Medusa/Trends/{}/{} Extended".format(asset.name, point.name)
-
-#         db.session.add(point)
-
-#     db.session.commit()
-
-#     # generate xml import to SBO
-#     object_set = Element('ObjectSet')
-#     object_set.attrib = {'ExportMode':'Standard', 'Version':'1.8.1.87', 'Note':'TypesFirst'}
-#     exported_objects = SubElement(object_set, 'ExportedObjects')
-#     for asset in asset_list:
-#         oi_folder = SubElement(exported_objects, 'OI')
-#         oi_folder.attrib = {'NAME':asset.name, 'TYPE':'system.base.Folder'}
-#         for point in asset.points:
-#             oi_trend = SubElement(oi_folder, 'OI')
-#             oi_trend.attrib = {'NAME':'{} Extended'.format(point.name), 'TYPE':'trend.ETLog'}
-#             pi = SubElement(oi_trend, 'PI')
-#             pi.attrib = {'Name':'IncludeInReports', 'Value':'1'}
-
-#     # save file
-#     out = BytesIO()
-#     tree = ElementTree(object_set)
-#     tree.write(out, encoding='utf-8', xml_declaration=True)
-#     out.seek(0)
-
-#     # prevent browser from caching the download
-#     response = make_response(send_file(out, attachment_filename='Import.xml', as_attachment=True))
-#     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-#     return response
+    # prevent browser from caching the download
+    response = make_response(send_file(out, attachment_filename='Import.xml', as_attachment=True))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return response

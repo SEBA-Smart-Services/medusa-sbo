@@ -9,7 +9,7 @@ import sys
 ###################################
 
 # stores a session for each WebReports server. Configured to match default Flask-SQLAlchemy configs
-# IMPORTANT this does not use default Flask-SQLAlchemy behaviour. WebReports models must be referenced as 
+# IMPORTANT this does not use default Flask-SQLAlchemy behaviour. WebReports models must be referenced as
 # session.query(LogTimeValue) or session.query(LoggedEntity) rather than LogtimeValue.query
 class SessionRegistry(object):
     _registry = {}
@@ -164,7 +164,7 @@ class Algorithm(db.Model):
             for function_reqd in self.algorithm.functions_required:
                 function = FunctionalDescriptor.query.filter_by(name=function_reqd).one()
                 self.functions.append(function)
-            
+
         # the point or functional descriptor required for the algorithm is not defined
         except:
             self.assets.clear()
@@ -317,7 +317,6 @@ class AssetPoint(db.Model):
     asset_id = db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'))
     type_id = db.Column('PointType_id', db.Integer, db.ForeignKey('point_type.ID'))
     loggedentity_id = db.Column('LoggedEntity_id', db.Integer)
-    loggedentity_path = db.Column('LoggedEntity_path_temp', db.String(1024))
 
     def __repr__(self):
         if not self.name is None:
