@@ -7,8 +7,6 @@ from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, Functional
 # some columns (eg results) are excluded, since it tries to load and display >10,000 entries and crashes the page
 # default sort column is needed on views that have enough entries to use pagination
 
-admin = Admin(app)
-
 class FunctionalDescriptorView(ModelView):
     pass
 
@@ -41,6 +39,8 @@ class SiteView(ModelView):
 
 class AssetTypeView(ModelView):
     pass
+
+admin = Admin(app, index_view=SiteView())
 
 admin.add_view(SiteView(Site, db.session))
 admin.add_view(AssetTypeView(AssetType, db.session))
