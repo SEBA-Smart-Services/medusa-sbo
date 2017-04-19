@@ -8,7 +8,6 @@ from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, Functional
 # default sort column is needed on views that have enough entries to use pagination
 
 admin = Admin(app)
-print('admin init @@@@@@')
 
 class FunctionalDescriptorView(ModelView):
     pass
@@ -43,7 +42,8 @@ class SiteView(ModelView):
 class AssetTypeView(ModelView):
     pass
 
-admin.add_view(SiteView(Site, db.session))
+admin.add_view(SiteView(Site, db.session, url='/test'))
+print('admin init @@@@@@')
 admin.add_view(AssetTypeView(AssetType, db.session))
 admin.add_view(FunctionalDescriptorView(FunctionalDescriptor, db.session))
 admin.add_view(AssetView(Asset, db.session))
