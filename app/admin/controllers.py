@@ -8,6 +8,7 @@ from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, Functional
 # default sort column is needed on views that have enough entries to use pagination
 
 admin = Admin(app)
+print('admin init @@@@@@')
 
 class FunctionalDescriptorView(ModelView):
     pass
