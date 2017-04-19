@@ -1,6 +1,5 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_apscheduler import APScheduler
 
 # set up Flask
 app = Flask(__name__)
@@ -13,12 +12,8 @@ db = SQLAlchemy(app)
 from app.models import SessionRegistry
 registry = SessionRegistry()
 
-# set up scheduler
-scheduler = APScheduler()
-scheduler.init_app(app)
-
 # packages
-from app import add, admin, cmms, weather, algorithms
+from app import add, admin, cmms, weather, algorithms, scheduled
 # modules
 from app import models, mapping, controllers
 

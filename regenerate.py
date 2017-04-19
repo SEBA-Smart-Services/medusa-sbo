@@ -5,6 +5,7 @@ from app.models import AssetType, PointType, Asset, Site, AssetPoint
 db.drop_all(bind='medusa')
 db.create_all(bind='medusa')
 
+# add some initial data
 for sitename in ['TestSite1', 'TestSite2']:
     site = Site(name=sitename)
     db.session.add(site)
@@ -26,7 +27,7 @@ point1 = AssetPoint(name='Fan Enable', type=point1_type, asset=asset)
 point2 = AssetPoint(name='CHW Valve', type=point2_type, asset=asset)
 asset.points.append(point1)
 asset.points.append(point2)
-
 db.session.add(asset)
+
 db.session.commit()
 db.session.close()

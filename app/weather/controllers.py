@@ -8,6 +8,15 @@ import pyowm
 # get weather info from OpenWeatherMap via API
 def get_weather():
 
+	# get cache object
+	weather_cache = Weather.query.filter_by(location='Brisbane').first()
+
+	# if doesn't exist, then create
+	if weather_cache is None:
+		weather_cache = Weather(location='Brisbane', temperature=24, humidity=0.5)
+		db.session.add(weather_cache)
+		db.session.commit()
+
 	try:
 		# get weather info
 		API_key = '810702d017860accf696debebee47df5'
@@ -17,18 +26,9 @@ def get_weather():
 		temperature = weather_live.get_temperature(unit='celsius')['temp']
 		humidity = weather_live.get_humidity() / 100
 	except pyowm.exceptions.api_call_error.APICallError:
-		# can't connect, so throw some dummy info in here for now
-		# TODO: don't use dummy info, but instead display '-' for weather related stats on the UI
-		temperature = 24
-		humidity = 0.5
-
-	# get cache object
-	weather_cache = Weather.query.filter_by(location='Brisbane').first()
-
-	# if doesn't exist, then create
-	if weather_cache is None:
-		weather_cache = Weather(location='Brisbane')
-		db.session.add(weather_cache)
+		# can't connect, so abort
+		# TODO: don't abort, but instead display '-' for weather related stats on the UI
+		return
 
 	# store in cache
 	weather_cache.temperature = temperature
@@ -40,7 +40,7 @@ def get_weather():
 # show weather page
 @app.route('/site/all/weather')
 def weather_page():
-	
+
 	# grab weather from cache
 	weather = Weather.query.filter_by(location='Brisbane').first()
 

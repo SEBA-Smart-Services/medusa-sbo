@@ -1,5 +1,6 @@
 # from init file
-from app import app, scheduler
+from app import app
+from app.scheduled import scheduler
 import os
 
 # prevents scheduler from running twice - flask uses 2 instances in debug mode

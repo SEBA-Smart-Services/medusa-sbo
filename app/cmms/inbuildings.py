@@ -61,7 +61,7 @@ def inbuildings_asset_request(site):
 
 @app.route('/inbuildings')
 # request assets for all sites
-def inbuildings_all_sites():
+def inbuildings_request_all_sites():
     for site in Site.query.all():
         inbuildings_asset_request(site)
 
