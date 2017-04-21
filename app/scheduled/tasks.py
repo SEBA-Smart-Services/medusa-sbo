@@ -38,6 +38,3 @@ def check_all():
 
 def inbuildings_request_all_sites():
     app.inbuildings.controllers.inbuildings_request_all_sites()
-
-def test():
-    print('test')

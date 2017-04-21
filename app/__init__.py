@@ -15,7 +15,7 @@ registry = SessionRegistry()
 # packages
 from app import add, admin, cmms, weather, algorithms, scheduled
 # modules
-from app import models, mapping, controllers
+from app import models, controllers
 
 
 # THIS MUST BE MOVED, ALONG WITH  mapping.py TO OUTSIDE OF THE PRODUCTION APP

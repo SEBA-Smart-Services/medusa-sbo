@@ -22,19 +22,24 @@ class AssetPointView(ModelView):
     form_excluded_columns = ['results']
 
 class PointTypeView(ModelView):
-	form_excluded_columns = ['algorithms']
+    form_excluded_columns = ['algorithms']
 
 class AlgorithmView(ModelView):
-	form_excluded_columns = ['results']
+    form_excluded_columns = ['results']
+    can_create = False
+    can_edit = False
+    can_delete = False
+    can_view_details = True
+    column_details_list = ['name', 'descr', 'point_types', 'functions']
 
 class InbuildingsAssetView(ModelView):
-	column_default_sort = 'id'
+    column_default_sort = 'id'
 
 class ResultView(ModelView):
-	column_default_sort = ('id', True)
+    column_default_sort = ('id', True)
 
 class StatusView(ModelView):
-	form_excluded_columns = ['results']
+    form_excluded_columns = ['results']
 
 class SiteView(ModelView):
     form_excluded_columns = ['issue_history']

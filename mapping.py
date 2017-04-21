@@ -1,6 +1,6 @@
 from app.models import Algorithm, Asset
 from app.algorithms.algorithms import AlgorithmClass
-from app import db, app
+from app import db
 
 ###################################
 ## mapping functions
@@ -16,10 +16,12 @@ def generate_algorithms():
         if algorithm_db == None:
             algorithm_db = Algorithm(descr=algorithm.name, name=algorithm.__name__)
             db.session.add(algorithm_db)
-            algorithm_db.map()
+
         # else update it
         else:
             algorithm_db.descr = algorithm.name
+
+        algorithm_db.map()
 
     db.session.commit()
 
@@ -35,9 +37,11 @@ def map_assets():
         asset.map()
     db.session.commit()
 
-# route for manual triggering of mapping
-@app.route('/map')
+# map all algorithms
 def map_all():
     generate_algorithms()
     map_algorithms()
     return "Done"
+
+# run function when file is run
+map_all()

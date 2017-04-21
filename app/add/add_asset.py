@@ -99,7 +99,8 @@ def add_asset_submit(sitename):
     asset.exclusions.extend(exclusions)
 
     db.session.commit()
-    session.close()
+    if not session is None:
+        session.close()
 
     return redirect(url_for('asset_list', sitename=sitename))
 

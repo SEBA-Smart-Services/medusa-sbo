@@ -109,11 +109,13 @@
 
   <br>
   <h4>Algorithms:</h4>
-  <div class="checkbox-list" id="algorithm_section">
+  <table class="checkbox-list" id="algorithm_section">
     {% for algorithm in algorithms %}
-      {{algorithm.descr}}
+      <tr>
+        <td>{{algorithm.descr}}</td>
+      </tr>
     {% endfor %}
-  </div>
+  </table>
 
   <br>
   <h4>Notes:</h4>

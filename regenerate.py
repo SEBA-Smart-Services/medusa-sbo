@@ -1,6 +1,7 @@
 from app import db
 from app.models import AssetType, PointType, Asset, Site, AssetPoint
 
+
 # regenerate all tables in the database, based on models
 db.drop_all(bind='medusa')
 db.create_all(bind='medusa')
@@ -30,4 +31,8 @@ asset.points.append(point2)
 db.session.add(asset)
 
 db.session.commit()
+
+from mapping import map_all
+map_all()
+
 db.session.close()

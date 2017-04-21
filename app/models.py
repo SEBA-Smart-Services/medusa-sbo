@@ -2,6 +2,7 @@ from app import db, app
 from sqlalchemy import orm, create_engine
 from sqlalchemy.engine.url import make_url
 from flask import _app_ctx_stack
+from flask_sqlalchemy import before_models_committed
 import sys
 
 ###################################
@@ -131,6 +132,7 @@ class Algorithm(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512))
     descr = db.Column('Descr', db.String(512))
+    is_mapped = db.Column('Is_mapped', db.Boolean)
     point_types = db.relationship('PointType', secondary=algo_point_mapping, backref=db.backref('algorithms'))
     functions = db.relationship('FunctionalDescriptor', secondary=algo_function_mapping, backref=db.backref('algorithms'))
     results = db.relationship('Result', backref='algorithm')
@@ -165,9 +167,12 @@ class Algorithm(db.Model):
                 function = FunctionalDescriptor.query.filter_by(name=function_reqd).one()
                 self.functions.append(function)
 
+            self.is_mapped = True
+
         # the point or functional descriptor required for the algorithm is not defined
         except:
             self.assets.clear()
+            self.is_mapped = False
             return
 
         # update asset mappings
@@ -288,20 +293,21 @@ class Asset(db.Model):
 
     # map this asset to a single algorithm based on previously generated relationship between asset-point_types-algorithms
     def map_algorithm(self, algorithm):
-        passed = True
-        # check the points required by algorithm against the points the asset actually has
-        for point in algorithm.point_types:
-            if not point in self.get_point_types():
-                passed = False
+        if algorithm.is_mapped == True:
+            passed = True
+            # check the points required by algorithm against the points the asset actually has
+            for point in algorithm.point_types:
+                if not point in self.get_point_types():
+                    passed = False
 
-        # check the functional descriptors required by algorithm against the functional descriptors the asset actually has
-        for function in algorithm.functions:
-            if not function in self.functions:
-                passed = False
+            # check the functional descriptors required by algorithm against the functional descriptors the asset actually has
+            for function in algorithm.functions:
+                if not function in self.functions:
+                    passed = False
 
-        # if all are matching, add the relationship
-        if passed == True:
-            self.algorithms.append(algorithm)
+            # if all are matching, add the relationship
+            if passed == True:
+                self.algorithms.append(algorithm)
 
     def get_point_types(self):
         return [point.type for point in self.points]
@@ -377,3 +383,23 @@ class IssueHistory(db.Model):
     issues = db.Column('Issues', db.Integer)
     timestamp_id = db.Column('Timestamp_id', db.Integer, db.ForeignKey('issue_history_timestamp.ID'))
     site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'))
+
+
+###################################
+## helper functions
+###################################
+
+# function to re-map an asset whenever it is updated
+@before_models_committed.connect_via(app)
+def map_asset_on_update(sender, changes):
+    # check if any of the changes being commited are assets
+    changed_assets = [change[0] for change in changes if isinstance(change[0], Asset)]
+    # check for changes to asset points, and add their corresponding asset to the list
+    changed_assets.extend([change[0].asset for change in changes if isinstance(change[0], AssetPoint)])
+    # remove duplicates
+    changed_asset_set = set(changed_assets)
+    # if somehow a null object got in here, remove it
+    changed_asset_set.discard(None)
+
+    for asset in changed_asset_set:
+        asset.map()
