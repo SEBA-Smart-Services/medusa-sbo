@@ -400,6 +400,6 @@ def map_asset_on_update(sender, changes):
     changed_asset_set = set(changed_assets)
     # if somehow a null object got in here, remove it
     changed_asset_set.discard(None)
-
+    
     for asset in changed_asset_set:
         asset.map()

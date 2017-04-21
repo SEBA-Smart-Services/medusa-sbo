@@ -1,35 +1,60 @@
 from app import db
 from app.models import AssetType, PointType, Asset, Site, AssetPoint
 
+# some asset types
+asset_types =  [
+	'AHU-CV',
+	'AHU-VV',
+	'FCU',
+	'AC-DX',
+	'pump',
+	'ventilation fan'
+]
+# some point types
+point_types = [
+	'Fan Enable',
+	'CHW Valve'
+]
+# a list of dummy sites for testing
+site_names = [
+	'TestSite1',
+	'TestSite2'
+]
+
+test_asset_name = 'Test AHU'
+
+# TO DO: this should be grabbed from a config file instead!
+db_bind_name = 'medusa'
 
 # regenerate all tables in the database, based on models
-db.drop_all(bind='medusa')
-db.create_all(bind='medusa')
+db.drop_all(bind=db_bind_name)
+db.create_all(bind=db_bind_name)
 
 # add some initial data
-for sitename in ['TestSite1', 'TestSite2']:
+for sitename in site_names:
     site = Site(name=sitename)
     db.session.add(site)
 
-for typename in ['AHU-CV single zone', 'AHU-CV multi zone', 'AHU-VV']:
+for typename in asset_types:
     asset_type = AssetType(name=typename)
     db.session.add(asset_type)
 
-for pointname in ['Fan Enable', 'CHW Valve']:
+for pointname in point_types:
     point_type = PointType(name=pointname)
     db.session.add(point_type)
 
-site = Site.query.filter_by(name='TestSite1').one()
-asset_type = AssetType.query.filter_by(name='AHU-CV single zone').one()
-asset = Asset(name='Test AHU', site=site, type=asset_type, health=0, priority=1, notes='')
-point1_type = PointType.query.filter_by(name='Fan Enable').one()
-point2_type = PointType.query.filter_by(name='CHW Valve').one()
-point1 = AssetPoint(name='Fan Enable', type=point1_type, asset=asset)
-point2 = AssetPoint(name='CHW Valve', type=point2_type, asset=asset)
-asset.points.append(point1)
-asset.points.append(point2)
-db.session.add(asset)
+site = Site.query.filter_by(name=site_names[0]).one()
+asset_type = AssetType.query.filter_by(name=asset_types[0]).one()
+asset = Asset(name=test_asset_name, site=site, type=asset_type, health=0, priority=1, notes='')
 
+# add one of each point type to dummy unit
+for pointtype in point_types:
+    point = PointType.query.filter_by(name=pointtype).one()
+    asset_point = AssetPoint(name=pointtype, type=point, asset=asset)
+    asset.points.append(asset_point)
+
+# add and commit to db
+db.session.add(asset)
 db.session.commit()
 
 from mapping import map_all
