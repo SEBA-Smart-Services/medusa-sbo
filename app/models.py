@@ -274,7 +274,7 @@ class Asset(db.Model):
     group = db.Column('Group', db.String(512))
     health = db.Column('Health', db.Float)
     priority = db.Column('Priority', db.Integer)
-    notes = db.Column('Notes', db.Text)
+    notes = db.Column('Notes', db.Text, default="")
     site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'))
     type_id = db.Column('Type_id', db.Integer, db.ForeignKey('asset_type.ID'))
     points = db.relationship('AssetPoint', backref='asset', cascade='save-update, merge, delete, delete-orphan')
@@ -401,6 +401,6 @@ def map_asset_on_update(session, flush_context, instances):
     changed_asset_set = set(changed_assets)
     # if somehow a null object got in here, remove it
     changed_asset_set.discard(None)
-
+    print('t') 
     for asset in changed_asset_set:
         asset.map()
