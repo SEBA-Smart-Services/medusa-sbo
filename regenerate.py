@@ -1,5 +1,5 @@
 from app import db
-from app.models import AssetType, PointType, Asset, Site, AssetPoint
+from app.models import AssetType, PointType, Asset, Site, AssetPoint, InbuildingsConfig
 
 # some asset types
 asset_types =  [
@@ -47,6 +47,7 @@ db.create_all(bind=db_bind_name)
 # add some initial data
 for sitename in site_names:
     site = Site(name=sitename)
+	site.inbuildings_config = InbuildingsConfig(enabled=False, key="")
     db.session.add(site)
 
 for typename in asset_types:

@@ -389,7 +389,7 @@ class IssueHistory(db.Model):
 ## helper functions
 ###################################
 
-# function to re-map an asset whenever it is updated
+# function to re-map an asset whenever it is updated. Attaches to SignallingSession, which is the base for db.session
 @event.listens_for(SignallingSession, 'before_flush')
 def map_asset_on_update(session, flush_context, instances):
     changes = set(session.new) | set(session.dirty) | set(session.deleted)
@@ -401,6 +401,6 @@ def map_asset_on_update(session, flush_context, instances):
     changed_asset_set = set(changed_assets)
     # if somehow a null object got in here, remove it
     changed_asset_set.discard(None)
-    print('t') 
+
     for asset in changed_asset_set:
         asset.map()

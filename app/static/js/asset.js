@@ -64,6 +64,7 @@ function buildLogList(type) {
     type: type,
   }, function(loglist_data) {
     $.each(loglist_data, function() {
+      alert(this);
       $loglist_ul.append($('<li class="mdl-menu__item"/>').attr('data-val', this).text(this));
     })
   });
