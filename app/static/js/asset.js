@@ -63,6 +63,8 @@ function buildLogList(type) {
   $.getJSON($('#return_loggedentities').attr('content'), {
     type: type,
   }, function(loglist_data) {
+    // add a blank row first
+    $loglist_ul.append($('<li class="mdl-menu__item"/>').attr('data-val', "").text(""));
     $.each(loglist_data, function() {
       $loglist_ul.append($('<li class="mdl-menu__item"/>').attr('data-val', this).text(this));
     })
