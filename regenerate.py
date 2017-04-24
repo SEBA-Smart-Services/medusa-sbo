@@ -12,8 +12,22 @@ asset_types =  [
 ]
 # some point types
 point_types = [
-	'Fan Enable',
-	'CHW Valve'
+    'zone air temp sensor',
+    'return air damper cmd',
+    'supply air fan run cmd',
+    'zone air temp sp',
+    'supply air fan run status',
+    'return air temp sensor',
+    'return air humidity sensor',
+    'return air co2 sensor',
+    'chilled water valve',
+    'outside air damper cmd',
+    'filter',
+    'supply air fan status',
+    'filter sp',
+    'supply air temp sp',
+    'supply air temp sensor',
+    'supply air fan speed cmd'
 ]
 # a list of dummy sites for testing
 site_names = [
