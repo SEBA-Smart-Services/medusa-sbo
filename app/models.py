@@ -1,8 +1,8 @@
 from app import db, app
-from sqlalchemy import orm, create_engine
+from sqlalchemy import orm, create_engine, event
 from sqlalchemy.engine.url import make_url
 from flask import _app_ctx_stack
-from flask_sqlalchemy import before_models_committed
+from flask_sqlalchemy import SignallingSession
 import sys
 
 ###################################
@@ -390,16 +390,17 @@ class IssueHistory(db.Model):
 ###################################
 
 # function to re-map an asset whenever it is updated
-@before_models_committed.connect_via(app)
-def map_asset_on_update(sender, changes):
+@event.listens_for(SignallingSession, 'before_flush')
+def map_asset_on_update(session, flush_context, instances):
+    changes = set(session.new) | set(session.dirty) | set(session.deleted)
     # check if any of the changes being commited are assets
-    changed_assets = [change[0] for change in changes if isinstance(change[0], Asset)]
+    changed_assets = [change for change in changes if isinstance(change, Asset)]
     # check for changes to asset points, and add their corresponding asset to the list
-    changed_assets.extend([change[0].asset for change in changes if isinstance(change[0], AssetPoint)])
+    changed_assets.extend([change.asset for change in changes if isinstance(change, AssetPoint)])
     # remove duplicates
     changed_asset_set = set(changed_assets)
     # if somehow a null object got in here, remove it
     changed_asset_set.discard(None)
-    
+
     for asset in changed_asset_set:
         asset.map()
