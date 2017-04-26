@@ -85,19 +85,16 @@ class LoggedEntity(db.Model):
 algo_point_mapping = db.Table('algo_point_mapping',
     db.Column('Algorithm_id', db.Integer, db.ForeignKey('algorithm.ID'), primary_key=True),
     db.Column('Point_type_id', db.Integer, db.ForeignKey('point_type.ID'), primary_key=True),
-    info={'bind_key': 'medusa'}
 )
 
 # many-many mapping table between algorithms and the functional descriptors they require
 algo_function_mapping = db.Table('algo_function_mapping',
     db.Column('Algorithm_id', db.Integer, db.ForeignKey('algorithm.ID'), primary_key=True),
     db.Column('FunctionalDescriptor_id', db.Integer, db.ForeignKey('functional_descriptor.ID'), primary_key=True),
-    info={'bind_key': 'medusa'}
 )
 
 # asset types
 class AssetType(db.Model):
-    __bind_key__ = 'medusa'
     id = db.Column('ID', db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512))
     assets = db.relationship('Asset', backref='type')
@@ -108,7 +105,6 @@ class AssetType(db.Model):
 
 # functional descriptors
 class FunctionalDescriptor(db.Model):
-    __bind_key__ = 'medusa'
     id = db.Column('ID',db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512))
     type_id = db.Column('Type_id', db.Integer, db.ForeignKey('asset_type.ID'))
@@ -118,7 +114,6 @@ class FunctionalDescriptor(db.Model):
 
 # point types
 class PointType(db.Model):
-    __bind_key__ = 'medusa'
     id = db.Column('ID',db.Integer, primary_key=True)
     name = db.Column('Name',db.String(512))
     asset_points = db.relationship('AssetPoint', backref='type')
@@ -128,7 +123,6 @@ class PointType(db.Model):
 
 # algorithms. the 'name' field refers to the actual algorithm classname in the code
 class Algorithm(db.Model):
-    __bind_key__ = 'medusa'
     id = db.Column('ID', db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512))
     descr = db.Column('Descr', db.String(512))
@@ -185,7 +179,6 @@ class Algorithm(db.Model):
 
 # status of issue
 class Status(db.Model):
-    __bind_key__ = 'medusa'
     id = db.Column('ID', db.Integer, primary_key=True)
     descr = db.Column('Descr', db.String(512))
     results = db.relationship('Result', backref='status')
@@ -198,33 +191,28 @@ class Status(db.Model):
 asset_function_mapping = db.Table('asset_function_mapping',
     db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'), primary_key=True),
     db.Column('FunctionalDescriptor_id', db.Integer, db.ForeignKey('functional_descriptor.ID'), primary_key=True),
-    info={'bind_key': 'medusa'}
 )
 
 # many-many mapping table between assets and the algorithms that apply to them
 algo_asset_mapping = db.Table('algo_asset_mapping',
     db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'), primary_key=True),
     db.Column('Algorithm_id', db.Integer, db.ForeignKey('algorithm.ID'), primary_key=True),
-    info={'bind_key': 'medusa'}
 )
 
 # many-many mapping table defining algorithms that are excluded from operating on an assets
 algo_exclusions = db.Table('algo_exclusions',
     db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'), primary_key=True),
     db.Column('Algorithm_id', db.Integer, db.ForeignKey('algorithm.ID'), primary_key=True),
-    info={'bind_key': 'medusa'}
 )
 
 # many-many mapping table defining which points were checked for each algorithm result
 points_checked = db.Table('points_checked',
     db.Column('Result_id', db.Integer, db.ForeignKey('result.ID'), primary_key=True),
     db.Column('Point_id', db.Integer, db.ForeignKey('asset_point.ID'), primary_key=True),
-    info={'bind_key': 'medusa'}
 )
 
 # list of customer sites
 class Site(db.Model):
-    __bind_key__ = 'medusa'
     id = db.Column('ID', db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512))
     db_key = db.Column('DB_key', db.String(512))
@@ -254,7 +242,6 @@ class Site(db.Model):
 
 # data pulled from inbuildings
 class InbuildingsAsset(db.Model):
-    __bind_key__ = 'medusa'
     id = db.Column('ID', db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512))
     location = db.Column('Location', db.String(512))
@@ -267,7 +254,6 @@ class InbuildingsAsset(db.Model):
 
 # list of assets
 class Asset(db.Model):
-    __bind_key__ = 'medusa'
     id = db.Column('ID', db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512))
     location = db.Column('Location', db.String(512))
@@ -317,7 +303,6 @@ class Asset(db.Model):
 
 # points that each asset has - there may be multiple of the same type
 class AssetPoint(db.Model):
-    __bind_key__ = 'medusa'
     id = db.Column('ID', db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512))
     asset_id = db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'))
@@ -332,7 +317,6 @@ class AssetPoint(db.Model):
 
 # timestamped list containing the results of all algorithms ever applied to each asset
 class Result(db.Model):
-    __bind_key__ = 'medusa'
     id = db.Column('ID', db.Integer, primary_key=True)
     timestamp = db.Column('Timestamp', db.DateTime)
     asset_id = db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'))
@@ -358,7 +342,6 @@ class Result(db.Model):
 
 # config properties for Inbuildings interface
 class InbuildingsConfig(db.Model):
-    __bind_key__ = 'medusa'
     id = db.Column('ID', db.Integer, primary_key=True)
     site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'))
     enabled = db.Column('Enabled', db.Boolean)
@@ -371,14 +354,12 @@ class InbuildingsConfig(db.Model):
 
 # table of timestamps. Simplifies graphing if IssueHistory for different sites is grouped under the same timestamp object
 class IssueHistoryTimestamp(db.Model):
-    __bind_key__ = 'medusa'
     id = db.Column('ID', db.Integer, primary_key=True)
     timestamp = db.Column('Timestamp', db.DateTime)
     issues = db.relationship('IssueHistory', backref='timestamp')
 
 # timestamped list containing the quantity of issues present at each site over time
 class IssueHistory(db.Model):
-    __bind_key__ = 'medusa'
     id = db.Column('ID', db.Integer, primary_key=True)
     issues = db.Column('Issues', db.Integer)
     timestamp_id = db.Column('Timestamp_id', db.Integer, db.ForeignKey('issue_history_timestamp.ID'))
