@@ -7,4 +7,5 @@ scheduler = BlockingScheduler()
 backgroundscheduler = BackgroundScheduler()
 
 # load jobs
-from . import config
+from config import add_jobs
+add_jobs([scheduler, backgroundscheduler])
