@@ -46,7 +46,7 @@
             {% endif %}
             <th class="mdl-data-table__cell--non-numeric"">Asset</th>
             <th class="mdl-data-table__cell--non-numeric" style="width:45%">Algorithm</th>
-            <th class="mdl-data-table__cell--non-numeric"">Status</th>
+            <th class="mdl-data-table__cell--non-numeric"">Notes</th>
             <th>Priority</th>
           </tr>
         </thead>
@@ -59,7 +59,7 @@
           {% endif %}
                 <td class="mdl-data-table__cell--non-numeric">{{result.asset.name}}</td>
                 <td class="mdl-data-table__cell--non-numeric">{{result.algorithm.descr}}</td>
-                <td class="mdl-data-table__cell--non-numeric">{{result.status.descr}}</td>
+                <td class="mdl-data-table__cell--non-numeric">{{result.notes}}</td>
                 <td>{{result.asset.priority}}</td>
               </tr>
             {% endif %}

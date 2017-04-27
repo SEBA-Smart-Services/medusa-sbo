@@ -11,7 +11,7 @@
         <th class="mdl-data-table__cell--non-numeric">Algorithm</th>
         <th>Passed</th>
         <th>Result</th>
-        <th>Status</th>
+        <th>Notes</th>
       </tr>
     </thead>
     <tbody>
@@ -27,7 +27,7 @@
           <td>{{result.algorithm.algorithm.format.format(result.value)}}</td>
           {% endif %}
 
-          <td>{{result.status.descr}}</td>
+          <td>{{result.notes}}</td>
         </tr>
       {% endfor %}
     </tbody>
@@ -42,7 +42,7 @@
         <th class="mdl-data-table__cell--non-numeric">Algorithm</th>
         <th>Passed</th>
         <th>Result</th>
-        <th>Status</th>
+        <th>Notes</th>
       </tr>
     </thead>
     <tbody>
@@ -58,7 +58,7 @@
           <td>{{result.algorithm.algorithm.format.format(result.value)}}</td>
           {% endif %}
 
-          <td>{{result.status.descr}}</td>
+          <td>{{result.notes}}</td>
         </tr>
       {% endfor %}
     </tbody>

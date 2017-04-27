@@ -48,6 +48,9 @@ def regenerate():
 
     test_asset_name = 'Test AHU'
 
+    # ensure session is closed
+    db.session.close()
+
     # regenerate all tables in the database, based on models
     db.drop_all()
     db.create_all()

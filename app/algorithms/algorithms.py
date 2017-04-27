@@ -59,7 +59,7 @@ def check_asset(asset):
     if not session is None:
         datagrab = DataGrab(session, asset)
 
-        # clear 'most recent' status on previous results
+        # clear 'recent' status on previous results
         for result in Result.query.filter_by(asset=asset, recent=True):
             result.recent = False
 
@@ -105,8 +105,8 @@ def check_all():
     for asset in Asset.query.all():
         # result status is not being used atm, so clear it to stop repeats of the algorithm checks showing up as issues
         # TODO: figure out a way to represent long-standing issues that were present from previous checks
-        for result in Result.query.filter(Result.asset==asset, Result.status_id not in [1,5]).all():
-            result.status_id = 1
+        for result in Result.query.filter_by(asset==asset, active=True).all():
+            result.active = False
         check_asset(asset)
     db.session.close()
     return 'done'
@@ -280,6 +280,20 @@ class testfunc(AlgorithmClass):
 
 # save the check results
 def save_result(asset, algorithm, value, passed, point_list):
-    result = Result(timestamp=datetime.datetime.now(), asset_id=asset.id, algorithm_id=algorithm.id, value=value, passed=passed, status_id=int(not passed) + 1, points=point_list, recent=True)
-    db.session.add(result)
+    # find existing results that are active
+    result = Result.query.filter_by(asset_id=asset.id, algorithm_id=algorithm.id, active=True).first()
+    # or create a new one if none
+    if result is None:
+        result = Result(first_timestamp=datetime.datetime.now(), asset_id=asset.id, algorithm_id=algorithm.id, occurances=0)
+        db.session.add(result)
+
+    result.recent_timestamp = datetime.datetime.now()
+    result.value = value
+    result.passed = passed
+    result.active = not passed
+    result.acknowledged = passed
+    result.occurances += 1
+    result.points = point_list
+    result.recent = True
+
     db.session.commit()

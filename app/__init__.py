@@ -16,9 +16,3 @@ registry = SessionRegistry()
 from app import add, admin, cmms, weather, algorithms, scheduled
 # modules
 from app import models, controllers
-
-
-# THIS MUST BE MOVED, ALONG WITH  mapping.py TO OUTSIDE OF THE PRODUCTION APP
-# re-map all algorithms, as these may have been edited
-# from app.mapping import map_all
-# map_all()

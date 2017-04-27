@@ -195,7 +195,7 @@ def result_list(sitename, asset_id):
     site = Site.query.filter_by(name=sitename).one()
     asset = Asset.query.filter_by(id=asset_id).one()
     recent_results = Result.query.filter_by(asset=asset, recent=True).all()
-    unresolved_results = Result.query.filter(Result.asset==asset, Result.status_id > 1, Result.status_id < 5).all()
+    unresolved_results = Result.query.filter(Result.asset==asset, (Result.active == True or Result.acknowledged == False)).all()
     algorithms = set(asset.algorithms) - set(asset.exclusions)
     return render_template('results.html', asset=asset, site=site, recent_results=recent_results, unresolved_results=unresolved_results, algorithms=algorithms)
 

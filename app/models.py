@@ -177,11 +177,6 @@ class Algorithm(db.Model):
     def __repr__(self):
         return self.name
 
-# status of issue
-class Status(db.Model):
-    id = db.Column('ID', db.Integer, primary_key=True)
-    descr = db.Column('Descr', db.String(512))
-    results = db.relationship('Result', backref='status')
 
 ###################################
 ## real world models
@@ -233,11 +228,11 @@ class Site(db.Model):
         self.db_key = ''.join(['mssql+pymssql://', self.db_username, ':', self.db_password, '@', self.db_address, ':', self.db_port, '/', self.db_name])
 
     def get_unresolved(self):
-        issues = Result.query.join(Result.asset).filter(Result.status_id > 1, Result.status_id < 5, Asset.site == self).all()
+        issues = Result.query.join(Result.asset).filter(Result.active == True or Result.acknowledged == False, Asset.site == self).all()
         return issues
 
     def get_unresolved_by_priority(self):
-        issue = Result.query.join(Result.asset).filter(Result.status_id > 1, Result.status_id < 5, Asset.site == self).order_by(Asset.priority.asc()).all()
+        issue = Result.query.join(Result.asset).filter(Result.active == True or Result.acknowledged == False, Asset.site == self).order_by(Asset.priority.asc()).all()
         return issue
 
 # data pulled from inbuildings
@@ -318,26 +313,30 @@ class AssetPoint(db.Model):
 # timestamped list containing the results of all algorithms ever applied to each asset
 class Result(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True)
-    timestamp = db.Column('Timestamp', db.DateTime)
+    first_timestamp = db.Column('First_timestamp', db.DateTime)
+    recent_timestamp = db.Column('Recent_timestamp', db.DateTime)
     asset_id = db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'))
     algorithm_id = db.Column('Algorithm_id', db.Integer, db.ForeignKey('algorithm.ID'))
     value = db.Column('Result', db.Float)
     passed = db.Column('Passed', db.Boolean)
+    active = db.Column('Active', db.Boolean)
+    acknowledged = db.Column('Acknowledged', db.Boolean)
+    occurances = db.Column('Occurances', db.Integer)
     recent = db.Column('Recent', db.Boolean)
+    notes = db.Column('Notes', db.Text, default="")
     points = db.relationship('AssetPoint', secondary=points_checked, backref='results')
-    status_id = db.Column('Status_id', db.Integer, db.ForeignKey('status.ID'))
 
     def __repr__(self):
-        return str(self.timestamp)
+        return str(self.timestamp) + " - " + self.algorithm.name
 
     @classmethod
     def get_unresolved(cls):
-        issues = cls.query.filter(cls.status_id > 1, cls.status_id < 5).all()
+        issues = cls.query.filter(cls.active == True or cls.acknowledged == False).all()
         return issues
 
     @classmethod
     def get_unresolved_by_priority(cls):
-        issue = cls.query.join(cls.asset).filter(cls.status_id > 1, Result.status_id < 5).order_by(Asset.priority.asc()).all()
+        issue = cls.query.join(cls.asset).filter(cls.active == True or cls.acknowledged == False).order_by(Asset.priority.asc()).all()
         return issue
 
 # config properties for Inbuildings interface

@@ -12,7 +12,7 @@
         <th class="sort mdl-data-table__cell--non-numeric" data-sort="algorithm">Algorithm</th>
         <th class="sort mdl-data-table__cell--non-numeric" data-sort="passed">Passed</th>
         <th class="sort" data-sort="result">Result</th>
-        <th class="sort mdl-data-table__cell--non-numeric" data-sort="status">Status</th>
+        <th class="sort mdl-data-table__cell--non-numeric" data-sort="notes">Notes</th>
         <th class="sort" data-sort="priority">Priority</th>
       </tr>
     </thead>
@@ -34,7 +34,7 @@
                 {{result.algorithm.algorithm.format.format(result.value)}}
               {% endif %}
             </td>
-            <td class="status mdl-data-table__cell--non-numeric">{{result.status.descr}}</td>
+            <td class="notes mdl-data-table__cell--non-numeric">{{result.notes}}</td>
             <td class="priority">{{result.asset.priority}}</td>
           </tr>
         {% endif %}
@@ -44,7 +44,7 @@
 
   <script type="text/javascript">
     var options = {
-        valueNames: ['timestamp', 'asset', 'site', 'algorithm', 'passed', 'result', 'status', 'priority']
+        valueNames: ['timestamp', 'asset', 'site', 'algorithm', 'passed', 'result', 'notes', 'priority']
       }
     var documentTable = new List('unresolved-table', options);
     documentTable.sort("timestamp",{order:"desc"});
