@@ -63,3 +63,5 @@ config.py
 # web server socket
 *.sock
 
+# atom remote sync
+.remote-sync.json
