@@ -218,15 +218,15 @@ def unresolved_issues_submit(sitename):
 
     return redirect(url_for('unresolved_list', sitename=sitename))
 
-# show results for a single asset
-@app.route('/site/<sitename>/results/<asset_id>')
-def result_list(sitename, asset_id):
+# show details for a single asset
+@app.route('/site/<sitename>/details/<asset_id>')
+def asset_details(sitename, asset_id):
     site = Site.query.filter_by(name=sitename).one()
     asset = Asset.query.filter_by(id=asset_id).one()
     recent_results = Result.query.filter_by(asset=asset, recent=True).all()
     unresolved_results = Result.query.filter(Result.asset==asset, (Result.active == True) | (Result.acknowledged == False)).all()
     algorithms = set(asset.algorithms) - set(asset.exclusions)
-    return render_template('results.html', asset=asset, site=site, recent_results=recent_results, unresolved_results=unresolved_results, algorithms=algorithms)
+    return render_template('asset_details.html', asset=asset, site=site, recent_results=recent_results, unresolved_results=unresolved_results, algorithms=algorithms)
 
 # handle update from acknowledging/editing notes of issues for a single asset
 @app.route('/site/<sitename>/results/<asset_id>/_submit', methods=['POST'])
@@ -246,7 +246,7 @@ def asset_issues_submit(sitename, asset_id):
 
     db.session.commit()
 
-    return redirect(url_for('result_list', sitename=sitename, asset_id=asset_id))
+    return redirect(url_for('asset_details', sitename=sitename, asset_id=asset_id))
 
 # show site config page
 @app.route('/site/<sitename>/config')

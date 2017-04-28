@@ -13,6 +13,6 @@ from app.models import SessionRegistry
 registry = SessionRegistry()
 
 # packages
-from app import add, admin, cmms, weather, algorithms, scheduled
+from app import add, admin, cmms, weather, algorithms, scheduled, reports
 # modules
 from app import models, controllers

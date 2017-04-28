@@ -28,7 +28,7 @@
                       <input type="checkbox" name="asset_id" id="{{asset.id}}" class="mdl-checkbox__input" value="{{asset.id}}">
                     </label>
                   </td>
-                  <td class="mdl-data-table__cell--non-numeric"><a href="{{ url_for('result_list', sitename=site.name, asset_id=asset.id) }}">{{asset.name}}</a></td>
+                  <td class="mdl-data-table__cell--non-numeric"><a href="{{ url_for('asset_details', sitename=site.name, asset_id=asset.id) }}">{{asset.name}}</a></td>
                   <td class="mdl-data-table__cell--non-numeric">{{(asset.health*100)|round(1)}}%</td>
                   <td class="mdl-data-table__cell--non-numeric">{{asset.type}}</td>
                   <td class="mdl-data-table__cell--non-numeric">{{asset.location}}</td>
