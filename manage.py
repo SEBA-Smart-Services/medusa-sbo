@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 
@@ -10,43 +11,45 @@ manager = Manager(app)
 
 manager.add_command('db', MigrateCommand)
 
+# some asset types
+asset_types =  [
+    'AHU-CV',
+    'AHU-VV',
+    'FCU',
+    'AC-DX',
+    'pump',
+    'ventilation fan'
+]
+# some point types
+point_types = [
+    'zone air temp sensor',
+    'return air damper cmd',
+    'supply air fan run cmd',
+    'zone air temp sp',
+    'supply air fan run status',
+    'return air temp sensor',
+    'return air humidity sensor',
+    'return air co2 sensor',
+    'chilled water valve',
+    'outside air damper cmd',
+    'filter',
+    'supply air fan status',
+    'filter sp',
+    'supply air temp sp',
+    'supply air temp sensor',
+    'supply air fan speed cmd'
+]
+# a list of dummy sites for testing
+site_names = [
+    'TestSite1',
+    'TestSite2'
+]
+
+test_asset_name = 'Test AHU'
+
+
 @manager.command
 def regenerate():
-    # some asset types
-    asset_types =  [
-    	'AHU-CV',
-    	'AHU-VV',
-    	'FCU',
-    	'AC-DX',
-    	'pump',
-    	'ventilation fan'
-    ]
-    # some point types
-    point_types = [
-        'zone air temp sensor',
-        'return air damper cmd',
-        'supply air fan run cmd',
-        'zone air temp sp',
-        'supply air fan run status',
-        'return air temp sensor',
-        'return air humidity sensor',
-        'return air co2 sensor',
-        'chilled water valve',
-        'outside air damper cmd',
-        'filter',
-        'supply air fan status',
-        'filter sp',
-        'supply air temp sp',
-        'supply air temp sensor',
-        'supply air fan speed cmd'
-    ]
-    # a list of dummy sites for testing
-    site_names = [
-    	'TestSite1',
-    	'TestSite2'
-    ]
-
-    test_asset_name = 'Test AHU'
 
     # ensure session is closed
     db.session.close()
@@ -124,6 +127,39 @@ def map_assets():
 def map_all():
     generate_algorithms()
     map_algorithms()
+
+@manager.command
+def create():
+
+    db.create_all()
+
+    for sitename in site_names:
+        site = Site(name=sitename)
+        site.inbuildings_config = InbuildingsConfig(enabled=False, key="")
+        db.session.add(site)
+
+    for typename in asset_types:
+        asset_type = AssetType(name=typename)
+        db.session.add(asset_type)
+
+    for pointname in point_types:
+        point_type = PointType(name=pointname)
+        db.session.add(point_type)
+
+    site = Site.query.filter_by(name=site_names[0]).one()
+    asset_type = AssetType.query.filter_by(name=asset_types[0]).one()
+    asset = Asset(name=test_asset_name, site=site, type=asset_type, health=0, priority=1, notes='')
+
+    # add one of each point type to dummy unit
+    for pointtype in point_types:
+        point = PointType.query.filter_by(name=pointtype).one()
+        asset_point = AssetPoint(name=pointtype, type=point, asset=asset)
+        asset.points.append(asset_point)
+
+    db.session.add(asset)
+    db.session.commit()
+    db.session.close()
+
 
 if __name__ == '__main__':
     manager.run()
