@@ -69,6 +69,14 @@ def unresolved_list_all():
     results = Result.get_unresolved()
     return render_template('unresolved.html', results=results, allsites=True)
 
+@app.route('/site/all/unresolved/_submit', methods=['POST'])
+def unresolved_issues_submit_all():
+    results = Result.get_unresolved()
+    print(request.form['acknowledge'])
+    #for result_id in request.form['acknowledge']
+
+    return redirect(url_for('unresolved_list_all'))
+
 # display chart of unresolved issues over time
 @app.route('/site/all/issue-chart')
 def unresolved_chart():
@@ -97,6 +105,7 @@ def unresolved_chart():
     return render_template('issue_chart.html', sites=sites, array=array, history=history, allsites=True)
 
 # show map of all tech locations
+# NOTE: currently just set to iframe a blank google maps
 @app.route('/site/all/map')
 def map():
     # TODO: figure out how to auto sign into the inbuildings page. Attempt at cookies below doesn't work
@@ -189,15 +198,55 @@ def unresolved_list(sitename):
     results = site.get_unresolved()
     return render_template('unresolved.html', results=results, site=site)
 
+# handle update from acknowledging/editing notes of issues for a site
+@app.route('/site/<sitename>/unresolved/_submit', methods=['POST'])
+def unresolved_issues_submit(sitename):
+    site = Site.query.filter_by(name=sitename).one()
+    results = site.get_unresolved()
+
+    # unacknowledge all results and set notes field
+    for result in results:
+        result.acknowledged = False
+        result.notes = request.form['notes-' + str(result.id)]
+
+    # acknowledge results as per input
+    for result_id in request.form.getlist('acknowledge'):
+        result = Result.query.filter_by(id=result_id).one()
+        result.acknowledged = True
+
+    db.session.commit()
+
+    return redirect(url_for('unresolved_list', sitename=sitename))
+
 # show results for a single asset
 @app.route('/site/<sitename>/results/<asset_id>')
 def result_list(sitename, asset_id):
     site = Site.query.filter_by(name=sitename).one()
     asset = Asset.query.filter_by(id=asset_id).one()
     recent_results = Result.query.filter_by(asset=asset, recent=True).all()
-    unresolved_results = Result.query.filter(Result.asset==asset, (Result.active == True or Result.acknowledged == False)).all()
+    unresolved_results = Result.query.filter(Result.asset==asset, (Result.active == True) | (Result.acknowledged == False)).all()
     algorithms = set(asset.algorithms) - set(asset.exclusions)
     return render_template('results.html', asset=asset, site=site, recent_results=recent_results, unresolved_results=unresolved_results, algorithms=algorithms)
+
+# handle update from acknowledging/editing notes of issues for a single asset
+@app.route('/site/<sitename>/results/<asset_id>/_submit', methods=['POST'])
+def asset_issues_submit(sitename, asset_id):
+    asset = Asset.query.filter_by(id=asset_id).one()
+    unresolved_results = Result.query.filter(Result.asset==asset, (Result.active == True) | (Result.acknowledged == False)).all()
+
+    # unacknowledge all results and set notes field
+    for result in unresolved_results:
+        result.acknowledged = False
+        result.notes = request.form['notes-' + str(result.id)]
+
+    # acknowledge results as per input
+    for result_id in request.form.getlist('acknowledge'):
+        result = Result.query.filter_by(id=result_id).one()
+        result.acknowledged = True
+
+    db.session.commit()
+
+    return redirect(url_for('result_list', sitename=sitename, asset_id=asset_id))
 
 # show site config page
 @app.route('/site/<sitename>/config')

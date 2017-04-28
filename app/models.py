@@ -228,11 +228,11 @@ class Site(db.Model):
         self.db_key = ''.join(['mssql+pymssql://', self.db_username, ':', self.db_password, '@', self.db_address, ':', self.db_port, '/', self.db_name])
 
     def get_unresolved(self):
-        issues = Result.query.join(Result.asset).filter(Result.active == True or Result.acknowledged == False, Asset.site == self).all()
+        issues = Result.query.join(Result.asset).filter((Result.active == True) | (Result.acknowledged == False), Asset.site == self).all()
         return issues
 
     def get_unresolved_by_priority(self):
-        issue = Result.query.join(Result.asset).filter(Result.active == True or Result.acknowledged == False, Asset.site == self).order_by(Asset.priority.asc()).all()
+        issue = Result.query.join(Result.asset).filter((Result.active == True) | (Result.acknowledged == False), Asset.site == self).order_by(Asset.priority.asc()).all()
         return issue
 
 # data pulled from inbuildings
@@ -331,12 +331,12 @@ class Result(db.Model):
 
     @classmethod
     def get_unresolved(cls):
-        issues = cls.query.filter(cls.active == True or cls.acknowledged == False).all()
+        issues = cls.query.filter((cls.active == True) | (cls.acknowledged == False)).all()
         return issues
 
     @classmethod
     def get_unresolved_by_priority(cls):
-        issue = cls.query.join(cls.asset).filter(cls.active == True or cls.acknowledged == False).order_by(Asset.priority.asc()).all()
+        issue = cls.query.join(cls.asset).filter((cls.active == True) | (cls.acknowledged == False)).order_by(Asset.priority.asc()).all()
         return issue
 
 # config properties for Inbuildings interface
