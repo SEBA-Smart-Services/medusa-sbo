@@ -64,16 +64,27 @@ def site_list():
     return render_template('sites.html', sites=sites, issues=issues, priority=priority, allsites=True)
 
 # list all unresolved issues
-@app.route('/site/all/unresolved')
+@app.route('/site/all/issues')
 def unresolved_list_all():
     results = Result.get_unresolved()
-    return render_template('unresolved.html', results=results, allsites=True)
+    return render_template('issues.html', results=results, allsites=True)
 
-@app.route('/site/all/unresolved/_submit', methods=['POST'])
+# handle update from acknowledging/editing notes of issues for all issues
+@app.route('/site/all/issues/_submit', methods=['POST'])
 def unresolved_issues_submit_all():
     results = Result.get_unresolved()
-    print(request.form['acknowledge'])
-    #for result_id in request.form['acknowledge']
+
+    # unacknowledge all results and set notes field
+    for result in results:
+        result.acknowledged = False
+        result.notes = request.form['notes-' + str(result.id)]
+
+    # acknowledge results as per input
+    for result_id in request.form.getlist('acknowledge'):
+        result = Result.query.filter_by(id=result_id).one()
+        result.acknowledged = True
+
+    db.session.commit()
 
     return redirect(url_for('unresolved_list_all'))
 
@@ -192,14 +203,14 @@ def asset_list(sitename):
     return render_template('assets.html', assets=site.assets, asset_quantity=asset_quantity, asset_types=asset_types, site=site)
 
 # list unresolved issues on the site
-@app.route('/site/<sitename>/unresolved')
+@app.route('/site/<sitename>/issues')
 def unresolved_list(sitename):
     site = Site.query.filter_by(name=sitename).one()
     results = site.get_unresolved()
-    return render_template('unresolved.html', results=results, site=site)
+    return render_template('issues.html', results=results, site=site)
 
 # handle update from acknowledging/editing notes of issues for a site
-@app.route('/site/<sitename>/unresolved/_submit', methods=['POST'])
+@app.route('/site/<sitename>/issues/_submit', methods=['POST'])
 def unresolved_issues_submit(sitename):
     site = Site.query.filter_by(name=sitename).one()
     results = site.get_unresolved()

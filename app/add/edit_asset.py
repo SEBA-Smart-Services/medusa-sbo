@@ -39,28 +39,40 @@ def edit_asset_submit(sitename, asset_id):
     old_points = list(asset.points)
 
     # TODO: need a better system of reading in values than string-matching point1 and log1
+    # if the point was here previously, it is an input with name prev_pointX and value point.id
+    # if it is a new point, it is an input with name pointX and value pointType.name
     # update points
-    for i in range(1, len(PointType.query.all()) + 1):
-        point_type_name = request.form.get('point' + str(i))
-        if not point_type_name is None:
-            point_type = PointType.query.filter_by(name=point_type_name).one()
+    # just guessing that an asset won't have more than 100 points. need a more elegant solution here
+    for i in range(1, 100):
+        # first check if the point was previously on there
+        point_id = request.form.get('prev_point' + str(i))
+        if not point_id is None:
+            point_id = int(point_id)
+            point = AssetPoint.query.filter_by(id=point_id).one()
 
-            # check if the point already exists on the asset
-            point = AssetPoint.query.filter_by(name=point_type_name, asset=asset).first()
-
-            # if the point isn't an existing one, create a new one
-            if point is None:
-                point = AssetPoint(type=point_type, name=point_type_name)
-                asset.points.append(point)
-            # else mark the point as updated
-            else:
-                old_points.remove(point)
+            # mark the point as updated
+            old_points.remove(point)
 
             # assign the log id to the point
             log_path = request.form.get('log' + str(i))
             if not log_path == '' and not session is None:
                 log = session.query(LoggedEntity).filter_by(path=log_path).one()
                 point.loggedentity_id = log.id
+
+        # otherwise check if there is a new point
+        else:
+            point_type_name = request.form.get('point' + str(i))
+            if not point_type_name is None:
+                # create the point
+                point_type = PointType.query.filter_by(name=point_type_name).one()
+                point = AssetPoint(type=point_type, name=point_type_name)
+                asset.points.append(point)
+
+                # assign the log id to the point
+                log_path = request.form.get('log' + str(i))
+                if not log_path == '' and not session is None:
+                    log = session.query(LoggedEntity).filter_by(path=log_path).one()
+                    point.loggedentity_id = log.id
 
     # delete points that have been removed
     for point in old_points:

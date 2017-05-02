@@ -76,7 +76,7 @@
             </ul>
           </div>
         </td>
-        <td>
+        <td>&nbsp
           <button type="button" onclick="addFunction()" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
             Add
           </button>
@@ -85,13 +85,16 @@
     </table>
 
     <br>
-    <h4>Points:</h4>
+    <h4>Points: &nbsp &nbsp &nbsp
+    <button id="enable_manual_bind" type="button" onclick="enableManualBind()" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"/>
+      Manually Bind
+    </button></h4>
     <table class="checkbox-list" id="point_section">
     	{% for point in asset.points %}
     		<tr>
-    			<td style="width:250px">{{point.type.name}}</td>
+    			<td style="width:250px" id="point_name">{{point.type.name}}</td>
     			<td>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height loglist" hidden>
               <input class="mdl-textfield__input" type="text" id='log{{loop.index}}' name='log{{loop.index}}'
                 {% for log in logs %}
                   {% if point.loggedentity_id == log.id %}value='{{log.path}}'{% endif %}
@@ -110,7 +113,7 @@
           <td>
             <button type=button onclick="removePoint(this)">X</button>
           </td>
-          <input type=hidden class="point" name='point{{loop.index}}' value='{{point.type.name}}'/>
+          <input type=hidden class="point" name='prev_point{{loop.index}}' value='{{point.id}}'/>
     		</tr>
     	{% endfor %}
     </table>
@@ -126,7 +129,7 @@
             </ul>
           </div>
         </td>
-        <td>
+        <td>&nbsp
           <button type="button" onclick="addPoint()" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
             Add
           </button>

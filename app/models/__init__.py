@@ -3,7 +3,7 @@ from sqlalchemy import orm, create_engine, event
 from sqlalchemy.engine.url import make_url
 from flask import _app_ctx_stack
 from flask_sqlalchemy import SignallingSession
-import sys
+import sys, datetime
 
 ###################################
 ## models in report server database
@@ -96,7 +96,7 @@ algo_function_mapping = db.Table('algo_function_mapping',
 # asset types
 class AssetType(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True)
-    name = db.Column('Name', db.String(512))
+    name = db.Column('Name', db.String(512), nullable=False)
     assets = db.relationship('Asset', backref='type')
     functions = db.relationship('FunctionalDescriptor', backref='type')
 
@@ -106,7 +106,7 @@ class AssetType(db.Model):
 # functional descriptors
 class FunctionalDescriptor(db.Model):
     id = db.Column('ID',db.Integer, primary_key=True)
-    name = db.Column('Name', db.String(512))
+    name = db.Column('Name', db.String(512), nullable=False)
     type_id = db.Column('Type_id', db.Integer, db.ForeignKey('asset_type.ID'))
 
     def __repr__(self):
@@ -115,7 +115,7 @@ class FunctionalDescriptor(db.Model):
 # point types
 class PointType(db.Model):
     id = db.Column('ID',db.Integer, primary_key=True)
-    name = db.Column('Name',db.String(512))
+    name = db.Column('Name',db.String(512), nullable=False)
     asset_points = db.relationship('AssetPoint', backref='type')
 
     def __repr__(self):
@@ -209,13 +209,13 @@ points_checked = db.Table('points_checked',
 # list of customer sites
 class Site(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True)
-    name = db.Column('Name', db.String(512))
-    db_key = db.Column('DB_key', db.String(512))
-    db_username = db.Column('DB_username', db.String(512))
-    db_password = db.Column('DB_password', db.String(512))
-    db_address = db.Column('DB_address', db.String(512))
-    db_port = db.Column('DB_port', db.String(512))
-    db_name = db.Column('DB_name', db.String(512))
+    name = db.Column('Name', db.String(512), nullable=False)
+    db_key = db.Column('DB_key', db.String(512), default="")
+    db_username = db.Column('DB_username', db.String(512), default="")
+    db_password = db.Column('DB_password', db.String(512), default="")
+    db_address = db.Column('DB_address', db.String(512), default="")
+    db_port = db.Column('DB_port', db.String(512), default="")
+    db_name = db.Column('DB_name', db.String(512), default="")
     assets = db.relationship('Asset', backref='site')
     inbuildings_assets = db.relationship('InbuildingsAsset', backref='site')
     inbuildings_config = db.relationship('InbuildingsConfig', backref='site', uselist=False)
@@ -250,14 +250,14 @@ class InbuildingsAsset(db.Model):
 # list of assets
 class Asset(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True)
-    name = db.Column('Name', db.String(512))
-    location = db.Column('Location', db.String(512))
-    group = db.Column('Group', db.String(512))
-    health = db.Column('Health', db.Float)
-    priority = db.Column('Priority', db.Integer)
+    name = db.Column('Name', db.String(512), nullable=False)
+    location = db.Column('Location', db.String(512), default="")
+    group = db.Column('Group', db.String(512), default="")
+    health = db.Column('Health', db.Float, default=0, nullable=False)
+    priority = db.Column('Priority', db.Integer, default=0, nullable=False)
     notes = db.Column('Notes', db.Text, default="")
-    site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'))
-    type_id = db.Column('Type_id', db.Integer, db.ForeignKey('asset_type.ID'))
+    site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'), nullable=False)
+    type_id = db.Column('Type_id', db.Integer, db.ForeignKey('asset_type.ID'), nullable=False)
     points = db.relationship('AssetPoint', backref='asset', cascade='save-update, merge, delete, delete-orphan')
     results = db.relationship('Result', backref='asset', cascade='save-update, merge, delete, delete-orphan')
     inbuildings = db.relationship('InbuildingsAsset', backref='asset', uselist=False)
@@ -299,9 +299,9 @@ class Asset(db.Model):
 # points that each asset has - there may be multiple of the same type
 class AssetPoint(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True)
-    name = db.Column('Name', db.String(512))
-    asset_id = db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'))
-    type_id = db.Column('PointType_id', db.Integer, db.ForeignKey('point_type.ID'))
+    name = db.Column('Name', db.String(512), nullable=False)
+    asset_id = db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'), nullable=False)
+    type_id = db.Column('PointType_id', db.Integer, db.ForeignKey('point_type.ID'), nullable=False)
     loggedentity_id = db.Column('LoggedEntity_id', db.Integer)
 
     def __repr__(self):
@@ -313,16 +313,16 @@ class AssetPoint(db.Model):
 # timestamped list containing the results of all algorithms ever applied to each asset
 class Result(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True)
-    first_timestamp = db.Column('First_timestamp', db.DateTime)
-    recent_timestamp = db.Column('Recent_timestamp', db.DateTime)
-    asset_id = db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'))
-    algorithm_id = db.Column('Algorithm_id', db.Integer, db.ForeignKey('algorithm.ID'))
-    value = db.Column('Result', db.Float)
+    first_timestamp = db.Column('First_timestamp', db.DateTime, default=datetime.datetime.now(), nullable=False)
+    recent_timestamp = db.Column('Recent_timestamp', db.DateTime, default=datetime.datetime.now(), nullable=False)
+    asset_id = db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'), nullable=False)
+    algorithm_id = db.Column('Algorithm_id', db.Integer, db.ForeignKey('algorithm.ID'), nullable=False)
+    value = db.Column('Result', db.Float, default=0, nullable=False)
     passed = db.Column('Passed', db.Boolean)
-    active = db.Column('Active', db.Boolean)
-    acknowledged = db.Column('Acknowledged', db.Boolean)
-    occurances = db.Column('Occurances', db.Integer)
-    recent = db.Column('Recent', db.Boolean)
+    active = db.Column('Active', db.Boolean, default=True)
+    acknowledged = db.Column('Acknowledged', db.Boolean, default=False)
+    occurances = db.Column('Occurances', db.Integer, default=1, nullable=False)
+    recent = db.Column('Recent', db.Boolean, default=True)
     notes = db.Column('Notes', db.Text, default="")
     points = db.relationship('AssetPoint', secondary=points_checked, backref='results')
 
@@ -342,9 +342,9 @@ class Result(db.Model):
 # config properties for Inbuildings interface
 class InbuildingsConfig(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True)
-    site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'))
-    enabled = db.Column('Enabled', db.Boolean)
-    key = db.Column('Connection_key', db.String(512))
+    site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'), nullable=False)
+    enabled = db.Column('Enabled', db.Boolean, default=False)
+    key = db.Column('Connection_key', db.String(512), default="")
 
 
 ###################################
@@ -354,15 +354,15 @@ class InbuildingsConfig(db.Model):
 # table of timestamps. Simplifies graphing if IssueHistory for different sites is grouped under the same timestamp object
 class IssueHistoryTimestamp(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True)
-    timestamp = db.Column('Timestamp', db.DateTime)
+    timestamp = db.Column('Timestamp', db.DateTime, nullable=False)
     issues = db.relationship('IssueHistory', backref='timestamp')
 
 # timestamped list containing the quantity of issues present at each site over time
 class IssueHistory(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True)
-    issues = db.Column('Issues', db.Integer)
-    timestamp_id = db.Column('Timestamp_id', db.Integer, db.ForeignKey('issue_history_timestamp.ID'))
-    site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'))
+    issues = db.Column('Issues', db.Integer, nullable=False)
+    timestamp_id = db.Column('Timestamp_id', db.Integer, db.ForeignKey('issue_history_timestamp.ID'), nullable=False)
+    site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'), nullable=False)
 
 
 ###################################

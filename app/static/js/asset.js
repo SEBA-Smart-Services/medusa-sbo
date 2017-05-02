@@ -1,12 +1,15 @@
 // set up trend log list
 var $loglist;
-$loglist = $('<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height">');
+$loglist = $('<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height loglist" hidden>');
 var $loglist_input = $('<input class="mdl-textfield__input" type="text" id="loglist" value="" readonly tabIndex="-1">');
 var $loglist_label = $('<label for="loglist"><i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i></label>')
-var $loglist_ul = $('<ul id="loglist_ul" for="loglist" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">');
+var $loglist_ul = $('<ul id="loglist_ul" for="loglist" class="mdl-menu mdl-menu--bottom-left mdl-js-menu loglist_ul">');
+// add a blank row first
+$loglist_ul.append($('<li class="mdl-menu__item"/>').attr('data-val', "").text(""));
 $loglist.append($loglist_input);
 $loglist.append($loglist_label);
 $loglist.append($loglist_ul);
+var type;
 
 // point counter
 var point_counter = parseInt($('#initial_points').attr('content')) + 1;
@@ -58,16 +61,37 @@ function removePoint(e) {
   $(e).parent().parent().remove();
 }
 
+// allow manual selecting of which log to bind to. not automatic since it takes long time to fetch logs
+function enableManualBind() {
+  $('#enable_manual_bind').text('Loading')
+  buildLogList(type);
+}
+
 // generate the list of available trend logs
 function buildLogList(type) {
   $.getJSON($('#return_loggedentities').attr('content'), {
     type: type,
   }, function(loglist_data) {
-    // add a blank row first
-    $loglist_ul.append($('<li class="mdl-menu__item"/>').attr('data-val', "").text(""));
+    // add rows to dropdown list
     $.each(loglist_data, function() {
+      // add to template
       $loglist_ul.append($('<li class="mdl-menu__item"/>').attr('data-val', this).text(this));
+      // add to existing dropdowns
+      $('.loglist_ul').append($('<li class="mdl-menu__item"/>').attr('data-val', this).text(this));
     })
+
+    // unhide drowdowns
+    $('.loglist').removeAttr('hidden');
+    $loglist.removeAttr('hidden');
+
+    // hide the enable button
+    $('#enable_manual_bind').attr('hidden', 'True');
+
+    // re-init the dropdown boxes
+    getmdlSelect.init(".getmdl-select");
+
+    // reset widths
+    $('.getmdl-select').css('max-width','900px');
   });
 }
 
@@ -144,21 +168,21 @@ function unhideButtons() {
   $('#functional_descriptor_add').removeAttr('hidden');
   $('#point_add').removeAttr('hidden');
   $('#submit').removeAttr('hidden');
+  $('#enable_manual_bind').removeAttr('hidden');
 }
 
 // startup code checks if we are on asset add or edit page
 $(function() {
-  //check if asset type is pre-defined (edit page)
+  // check if asset type is pre-defined (edit page)
   if ($('#asset_type').length) {
-    var type = $('#asset_type').attr('content');
-    buildLogList(type);
+    type = $('#asset_type').attr('content');
     buildPointList(type);
     buildFunctionList(type);
+  // else we are on add page
   } else if ($('#type_list').length) {
-    // update stuff when a type is selected (add page)
+    // update stuff when a type is selected
     $('#type_list').change(function() {
-      var type = $('#type_list').val();
-      buildLogList(type);
+      type = $('#type_list').val();
       buildPointList(type);
       buildFunctionList(type);
       buildAlgorithmList(type);
