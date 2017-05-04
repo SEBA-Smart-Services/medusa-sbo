@@ -1,5 +1,6 @@
 from app import app, db, registry
 from app.models import Site, AssetType, FunctionalDescriptor, LoggedEntity, Asset, PointType, AssetPoint, Algorithm
+from app.forms import AddAssetForm
 from flask import request, render_template, url_for, redirect, flash, send_file, make_response, jsonify
 from openpyxl import load_workbook, Workbook
 from openpyxl.worksheet.datavalidation import DataValidation
@@ -13,51 +14,22 @@ from base64 import b64encode
 def add_asset_input(sitename):
     site = Site.query.filter_by(name=sitename).one()
     asset_types = AssetType.query.all()
-    return render_template('add_asset.html', site=site, asset_types=asset_types)
 
-# return list of functional descriptors through AJAX
-@app.route('/site/<sitename>/add/_function')
-def return_functions(sitename):
-    asset_type = AssetType.query.filter_by(name=request.args['type']).one()
-    function_names = [function.name for function in asset_type.functions]
-    return jsonify(function_names)
-
-# return list of loggedentities through AJAX
-@app.route('/site/<sitename>/add/_loggedentity')
-def return_loggedentities(sitename):
-    site = Site.query.filter_by(name=sitename).one()
-
-    # get database session for this site
-    session = registry.get(site.db_key)
-
-    if not session is None:
-        logs = session.query(LoggedEntity).filter_by(type='trend.ETLog').all()
-        log_paths = [log.path for log in logs]
-        session.close()
-    else:
-        log_paths = []
-
-    return jsonify(log_paths)
-
-# return list of points through AJAX
-@app.route('/site/<sitename>/add/_point')
-def return_points(sitename):
-    points = PointType.query.all()
-    point_names = [point.name for point in points]
-    return jsonify(point_names)
-
-# return list of algorithms through AJAX
-@app.route('/site/<sitename>/add/_algorithm')
-def return_algorithms(sitename):
-    algorithms = Algorithm.query.all()
-    algorithm_names = [algorithm.descr for algorithm in algorithms]
-    return jsonify(algorithm_names)
+    form = AddAssetForm()
+    return render_template('add_asset.html', site=site, asset_types=asset_types, form=form)
 
 # process an asset addition
 @app.route('/site/<sitename>/add/_submit', methods=['POST'])
 def add_asset_submit(sitename):
 
     site = Site.query.filter_by(name=sitename).one()
+    form = AddAssetForm()
+
+    # if form has errors, return the page (errors will display)
+    if not form.validate_on_submit():
+        form.type.data = ""
+        asset_types = AssetType.query.all()
+        return render_template('add_asset.html', site=site, asset_types=asset_types, form=form)
 
     # get database session for this site
     session = registry.get(site.db_key)
@@ -103,6 +75,44 @@ def add_asset_submit(sitename):
         session.close()
 
     return redirect(url_for('asset_list', sitename=sitename))
+
+# return list of functional descriptors through AJAX
+@app.route('/site/<sitename>/add/_function')
+def return_functions(sitename):
+    asset_type = AssetType.query.filter_by(name=request.args['type']).one()
+    function_names = [function.name for function in asset_type.functions]
+    return jsonify(function_names)
+
+# return list of loggedentities through AJAX
+@app.route('/site/<sitename>/add/_loggedentity')
+def return_loggedentities(sitename):
+    site = Site.query.filter_by(name=sitename).one()
+
+    # get database session for this site
+    session = registry.get(site.db_key)
+
+    if not session is None:
+        logs = session.query(LoggedEntity).filter_by(type='trend.ETLog').all()
+        log_paths = [log.path for log in logs]
+        session.close()
+    else:
+        log_paths = []
+
+    return jsonify(log_paths)
+
+# return list of points through AJAX
+@app.route('/site/<sitename>/add/_point')
+def return_points(sitename):
+    points = PointType.query.all()
+    point_names = [point.name for point in points]
+    return jsonify(point_names)
+
+# return list of algorithms through AJAX
+@app.route('/site/<sitename>/add/_algorithm')
+def return_algorithms(sitename):
+    algorithms = Algorithm.query.all()
+    algorithm_names = [algorithm.descr for algorithm in algorithms]
+    return jsonify(algorithm_names)
 
 # generate a downloadable Excel template for uploading assets
 @app.route('/site/<sitename>/add/_download')

@@ -11,16 +11,18 @@
 
   {% if asset_types|length > 0 %}
     <form action="{{ url_for('add_asset_submit', sitename=site.name) }}" method=post>
+      {{form.csrf_token}}
+      {{ macros.show_errors(form) }}
 
       <table>
         <tr>
           <td style="width:250px"><h4>Type:</h4></td>
           <td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
-            <input class="mdl-textfield__input" type="text" id="type_list" name="type" value="" readonly tabIndex="-1">
-            <label for="type_list">
+            {{ form.type(class="mdl-textfield__input", autocomplete="off", readonly=True, tabIndex="-1") }}
+            <label for="type">
               <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
             </label>
-            <ul for="type_list" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+            <ul for="type" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
               {% for asset_type in asset_types %}
                 <li class="mdl-menu__item" data-val="{{asset_type.name}}">{{asset_type.name}}</li>
               {% endfor %}
@@ -30,32 +32,32 @@
         <tr>
           <td><h4>Name:</h4></td>
           <td><div class="mdl-textfield mdl-js-textfield shiftdown">
-              <input class="mdl-textfield__input" type="text" name="name" autocomplete="off" id="name">
+              {{ form.name(class="mdl-textfield__input", autocomplete="off") }}
               <label class="mdl-textfield__label" for="name"></label>
           </div></td>
         </tr>
         <tr>
           <td><h4>Location:</h4></td>
           <td><div class="mdl-textfield mdl-js-textfield shiftdown">
-              <input class="mdl-textfield__input" type="text" name="location" autocomplete="off" id="location">
+              {{ form.location(class="mdl-textfield__input", autocomplete="off") }}
               <label class="mdl-textfield__label" for="location"></label>
           </div></td>
         </tr>
         <tr>
           <td><h4>Group:</h4></td>
           <td><div class="mdl-textfield mdl-js-textfield shiftdown">
-              <input class="mdl-textfield__input" type="text" name="group" autocomplete="off" id="group">
+              {{ form.group(class="mdl-textfield__input", autocomplete="off") }}
               <label class="mdl-textfield__label" for="group"></label>
           </div></td>
         </tr>
         <tr>
           <td><h4>Priority:</h4></td>
           <td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
-            <input class="mdl-textfield__input" type="text" id="priority_list" name="priority" value="" readonly tabIndex="-1">
-            <label for="priority_list">
+            {{ form.priority(class="mdl-textfield__input", autocomplete="off", readonly=True, tabIndex="-1") }}
+            <label for="priority">
               <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
             </label>
-            <ul for="priority_list" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+            <ul for="priority" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
               {% for i in range(0,10) %}
                 <li class="mdl-menu__item" data-val="{{i}}">{{i}}</li>
               {% endfor %}
@@ -119,7 +121,7 @@
       <br>
       <h4>Notes:</h4>
       <div class="mdl-textfield mdl-js-textfield">
-        <textarea class="mdl-textfield__input" type="text" name="notes" rows= "2" id="notes" ></textarea>
+        {{ form.notes(class="mdl-textfield__input", rows="2") }}
         <label class="mdl-textfield__label" for="notes">Notes...</label>
       </div>
       <br><br>

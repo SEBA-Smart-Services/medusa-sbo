@@ -179,10 +179,10 @@ $(function() {
     buildPointList(type);
     buildFunctionList(type);
   // else we are on add page
-  } else if ($('#type_list').length) {
+  } else if ($('#type').length) {
     // update stuff when a type is selected
-    $('#type_list').change(function() {
-      type = $('#type_list').val();
+    $('#type').change(function() {
+      type = $('#type').val();
       buildPointList(type);
       buildFunctionList(type);
       buildAlgorithmList(type);

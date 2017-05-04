@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, PasswordField, BooleanField
+from wtforms import StringField, IntegerField, PasswordField, BooleanField, TextAreaField
 from wtforms.validators import DataRequired, Optional
 
 class SiteConfigForm(FlaskForm):
@@ -18,3 +18,11 @@ class AddSiteForm(FlaskForm):
     db_address = StringField('Address', validators=[])
     db_port = IntegerField('Port', validators=[Optional()])
     db_name = StringField('Database Name', validators=[])
+
+class AddAssetForm(FlaskForm):
+    type = StringField('Type', validators=[DataRequired()])
+    name = StringField('Name', validators=[DataRequired()])
+    location = StringField('Location', validators=[])
+    group = StringField('Group', validators=[])
+    priority = IntegerField('Priority', validators=[])
+    notes = TextAreaField('Notes', validators=[])
