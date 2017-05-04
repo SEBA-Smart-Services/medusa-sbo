@@ -57,6 +57,7 @@ def return_algorithms(sitename):
 @app.route('/site/<sitename>/add/_submit', methods=['POST'])
 def add_asset_submit(sitename):
 
+    # TODO: search by site name will not work if not unique site names
     site = Site.query.filter_by(name=sitename).one()
 
     # get database session for this site
@@ -66,6 +67,7 @@ def add_asset_submit(sitename):
     asset_type = AssetType.query.filter_by(name=request.form['type']).one()
     asset = Asset(type=asset_type, name=request.form['name'], location=request.form['location'], group=request.form['group'], priority=request.form['priority'], notes=request.form['notes'], site=site, health=0)
     db.session.add(asset)
+    db.session.commit()
 
     # TODO: need a better system of reading in values than string-matching point1 and log1
     # generate points

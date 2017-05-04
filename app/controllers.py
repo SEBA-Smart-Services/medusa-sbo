@@ -1,9 +1,11 @@
-from app import app, db
+from app import app, db, registry
 from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, PointType, Result, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp, InbuildingsConfig
+from app.models import Alarm
 from app.forms import SiteConfigForm, AddSiteForm
 from flask import json, request, render_template, url_for, redirect, jsonify, flash, make_response
 from statistics import mean
 import datetime, time
+# from sqlalchemy import and_
 
 ###################################
 ## main pages for all sites
@@ -302,3 +304,55 @@ def site_config(sitename):
         form.inbuildings_enabled.data = inbuildings_config.enabled
         form.inbuildings_key.data = inbuildings_config.key
         return render_template('site_config.html', site=site, form=form)
+
+
+
+
+# TESTING ALARMS CG
+# return list of loggedentities through AJAX
+@app.route('/site/<sitename>/alarms')
+def return_alarms(sitename):
+
+    def get_alarms_per_week(session, nweeks=4):
+        end_date = datetime.date.today()
+        series = []
+        for i in range(nweeks):
+            start_date = end_date - datetime.timedelta(days=7)
+            # count number of alarms in range
+            nalarms = session.query(Alarm).filter(
+                Alarm.datetimestamp > start_date,
+                Alarm.datetimestamp <= end_date
+            ).count()
+            series.append([start_date, nalarms])
+            # get the next earliest week next loop
+            end_date = start_date
+        # number of alarms
+        return series
+
+    site = Site.query.filter_by(name=sitename).one()
+
+    message = "squirrel"
+    alarm_names = []
+    nalarms = "FAIL"
+    # get database session for this site
+    try:
+        session = registry.get(site.db_key)
+        if not session is None:
+            alarms = session.query(Alarm).limit(20).all()
+            alarm_names = [alarm.description for alarm in alarms]
+            nalarms = get_alarms_per_week(session)
+            session.close()
+        else:
+            alarm_names = []
+
+    except Exception as e:
+        message = "No DB key, champ " + str(site.name) + '\n' + str(e)
+
+
+    return render_template(
+        'alarms.html',
+        site=site,
+        message=message,
+        alarms=alarm_names,
+        nalarms=nalarms
+    )
