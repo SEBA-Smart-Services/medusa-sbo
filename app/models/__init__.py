@@ -301,8 +301,7 @@ class Asset(db.Model):
 class AssetPoint(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True, autoincrement=True)
     name = db.Column('Name', db.String(512), nullable=False)
-    # this was nullable=False but has been chaged due to breaking sqlite
-    asset_id = db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'))
+    asset_id = db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'), nullable=False)
     type_id = db.Column('PointType_id', db.Integer, db.ForeignKey('point_type.ID'), nullable=False)
     loggedentity_id = db.Column('LoggedEntity_id', db.Integer)
 
