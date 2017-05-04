@@ -309,11 +309,27 @@ def site_config(sitename):
 
 
 # TESTING ALARMS CG
-# return list of loggedentities through AJAX
+# return table of alarms
 @app.route('/site/<sitename>/alarms')
 def return_alarms(sitename):
 
     def get_alarms_per_week(session, nweeks=4):
+        """
+        get all alarm records per week from today until nweeks
+
+        return a list:
+        [
+            [dt1, nalarms1],
+            [dt2, nalarms2],
+            ...
+        ]
+
+        TODO:
+        - move this to "alarms functions and algos module"
+        - migrate to a class for handling alarm lists
+        - allow more flexibility to include unacknowledged etc
+
+        """
         end_date = datetime.date.today()
         series = []
         for i in range(nweeks):
