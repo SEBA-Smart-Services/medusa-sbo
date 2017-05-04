@@ -4,6 +4,7 @@ from sqlalchemy.engine.url import make_url
 from flask import _app_ctx_stack
 from flask_sqlalchemy import SignallingSession
 import sys, datetime
+from app.models.StruxureWareReportsDB import Alarm
 
 ###################################
 ## models in report server database
