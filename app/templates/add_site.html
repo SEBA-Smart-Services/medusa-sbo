@@ -1,13 +1,15 @@
 {% extends "layout.html" %}
 {% block content %}
-    <form action="{{ url_for('add_site_submit') }}" method=post>
-
+    <form action="{{ url_for('add_site') }}" method=post>
+      {{form.csrf_token}}
+      {{ macros.show_errors(form) }}
+      
       <h3>Add Site</h3>
       <table class=full-width>
         <tr>
           <td style="width:250px"><h4>Name:</h4></td>
           <td><div class="mdl-textfield mdl-js-textfield">
-            <input class="mdl-textfield__input" type="text" name="name" autocomplete="off" id="name">
+            {{ form.name(class="mdl-textfield__input", autocomplete="off") }}
             <label class="mdl-textfield__label" for="name"></label>
           </div></td>
         </tr>
@@ -19,41 +21,42 @@
         <tr>
           <td style="width:250px"><h4>Username:</h4></td>
           <td><div class="mdl-textfield mdl-js-textfield">
-            <input class="mdl-textfield__input" type="text" name="db_username" autocomplete="off" id="db_username">
+            {{ form.db_username(class="mdl-textfield__input", autocomplete="off") }}
             <label class="mdl-textfield__label" for="db_username"></label>
           </div></td>
         </tr>
         <tr>
           <td style="width:250px"><h4>Password:</h4></td>
           <td><div class="mdl-textfield mdl-js-textfield">
-            <input class="mdl-textfield__input" type="text" name="db_password" autocomplete="off" id="db_password">
+            {{ form.db_password(class="mdl-textfield__input", autocomplete="off") }}
             <label class="mdl-textfield__label" for="db_password"></label>
           </div></td>
         </tr>
         <tr>
           <td style="width:250px"><h4>Server Address:</h4></td>
           <td><div class="mdl-textfield mdl-js-textfield">
-            <input class="mdl-textfield__input" type="text" name="db_address" autocomplete="off" id="db_address">
+            {{ form.db_address(class="mdl-textfield__input", autocomplete="off") }}
             <label class="mdl-textfield__label" for="db_address"></label>
           </div></td>
         </tr>
         <tr>
           <td style="width:250px"><h4>Port:</h4></td>
           <td><div class="mdl-textfield mdl-js-textfield">
-            <input class="mdl-textfield__input" type="text" name="db_port" autocomplete="off" id="db_port">
+            {{ form.db_port(class="mdl-textfield__input", autocomplete="off") }}
             <label class="mdl-textfield__label" for="db_port"></label>
           </div></td>
         </tr>
         <tr>
           <td style="width:250px"><h4>Database Name:</h4></td>
           <td><div class="mdl-textfield mdl-js-textfield">
-            <input class="mdl-textfield__input" type="text" name="db_name" autocomplete="off" id="db_name">
+            {{ form.db_name(class="mdl-textfield__input", autocomplete="off") }}
             <label class="mdl-textfield__label" for="db_name"></label>
           </div></td>
         </tr>
       </table>
 
       <br><br>
+
       <input type=submit value=Submit class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     </form>
 {% endblock %}

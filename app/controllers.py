@@ -1,5 +1,6 @@
 from app import app, db
 from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, PointType, Result, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp, InbuildingsConfig
+from app.forms import SiteConfigForm, AddSiteForm
 from flask import json, request, render_template, url_for, redirect, jsonify, flash, make_response
 from statistics import mean
 import datetime, time
@@ -131,28 +132,35 @@ def date_to_millis(d):
     """Converts a datetime object to the number of milliseconds since the unix epoch."""
     return int(time.mktime(d.timetuple())) * 1000
 
-# page to add a site to the system
-@app.route('/site/all/add_site')
-def add_site():
-    return render_template('add_site.html', allsites=True)
-
 # handle creation of a new site
-@app.route('/site/all/add_site/_submit', methods=['POST'])
-def add_site_submit():
-    site = Site(name=request.form['name'])
-    site.inbuildings_config = InbuildingsConfig(enabled=False, key="")
+@app.route('/site/all/add_site', methods=['GET', 'POST'])
+def add_site():
 
-    # set webreports database settings
-    site.db_username = request.form.get('db_username')
-    site.db_password = request.form.get('db_password')
-    site.db_address = request.form.get('db_address')
-    site.db_port = request.form.get('db_port')
-    site.db_name = request.form.get('db_name')
-    site.generate_key()
+    form = AddSiteForm()
 
-    db.session.add(site)
-    db.session.commit()
-    return redirect(url_for('site_list'))
+    if request.method == 'GET':
+        return render_template('add_site.html', form=form, allsites=True)
+
+    elif request.method == 'POST':
+        # if form has errors, return the page (errors will display)
+        if not form.validate_on_submit():
+            return render_template('add_site.html', form=form, allsites=True)
+
+        site = Site(name=form.name.data)
+        site.inbuildings_config = InbuildingsConfig(enabled=False, key="")
+
+        # convert port input to a string
+        if form.db_port.data is None:
+            form.db_port.data = ""
+        form.db_port.data = str(form.db_port.data)
+
+        # update webreports database settings
+        form.populate_obj(site)
+        site.generate_key()
+
+        db.session.add(site)
+        db.session.commit()
+        return redirect(url_for('site_list'))
 
 ###################################
 ## main pages for single site
@@ -259,30 +267,38 @@ def asset_issues_submit(sitename, asset_id):
 
     return redirect(url_for('asset_details', sitename=sitename, asset_id=asset_id))
 
-# show site config page
-@app.route('/site/<sitename>/config')
+# site config page
+@app.route('/site/<sitename>/config', methods=['GET','POST'])
 def site_config(sitename):
     site = Site.query.filter_by(name=sitename).one()
     inbuildings_config = InbuildingsConfig.query.filter_by(site=site).one()
-    return render_template('site_config.html', inbuildings_config=inbuildings_config, site=site)
 
-# update config for a site
-@app.route('/site/<sitename>/config/_submit', methods=['POST'])
-def site_config_submit(sitename):
-    site = Site.query.filter_by(name=sitename).one()
+    if request.method == 'POST':
+        form = SiteConfigForm()
 
-    # update webreports database settings
-    site.db_username = request.form.get('db_username')
-    site.db_password = request.form.get('db_password')
-    site.db_address = request.form.get('db_address')
-    site.db_port = request.form.get('db_port')
-    site.db_name = request.form.get('db_name')
-    site.generate_key()
+        # if form has errors, return the page (errors will display)
+        if not form.validate_on_submit():
+            return render_template('site_config.html', inbuildings_config=inbuildings_config, site=site, form=form)
 
-    # update inbuildings settings
-    inbuildings_config = InbuildingsConfig.query.filter_by(site=site).one()
-    inbuildings_config.enabled = request.form.get('inbuildings', False)
-    inbuildings_config.key = request.form.get('inbuildings_key')
+        # convert port input to a string
+        if form.db_port.data is None:
+            form.db_port.data = ""
+        form.db_port.data = str(form.db_port.data)
 
-    db.session.commit()
-    return redirect(url_for('homepage', sitename=sitename))
+        # update webreports database settings
+        form.populate_obj(site)
+        site.generate_key()
+
+        # update inbuildings settings
+        inbuildings_config.enabled = form.inbuildings_enabled.data
+        inbuildings_config.key = form.inbuildings_key.data
+
+        db.session.commit()
+        return redirect(url_for('homepage', sitename=sitename))
+
+    elif request.method == 'GET':
+        # prefill form with information from site object
+        form = SiteConfigForm(obj=site)
+        form.inbuildings_enabled.data = inbuildings_config.enabled
+        form.inbuildings_key.data = inbuildings_config.key
+        return render_template('site_config.html', site=site, form=form)
