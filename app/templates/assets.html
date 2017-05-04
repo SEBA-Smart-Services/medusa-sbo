@@ -1,61 +1,63 @@
 {% extends "layout.html" %}
 {% block content %}
-  <h3>Asset List</h3>
+<h3>Asset List</h3>
 
-  {# for asset_type in asset_types #}
-    {# if asset_quantity[asset_type.name] > 0 #}
-      <!--h4>{#asset_type.name#} - {#asset_quantity[asset_type.name]#}</h4-->
-      <table id="asset-table" class="mdl-data-table mdl-js-data-table full-width">
-        <thead>
-          <tr>
-            <th class="mdl-data-table__cell--non-numeric sort" data-sort="name">Name</th>
-            <th class="mdl-data-table__cell--non-numeric sort" data-sort="health">Health</th>
-            <th class="mdl-data-table__cell--non-numeric sort" data-sort="type">Type</th>
-            <th class="mdl-data-table__cell--non-numeric sort" data-sort="location">Location</th>
-            <th class="mdl-data-table__cell--non-numeric sort" data-sort="group">Group</th>
-            <th class="mdl-data-table__cell--non-numeric sort" data-sort="priority">Priority</th>
-            <th class="mdl-data-table__cell--non-numeric sort" data-sort="notes">Notes</th>
-            <th class="mdl-data-table__cell--non-numeric"></th>
-          </tr>
-        </thead>
-        <tbody class="list">
-          {% for asset in assets %}
-            {# if asset.type == asset_type #}
-              <tr>
-                <td class="mdl-data-table__cell--non-numeric name"><a href="{{url_for('asset_details', sitename=site.name, asset_id=asset.id)}}">{{asset.name}}</a></td>
-                <td class="mdl-data-table__cell--non-numeric health">{{(asset.health*100)|round(1)}}%</td>
-                <td class="mdl-data-table__cell--non-numeric type">{{asset.type}}</td>
-                <td class="mdl-data-table__cell--non-numeric location">{{asset.location}}</td>
-                <td class="mdl-data-table__cell--non-numeric group">{{asset.group}}</td>
-                <td class="mdl-data-table__cell--non-numeric priority">{{asset.priority}}</td>
-                <td class="mdl-data-table__cell--non-numeric notes">{{asset.notes[:80]}}</td>
-                <td class="mdl-data-table__cell--non-numeric">
-                  <a href={{url_for('edit_asset', asset_id=asset.id, sitename=site.name)}}>Edit</a> /
-                  <a href={{url_for('delete_asset', asset_id=asset.id, sitename=site.name)}} class="confirmation">Delete</a>
-                </td>
-              </tr>
-            {# endif #}
-          {% endfor %}
-        </tbody>
-      </table>
-    {# endif #}
-  {# endfor #}
-  <br><br>
-  {% if assets|length > 0%}
-  <input type=button onclick="window.location.href='{{ url_for('asset_xml_select', sitename=site.name) }}'" value="Download XML" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-  {% endif %}
+{# for asset_type in asset_types #}
+  {# if asset_quantity[asset_type.name] > 0 #}
+    <!--h4>{#asset_type.name#} - {#asset_quantity[asset_type.name]#}</h4-->
+    <table id="asset-table" class="mdl-data-table mdl-js-data-table full-width">
+      <thead>
+        <tr>
+          <th class="mdl-data-table__cell--non-numeric sort" data-sort="name">Name</th>
+          <th class="mdl-data-table__cell--non-numeric sort" data-sort="health">Health</th>
+          <th class="mdl-data-table__cell--non-numeric sort" data-sort="type">Type</th>
+          <th class="mdl-data-table__cell--non-numeric sort" data-sort="location">Location</th>
+          <th class="mdl-data-table__cell--non-numeric sort" data-sort="group">Group</th>
+          <th class="mdl-data-table__cell--non-numeric sort" data-sort="priority">Priority</th>
+          <th class="mdl-data-table__cell--non-numeric sort" data-sort="notes">Notes</th>
+          <th class="mdl-data-table__cell--non-numeric"></th>
+        </tr>
+      </thead>
+      <tbody class="list">
+        {% for asset in assets %}
+          {# if asset.type == asset_type #}
+            <tr>
+              <td class="mdl-data-table__cell--non-numeric name"><a href="results/{{asset.id}}">{{asset.name}}</a></td>
+              <td class="mdl-data-table__cell--non-numeric health">{{(asset.health*100)|round(1)}}%</td>
+              <td class="mdl-data-table__cell--non-numeric type">{{asset.type}}</td>
+              <td class="mdl-data-table__cell--non-numeric location">{{asset.location}}</td>
+              <td class="mdl-data-table__cell--non-numeric group">{{asset.group}}</td>
+              <td class="mdl-data-table__cell--non-numeric priority">{{asset.priority}}</td>
+              <td class="mdl-data-table__cell--non-numeric notes">{{asset.notes[:80]}}</td>
+              <td class="mdl-data-table__cell--non-numeric">
+                <a href={{url_for('edit_asset', asset_id=asset.id, sitename=site.name)}}>Edit</a> /
+                <a href={{url_for('delete_asset', asset_id=asset.id, sitename=site.name)}} class="confirmation">Delete</a>
+              </td>
+            </tr>
+          {# endif #}
+        {% endfor %}
+      </tbody>
+    </table>
+  {# endif #}
+{# endfor #}
+<br><br>
+{% if assets|length > 0%}
+<input type=button onclick="window.location.href='{{ url_for('asset_xml_select', sitename=site.name) }}'" value="Download XML" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+{% endif %}
 
-  <script type="text/javascript">
-    $('.confirmation').on('click', function () {
-        return confirm('Are you sure you wish to delete this asset?');
-    });
-  </script>
+<script type="text/javascript">
+  $('.confirmation').on('click', function () {
+      return confirm('Are you sure you wish to delete this asset?');
+  });
+</script>
 
-  <script type="text/javascript">
-    var options = {
-        valueNames: ['name', 'health', 'type', 'location', 'group', 'priority', 'notes']
-      }
-    var documentTable = new List('asset-table', options);
-    documentTable.sort("name",{order:"desc"});
-  </script>
+<script type="text/javascript">
+  var options = {
+      valueNames: ['name', 'health', 'type', 'location', 'group', 'priority', 'notes']
+    }
+  var documentTable = new List('asset-table', options);
+  documentTable.sort("name",{order:"desc"});
+</script>
+
+
 {% endblock %}

@@ -4,6 +4,7 @@ from sqlalchemy.engine.url import make_url
 from flask import _app_ctx_stack
 from flask_sqlalchemy import SignallingSession
 import sys, datetime
+from app.models.StruxureWareReportsDB import Alarm
 
 ###################################
 ## models in report server database
@@ -249,7 +250,7 @@ class InbuildingsAsset(db.Model):
 
 # list of assets
 class Asset(db.Model):
-    id = db.Column('ID', db.Integer, primary_key=True)
+    id = db.Column('ID', db.Integer, primary_key=True, autoincrement=True)
     name = db.Column('Name', db.String(512), nullable=False)
     location = db.Column('Location', db.String(512), default="")
     group = db.Column('Group', db.String(512), default="")
@@ -298,9 +299,10 @@ class Asset(db.Model):
 
 # points that each asset has - there may be multiple of the same type
 class AssetPoint(db.Model):
-    id = db.Column('ID', db.Integer, primary_key=True)
+    id = db.Column('ID', db.Integer, primary_key=True, autoincrement=True)
     name = db.Column('Name', db.String(512), nullable=False)
-    asset_id = db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'), nullable=False)
+    # this was nullable=False but has been chaged due to breaking sqlite
+    asset_id = db.Column('Asset_id', db.Integer, db.ForeignKey('asset.ID'))
     type_id = db.Column('PointType_id', db.Integer, db.ForeignKey('point_type.ID'), nullable=False)
     loggedentity_id = db.Column('LoggedEntity_id', db.Integer)
 
