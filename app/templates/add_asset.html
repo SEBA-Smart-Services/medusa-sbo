@@ -10,7 +10,7 @@
   <h3>Add Asset</h3>
 
   {% if asset_types|length > 0 %}
-    <form action="{{ url_for('add_asset_submit', sitename=site.name) }}" method=post>
+    <form action="{{ url_for('add_asset', sitename=site.name) }}" method=post>
       {{form.csrf_token}}
       {{ macros.show_errors(form) }}
 

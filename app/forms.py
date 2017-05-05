@@ -26,3 +26,10 @@ class AddAssetForm(FlaskForm):
     group = StringField('Group', validators=[])
     priority = IntegerField('Priority', validators=[])
     notes = TextAreaField('Notes', validators=[])
+
+class EditAssetForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    location = StringField('Location', validators=[])
+    group = StringField('Group', validators=[])
+    priority = IntegerField('Priority', validators=[])
+    notes = TextAreaField('Notes', validators=[])

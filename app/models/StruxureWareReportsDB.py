@@ -1,4 +1,4 @@
-from app import db, app
+from app import db
 
 # trend log values, stored in report server
 class Alarm(db.Model):
