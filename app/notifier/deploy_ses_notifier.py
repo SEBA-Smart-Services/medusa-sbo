@@ -106,8 +106,8 @@ class IAM_user(object):
 
 if __name__ == '__main__':
 
-    user_name = 'test_ses_client'
-    group_name = 'test_ses_group'
+    user_name = 'medusa_postman'
+    group_name = 'medusa_ses_group'
     policy_file = "file://groupPolicy.json"
     policy_name = "medusa-ses-notifier"
     command = SubprocessCaller()
