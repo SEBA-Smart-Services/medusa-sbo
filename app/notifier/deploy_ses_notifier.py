@@ -148,8 +148,8 @@ if __name__ == '__main__':
 
     # add user to group
     # aws iam add-user-to-group --group-name typhon-client-ses-notifiers --user-name tc-clientname-ses-notifier
-    print('\nAdding user %s to group %s' % (user_name, group_name))
-    create_user_command = "aws iam create-user --user-name %s" % (user_name,)
+    print('\nAdding user %s to group %s' % (group_name, user_name))
+    create_user_command = "aws iam add-user-to-group --group-name %s --user-name %s" % (group_name, user_name)
     command.set_command(create_user_command)
     output = command.execute()
     print(output)
