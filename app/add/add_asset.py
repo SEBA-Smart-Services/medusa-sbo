@@ -205,7 +205,7 @@ def add_asset_confirm(sitename):
     # returns a dict with each 'value' being the data for one asset, so iterate through the values
     for asset_json in assets_json.values():
         asset_type = AssetType.query.filter_by(name=asset_json['type']).one()
-        asset = Asset(name=asset_json['name'], location=asset_json['location'], group=asset_json['group'], type=asset_type, priority=asset_json['priority'], health=0, site=site)
+        asset = Asset(name=asset_json['name'], location=asset_json['location'], group=asset_json['group'], type=asset_type, priority=asset_json['priority'], notes=asset_json['notes'], health=0, site=site)
         db.session.add(asset)
     db.session.commit()
     return True

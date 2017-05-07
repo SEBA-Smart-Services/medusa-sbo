@@ -1,5 +1,5 @@
 from app.models import LogTimeValue, Result, Asset, AssetPoint
-from app import db, app, registry
+from app import db, app, registry, event
 import datetime
 import time
 import pandas
@@ -80,7 +80,10 @@ def check_asset(asset):
             [result, passed] = algorithm.run(datagrab)
 
             # save result to result table
-            save_result(asset, algorithm, result, passed, point_list)
+            result = save_result(asset, algorithm, result, passed, point_list)
+
+            # call event handler on result
+            event.handle_result(result)
 
             algorithms_run += 1
             algorithms_passed += passed
@@ -297,3 +300,5 @@ def save_result(asset, algorithm, value, passed, point_list):
     result.recent = True
 
     db.session.commit()
+
+    return result
