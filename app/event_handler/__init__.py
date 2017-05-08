@@ -1,1 +1,1 @@
-from . import controller
+from .event_handler import EventHandler

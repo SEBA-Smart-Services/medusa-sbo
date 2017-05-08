@@ -182,7 +182,7 @@ class Algorithm(db.Model):
 class EmailTemplate(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512))
-    title = db.Column('Title', db.String(1024))
+    subject = db.Column('Subject', db.String(1024))
     body = db.Column('Body', db.Text)
 
 ###################################

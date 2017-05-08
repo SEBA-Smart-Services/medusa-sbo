@@ -1,8 +1,24 @@
 from email.mime.text import MIMEText
 import smtplib
+import configparser
 
 
 class EmailClient(object):
+
+    def __init__(self, config_file, sender):
+        # create ConfigParser object
+        config = configparser.ConfigParser()
+
+        # read in config from configfiles
+        master_config = config_file
+        config.read(master_config)
+        main_config = config.get('paths', 'emailConfig')
+        config.read(main_config)
+
+        # initial settings
+        self.set_host(config.get('emailClient', 'host'), config.get('emailClient', 'port'))
+        self.set_auth(config.get('emailClient', 'username'), config.get('emailClient', 'password'))
+        self.set_sender(sender)
 
     def set_host(self, host, port):
         self.host = host
@@ -47,3 +63,7 @@ class EmailClient(object):
         server.sendmail(self.sender, self.recipients, text)
         server.quit()
 
+    def send_template(self, template, data, address):
+        self.set_recipients(address)
+        self.write_message(template.body, template.subject)
+        self.sendmail()

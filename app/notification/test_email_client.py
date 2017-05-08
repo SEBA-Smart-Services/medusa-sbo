@@ -1,5 +1,5 @@
 import configparser
-from  emailClient import EmailClient
+from emailClient import EmailClient
 #create ConfigParser object
 config = configparser.ConfigParser()
 
@@ -12,8 +12,8 @@ config.read(main_config)
 
 print("testing")
 sender = "medusa@sebbqld.com"
-recipient = "christopher.vasiliou@schneider-electric.com"
-  
+recipient = "Daniel.Marshall@schneider-electric.com"
+
 print("sender: " + sender)
 print("recipient: " + recipient)
 print("username: " + config.get('emailClient', 'username'))
@@ -31,4 +31,3 @@ client.set_sender(sender)
 client.set_recipients(recipient)
 client.write_message(message_body, subject)
 client.sendmail()
-
