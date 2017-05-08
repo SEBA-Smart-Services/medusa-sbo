@@ -12,7 +12,13 @@ db = SQLAlchemy(app)
 from app.models import SessionRegistry
 registry = SessionRegistry()
 
+# set up event handler and notifier
+from app.notifier.controller import Notifier
+notifier = Notifier()
+from app.event_handler.controller import EventHandler
+event = EventHandler()
+
 # packages
-from app import add, admin, cmms, weather, algorithms, scheduled, reports
+from app import models, add, admin, cmms, weather, algorithms, scheduled, reports, event_handler, notifier, email
 # modules
-from app import models, controllers
+from app import controllers

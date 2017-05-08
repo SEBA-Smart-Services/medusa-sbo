@@ -5,7 +5,7 @@ from app.forms import SiteConfigForm, AddSiteForm
 from flask import json, request, render_template, url_for, redirect, jsonify, flash, make_response
 from statistics import mean
 import datetime, time
-# from sqlalchemy import and_
+
 
 ###################################
 ## main pages for all sites

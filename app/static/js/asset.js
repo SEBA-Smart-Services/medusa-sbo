@@ -159,6 +159,7 @@ function sendUpload() {
     assets[i].location = $(this).find('#location').val();
     assets[i].group = $(this).find('#group').val();
     assets[i].priority = $(this).find('#priority').val();
+    assets[i].notes = $(this).find('#notes').val();
   });
   $.post($('#add_asset_confirm').attr('content'), JSON.stringify(assets));
 }

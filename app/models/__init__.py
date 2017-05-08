@@ -178,6 +178,12 @@ class Algorithm(db.Model):
     def __repr__(self):
         return self.name
 
+# templates for emails. stored as strings
+class EmailTemplate(db.Model):
+    id = db.Column('ID', db.Integer, primary_key=True)
+    name = db.Column('Name', db.String(512))
+    title = db.Column('Title', db.String(1024))
+    body = db.Column('Body', db.Text)
 
 ###################################
 ## real world models
@@ -217,10 +223,13 @@ class Site(db.Model):
     db_address = db.Column('DB_address', db.String(512), default="")
     db_port = db.Column('DB_port', db.String(512), default="")
     db_name = db.Column('DB_name', db.String(512), default="")
+    email_trigger_priority = db.Column('Email_trigger_priority', db.Integer, default=0, nullable=False)
+    cmms_trigger_priority = db.Column('CMMS_trigger_priority', db.Integer, default=0, nullable=False)
     assets = db.relationship('Asset', backref='site')
     inbuildings_assets = db.relationship('InbuildingsAsset', backref='site')
     inbuildings_config = db.relationship('InbuildingsConfig', backref='site', uselist=False)
     issue_history = db.relationship('IssueHistory', backref='site')
+    emails = db.relationship('Email', backref='site')
 
     def __repr__(self):
         return self.name
@@ -320,6 +329,7 @@ class Result(db.Model):
     algorithm_id = db.Column('Algorithm_id', db.Integer, db.ForeignKey('algorithm.ID'), nullable=False)
     value = db.Column('Result', db.Float, default=0, nullable=False)
     passed = db.Column('Passed', db.Boolean)
+    priority = db.Column('Priority', db.Integer, nullable=False)
     active = db.Column('Active', db.Boolean, default=True)
     acknowledged = db.Column('Acknowledged', db.Boolean, default=False)
     occurances = db.Column('Occurances', db.Integer, default=1, nullable=False)
@@ -328,7 +338,7 @@ class Result(db.Model):
     points = db.relationship('AssetPoint', secondary=points_checked, backref='results')
 
     def __repr__(self):
-        return str(self.timestamp) + " - " + self.algorithm.name
+        return str(self.recent_timestamp) + " - " + self.algorithm.name
 
     @classmethod
     def get_unresolved(cls):
@@ -347,6 +357,11 @@ class InbuildingsConfig(db.Model):
     enabled = db.Column('Enabled', db.Boolean, default=False)
     key = db.Column('Connection_key', db.String(512), default="")
 
+# simple storage of emails
+class Email(db.Model):
+    id = db.Column('ID', db.Integer, primary_key=True)
+    address = db.Column('Address', db.String(512), default="")
+    site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'), nullable=False)
 
 ###################################
 ## charting info

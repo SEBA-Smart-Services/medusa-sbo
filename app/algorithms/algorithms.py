@@ -1,5 +1,5 @@
 from app.models import LogTimeValue, Result, Asset, AssetPoint
-from app import db, app, registry
+from app import db, app, registry, event
 import datetime
 import time
 import pandas
@@ -80,7 +80,10 @@ def check_asset(asset):
             [result, passed] = algorithm.run(datagrab)
 
             # save result to result table
-            save_result(asset, algorithm, result, passed, point_list)
+            result = save_result(asset, algorithm, result, passed, point_list)
+
+            # call event handler on result
+            event.handle_result(result)
 
             algorithms_run += 1
             algorithms_passed += passed
@@ -102,10 +105,12 @@ def check_asset(asset):
 # run algorithms on all assets
 @app.route('/check')
 def check_all():
+    print('starting')
     for asset in Asset.query.all():
+        print(asset)
         # result status is not being used atm, so clear it to stop repeats of the algorithm checks showing up as issues
         # TODO: figure out a way to represent long-standing issues that were present from previous checks
-        for result in Result.query.filter_by(asset==asset, active=True).all():
+        for result in Result.query.filter_by(asset=asset, active=True).all():
             result.active = False
         check_asset(asset)
     db.session.close()
@@ -284,7 +289,7 @@ def save_result(asset, algorithm, value, passed, point_list):
     result = Result.query.filter_by(asset_id=asset.id, algorithm_id=algorithm.id, active=True).first()
     # or create a new one if none
     if result is None:
-        result = Result(first_timestamp=datetime.datetime.now(), asset_id=asset.id, algorithm_id=algorithm.id, occurances=0)
+        result = Result(first_timestamp=datetime.datetime.now(), asset_id=asset.id, algorithm_id=algorithm.id, occurances=0, priority=asset.priority)
         db.session.add(result)
 
     result.recent_timestamp = datetime.datetime.now()
@@ -297,3 +302,5 @@ def save_result(asset, algorithm, value, passed, point_list):
     result.recent = True
 
     db.session.commit()
+
+    return result

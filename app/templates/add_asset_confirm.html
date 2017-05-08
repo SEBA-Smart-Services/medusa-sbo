@@ -14,6 +14,7 @@
           <th class="mdl-data-table__cell--non-numeric">Location</th>
           <th class="mdl-data-table__cell--non-numeric">Group</th>
           <th class="mdl-data-table__cell--non-numeric">Priority</th>
+          <th class="mdl-data-table__cell--non-numeric">Notes</th>
         </tr>
       </thead>
       <tbody>
@@ -24,17 +25,19 @@
             <td class="mdl-data-table__cell--non-numeric">{{asset.location}}</td>
             <td class="mdl-data-table__cell--non-numeric">{{asset.group}}</td>
             <td class="mdl-data-table__cell--non-numeric">{{asset.priority}}</td>
+            <td class="mdl-data-table__cell--non-numeric">{{asset.notes}}</td>
             <input type='hidden' id='name' name='name' value='{{asset.name}}'>
             <input type='hidden' id='type' name='type' value='{{asset.type}}'>
             <input type='hidden' id='location' name='location' value='{{asset.location}}'>
             <input type='hidden' id='group' name='group' value='{{asset.group}}'>
             <input type='hidden' id='priority' name='priority' value='{{asset.priority}}'>
+            <input type='hidden' id='notes' name='notes' value='{{asset.notes}}'>
           </tr>
         {% endfor %}
       </tbody>
     </table>
     <br>
-    <input type=button onclick="window.location.href='{{ url_for('add_asset_input', sitename=site.name) }}'" value="Cancel" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+    <input type=button onclick="window.location.href='{{ url_for('add_asset', sitename=site.name) }}'" value="Cancel" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     <input type=submit value=Submit class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
   </form>
 
