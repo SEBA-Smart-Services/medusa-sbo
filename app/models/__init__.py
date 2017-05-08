@@ -226,10 +226,10 @@ class Site(db.Model):
     email_trigger_priority = db.Column('Email_trigger_priority', db.Integer, default=0, nullable=False)
     cmms_trigger_priority = db.Column('CMMS_trigger_priority', db.Integer, default=0, nullable=False)
     assets = db.relationship('Asset', backref='site')
-    inbuildings_assets = db.relationship('InbuildingsAsset', backref='site')
-    inbuildings_config = db.relationship('InbuildingsConfig', backref='site', uselist=False)
-    issue_history = db.relationship('IssueHistory', backref='site')
-    emails = db.relationship('Email', backref='site')
+    inbuildings_assets = db.relationship('InbuildingsAsset', backref='site', cascade='save-update, merge, delete, delete-orphan')
+    inbuildings_config = db.relationship('InbuildingsConfig', backref='site', uselist=False, cascade='save-update, merge, delete, delete-orphan')
+    issue_history = db.relationship('IssueHistory', backref='site', cascade='save-update, merge, delete, delete-orphan')
+    emails = db.relationship('Email', backref='site', cascade='save-update, merge, delete, delete-orphan')
 
     def __repr__(self):
         return self.name
