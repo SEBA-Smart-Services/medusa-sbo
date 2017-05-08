@@ -108,7 +108,7 @@ def check_all():
     for asset in Asset.query.all():
         # result status is not being used atm, so clear it to stop repeats of the algorithm checks showing up as issues
         # TODO: figure out a way to represent long-standing issues that were present from previous checks
-        for result in Result.query.filter_by(asset==asset, active=True).all():
+        for result in Result.query.filter_by(asset=asset, active=True).all():
             result.active = False
         check_asset(asset)
     db.session.close()

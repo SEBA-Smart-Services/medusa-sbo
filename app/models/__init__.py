@@ -229,6 +229,7 @@ class Site(db.Model):
     inbuildings_assets = db.relationship('InbuildingsAsset', backref='site')
     inbuildings_config = db.relationship('InbuildingsConfig', backref='site', uselist=False)
     issue_history = db.relationship('IssueHistory', backref='site')
+    emails = db.relationship('Email', backref='site')
 
     def __repr__(self):
         return self.name
@@ -356,6 +357,11 @@ class InbuildingsConfig(db.Model):
     enabled = db.Column('Enabled', db.Boolean, default=False)
     key = db.Column('Connection_key', db.String(512), default="")
 
+# simple storage of emails
+class Email(db.Model):
+    id = db.Column('ID', db.Integer, primary_key=True)
+    address = db.Column('Address', db.String(512), default="")
+    site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'), nullable=False)
 
 ###################################
 ## charting info
