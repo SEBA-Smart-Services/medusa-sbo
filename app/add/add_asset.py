@@ -136,7 +136,7 @@ def add_asset_download(sitename):
         ws_input['E1'] = "Notes"
 
         # apply data validation
-        priority_dv = DataValidation(type='whole', operator='between', formula1=0, formula2=9)
+        priority_dv = DataValidation(type='whole', operator='between', formula1=1, formula2=5)
         ws_input.add_data_validation(priority_dv)
         priority_dv.ranges.append('D2:D1000')
 

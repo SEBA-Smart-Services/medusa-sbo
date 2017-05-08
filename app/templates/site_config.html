@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-    <form action="{{ url_for('site_config', sitename=site.name) }}" method=post>
+    <form action="{{ url_for('site_config', sitename=site.name) }}" onsubmit="convert_never_to_zero()" method=post>
       {{ form.csrf_token }}
       {{ macros.show_errors(form) }}
       <h3>WebReports Connection</h3>
@@ -43,8 +43,43 @@
       </table>
 
       <br><br>
+      <h3>Notifications</h3>
+      <table class="full-width">
+        <tr>
+          <td style="width:400px"><h4>Send email notification at priority:</h4></td>
+          <td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
+            {{ form.email_trigger_priority(class="mdl-textfield__input priority", autocomplete="off", readonly=True, tabIndex="-1") }}
+            <label for="email_trigger_priority">
+              <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
+            </label>
+            <ul for="email_trigger_priority" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+              <li class="mdl-menu__item" data-val="0">Never</li>
+              {% for i in range(1,6) %}
+                <li class="mdl-menu__item" data-val="{{i}}">{{i}}</li>
+              {% endfor %}
+            </ul>
+          </div></td>
+        </tr>
+        <tr>
+          <td><h4>Send work order at priority:</h4></td>
+          <td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
+            {{ form.cmms_trigger_priority(class="mdl-textfield__input priority", autocomplete="off", readonly=True, tabIndex="-1") }}
+            <label for="cmms_trigger_priority">
+              <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
+            </label>
+            <ul for="cmms_trigger_priority" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+              <li class="mdl-menu__item" data-val="0">Never</li>
+              {% for i in range(1,6) %}
+                <li class="mdl-menu__item" data-val="{{i}}">{{i}}</li>
+              {% endfor %}
+            </ul>
+          </div></td>
+        </tr>
+      </table>
+
+      <br><br>
       <h3>CMMS Integration</h3>
-      <table class=full-width>
+      <table class="full-width">
         <tr>
           <td style="width:40px">
             <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="inbuildings_enabled">
@@ -69,4 +104,24 @@
       <br><br>
       <input type=submit value=Submit class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     </form>
+
+    <script type="text/javascript">
+      // startup code changes 0 to 'Never' in the dropdown box for notification priority
+      $(function() {
+        $(".priority").each(function() {
+          if ($(this).val() == '0') {
+            $(this).val("Never");
+          }
+        });
+      });
+
+      // changes never back to 0 before submitting form
+      function convert_never_to_zero() {
+        $(".priority").each(function() {
+          if ($(this).val() == 'Never') {
+            $(this).val("0");
+          }
+        });
+      }
+    </script>
 {% endblock %}

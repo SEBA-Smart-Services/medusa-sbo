@@ -63,6 +63,10 @@ def check_asset(asset):
         for result in Result.query.filter_by(asset=asset, recent=True):
             result.recent = False
 
+        # clear active status on previous results. if they are still active, the status will be reapplied later
+        for result in Result.query.filter_by(asset=asset, active=True).all():
+            result.active = False
+
         algorithms_run = 0
         algorithms_passed = 0
         t = time.time()
@@ -108,10 +112,6 @@ def check_all():
     print('starting')
     for asset in Asset.query.all():
         print(asset)
-        # result status is not being used atm, so clear it to stop repeats of the algorithm checks showing up as issues
-        # TODO: figure out a way to represent long-standing issues that were present from previous checks
-        for result in Result.query.filter_by(asset=asset, active=True).all():
-            result.active = False
         check_asset(asset)
     db.session.close()
     return 'done'
