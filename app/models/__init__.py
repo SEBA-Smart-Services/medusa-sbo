@@ -223,8 +223,8 @@ class Site(db.Model):
     db_address = db.Column('DB_address', db.String(512), default="")
     db_port = db.Column('DB_port', db.String(512), default="")
     db_name = db.Column('DB_name', db.String(512), default="")
-    email_trigger_priority = db.Column('Email_trigger_priority', db.Integer)
-    cmms_trigger_priority = db.Column('CMMS_trigger_priority', db.Integer)
+    email_trigger_priority = db.Column('Email_trigger_priority', db.Integer, default=0, nullable=False)
+    cmms_trigger_priority = db.Column('CMMS_trigger_priority', db.Integer, default=0, nullable=False)
     assets = db.relationship('Asset', backref='site')
     inbuildings_assets = db.relationship('InbuildingsAsset', backref='site')
     inbuildings_config = db.relationship('InbuildingsConfig', backref='site', uselist=False)
@@ -338,7 +338,7 @@ class Result(db.Model):
     points = db.relationship('AssetPoint', secondary=points_checked, backref='results')
 
     def __repr__(self):
-        return str(self.timestamp) + " - " + self.algorithm.name
+        return str(self.recent_timestamp) + " - " + self.algorithm.name
 
     @classmethod
     def get_unresolved(cls):

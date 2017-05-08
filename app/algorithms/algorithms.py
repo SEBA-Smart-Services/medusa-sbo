@@ -105,7 +105,9 @@ def check_asset(asset):
 # run algorithms on all assets
 @app.route('/check')
 def check_all():
+    print('starting')
     for asset in Asset.query.all():
+        print(asset)
         # result status is not being used atm, so clear it to stop repeats of the algorithm checks showing up as issues
         # TODO: figure out a way to represent long-standing issues that were present from previous checks
         for result in Result.query.filter_by(asset=asset, active=True).all():
@@ -287,7 +289,7 @@ def save_result(asset, algorithm, value, passed, point_list):
     result = Result.query.filter_by(asset_id=asset.id, algorithm_id=algorithm.id, active=True).first()
     # or create a new one if none
     if result is None:
-        result = Result(first_timestamp=datetime.datetime.now(), asset_id=asset.id, algorithm_id=algorithm.id, occurances=0)
+        result = Result(first_timestamp=datetime.datetime.now(), asset_id=asset.id, algorithm_id=algorithm.id, occurances=0, priority=asset.priority)
         db.session.add(result)
 
     result.recent_timestamp = datetime.datetime.now()
