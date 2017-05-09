@@ -2,8 +2,8 @@
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 
-from app import app, db
-from app.models import AssetType, PointType, Asset, Site, AssetPoint, InbuildingsConfig, Algorithm
+from app import app, db, user_manager
+from app.models import AssetType, PointType, Asset, Site, AssetPoint, InbuildingsConfig, Algorithm, User, Role
 from app.algorithms.algorithms import AlgorithmClass
 
 migrate = Migrate(app, db)
@@ -45,7 +45,15 @@ site_names = [
     'TestSite2'
 ]
 
+roles = [
+    'admin'
+]
+
 test_asset_name = 'Test AHU'
+admin_user = 'sebb'
+admin_pw = 'Schn3!d3r1'
+test_user = 'testuser'
+test_pw = 'Schn3!d3r1'
 
 
 @manager.command
@@ -89,6 +97,27 @@ def regenerate():
     # map assets to algorithms
     map_all()
 
+    # generate users
+    admin = User(username=admin_user, password=user_manager.hash_password(admin_pw), active=True)
+    test = User(username=test_user, password=user_manager.hash_password(test_pw), active=True)
+    db.session.add(admin)
+    db.session.add(test)
+
+    # generate roles
+    for role_name in roles:
+        role = Role(name=role_name, label=role_name)
+        admin.roles.append(role)
+
+    db.session.commit()
+    db.session.close()
+
+@manager.command
+def reset_admin():
+    admin = User.query.filter_by(username=admin_user)
+    admin.password = user_manager.hash_password(admin_pw)
+    admin.roles = Role.query.all()
+    admin.active = True
+    db.session.commit()
     db.session.close()
 
 # find all defined algorithms and add them to the database
@@ -127,6 +156,7 @@ def map_assets():
 def map_all():
     generate_algorithms()
     map_algorithms()
+    db.session.close()
 
 @manager.command
 def create():

@@ -1,4 +1,4 @@
-from app.notification.notifier import Notifier
+from app.notification import Notifier
 import app
 
 class EventHandler():

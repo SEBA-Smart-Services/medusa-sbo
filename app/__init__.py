@@ -16,6 +16,12 @@ registry = SessionRegistry()
 from app.event_handler import EventHandler
 event = EventHandler()
 
+# Setup Flask-User to handle user account related forms
+from flask_user import UserManager, SQLAlchemyAdapter
+from app.models import User
+db_adapter = SQLAlchemyAdapter(db, User)  # Setup the SQLAlchemy DB Adapter
+user_manager = UserManager(db_adapter, app)  # Init Flask-User and bind to app
+
 # packages
 from app import models, add, admin, cmms, weather, algorithms, scheduling, reports
 # modules

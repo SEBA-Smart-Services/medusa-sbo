@@ -3,6 +3,7 @@ from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, Functional
 from app.models import Alarm
 from app.forms import SiteConfigForm, AddSiteForm
 from flask import json, request, render_template, url_for, redirect, jsonify, flash, make_response
+from flask_user import login_required
 from statistics import mean
 import datetime, time
 

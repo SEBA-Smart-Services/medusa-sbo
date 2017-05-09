@@ -1,1 +1,1 @@
-from . import controller, emailClient
+from .notifier import Notifier
