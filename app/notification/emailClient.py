@@ -1,8 +1,12 @@
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.encoders import encode_base64
 from string import Template
+import mimetypes
 import smtplib
 import configparser
-
+import os.path
 
 class EmailClient(object):
 
@@ -15,7 +19,8 @@ class EmailClient(object):
         config.read(master_config)
         main_config = config.get('paths', 'emailConfig')
         config.read(main_config)
-
+        
+        
         # initial settings
         self.set_host(config.get('emailClient', 'host'), config.get('emailClient', 'port'))
         self.set_auth(config.get('emailClient', 'username'), config.get('emailClient', 'password'))
@@ -47,13 +52,38 @@ class EmailClient(object):
         else:
             raise TypeError("recipients must be string or list of strings, " + str(type(recipients)) + " was given")
 
-    def write_message(self, body="", subject=""):
-        msg = MIMEText(body)
+    def write_message(self, body="", subject="", attachment_paths=[]):
+        """
+        create an email message using MIME
+
+        body: Main text of email. Plain text for now. 
+        subject: subject line of email
+        attachment_paths: list of fully qualified paths of files to be attached
+        """
+        msg = MIMEMultipart()
+        body = MIMEText(body)
+        msg.attach(body)
         msg['Subject'] = subject
         msg['From'] = self.sender
         msg['To'] = self.recipients
-        self.message = msg
+        for file_path in attachment_paths:
+            ctype, encoding = mimetypes.guess_type(file_path)
+            if ctype is None or encoding is not None:
+              ctype = dctype
+            maintype, subtype = ctype.split('/', 1)
+            try:
+                with open(file_path, 'rb') as f:
+                  part = MIMEBase(maintype, subtype)
+                  part.set_payload(f.read())
+                  encode_base64(part)
+                  part.add_header('Content-Disposition', 'attachment', filename=os.path.basename(file_path))
+                  print (os.path.basename(file_path))
+                  msg.attach(part)
+            except IOError:
+                 print ("error: Can't open the file %s")%file_path  
 
+        self.message = msg
+	
     def sendmail(self):
         server = smtplib.SMTP(self.host, self.port)
         server.ehlo()
