@@ -17,6 +17,6 @@ from app.event_handler import EventHandler
 event = EventHandler()
 
 # packages
-from app import models, add, admin, cmms, weather, algorithms, scheduled, reports
+from app import models, add, admin, cmms, weather, algorithms, scheduling, reports
 # modules
 from app import controllers

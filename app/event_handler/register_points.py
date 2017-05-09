@@ -1,19 +1,6 @@
-from app.models import IssueHistory, IssueHistoryTimestamp, Site, AssetPoint, LoggedEntity
+from app.models import AssetPoint, LoggedEntity
 from app import db, registry
 from base64 import b64encode
-import datetime
-import app
-
-# make a record of the quantity of issues at each site. Used for graphing performance over time
-def record_issues():
-    timestamp = IssueHistoryTimestamp(timestamp=datetime.datetime.now())
-    for site in Site.query.all():
-        issues = site.get_unresolved()
-        site_history = IssueHistory(issues=len(issues), site=site, timestamp=timestamp)
-        timestamp.issues.append(site_history)
-        db.session.add(timestamp)
-        db.session.commit()
-    db.session.close()
 
 # link medusa assets to webreports logs. XML file must have been imported and bound first for this to work
 def register_points():
@@ -29,12 +16,3 @@ def register_points():
             db.session.commit()
             session.close()
     db.session.close()
-
-def get_weather():
-    app.weather.controllers.get_weather()
-
-def check_all():
-    app.algorithms.algorithms.check_all()
-
-def inbuildings_request_all_sites():
-    app.inbuildings.controllers.inbuildings_request_all_sites()
