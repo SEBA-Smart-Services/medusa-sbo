@@ -63,9 +63,9 @@ def check_asset(asset):
         for result in Result.query.filter_by(asset=asset, recent=True):
             result.recent = False
 
-        # clear active status on previous results. if they are still active, the status will be reapplied later
-        for result in Result.query.filter_by(asset=asset, active=True).all():
-            result.active = False
+        # get list of previously active results. result that are still active will be removed from this list
+        # the remainder will be set to inactive
+        previously_active = set(Result.query.filter_by(asset=asset, active=True).all())
 
         algorithms_run = 0
         algorithms_passed = 0
@@ -92,6 +92,13 @@ def check_asset(asset):
             algorithms_run += 1
             algorithms_passed += passed
 
+            # remove result from group to be set to inactive
+            previously_active.discard(result)
+
+        # set all remaining results to inactive
+        for result in previously_active:
+            result.active = False
+
         # save asset health. Currently computed as just the percentage of algorithms passed
         if algorithms_run > 0:
             asset.health = algorithms_passed/algorithms_run
@@ -107,14 +114,11 @@ def check_asset(asset):
 
 
 # run algorithms on all assets
-@app.route('/check')
 def check_all():
-    print('starting')
-    for asset in Asset.query.all():
-        print(asset)
-        check_asset(asset)
-    db.session.close()
-    return 'done'
+    with app.app_context():
+        for asset in Asset.query.all():
+            check_asset(asset)
+        db.session.close()
 
 
 # dummy class used to access all the algorithm checks
@@ -279,24 +283,26 @@ class testfunc(AlgorithmClass):
 
     def run(data):
         result = True
-        passed = True
+        passed = False
         return [result, passed]
 
 
 # save the check results
 def save_result(asset, algorithm, value, passed, point_list):
     # find existing results that are active
-    result = Result.query.filter_by(asset_id=asset.id, algorithm_id=algorithm.id, active=True).first()
+    result = Result.query.filter(Result.asset_id==asset.id, Result.algorithm_id==algorithm.id, (Result.active==True) | (Result.acknowledged==False)).first()
+    # note: do not change the acknowledged state, if the result already exists
+
     # or create a new one if none
     if result is None:
         result = Result(first_timestamp=datetime.datetime.now(), asset_id=asset.id, algorithm_id=algorithm.id, occurances=0, priority=asset.priority)
+        result.acknowledged = passed
         db.session.add(result)
 
     result.recent_timestamp = datetime.datetime.now()
     result.value = value
     result.passed = passed
     result.active = not passed
-    result.acknowledged = passed
     result.occurances += 1
     result.points = point_list
     result.recent = True

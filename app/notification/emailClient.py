@@ -1,4 +1,5 @@
 from email.mime.text import MIMEText
+from string import Template
 import smtplib
 import configparser
 
@@ -65,5 +66,6 @@ class EmailClient(object):
 
     def send_template(self, template, data, address):
         self.set_recipients(address)
-        self.write_message(template.body, template.subject)
+        body = Template(template.body).substitute(data)
+        self.write_message(body, template.subject)
         self.sendmail()
