@@ -1,3 +1,13 @@
+/* App bar */
+.mdl-layout__header-row, .mdl-navigation__link {
+  color: white
+}
+
+.medusa-app-link {
+  color: white
+}
+
+/*layout*/
 .full-width {
   width: 100%;
 }
@@ -8,7 +18,6 @@
 
 .mdl-data-table {
   white-space: normal;
-  background-color: red;
 }
 
 .formfields
