@@ -67,9 +67,11 @@ class EmailClient(object):
         msg['From'] = self.sender
         msg['To'] = self.recipients
         for file_path in attachment_paths:
+            #try and guess the file type
             ctype, encoding = mimetypes.guess_type(file_path)
+            #if the type can't guessed then send it as binary type
             if ctype is None or encoding is not None:
-              ctype = dctype
+              ctype = 'application/octet-stream'
             maintype, subtype = ctype.split('/', 1)
             try:
                 with open(file_path, 'rb') as f:
