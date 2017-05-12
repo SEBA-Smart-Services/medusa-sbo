@@ -286,6 +286,17 @@ class testfunc(AlgorithmClass):
         passed = False
         return [result, passed]
 
+# dummy test fuction
+class testfunc2(AlgorithmClass):
+    points_required = []
+    name = "Test2"
+    format = "bool"
+
+    def run(data):
+        result = True
+        passed = False
+        return [result, passed]
+
 
 # save the check results
 def save_result(asset, algorithm, value, passed, point_list):
@@ -300,6 +311,7 @@ def save_result(asset, algorithm, value, passed, point_list):
         db.session.add(result)
 
     result.recent_timestamp = datetime.datetime.now()
+    print(result.recent_timestamp)
     result.value = value
     result.passed = passed
     result.active = not passed

@@ -1,6 +1,8 @@
 from app import cmms
 from app.models import EmailTemplate
 from .emailClient import EmailClient
+from smtplib import SMTPRecipientsRefused
+import os
 
 class Notifier():
 
@@ -42,13 +44,17 @@ class Notifier():
         data = {'site':site.name}
 
         # save report to temporary storage
-        report_path = 'test.pdf'
-        file = open(report_path, 'wb')
+        report_path = 'report.pdf'
+        file = open(report_path, 'wb+')
         file.write(report)
         file.close()
 
         # send report to emails
         for email in site.emails:
-            self.email_client.send_template(template, data, email.address, [report_path])
+            try:
+                self.email_client.send_template(template, data, email.address, [report_path])
+            except SMTPRecipientsRefused:
+                print('Could not send email to {}'.format(email.address))
 
         # delete local report
+        os.remove(report_path)

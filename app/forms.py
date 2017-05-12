@@ -12,6 +12,7 @@ class SiteConfigForm(FlaskForm):
     cmms_trigger_priority = IntegerField('Send work request at priority', validators=[])
     inbuildings_enabled = BooleanField('Enabled', validators=[])
     inbuildings_key = StringField('Key', validators=[])
+    email_list = TextAreaField('Emails', validators=[])
 
 
 class AddSiteForm(FlaskForm):

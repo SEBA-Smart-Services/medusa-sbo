@@ -23,6 +23,6 @@ db_adapter = SQLAlchemyAdapter(db, User)  # Setup the SQLAlchemy DB Adapter
 user_manager = UserManager(db_adapter, app)  # Init Flask-User and bind to app
 
 # packages
-from app import models, add, admin, cmms, weather, algorithms, scheduling, reports
+from app import models, add, admin, cmms, weather, algorithms, reports, scheduling
 # modules
 from app import controllers
