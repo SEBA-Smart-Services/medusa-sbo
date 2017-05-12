@@ -115,16 +115,16 @@ def check_asset(asset):
                 #define the impact an issue has to the asset health as:
                 #issue weighting*result value (assume result value is percentage from 0-1)
                 issue_health_impact = issue_priority_weighting*result.value
-               
+
                 #create asset priority weighting scale. for now, 1=100%, 2=80%, 3=60%, 4=40%, 5=20%
                 asset_priority_weighting = (100-((asset.priority-1)*20))/100
                 #sum all of the issue health impacts together
                 sum_issue_health_impact+=(issue_health_impact*asset_priority_weighting)
-            
-            #the health of the asset is 100% - the sum of the health impact of all of the issues            
+
+            #the health of the asset is 100% - the sum of the health impact of all of the issues
 
             asset.health = 1-sum_issue_health_impact
-            
+
         else:
             asset.health = 0
         session.commit()
@@ -138,10 +138,9 @@ def check_asset(asset):
 
 # run algorithms on all assets
 def check_all():
-    with app.app_context():
-        for asset in Asset.query.all():
-            check_asset(asset)
-        db.session.close()
+    for asset in Asset.query.all():
+        check_asset(asset)
+    db.session.close()
 
 
 # dummy class used to access all the algorithm checks
@@ -159,15 +158,19 @@ class airtemp_heating_check(AlgorithmClass):
     format = "{:.1%}"
 
     def run(data):
+        # grab last 24 hours of data
         heating = data.latest_time('Heater Enable', datetime.timedelta(hours=24))
         room_temp = data.latest_time('Room Air Temp', datetime.timedelta(hours=24))
         room_setpoint = data.latest_time('Room Air Temp Setpoint', datetime.timedelta(hours=24))
 
+        # resample to 1s intervals
         heating_seconds = heating.resample('1S').ffill()
         room_temp_seconds = room_temp.resample('1S').ffill()
         room_setpoint_seconds = room_setpoint.resample('1S').ffill()
 
+        # put all the data into a single dataseries, so that timestamps are shared
         all_data = pandas.concat([heating_seconds,room_temp_seconds,room_setpoint_seconds], axis=1)
+        # count the seconds where room temp > setpoint and heating is on
         seconds_in_error = len(numpy.where((all_data[1] < all_data[2]) & (all_data[0] == 1))[0])
 
         result = seconds_in_error/86400
@@ -182,13 +185,19 @@ class simult_heatcool_check(AlgorithmClass):
     format = "{:.1%}"
 
     def run(data):
+        # grab last 24 hours of data
         heating = data.latest_time('Heater Enable', datetime.timedelta(hours=24))
         cooling = data.latest_time('Chilled Water Valve Enable', datetime.timedelta(hours=24))
 
+        # resample to 1s intervals
         heating_seconds = heating.resample('1S').ffill()
         cooling_seconds = cooling.resample('1S').ffill()
 
+        # combine the dataseries. in the new one, 0 = no heating/cooling
+        # 1 = heating or cooling, and 2 = both heating and cooling
         status = heating_seconds + cooling_seconds
+
+        # grab only the entries where heating and cooling is occuring
         heating_and_cooling = status[status == 2]
         seconds_heating_and_cooling = len(heating_and_cooling)
         result = seconds_heating_and_cooling/86400
@@ -203,13 +212,19 @@ class fan_unoccupied_check(AlgorithmClass):
     format = "{:.1%}"
 
     def run(data):
+        # grab last 24 hours of data
         occupancy = data.latest_time('Room Occupancy', datetime.timedelta(hours=24))
         enable = data.latest_time('Fan Enable', datetime.timedelta(hours=24))
 
+        # resample to 1s intervals
         occupancy_seconds = occupancy.resample('1S').ffill()
         enable_seconds = enable.resample('1S').ffill()
 
+        # combine into new dataseries, where -1 = occupied but not enabled
+        # 0 = occupied and enabled, and 1 = enabled but not occupied
         status = enable_seconds - occupancy_seconds
+
+        # grab only the entries with value 1
         occupied_while_off = status[status == 1]
         seconds_occupied_while_off = len(occupied_while_off)
         result = seconds_occupied_while_off/86400
@@ -224,14 +239,19 @@ class ahu_occupied_check(AlgorithmClass):
     format = "{:.1%}"
 
     def run(data):
-
+        # grab last 24 hours of data
         occupancy = data.latest_time('Room Occupancy', datetime.timedelta(hours=24))
         enable = data.latest_time('Fan Enable', datetime.timedelta(hours=24))
 
+        # resample to 1s intervals
         occupancy_seconds = occupancy.resample('1S').ffill()
         enable_seconds = enable.resample('1S').ffill()
 
+        # combine into new dataseries, where -1 = occupied but not enabled
+        # 0 = occupied and enabled, and 1 = enabled but not occupied
         status = enable_seconds - occupancy_seconds
+
+        # grab only the entries with value -1
         occupied_while_off = status[status == -1]
         seconds_occupied_while_off = len(occupied_while_off)
         result = seconds_occupied_while_off/86400
@@ -239,7 +259,11 @@ class ahu_occupied_check(AlgorithmClass):
         return [result, passed]
 
 
-# check if chilled water valve actuator is hunting
+# check if chilled water valve actuator is hunting.
+# in this algorithm, we are checking the fourier transform for signs of an oscillating signal.
+# the idea is that an unstable pid loop will show up as a magnitude in the high frequency range (e.g more than 1 oscillation per hour).
+# we transform the data to the right format (i.e. interval data), perform a fft, ignore all the low frequency oscillations, then add up what's left.
+# if the sum of the high frequencies is large, then there's some oscillation going on. use a tuning parameter to decide how large is 'too large'
 class chw_hunting_check(AlgorithmClass):
     points_required = ['Chilled Water Valve 100%']
     name = "Chilled water valve actuator hunting"
@@ -252,13 +276,15 @@ class chw_hunting_check(AlgorithmClass):
         freq_sums = {}
 
         for hours in range(24, 1, -1):
+            # grab an hour of data
             valve = data.time_range('Chilled Water Valve 100%', datetime.timedelta(hours=hours), datetime.timedelta(hours=hours-1))
             # FFT needs evenly spaced samples to work. Resample to 1 minute rather than 1 second because computationally expensive - gives max resolution of 1 oscillation per 2 minutes
-            # up (interpolate) and downsample (first) since the sample rate is unknown and variable
+            # up (interpolate) and downsample (first) since the sample rate is unknown and variable. assuming a COV trend here
             valve_mins = valve.resample('1Min').first().interpolate(method='quadratic')
 
             N = len(valve_mins)
             if N > 0:
+                # perform fft
                 x_fft = numpy.linspace(0, 1, N)
                 valve_fft = fft(valve_mins)
 
@@ -266,7 +292,7 @@ class chw_hunting_check(AlgorithmClass):
                 # we only care about oscillations faster than our min period. Also only take half the range since the FFT is mirrored, avoid doubling up
                 sum_range = valve_fft[i:int(N/2)]
 
-                # metric to judge overall instability, sum of frequency points
+                # metric to judge overall instability, sum of high frequencies
                 freq_sums[hours] = sum(numpy.abs(sum_range))
             else:
                 freq_sums[hours] = 0
@@ -287,10 +313,11 @@ class run_hours_check(AlgorithmClass):
     format = "{:.1f}h"
 
     def run(data):
-
+        # grab last 24 hours of data
         enable = data.latest_time('Fan Enable', datetime.timedelta(hours=24),)
         setpoint = data.latest_qty('Run Hours Maintenance Setpoint', 1)
 
+        # resample to 1s intervals
         seconds_active = enable.resample('1S').ffill().sum()
 
         result = seconds_active / 3600
@@ -308,19 +335,15 @@ class testfunc(AlgorithmClass):
         result = 0.5
         passed = False
         return [result, passed]
+
 #second dummy test function
 class testfunc2(AlgorithmClass):
     points_required = []
     name = "test2"
     format = "bool"
-    
-    def run(data):
-        result = 0.75
-        passed = False
-        return [result, passed]
 
     def run(data):
-        result = True
+        result = 0.75
         passed = False
         return [result, passed]
 

@@ -61,7 +61,11 @@
           <nav class="mdl-navigation">
             {% if allsites == True %}
               <a class="mdl-navigation__link medusa-app-link" href="/site/all/dashboard">Dashboard</a>
-              <a class="mdl-navigation__link" href="/site/all/weather">Weather</a>
+              {% if current_user.is_authenticated %}
+                {% if current_user.has_role('performance_centre') %}
+                  <a class="mdl-navigation__link" href="/site/all/weather">Weather</a>
+                {% endif %}
+              {% endif %}
               <a class="mdl-navigation__link" href="/site/all/sites">Sites</a>
               <a class="mdl-navigation__link" href="/site/all/issues">Issues</a>
               <a class="mdl-navigation__link" href="/site/all/issue-chart">Issue Chart</a>

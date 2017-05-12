@@ -5,6 +5,6 @@ if __name__ == "__main__":
     import os
     # prevents scheduler from running twice - flask uses 2 instances in debug mode
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
-    	backgroundscheduler.start()
+        backgroundscheduler.start()
 
     app.run(threaded=True, debug=True, host='0.0.0.0')

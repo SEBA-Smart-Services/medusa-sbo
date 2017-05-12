@@ -3,6 +3,7 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_user import current_user
 from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, PointType, InbuildingsAsset, Result, EmailTemplate, Email, User, Role
+from app.weather.models import Weather
 
 # configuration of views for Admin page
 # some columns (eg results) are excluded, since it tries to load and display >10,000 entries and crashes the page
@@ -75,3 +76,4 @@ admin.add_view(EmailTemplateView(EmailTemplate, db.session))
 admin.add_view(EmailView(Email, db.session))
 admin.add_view(UserView(User, db.session))
 admin.add_view(RoleView(Role, db.session))
+admin.add_view(ProtectedView(Weather, db.session))

@@ -3,6 +3,7 @@ from CoolProp.HumidAirProp import HAPropsSI
 from flask import render_template
 from pyowm import OWM
 from app.weather.models import Weather
+from flask_user import roles_required
 import pyowm
 
 # get weather info from OpenWeatherMap via API
@@ -39,6 +40,7 @@ def get_weather():
 
 # show weather page
 @app.route('/site/all/weather')
+@roles_required('performance_centre')
 def weather_page():
 
 	# grab weather from cache
@@ -64,7 +66,7 @@ def weather_page():
 	# bound offset
 	offset = max(min_offset, min(max_offset, offset))
 
-	savings = offset * savings_per_degree
+	savings = abs(offset * savings_per_degree)
 
 
 	# calculate savings from economy cycle
@@ -76,9 +78,9 @@ def weather_page():
 	return_r = 0.6
 
 	# calculate enthalpies
-	supply_h = HAPropsSI('H','T',273.15+supply_t,'P',101325,'R',supply_r)
-	outside_h = HAPropsSI('H','T',273.15+outside_t,'P',101325,'R',outside_r)
-	return_h = HAPropsSI('H','T',273.15+return_t,'P',101325,'R',return_r)
+	supply_h = HAPropsSI('H', 'T', 273.15+supply_t, 'P', 101325, 'R', supply_r)
+	outside_h = HAPropsSI('H', 'T', 273.15+outside_t, 'P', 101325, 'R', outside_r)
+	return_h = HAPropsSI('H', 'T', 273.15+return_t, 'P', 101325, 'R', return_r)
 
 	# is economy mode available. economy mode does not apply if we are in heating mode
 	economy = (outside_h < return_h) and (outside_h > supply_h)
