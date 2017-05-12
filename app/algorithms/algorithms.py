@@ -101,7 +101,30 @@ def check_asset(asset):
 
         # save asset health. Currently computed as just the percentage of algorithms passed
         if algorithms_run > 0:
-            asset.health = algorithms_passed/algorithms_run
+            sum_issue_health_impact=0
+            for result in Result.query.filter_by(asset=asset, active=True):
+                #asset health calculation is:
+                #100-sum(issue_health_impact * asset_priority_weighting)
+                #where issue_health_impact = issue_priority_weighting*result_value
+
+                #create a weighting scale for the issues based on their priority
+                #value from 0->1 i.e 0 to 100%
+                #for now, issue priority 1=25%, 2=20%, 3=15%, 4=10%, 5=5%
+                #ie an issue with a priority of 1 has a 25% impact on the asset health
+                issue_priority_weighting = (25-((result.priority-1)*5))/100.00
+                #define the impact an issue has to the asset health as:
+                #issue weighting*result value (assume result value is percentage from 0-1)
+                issue_health_impact = issue_priority_weighting*result.value
+               
+                #create asset priority weighting scale. for now, 1=100%, 2=80%, 3=60%, 4=40%, 5=20%
+                asset_priority_weighting = (100-((asset.priority-1)*20))/100
+                #sum all of the issue health impacts together
+                sum_issue_health_impact+=(issue_health_impact*asset_priority_weighting)
+            
+            #the health of the asset is 100% - the sum of the health impact of all of the issues            
+
+            asset.health = 1-sum_issue_health_impact
+            
         else:
             asset.health = 0
         session.commit()
@@ -282,10 +305,19 @@ class testfunc(AlgorithmClass):
     format = "bool"
 
     def run(data):
-        result = True
+        result = 0.5
         passed = False
         return [result, passed]
-
+#second dummy test function
+class testfunc2(AlgorithmClass):
+    points_required = []
+    name = "test2"
+    format = "bool"
+    
+    def run(data):
+        result = 0.75
+        passed = False
+        return [result, passed]
 
 # save the check results
 def save_result(asset, algorithm, value, passed, point_list):
@@ -306,7 +338,7 @@ def save_result(asset, algorithm, value, passed, point_list):
     result.occurances += 1
     result.points = point_list
     result.recent = True
-
+    print("save_result has run")
     db.session.commit()
 
     return result
