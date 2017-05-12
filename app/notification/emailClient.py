@@ -19,8 +19,8 @@ class EmailClient(object):
         config.read(master_config)
         main_config = config.get('paths', 'emailConfig')
         config.read(main_config)
-        
-        
+
+
         # initial settings
         self.set_host(config.get('emailClient', 'host'), config.get('emailClient', 'port'))
         self.set_auth(config.get('emailClient', 'username'), config.get('emailClient', 'password'))
@@ -56,7 +56,7 @@ class EmailClient(object):
         """
         create an email message using MIME
 
-        body: Main text of email. Plain text for now. 
+        body: Main text of email. Plain text for now.
         subject: subject line of email
         attachment_paths: list of fully qualified paths of files to be attached
         """
@@ -77,13 +77,12 @@ class EmailClient(object):
                   part.set_payload(f.read())
                   encode_base64(part)
                   part.add_header('Content-Disposition', 'attachment', filename=os.path.basename(file_path))
-                  print (os.path.basename(file_path))
                   msg.attach(part)
             except IOError:
-                 print ("error: Can't open the file %s")%file_path  
+                 print ("error: Can't open the file %s")%file_path
 
         self.message = msg
-	
+
     def sendmail(self):
         server = smtplib.SMTP(self.host, self.port)
         server.ehlo()
@@ -94,8 +93,8 @@ class EmailClient(object):
         server.sendmail(self.sender, self.recipients, text)
         server.quit()
 
-    def send_template(self, template, data, address):
+    def send_template(self, template, data, address, attachment_paths=[]):
         self.set_recipients(address)
         body = Template(template.body).substitute(data)
-        self.write_message(body, template.subject)
+        self.write_message(body, template.subject, attachment_paths)
         self.sendmail()

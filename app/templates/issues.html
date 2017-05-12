@@ -61,7 +61,7 @@
     <br><br>
     <input type=submit value=Save class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     {% if not allsites == True %}
-    <input type=button onclick="window.location.href='{{ url_for('report', sitename=site.name) }}'" value="Get Report" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+    <input type=button onclick="window.location.href='{{ url_for('report_page', sitename=site.name) }}'" value="Get Report" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     {% endif %}
 
   </form>
