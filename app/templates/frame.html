@@ -8,6 +8,7 @@
 
     <!-- CSS Rules -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
+    <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/getmdl-select.min.css">
     <link rel="stylesheet" href="/static/css/material.components.ext.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -50,17 +51,16 @@
       <header class="mdl-layout__header">
         <div class="mdl-layout__header-row">
           <span class="mdl-layout-title">
-            {% if allsites == True %}
-            <h3>Sites Overview</h3>
-            {% else %}
-            <h3>{{site.name}}</h3>
-            {% endif %}
+            <img src="/static/img/logo-schneider-electric.png" style="width:130px;height:40px;" />
+          </span>
+          <span class="mdl-layout-title">
+            <h3 class="logo">&nbsp;&nbsp;Medusa</h3>
           </span>
           <div class="mdl-layout-spacer"></div>
           <!-- Navigation -->
           <nav class="mdl-navigation">
             {% if allsites == True %}
-              <a class="mdl-navigation__link medusa-app-link" href="/site/all/dashboard">Dashboard</a>
+              <a class="mdl-navigation__link" href="/site/all/dashboard">Dashboard</a>
               {% if current_user.is_authenticated %}
                 {% if current_user.has_role('performance_centre') %}
                   <a class="mdl-navigation__link" href="/site/all/weather">Weather</a>
@@ -88,15 +88,22 @@
                 <a class="mdl-navigation__link" href="/admin/site">Admin</a>
               {% endif %}
               <p class="mdl-navigation__link">
-                <a style="text-decoration:none; color:rgb(66,66,66)" href="{{ url_for('user.profile') }}">{{ current_user.username }}</a>
+                <a class="navlink-manual" href="{{ url_for('user.profile') }}">{{ current_user.username }}</a>
                 &nbsp;|&nbsp;
-                <a style="text-decoration:none; color:rgb(66,66,66)" href="{{ url_for('user.logout') }}">Sign out</a>
+                <a class="navlink-manual" href="{{ url_for('user.logout') }}">Sign out</a>
               </p>
             {% else %}
               <a class="mdl-navigation__link" href="{{ url_for('user.login') }}">Sign in</a>
             {% endif %}
           </nav>
         </div>
+        {% if not allsites == True %}
+          <div class="mdl-layout__header-row" style="height:35px">
+            <span class="mdl-layout-title" style="margin-top:-15px;">
+              <h4>{{site.name}}</h4>
+            </span>
+          </div>
+        {% endif %}
       </header>
       <main class="mdl-layout__content" style="flex: 1 0 auto;">
         {% block layout %}{% endblock %}
