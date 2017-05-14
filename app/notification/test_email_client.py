@@ -13,7 +13,7 @@ config.read(main_config)
 
 print("testing")
 sender = "medusa@sebbqld.com"
-recipient = "christopher.vasiliou@schneider-electric.com"
+recipient = "christopher.vasiliou@gmail.com"
 attachments = ['/var/www/medusa1.pdf', '/var/www/medusa2.pdf']
 
 print("sender: " + sender)

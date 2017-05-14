@@ -104,7 +104,7 @@ def check_asset(asset):
             sum_issue_health_impact=0
             for result in Result.query.filter_by(asset=asset, active=True):
                 #asset health calculation is:
-                #100-sum(issue_health_impact * asset_priority_weighting)
+                #100-sum(issue_health_impact)
                 #where issue_health_impact = issue_priority_weighting*result_value
 
                 #create a weighting scale for the issues based on their priority
@@ -116,18 +116,18 @@ def check_asset(asset):
                 #issue weighting*result value (assume result value is percentage from 0-1)
                 issue_health_impact = issue_priority_weighting*result.value
 
-                #create asset priority weighting scale. for now, 1=100%, 2=80%, 3=60%, 4=40%, 5=20%
-                asset_priority_weighting = (100-((asset.priority-1)*20))/100
                 #sum all of the issue health impacts together
-                sum_issue_health_impact+=(issue_health_impact*asset_priority_weighting)
+                sum_issue_health_impact+=issue_health_impact
 
             #the health of the asset is 100% - the sum of the health impact of all of the issues
+            #need to make sure health is >0
+            asset.health = max(1-sum_issue_health_impact, 0)
 
-            asset.health = 1-sum_issue_health_impact
+            print('Asset Health: {}'.format(asset.health))
 
         else:
             asset.health = 0
-        session.commit()
+        db.session.commit()
         print('Ran checks on {} - {}, took {}'.format(asset.site.name, asset.name, time.time()-t))
 
         session.close()
@@ -332,8 +332,8 @@ class testfunc(AlgorithmClass):
     format = "bool"
 
     def run(data):
-        result = 0.5
-        passed = False
+        result = 0
+        passed = True
         return [result, passed]
 
 #second dummy test function
@@ -343,8 +343,8 @@ class testfunc2(AlgorithmClass):
     format = "bool"
 
     def run(data):
-        result = 0.75
-        passed = False
+        result = 0
+        passed = True
         return [result, passed]
 
 

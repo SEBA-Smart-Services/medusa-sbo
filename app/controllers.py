@@ -1,31 +1,12 @@
 from app import app, db, registry
-from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, PointType, Result, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp, InbuildingsConfig, Email
+from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, PointType, Result, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp, InbuildingsConfig
 from app.models import Alarm
 from app.forms import SiteConfigForm, AddSiteForm
 from flask import json, request, render_template, url_for, redirect, jsonify, flash, make_response
-from flask_user import current_user
+from flask_user import login_required
 from statistics import mean
 import datetime, time
 
-
-# enforce login required for all pages
-@app.before_request
-def check_valid_login():
-    login_valid = current_user.is_authenticated
-
-    if (request.endpoint and
-        # not required for login page or static content
-        request.endpoint != 'user.login' and
-        request.endpoint != 'static' and
-        not login_valid and
-        # check if it's allowed to be public, see public_endpoint decorator
-        not getattr(app.view_functions[request.endpoint], 'is_public', False) ) :
-        return redirect(url_for('user.login'))
-
-# decorator to make pages not require login
-def public_endpoint(function):
-    function.is_public = True
-    return function
 
 ###################################
 ## main pages for all sites
@@ -315,15 +296,6 @@ def site_config(sitename):
         inbuildings_config.enabled = form.inbuildings_enabled.data
         inbuildings_config.key = form.inbuildings_key.data
 
-        # update emails
-        emails = []
-        # remove whitespace and separate out emails from csv
-        email_strings = set(form.email_list.data.replace(" ", "").split(','))
-        for email_string in email_strings:
-            if email_string != '':
-                emails.append(Email(address=email_string))
-        site.emails = emails
-
         db.session.commit()
         return redirect(url_for('homepage', sitename=sitename))
 
@@ -332,8 +304,6 @@ def site_config(sitename):
         form = SiteConfigForm(obj=site)
         form.inbuildings_enabled.data = inbuildings_config.enabled
         form.inbuildings_key.data = inbuildings_config.key
-        # turn emails into csv
-        form.email_list.data = ','.join([email.address for email in site.emails])
         return render_template('site_config.html', site=site, form=form)
 
 
@@ -367,8 +337,8 @@ def return_alarms(sitename):
             start_date = end_date - datetime.timedelta(days=7)
             # count number of alarms in range
             nalarms = session.query(Alarm).filter(
-                Alarm.datetimestamp > start_date,
-                Alarm.datetimestamp <= end_date
+                Alarm.DateTimeStamp > start_date,
+                Alarm.DateTimeStamp <= end_date
             ).count()
             series.append([start_date, nalarms])
             # get the next earliest week next loop
@@ -383,17 +353,12 @@ def return_alarms(sitename):
     nalarms = "FAIL"
     # get database session for this site
     try:
-        session = registry.get(site.db_key)
-        if not session is None:
-            alarms = session.query(Alarm).limit(20).all()
-            alarm_names = [alarm.description for alarm in alarms]
-            nalarms = get_alarms_per_week(session)
-            session.close()
-        else:
-            alarm_names = []
+        alarms = db.session.query(Alarm).limit(20).all()
+        alarm_names = [alarm.description for alarm in alarms]
+        nalarms = get_alarms_per_week(db.session)
 
     except Exception as e:
-        message = "No DB key, champ " + str(site.name) + '\n' + str(e)
+        message = "Site not connected." + str(site.name) + '\n' + str(e)
 
 
     return render_template(

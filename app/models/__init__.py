@@ -227,6 +227,7 @@ class Site(db.Model):
     email_trigger_priority = db.Column('Email_trigger_priority', db.Integer, default=0, nullable=False)
     cmms_trigger_priority = db.Column('CMMS_trigger_priority', db.Integer, default=0, nullable=False)
     assets = db.relationship('Asset', backref='site')
+    alarms = db.relationship('Alarm', backref='site')
     inbuildings_assets = db.relationship('InbuildingsAsset', backref='site', cascade='save-update, merge, delete, delete-orphan')
     inbuildings_config = db.relationship('InbuildingsConfig', backref='site', uselist=False, cascade='save-update, merge, delete, delete-orphan')
     issue_history = db.relationship('IssueHistory', backref='site', cascade='save-update, merge, delete, delete-orphan')
@@ -363,9 +364,6 @@ class Email(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True)
     address = db.Column('Address', db.String(512), default="")
     site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'), nullable=False)
-
-    def __repr__(self):
-        return self.address
 
 ###################################
 ## charting info
