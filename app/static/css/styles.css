@@ -1,4 +1,4 @@
-/* App bar */
+/* Nav bar */
 .mdl-layout__header-row {
   color: white;
 }
@@ -14,6 +14,12 @@
 
 .logo {
   font-family: 'Varela Round', sans-serif;
+}
+
+/*Footer*/
+.mdl-mini-footer {
+   height: 40px;
+   padding-top: 15px;
 }
 
 /*layout*/

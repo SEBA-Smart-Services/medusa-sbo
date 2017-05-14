@@ -208,6 +208,8 @@ def add_asset_confirm(sitename):
         asset = Asset(name=asset_json['name'], location=asset_json['location'], group=asset_json['group'], type=asset_type, priority=asset_json['priority'], notes=asset_json['notes'], health=0, site=site)
         db.session.add(asset)
     db.session.commit()
+    # return true generates error 'bool is not callable', which has no impact
+    # todo: return something that doesn't generate an error?
     return True
 
 # page to choose xml downloads
