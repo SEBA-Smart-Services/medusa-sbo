@@ -48,6 +48,9 @@ function addPoint() {
   // re-init the dropdown box
   getmdlSelect.init(".getmdl-select");
 
+  // reset widths
+  $('.getmdl-select').css('max-width','900px');
+
   point_counter = point_counter + 1;
 }
 

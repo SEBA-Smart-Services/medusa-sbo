@@ -340,7 +340,7 @@ class testfunc(AlgorithmClass):
 # test functions for demo purposes
 class testfunc2(AlgorithmClass):
     points_required = ['filter sp']
-    name = "Chilled water valve actuator hunting temperature"
+    name = "Chilled water valve actuator hunting temperature."
     format = "{:.1%}"
 
     def run(data):
@@ -350,7 +350,7 @@ class testfunc2(AlgorithmClass):
 
 class testfunc3(AlgorithmClass):
     points_required = ['filter sp']
-    name = "Slow room air temp response to conditioning"
+    name = "Slow room air temp response to conditioning."
     format = "{:.1%}"
 
     def run(data):
@@ -360,7 +360,7 @@ class testfunc3(AlgorithmClass):
 
 class testfunc4(AlgorithmClass):
     points_required = ['filter sp']
-    name = "Malfunctioning heating coil"
+    name = "Malfunctioning heating coil."
     format = "{:.1%}"
 
     def run(data):
@@ -370,7 +370,7 @@ class testfunc4(AlgorithmClass):
 
 class testfunc5(AlgorithmClass):
     points_required = ['filter sp']
-    name = "Simultaneous heating and cooling"
+    name = "Simultaneous heating and cooling."
     format = "{:.1%}"
 
     def run(data):
