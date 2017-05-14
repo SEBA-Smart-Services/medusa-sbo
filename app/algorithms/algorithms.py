@@ -4,6 +4,7 @@ import datetime
 import time
 import pandas
 import numpy
+import random
 from scipy.fftpack import fft
 
 
@@ -120,8 +121,6 @@ def check_asset(asset):
                 sum_issue_health_impact+=issue_health_impact
 
             #the health of the asset is 100% - the sum of the health impact of all of the issues
-            #need to make sure health is >0
-            asset.health = max(1-sum_issue_health_impact, 0)
 
             print('Asset Health: {}'.format(asset.health))
 
@@ -329,22 +328,52 @@ class run_hours_check(AlgorithmClass):
 class testfunc(AlgorithmClass):
     points_required = []
     name = "Test"
-    format = "bool"
+    format = "{:.1%}"
 
     def run(data):
-        result = 0
+        result = 0.5
         passed = True
         return [result, passed]
 
-#second dummy test function
+# test functions for demo purposes
 class testfunc2(AlgorithmClass):
-    points_required = []
-    name = "test2"
-    format = "bool"
+    points_required = ['filter sp']
+    name = "Chilled water valve actuator hunting temperature"
+    format = "{:.1%}"
 
     def run(data):
-        result = 0
-        passed = True
+        result = 1
+        passed = random.random() > 0.25
+        return [result, passed]
+
+class testfunc3(AlgorithmClass):
+    points_required = ['filter sp']
+    name = "Slow room air temp response to conditioning"
+    format = "{:.1%}"
+
+    def run(data):
+        result = 1
+        passed = random.random() > 0.25
+        return [result, passed]
+
+class testfunc4(AlgorithmClass):
+    points_required = ['filter sp']
+    name = "Malfunctioning heating coil"
+    format = "{:.1%}"
+
+    def run(data):
+        result = 0.75
+        passed = random.random() > 0.25
+        return [result, passed]
+
+class testfunc5(AlgorithmClass):
+    points_required = ['filter sp']
+    name = "Simultaneous heating and cooling"
+    format = "{:.1%}"
+
+    def run(data):
+        result = 0.8
+        passed = random.random() > 0.25
         return [result, passed]
 
 

@@ -1,10 +1,19 @@
 /* App bar */
-.mdl-layout__header-row, .mdl-navigation__link {
-  color: white
+.mdl-layout__header-row {
+  color: white;
 }
 
-.medusa-app-link {
-  color: white
+.mdl-layout__header-row .mdl-navigation__link {
+  color: white;
+}
+
+.navlink-manual {
+  text-decoration: none;
+  color: white;
+}
+
+.logo {
+  font-family: 'Varela Round', sans-serif;
 }
 
 /*layout*/

@@ -1,6 +1,6 @@
 from app import app, event
 from app.models import Site, Asset, Result
-from flask import render_template
+from flask import render_template, url_for, redirect
 from flask_weasyprint import HTML, render_pdf
 
 # provide a page to download a report for a site
@@ -10,9 +10,16 @@ def report_page(sitename):
     html = generate_report_html(site)
     return render_pdf(html)
 
+# provide a page to download a report for a site
+@app.route('/site/<sitename>/issues/_send')
+def send_report_trigger(sitename):
+    site = Site.query.filter_by(name=sitename).one()
+    send_report(site)
+    return redirect(url_for('unresolved_list', sitename=site.name))
+
 # output the report as a html object
 def generate_report_html(site):
-    assets = Asset.query.filter_by(site=site).all()
+    assets = Asset.query.filter_by(site=site).order_by(Asset.priority.asc()).all()
     recent_results = {}
     unresolved_results = {}
     for asset in assets:
