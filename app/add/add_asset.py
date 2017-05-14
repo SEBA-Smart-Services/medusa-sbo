@@ -189,7 +189,7 @@ def add_asset_upload(sitename):
                 notes = str(row[4].value)
                 if notes == "None":
                     notes = ""
-                asset = Asset(name=name, location=location, group=group, type=asset_type, priority=priority, notes=notes)
+                asset = Asset(name=name, location=location, group=group, type=asset_type, priority=priority, notes=notes, site=site)
                 asset_list.append(asset)
 
     return render_template('add_asset_confirm.html', assets=asset_list, site=site)
