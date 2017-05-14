@@ -48,15 +48,13 @@ def add_asset(sitename):
             if not point_type_name is None:
 
                 point_type = PointType.query.filter_by(name=point_type_name).one()
-                point = AssetPoint(type=point_type, name=point_type_name)
+                point = AssetPoint(type=point_type, name=point_type_name, asset=asset)
 
                 # assign the log id to the point
                 log_path = request.form.get('log' + str(i))
                 if not log_path == '' and not session is None:
                     log = session.query(LoggedEntity).filter_by(path=log_path).one()
                     point.loggedentity_id = log.id
-
-                asset.points.append(point)
 
         # set functional descriptors
         function_list = request.form.getlist('function')
