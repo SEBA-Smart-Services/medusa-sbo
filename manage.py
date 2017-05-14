@@ -52,7 +52,7 @@ roles = [
 test_asset_name = 'Test AHU'
 admin_user = 'sebb'
 admin_pw = 'Schn3!d3r1'
-test_user = 'testuser'
+test_user = 'user'
 test_pw = 'Schn3!d3r1'
 
 

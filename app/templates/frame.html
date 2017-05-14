@@ -8,17 +8,17 @@
 
     <!-- CSS Rules -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/getmdl-select.min.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/material.components.ext.min.css') }}">
+    <link rel="stylesheet" href="/static/css/getmdl-select.min.css">
+    <link rel="stylesheet" href="/static/css/material.components.ext.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.green-blue.min.css" />
-    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="shortcut icon" href="/static/img/favicon.ico">
+    <link rel="stylesheet" href="/static/css/styles.css">
     <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/list.min.js') }}"></script>
-    <script defer type="text/javascript" src="{{ url_for('static', filename='js/material.components.ext.min.js') }}"></script>
-    <script defer type="text/javascript" src="{{ url_for('static', filename='js/getmdl-select.min.js') }}"></script>
+    <script type="text/javascript" src="/static/js/jquery.js"></script>
+    <script type="text/javascript" src="/static/js/list.min.js"></script>
+    <script defer type="text/javascript" src="/static/js/material.components.ext.min.js"></script>
+    <script defer type="text/javascript" src="/static/js/getmdl-select.min.js"></script>
     <script type=text/javascript>
       $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
@@ -70,7 +70,11 @@
               <a class="mdl-navigation__link" href="/site/all/issues">Issues</a>
               <a class="mdl-navigation__link" href="/site/all/issue-chart">Issue Chart</a>
               <a class="mdl-navigation__link" href="/site/all/map">Map</a>
-              <a class="mdl-navigation__link" href="/site/all/add_site">Add Site</a>
+              {% if current_user.is_authenticated %}
+                {% if current_user.has_role('performance_centre') %}
+                  <a class="mdl-navigation__link" href="/site/all/add_site">Add Site</a>
+                {% endif %}
+              {% endif %}
             {% else %}
               <a class="mdl-navigation__link" href="/site/{{site.name}}/dashboard">Dashboard</a>
               <a class="mdl-navigation__link" href="/site/{{site.name}}/issues">Issues</a>
@@ -83,7 +87,11 @@
               {% if current_user.has_role('admin') %}
                 <a class="mdl-navigation__link" href="/admin/site">Admin</a>
               {% endif %}
-              <a class="mdl-navigation__link" href="{{ url_for('user.logout') }}">{{ current_user.username }} &nbsp;|&nbsp; Sign out</a>
+              <p class="mdl-navigation__link">
+                <a style="text-decoration:none; color:rgb(66,66,66)" href="{{ url_for('user.profile') }}">{{ current_user.username }}</a>
+                &nbsp;|&nbsp;
+                <a style="text-decoration:none; color:rgb(66,66,66)" href="{{ url_for('user.logout') }}">Sign out</a>
+              </p>
             {% else %}
               <a class="mdl-navigation__link" href="{{ url_for('user.login') }}">Sign in</a>
             {% endif %}
