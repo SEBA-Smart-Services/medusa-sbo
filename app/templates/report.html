@@ -41,18 +41,21 @@
       <table class="mdl-data-table mdl-js-data-table" style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
         <thead>
           <tr>
-            <th class="mdl-data-table__cell--non-numeric">First Failure</th>
             <th class="mdl-data-table__cell--non-numeric">Issue</th>
-            <th class="mdl-data-table__cell--non-numeric">Notes</th>
+            <th class="mdl-data-table__cell--non-numeric">First Occurance</th>
+            <th class="mdl-data-table__cell--non-numeric">Priority</th>
           </tr>
         </thead>
         <tbody>
           {% for result in unresolved_results[asset] %}
             {% if result.acknowledged == False %}
               <tr>
-                <td class="mdl-data-table__cell--non-numeric">{{result.first_timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
                 <td class="mdl-data-table__cell--non-numeric">{{result.algorithm.descr}}</td>
-                <td class="notes mdl-data-table__cell--non-numeric">{{result.notes}}</td>
+                <td class="mdl-data-table__cell--non-numeric">{{result.first_timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+                <td class="notes mdl-data-table__cell--non-numeric">{{result.priority}}</td>
+              </tr>
+              <tr>
+                <td class="mdl-data-table__cell--non-numeric" colspan="3"><b>Notes:</b> {{result.notes}}</td>
               </tr>
             {% endif %}
           {% endfor %}
@@ -62,18 +65,21 @@
       <table class="mdl-data-table mdl-js-data-table" style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
         <thead>
           <tr>
-            <th class="mdl-data-table__cell--non-numeric">First Failure</th>
             <th class="mdl-data-table__cell--non-numeric">Issue</th>
-            <th class="mdl-data-table__cell--non-numeric">Notes</th>
+            <th class="mdl-data-table__cell--non-numeric">First Occurance</th>
+            <th class="mdl-data-table__cell--non-numeric">Priority</th>
           </tr>
         </thead>
         <tbody>
           {% for result in unresolved_results[asset] %}
             {% if result.acknowledged == True %}
               <tr>
-                <td class="mdl-data-table__cell--non-numeric">{{result.first_timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
                 <td class="mdl-data-table__cell--non-numeric">{{result.algorithm.descr}}</td>
-                <td class="notes mdl-data-table__cell--non-numeric">{{result.notes}}</td>
+                <td class="mdl-data-table__cell--non-numeric">{{result.first_timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+                <td class="notes mdl-data-table__cell--non-numeric">{{result.priority}}</td>
+              </tr>
+              <tr>
+                <td class="mdl-data-table__cell--non-numeric" colspan="3"><b>Notes:</b> {{result.notes}}</td>
               </tr>
             {% endif %}
           {% endfor %}

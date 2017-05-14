@@ -4,6 +4,7 @@ import datetime
 import time
 import pandas
 import numpy
+import random
 from scipy.fftpack import fft
 
 
@@ -329,22 +330,52 @@ class run_hours_check(AlgorithmClass):
 class testfunc(AlgorithmClass):
     points_required = []
     name = "Test"
-    format = "bool"
+    format = "{:.1%}"
 
     def run(data):
         result = 0.5
-        passed = False
+        passed = True
         return [result, passed]
 
-#second dummy test function
+# test functions for demo purposes
 class testfunc2(AlgorithmClass):
-    points_required = []
-    name = "test2"
-    format = "bool"
+    points_required = ['filter sp']
+    name = "Chilled water valve actuator hunting temperature"
+    format = "{:.1%}"
+
+    def run(data):
+        result = 1
+        passed = random.random() > 0.25
+        return [result, passed]
+
+class testfunc3(AlgorithmClass):
+    points_required = ['filter sp']
+    name = "Slow room air temp response to conditioning"
+    format = "{:.1%}"
+
+    def run(data):
+        result = 1
+        passed = random.random() > 0.25
+        return [result, passed]
+
+class testfunc4(AlgorithmClass):
+    points_required = ['filter sp']
+    name = "Malfunctioning heating coil"
+    format = "{:.1%}"
 
     def run(data):
         result = 0.75
-        passed = False
+        passed = random.random() > 0.25
+        return [result, passed]
+
+class testfunc5(AlgorithmClass):
+    points_required = ['filter sp']
+    name = "Simultaneous heating and cooling"
+    format = "{:.1%}"
+
+    def run(data):
+        result = 0.8
+        passed = random.random() > 0.25
         return [result, passed]
 
 
