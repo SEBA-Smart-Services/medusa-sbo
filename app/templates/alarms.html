@@ -21,4 +21,44 @@
     </ul>
 
   </div>
+<div id="chart_div"></div>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+google.charts.load('current', {packages: ['corechart', 'bar']});
+google.charts.setOnLoadCallback(drawAnnotations);
+
+function drawAnnotations() {
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'Week');
+      data.addColumn('number', 'Number of Alarms');
+
+	data.addRows([
+	{% for row in rows %}
+  		['{{ row[0] }}', {{ row[1] }}],
+	{% endfor %}
+	]);
+
+      var options = {
+        title: 'Alarms',
+        annotations: {
+          alwaysOutside: true,
+          textStyle: {
+            fontSize: 14,
+            color: '#000',
+            auraColor: 'none'
+          }
+        },
+        hAxis: {
+          title: 'Week',
+        },
+        vAxis: {
+          title: 'Number of Alarms'
+        },
+        legend: {position: 'none'}
+      };
+
+      var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+      chart.draw(data, options);
+    }
+</script>
 {% endblock %}

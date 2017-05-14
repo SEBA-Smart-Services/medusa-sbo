@@ -8,6 +8,41 @@ from statistics import mean
 import datetime, time
 
 
+def get_alarms_per_week(session, nweeks=4):
+    """
+    get all alarm records per week from today until nweeks
+
+    return a list:
+    [
+        [dt1, nalarms1],
+        [dt2, nalarms2],
+        ...
+    ]
+
+    TODO:
+    - move this to "alarms functions and algos module"
+    - migrate to a class for handling alarm lists
+    - allow more flexibility to include unacknowledged etc
+
+    """
+    end_date = datetime.date.today()
+    series = []
+    for i in range(nweeks):
+        start_date = end_date - datetime.timedelta(days=7)
+        # count number of alarms in range
+        nalarms = db.session.query(Alarm).filter(
+            Alarm.DateTimeStamp > start_date,
+            Alarm.DateTimeStamp <= end_date
+        ).count()
+        series.append([start_date.strftime("%-d-%b"), nalarms])
+        # get the next earliest week next loop
+        end_date = start_date
+    # reverse order
+    series.reverse()
+    # number of alarms
+    return series
+
+
 ###################################
 ## main pages for all sites
 ###################################
@@ -48,8 +83,18 @@ def dashboard_all():
     else:
         avg_health = 0
 
+    # get alarms display data
+
+    nalarms = "FAIL"
+    # get database session for this site
+    try:
+        nalarms = get_alarms_per_week(db.session, nweeks=8)
+
+    except Exception as e:
+        message = "No data. " + str(e)
+
     low_health_assets = len(Asset.query.filter(Asset.health < 0.5).all())
-    return render_template('dashboard.html', results=results, num_results=num_results, top_priority=top_priority, avg_health=avg_health, low_health_assets=low_health_assets, allsites=True)
+    return render_template('dashboard.html', results=results, num_results=num_results, top_priority=top_priority, avg_health=avg_health, low_health_assets=low_health_assets, allsites=True, alarmcount=nalarms)
 
 # list all sites
 @app.route('/site/all/sites')
@@ -172,6 +217,7 @@ def add_site():
 # set homepage for the site
 @app.route('/site/<sitename>')
 def homepage(sitename):
+
     return redirect(url_for('dashboard_site', sitename=sitename))
 
 # show site overview dashboard
@@ -201,7 +247,30 @@ def dashboard_site(sitename):
         avg_health = 0
 
     low_health_assets = len(Asset.query.filter(Asset.site == site, Asset.health < 0.5).all())
-    return render_template('dashboard.html', results=results, num_results=num_results, top_priority=top_priority, avg_health=avg_health, low_health_assets=low_health_assets, site=site)
+
+    # get alarms display data
+    site = Site.query.filter_by(name=sitename).one()
+    nalarms = "FAIL"
+    # get database session for this site
+    try:
+        # NEED TO FILTER THIS BY SITE ID!
+        alarms = db.session.query(Alarm).limit(20).all()
+        alarm_names = [alarm.AlarmText for alarm in alarms]
+        nalarms = get_alarms_per_week(db.session, nweeks=8)
+
+    except Exception as e:
+        message = "Site not connected." + str(site.name) + '\n' + str(e)
+
+    return render_template(
+        'dashboard.html',
+        results=results,
+        num_results=num_results,
+        top_priority=top_priority,
+        avg_health=avg_health,
+        low_health_assets=low_health_assets,
+        site=site,
+        alarmcount=nalarms
+    )
 
 # list assets on the site
 @app.route('/site/<sitename>/assets',  methods=['GET', 'POST'])
@@ -307,44 +376,10 @@ def site_config(sitename):
         return render_template('site_config.html', site=site, form=form)
 
 
-
-
 # TESTING ALARMS CG
 # return table of alarms
 @app.route('/site/<sitename>/alarms')
 def return_alarms(sitename):
-
-    def get_alarms_per_week(session, nweeks=4):
-        """
-        get all alarm records per week from today until nweeks
-
-        return a list:
-        [
-            [dt1, nalarms1],
-            [dt2, nalarms2],
-            ...
-        ]
-
-        TODO:
-        - move this to "alarms functions and algos module"
-        - migrate to a class for handling alarm lists
-        - allow more flexibility to include unacknowledged etc
-
-        """
-        end_date = datetime.date.today()
-        series = []
-        for i in range(nweeks):
-            start_date = end_date - datetime.timedelta(days=7)
-            # count number of alarms in range
-            nalarms = session.query(Alarm).filter(
-                Alarm.DateTimeStamp > start_date,
-                Alarm.DateTimeStamp <= end_date
-            ).count()
-            series.append([start_date, nalarms])
-            # get the next earliest week next loop
-            end_date = start_date
-        # number of alarms
-        return series
 
     site = Site.query.filter_by(name=sitename).one()
 
@@ -354,8 +389,8 @@ def return_alarms(sitename):
     # get database session for this site
     try:
         alarms = db.session.query(Alarm).limit(20).all()
-        alarm_names = [alarm.description for alarm in alarms]
-        nalarms = get_alarms_per_week(db.session)
+        alarm_names = [alarm.AlarmText for alarm in alarms]
+        nalarms = get_alarms_per_week(db.session, nweeks=8)
 
     except Exception as e:
         message = "Site not connected." + str(site.name) + '\n' + str(e)
@@ -366,5 +401,6 @@ def return_alarms(sitename):
         site=site,
         message=message,
         alarms=alarm_names,
-        nalarms=nalarms
+        nalarms=nalarms,
+	    rows=nalarms
     )
