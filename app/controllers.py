@@ -3,44 +3,29 @@ from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, Functional
 from app.models import Alarm
 from app.forms import SiteConfigForm, AddSiteForm
 from flask import json, request, render_template, url_for, redirect, jsonify, flash, make_response
-from flask_user import login_required
+from flask_user import current_user
 from statistics import mean
 import datetime, time
 
 
-def get_alarms_per_week(session, nweeks=4):
-    """
-    get all alarm records per week from today until nweeks
+# enforce login required for all pages
+@app.before_request
+def check_valid_login():
+    login_valid = current_user.is_authenticated
 
-    return a list:
-    [
-        [dt1, nalarms1],
-        [dt2, nalarms2],
-        ...
-    ]
+    if (request.endpoint and
+        # not required for login page or static content
+        request.endpoint != 'user.login' and
+        request.endpoint != 'static' and
+        not login_valid and
+        # check if it's allowed to be public, see public_endpoint decorator
+        not getattr(app.view_functions[request.endpoint], 'is_public', False    ) ) :
+        return redirect(url_for('user.login'))
 
-    TODO:
-    - move this to "alarms functions and algos module"
-    - migrate to a class for handling alarm lists
-    - allow more flexibility to include unacknowledged etc
-
-    """
-    end_date = datetime.date.today()
-    series = []
-    for i in range(nweeks):
-        start_date = end_date - datetime.timedelta(days=7)
-        # count number of alarms in range
-        nalarms = db.session.query(Alarm).filter(
-            Alarm.DateTimeStamp > start_date,
-            Alarm.DateTimeStamp <= end_date
-        ).count()
-        series.append([start_date.strftime("%-d-%b"), nalarms])
-        # get the next earliest week next loop
-        end_date = start_date
-    # reverse order
-    series.reverse()
-    # number of alarms
-    return series
+# decorator to make pages not require login
+def public_endpoint(function):
+    function.is_public = True
+    return function
 
 
 ###################################
@@ -377,6 +362,41 @@ def site_config(sitename):
 
 
 # TESTING ALARMS CG
+
+def get_alarms_per_week(session, nweeks=4):
+    """
+    get all alarm records per week from today until nweeks
+
+    return a list:
+    [
+        [dt1, nalarms1],
+        [dt2, nalarms2],
+        ...
+    ]
+
+    TODO:
+    - move this to "alarms functions and algos module"
+    - migrate to a class for handling alarm lists
+    - allow more flexibility to include unacknowledged etc
+
+    """
+    end_date = datetime.date.today()
+    series = []
+    for i in range(nweeks):
+        start_date = end_date - datetime.timedelta(days=7)
+        # count number of alarms in range
+        nalarms = db.session.query(Alarm).filter(
+            Alarm.DateTimeStamp > start_date,
+            Alarm.DateTimeStamp <= end_date
+        ).count()
+        series.append([start_date.strftime("%-d-%b"), nalarms])
+        # get the next earliest week next loop
+        end_date = start_date
+    # reverse order
+    series.reverse()
+    # number of alarms
+    return series
+
 # return table of alarms
 @app.route('/site/<sitename>/alarms')
 def return_alarms(sitename):
