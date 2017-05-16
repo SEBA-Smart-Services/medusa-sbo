@@ -1,5 +1,5 @@
 server {
-    listen 8013;
+    listen 80;
     server_name medusa.sebbqld.com;
 
     location / {
