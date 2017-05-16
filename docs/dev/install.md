@@ -36,6 +36,6 @@ check permissions on log file at /var/log/uwsgi/medusa.log
 Weasyprint is used for generating PDF reports.
 
 Deployment of Weasyprint on a new server requires the installation of several packages via apt-get, as well as standard pip install. Documentation for this install can be found here: http://weasyprint.readthedocs.io/en/latest/install.html
-
+Do:
 sudo apt-get install libxml2-dev libxslt1-dev libffi-dev
 sudo apt-get install python3-lxml python3-cffi libcairo2 libpango1.0-0 libgdk-pixbuf2.0-0 shared-mime-info
