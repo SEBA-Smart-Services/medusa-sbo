@@ -1,18 +1,7 @@
 # Email setup
 
 ## AWS CLI config
-In AWS Console, create IAM user with CLI access. Be restrictive! Generate access key.
-
-Install AWS CLI:
-```
-pip insall awscli
-```
-
-Then configure AWS CLI:
-```
-aws configure
-```
-Enter IAM user access key.
+[Setup AWS CLI](awscli.md) on your dev machine.
 
 ## Configure DNS
 In Domain Registrar, add a CNAME record:
