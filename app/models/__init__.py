@@ -365,6 +365,9 @@ class Email(db.Model):
     address = db.Column('Address', db.String(512), default="")
     site_id = db.Column('Site_id', db.Integer, db.ForeignKey('site.ID'), nullable=False)
 
+    def __repr__(self):
+        return self.address
+
 ###################################
 ## charting info
 ###################################

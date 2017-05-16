@@ -1,5 +1,5 @@
 from app import app, db, registry
-from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, PointType, Result, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp, InbuildingsConfig
+from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, PointType, Result, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp, InbuildingsConfig, Email
 from app.models import Alarm
 from app.forms import SiteConfigForm, AddSiteForm
 from flask import json, request, render_template, url_for, redirect, jsonify, flash, make_response
@@ -350,6 +350,15 @@ def site_config(sitename):
         inbuildings_config.enabled = form.inbuildings_enabled.data
         inbuildings_config.key = form.inbuildings_key.data
 
+        # update emails
+        emails = []
+        # remove whitespace and separate out emails from csv
+        email_strings = set(form.email_list.data.replace(" ", "").split(','))
+        for email_string in email_strings:
+            if email_string != '':
+                emails.append(Email(address=email_string))
+        site.emails = emails
+
         db.session.commit()
         return redirect(url_for('homepage', sitename=sitename))
 
@@ -358,6 +367,8 @@ def site_config(sitename):
         form = SiteConfigForm(obj=site)
         form.inbuildings_enabled.data = inbuildings_config.enabled
         form.inbuildings_key.data = inbuildings_config.key
+        # turn emails into csv
+        form.email_list.data = ','.join([email.address for email in site.emails])
         return render_template('site_config.html', site=site, form=form)
 
 
