@@ -1,9 +1,25 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+import boto3, os
 
 # set up Flask
 app = Flask(__name__)
-app.config.from_object('config')
+
+# download and load config from s3
+# if debug mode is running, downloading the file will cause a change which causes a
+# second restart of debug mode. prevent this
+if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+    s3 = boto3.resource('s3')
+    s3.meta.client.download_file('medusa-sebbqld', 'config/config.py', 'config.py')
+
+# above code prevents config from being downloaded by debugger
+# if config.py has been deleted, then debugger will need to download before startup (debug starts before main)
+try:
+    app.config.from_object('config')
+except:
+    s3 = boto3.resource('s3')
+    s3.meta.client.download_file('medusa-sebbqld', 'config/config.py', 'config.py')
+    app.config.from_object('config')
 
 # set up database
 db = SQLAlchemy(app)
