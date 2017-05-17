@@ -95,12 +95,17 @@ algo_function_mapping = db.Table('algo_function_mapping',
     db.Column('FunctionalDescriptor_id', db.Integer, db.ForeignKey('functional_descriptor.ID'), primary_key=True),
 )
 
+# many-many mapping table between types and the functional descriptor categories that can apply to them
+function_category_type_mapping = db.Table('function_category_type_mapping',
+    db.Column('Type_id', db.Integer, db.ForeignKey('asset_type.ID'), primary_key=True),
+    db.Column('FunctionalDescriptorCategory_id', db.Integer, db.ForeignKey('functional_descriptor_category.ID'), primary_key=True),
+)
+
 # asset types
 class AssetType(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512), nullable=False)
     assets = db.relationship('Asset', backref='type')
-    functions = db.relationship('FunctionalDescriptor', backref='type')
 
     def __repr__(self):
         return self.name
@@ -109,7 +114,17 @@ class AssetType(db.Model):
 class FunctionalDescriptor(db.Model):
     id = db.Column('ID',db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512), nullable=False)
-    type_id = db.Column('Type_id', db.Integer, db.ForeignKey('asset_type.ID'))
+    category_id = db.Column('Category_id', db.Integer, db.ForeignKey('functional_descriptor_category.ID'))
+
+    def __repr__(self):
+        return self.name
+
+# functional descriptor categories
+class FunctionalDescriptorCategory(db.Model):
+    id = db.Column('ID',db.Integer, primary_key=True)
+    name = db.Column('Name', db.String(512), nullable=False)
+    functions = db.relationship('FunctionalDescriptor', backref='category')
+    types = db.relationship('AssetType', secondary=function_category_type_mapping, backref=db.backref('function_categories'))
 
     def __repr__(self):
         return self.name

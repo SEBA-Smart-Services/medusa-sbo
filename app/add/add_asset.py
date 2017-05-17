@@ -80,7 +80,8 @@ def add_asset(sitename):
 @app.route('/site/<sitename>/add/_function')
 def return_functions(sitename):
     asset_type = AssetType.query.filter_by(name=request.args['type']).one()
-    function_names = [function.name for function in asset_type.functions]
+    functions = [category.functions for category in asset_type.function_categories]
+    function_names = [function.name for function in functions]
     return jsonify(function_names)
 
 # return list of loggedentities through AJAX
