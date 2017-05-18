@@ -7,19 +7,21 @@ app = Flask(__name__)
 
 # download and load config from s3
 # if debug mode is running, downloading the file will cause a change which causes a
-# second restart of debug mode. prevent this
-if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+# second restart of debug mode. prevent this, except in the case where config.py is missing entirely
+# and needs to be downloaded for the first time
+if os.environ.get('WERKZEUG_RUN_MAIN') == 'true' or not os.path.exists('config.py'):
     s3 = boto3.resource('s3')
     s3.meta.client.download_file('medusa-sebbqld', 'config/config.py', 'config.py')
 
-# above code prevents config from being downloaded by debugger
-# if config.py has been deleted, then debugger will need to download before startup (debug starts before main)
-try:
-    app.config.from_object('config')
-except:
-    s3 = boto3.resource('s3')
-    s3.meta.client.download_file('medusa-sebbqld', 'config/config.py', 'config.py')
-    app.config.from_object('config')
+# choos which part of the config file to load
+config_name = os.getenv('MEDUSA_CONFIGURATION', 'default')
+config = {
+    "development": "config.DevelopmentConfig",
+    "production": "config.ProductionConfig",
+    "default": "config.DevelopmentConfig"
+}
+
+app.config.from_object(config[config_name])
 
 # set up database
 db = SQLAlchemy(app)
