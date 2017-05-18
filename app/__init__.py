@@ -14,14 +14,13 @@ if os.environ.get('WERKZEUG_RUN_MAIN') == 'true' or not os.path.exists('config.p
     s3.meta.client.download_file('medusa-sebbqld', 'config/config.py', 'config.py')
 
 # choos which part of the config file to load
-config_name = os.getenv('MEDUSA_CONFIGURATION', 'default')
+server_type = os.getenv('MEDUSA_CONFIGURATION', 'development')
 config = {
     "development": "config.DevelopmentConfig",
-    "production": "config.ProductionConfig",
-    "default": "config.DevelopmentConfig"
+    "production": "config.ProductionConfig"
 }
 
-app.config.from_object(config[config_name])
+app.config.from_object(config[server_type])
 
 # set up database
 db = SQLAlchemy(app)
@@ -39,6 +38,17 @@ from flask_user import UserManager, SQLAlchemyAdapter
 from app.models import User
 db_adapter = SQLAlchemyAdapter(db, User)  # Setup the SQLAlchemy DB Adapter
 user_manager = UserManager(db_adapter, app)  # Init Flask-User and bind to app
+
+# set up bugsnag
+import bugsnag
+from bugsnag.flask import handle_exceptions
+bugsnag.configure(
+  api_key = app.config['BUGSNAG_API_KEY'],
+  project_root = app.config['PROJECT_ROOT'],
+  notify_release_stages = app.config['NOTIFY_RELEASE_STAGES'],
+  release_stage = app.config['RELEASE_STAGE']
+)
+handle_exceptions(app)
 
 # packages
 from app import models, add, admin, cmms, weather, algorithms, reports, scheduling
