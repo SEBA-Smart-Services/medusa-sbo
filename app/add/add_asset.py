@@ -156,16 +156,16 @@ def add_asset_upload(sitename):
     # check if file was uploaded
     if 'file' not in request.files:
         flash('No file selected')
-        return redirect(url_for('add_asset_input', sitename=sitename))
+        return redirect(url_for('add_asset', sitename=sitename))
     file = request.files['file']
     if file.filename =='':
         flash('No file selected')
-        return redirect(url_for('add_asset_input', sitename=sitename))
+        return redirect(url_for('add_asset', sitename=sitename))
 
     # check if file is correct type
     if not (file and ('.' in file.filename) and (file.filename.rsplit('.',1)[1].lower() in ['xlsx','xlsm'])):
         flash('File must be xlsx/xlsm')
-        return redirect(url_for('add_asset_input', sitename=sitename))
+        return redirect(url_for('add_asset', sitename=sitename))
 
     wb = load_workbook(file)
     asset_list = []
