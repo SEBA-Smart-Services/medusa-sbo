@@ -193,7 +193,7 @@ def add_site():
 
         db.session.add(site)
         db.session.commit()
-        return redirect(url_for('site_list'))
+        return redirect(url_for('add_asset', sitename=site.name))
 
 ###################################
 ## main pages for single site

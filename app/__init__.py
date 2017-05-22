@@ -1,26 +1,29 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-import boto3, os
+import os, ast, configparser
 
 # set up Flask
 app = Flask(__name__)
 
-# download and load config from s3
-# if debug mode is running, downloading the file will cause a change which causes a
-# second restart of debug mode. prevent this, except in the case where config.py is missing entirely
-# and needs to be downloaded for the first time
-if os.environ.get('WERKZEUG_RUN_MAIN') == 'true' or not os.path.exists('config.py'):
-    s3 = boto3.resource('s3')
-    s3.meta.client.download_file('medusa-sebbqld', 'config/config.py', 'config.py')
-
 # choos which part of the config file to load
-server_type = os.getenv('MEDUSA_CONFIGURATION', 'development')
-config = {
-    "development": "config.DevelopmentConfig",
-    "production": "config.ProductionConfig"
-}
+config_file = os.getenv('MEDUSA_CONFIG', '/var/lib/medusa/medusa-development.ini')
 
-app.config.from_object(config[server_type])
+# configparser handles everything as strings so some additional conversion work is needed
+config = configparser.ConfigParser()
+# prevent configparser from converting to lowercase
+config.optionxform = str
+# read in config from ini
+config.read(config_file)
+
+# convert the job list to a python dictionary object and load. this is special because it contains \n characters that need removing
+app.config['JOBS'] = ast.literal_eval(config['flask']['JOBS'].replace('\n',''))
+config['flask'].pop('JOBS')
+
+# load remaining values
+# convert the strings to python objects
+for key in config['flask']:
+    app.config[key] = ast.literal_eval(config['flask'][key])
+
 
 # set up database
 db = SQLAlchemy(app)

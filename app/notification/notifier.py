@@ -1,13 +1,13 @@
 from app import cmms
 from app.models import EmailTemplate
 from .emailClient import EmailClient
-from smtplib import SMTPRecipientsRefused
+from smtplib import SMTPRecipientsRefused, SMTPDataError
 import os
 
 class Notifier():
 
     def __init__(self):
-        self.email_client = EmailClient('config.ini', 'medusa@sebbqld.com')
+        self.email_client = EmailClient('medusa@sebbqld.com')
 
     def send_issue(self, issue):
         if issue.priority < issue.asset.site.email_trigger_priority:
@@ -53,7 +53,7 @@ class Notifier():
         for email in site.emails:
             try:
                 self.email_client.send_template(template, data, email.address, [report_path])
-            except SMTPRecipientsRefused:
+            except (SMTPRecipientsRefused, SMTPDataError):
                 print('Could not send email to {}'.format(email.address))
 
         # delete local report

@@ -3,27 +3,17 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.encoders import encode_base64
 from string import Template
+from app import app
 import mimetypes
 import smtplib
-import configparser
 import os.path
 
 class EmailClient(object):
 
-    def __init__(self, config_file, sender):
-        # create ConfigParser object
-        config = configparser.ConfigParser()
-
-        # read in config from configfiles
-        master_config = config_file
-        config.read(master_config)
-        main_config = config.get('paths', 'emailConfig')
-        config.read(main_config)
-
-
+    def __init__(self, sender):
         # initial settings
-        self.set_host(config.get('emailClient', 'host'), config.get('emailClient', 'port'))
-        self.set_auth(config.get('emailClient', 'username'), config.get('emailClient', 'password'))
+        self.set_host(app.config['EMAIL_HOST'], app.config['EMAIL_PORT'])
+        self.set_auth(app.config['EMAIL_USERNAME'], app.config['EMAIL_PASSWORD'])
         self.set_sender(sender)
 
     def set_host(self, host, port):

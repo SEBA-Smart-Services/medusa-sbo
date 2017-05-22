@@ -1,12 +1,13 @@
 ## general setup
 required apt-get update before other packages could be installed
-check permissions for medusa folder
+check permissions for /var/www/medusa, /var/lib/medusa folder
+set timezone to brisbane
+    sudo ln -sf /usr/share/zoneinfo/Australia/Brisbane /etc/localtime
 
 ## configuration files
 in .bashrc:
     alias python=python3
     alias pip=pip3
-create /var/lib/medusa/emailConfig.ini
 
 ## Nginx
 sudo apt-get install nginx
@@ -27,7 +28,9 @@ inside virtualenv:
     sudo pip install -r requirements.txt
 
 ## uwsgi
+create /var/lib/medusa directory (home for config files)
 create /etc/systemd/system/medusa.service
+create /etc/systemd/system/medusa-config.service
 
 ## logging
 check permissions on log file at /var/log/uwsgi/medusa.log
