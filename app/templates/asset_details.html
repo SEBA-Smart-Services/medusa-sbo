@@ -137,6 +137,8 @@
   <br>
     <input type="button" value="Edit" onclick="location.href='{{ url_for('edit_asset', asset_id=asset.id, sitename=site.name) }}';"
     class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+    <input type="button" value="Download XML" onclick="location.href='{{ url_for('asset_xml_select', sitename=site.name) }}';"
+    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
   <br>
 
 {% endblock %}

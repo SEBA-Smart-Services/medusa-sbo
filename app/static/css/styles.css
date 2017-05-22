@@ -66,7 +66,7 @@
   top: 5px;
 }
 
-/* stuff for pie chart + animation */
+/* list sorting */
 
 th.sort {
   -webkit-user-select: none;
@@ -116,6 +116,8 @@ th.sort.desc:after {
   top: -4px;
   right: -5px;
 }
+
+/* stuff for pie chart + animation */
 
 .circle_animation {
   stroke-dasharray: 2.5;

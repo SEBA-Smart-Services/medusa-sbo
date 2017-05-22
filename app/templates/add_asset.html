@@ -7,6 +7,9 @@
   <meta id="return_algorithms" content="{{ url_for('return_algorithms', sitename=site.name) }}">
 {% endblock %}
 {% block content %}
+  <br>
+  To add a single asset, use the first section. To add multiple assets at once, download the template from the section at the bottom and upload it.
+
   <h3>Add Asset</h3>
 
   {% if asset_types|length > 0 %}
