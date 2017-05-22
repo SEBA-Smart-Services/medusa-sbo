@@ -19,8 +19,7 @@ def inbuildings_request(data):
 # check comms with inbuildings server
 def inbuildings_comms_test():
     # setup request parameters
-    #key = '0P8q1M8x8k1K4m7t8H2g5E1d8d5A4h3e1h2d9J3U3R7h2V9q9L6R6x8n9W4l3K9o6F1e8e6N7g4w7d1B2T1C6K9u6H9I4Y9b6J3m3z5I7q7b1e2q8p1z2R9K5I1f3P1I1o6f9u7v9b1Z2s4h8D1B8o9C7N5y5Y9N8I2T5i3W9o5e9c3F5K4j2u2y9k9r4j1Y9E1w4f6s6'
-    key = Site.query.first().inbuildings_key
+    key = Site.query.first().inbuildings_config.key
     message = 'Comms Test'
     mode = 'raisenewjob'
     test = 'yes'
@@ -30,16 +29,16 @@ def inbuildings_comms_test():
 
     # send request
     try:
-        resp = inbuildings_request(data)
+        inbuildings_request(data)
     except requests.exceptions.ConnectionError:
-        return "No Comms"
+        return False
     else:
-        return "Comms OK"
+        return True
 
 # inbuildings asset request
 def inbuildings_asset_request(site):
     # setup request parameters
-    key = site.inbuildings_key
+    key = site.inbuildings_config.key
     mode = "equipmentlist"
     data = {'key': key, 'mode': mode}
 
@@ -50,33 +49,53 @@ def inbuildings_asset_request(site):
         # abort if no connection
         return
 
-    # delete existing records for that site
-    InbuildingsAsset.query.filter_by(site_id=site.id).delete()
+    previous_assets = InbuildingsAsset.query.filter_by(site_id=site.id).all()
+    current_assets = []
 
-    # create new asset records
+    # either update existing record or create new record
     for asset in resp:
-        db_asset = InbuildingsAsset(id=asset['eid'], name=asset['name'], location=asset['location'], group=asset['group'], site=site)
-        db.session.add(db_asset)
+        db_asset = InbuildingsAsset.query.filter_by(id=asset['eid']).first()
+        if db_asset is None:
+            db_asset = InbuildingsAsset(id=asset['eid'], site=site)
+            db.session.add(db_asset)
+        db_asset.name = asset['name']
+        db_asset.location = asset['location']
+        db_asset.group = asset['group']
+        current_assets.append(db_asset)
+
+        # attempt to match to medusa assets based on name
+        medusa_asset = Asset.query.filter_by(name=db_asset.name, site=site).first()
+        if db_asset.asset is None and not medusa_asset is None:
+            db_asset.asset = medusa_asset
+
+    # delete non-existent assets
+    for db_asset in set(previous_assets)-set(current_assets):
+        db.session.delete(db_asset)
+
     db.session.commit()
 
-@app.route('/inbuildings')
 # request assets for all sites
-def inbuildings_request_all_sites():
+def request_all_sites():
     for site in Site.query.all():
         inbuildings_asset_request(site)
 
 # raise a new job
 def inbuildings_raise_job(asset, message, priority):
     # setup request parameters
-    key = asset.site.inbuildings_key
-    mode = "equipmentlist"
-    equip_id = str(asset.inbuildings.id)
+    key = asset.site.inbuildings_config.key
+    mode = "raisenewjob"
+    # if an inbuildings asset is linked, use the eid from that
+    if not asset.inbuildings is None:
+        equip_id = str(asset.inbuildings.id)
+    # otherwise stick the asset name in the message
+    else:
+        message = asset.name + ": " + message
     priority_id = str(priority)
     data = {'key': key, 'mode': mode, 'eid': equip_id, 'pid': priority_id, 'body': message}
 
     # send request
     try:
-        resp = inbuildings_request(data)
+        inbuildings_request(data)
     except requests.exceptions.ConnectionError:
         # abort if no connection
         return

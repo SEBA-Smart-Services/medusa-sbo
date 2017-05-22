@@ -8,7 +8,7 @@ class EventHandler():
 
     def handle_result(self, result):
         if self.test_for_notification(result):
-            self.notifier.send_issue(result)
+            self.notifier.issue_notify(result)
 
     def test_priority(self, result):
         return result.priority < max(result.asset.site.email_trigger_priority, result.asset.site.cmms_trigger_priority)

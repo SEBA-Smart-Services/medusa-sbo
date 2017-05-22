@@ -1,6 +1,7 @@
 from app import cmms
 from app.models import EmailTemplate
 from .emailClient import EmailClient
+from app.cmms.controllers import CMMS
 from smtplib import SMTPRecipientsRefused, SMTPDataError
 import os
 
@@ -8,15 +9,7 @@ class Notifier():
 
     def __init__(self):
         self.email_client = EmailClient('medusa@sebbqld.com')
-
-    def send_issue(self, issue):
-        if issue.priority < issue.asset.site.email_trigger_priority:
-            template = EmailTemplate.query.filter_by(name='Alert').one()
-            data = {'asset':issue.asset.name, 'issue':issue.algorithm.descr, 'timestamp':issue.recent_timestamp}
-            for email in issue.asset.site.emails:
-                self.email_client.send_template(template, data, email.address)
-        if issue.priority < issue.asset.site.cmms_trigger_priority:
-            cmms.controllers.send()
+        self.cmms = CMMS()
 
     def issue_notify(self, issue):
         # send email if meets email priority
@@ -35,7 +28,8 @@ class Notifier():
 
     def send_WO(self, issue):
         # send WO through CMMS
-        cmms.controllers.send(issue)
+        if issue.asset.site.inbuildings_config.enabled:
+            self.cmms.raise_job_inbuildings(issue)
 
     # send report to all emails for a site
     def send_mail_report(self, report, site):
