@@ -90,6 +90,7 @@ def inbuildings_raise_job(asset, message, priority):
     # otherwise stick the asset name in the message
     else:
         message = asset.name + ": " + message
+        equip_id = ""
     priority_id = str(priority)
     data = {'key': key, 'mode': mode, 'eid': equip_id, 'pid': priority_id, 'body': message}
 
