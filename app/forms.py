@@ -14,7 +14,6 @@ class SiteConfigForm(FlaskForm):
     inbuildings_key = StringField('Key', validators=[])
     email_list = TextAreaField('Emails', validators=[])
 
-
 class AddSiteForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     db_username = StringField('Username', validators=[])

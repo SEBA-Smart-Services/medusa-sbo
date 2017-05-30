@@ -63,6 +63,9 @@ class UserView(ProtectedView):
 class RoleView(ProtectedView):
     pass
 
+class AlarmView(ProtectedView):
+     column_display_pk = True
+
 admin.add_view(SiteView(Site, db.session))
 admin.add_view(AssetTypeView(AssetType, db.session))
 admin.add_view(FunctionalDescriptorView(FunctionalDescriptor, db.session))
@@ -78,4 +81,4 @@ admin.add_view(UserView(User, db.session))
 admin.add_view(RoleView(Role, db.session))
 admin.add_view(ProtectedView(Weather, db.session))
 admin.add_view(ProtectedView(FunctionalDescriptorCategory, db.session))
-admin.add_view(ProtectedView(Alarm, db.session))
+admin.add_view(AlarmView(Alarm, db.session))

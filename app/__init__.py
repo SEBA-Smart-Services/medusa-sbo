@@ -5,7 +5,7 @@ import os, ast, configparser
 # set up Flask
 app = Flask(__name__)
 
-# choos which part of the config file to load
+# choose which part of the config file to load
 config_file = os.getenv('MEDUSA_CONFIG', '/var/lib/medusa/medusa-development.ini')
 
 # configparser handles everything as strings so some additional conversion work is needed
