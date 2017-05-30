@@ -42,3 +42,20 @@ Deployment of Weasyprint on a new server requires the installation of several pa
 Do:
 sudo apt-get install libxml2-dev libxslt1-dev libffi-dev
 sudo apt-get install python3-lxml python3-cffi libcairo2 libpango1.0-0 libgdk-pixbuf2.0-0 shared-mime-info
+
+## Deploying to production
+on local machine:
+git pull
+git merge origin/sprint_X
+git push
+on prod server:
+git pull
+if changed, copy any .service files to systemd folder
+systemctl stop medusa/medusa-data-importer
+systemctl daemon-reload
+pip install -r requirements.txt in virtualenv for both medusa and medusa-data-importer
+set environmental variable: export MEDUSA_CONFIG=/var/lib/medusa/medusa-production.ini (only applies to this shell session)
+ensure latest config files have been downloaded: systemctl start medusa-config
+in medusa virtualenv:
+    python3 manage.py db upgrade
+systemctl start medusa/medusa-data-importer
