@@ -4,7 +4,7 @@ from sqlalchemy.engine.url import make_url
 from flask import _app_ctx_stack
 from flask_sqlalchemy import SignallingSession
 import sys, datetime
-from .StruxureWareReportsDB import Alarm
+from .StruxureWareReportsDB import Alarm, LogTimeValue, LoggedEntity
 from .users import User, Role, UsersRoles
 
 ###################################
@@ -50,34 +50,6 @@ def shutdown_sessions(exception=None):
     from app import registry
     for session in registry._registry.values():
         session.remove()
-
-
-# trend log values, stored in report server
-class LogTimeValue(db.Model):
-    __tablename__ = 'tbLogTimeValues'
-    datetimestamp = db.Column('DateTimeStamp',db.DateTime)
-    seqno = db.Column('SeqNo',db.BigInteger,primary_key=True)
-    float_value = db.Column('FloatVALUE',db.Float)
-    parent_id = db.Column('ParentID',db.Integer,primary_key=True)
-    odometer_value = db.Column('OdometerValue',db.Float)
-
-# list of trend logs, stored in report server
-class LoggedEntity(db.Model):
-    __tablename__ = 'tbLoggedEntities'
-    id = db.Column('ID',db.Integer,primary_key=True)
-    guid = db.Column('GUID',db.String(50))
-    path = db.Column('Path',db.String(1024))
-    descr = db.Column('Descr',db.String(512))
-    disabled = db.Column('Disabled',db.Boolean)
-    last_mod = db.Column('LastMod',db.DateTime)
-    version = db.Column('Version',db.Integer)
-    type = db.Column('Type',db.String(80))
-    log_point = db.Column('LogPoint',db.String(1024))
-    unit_prefix = db.Column('UNITPREFIX',db.String(512))
-    unit = db.Column('Unit',db.String(512))
-    base_value = db.Column('BaseValue',db.Float)
-    meter_startpoint = db.Column('MeterStartPoint',db.Float)
-    last_read_value = db.Column('LastReadValue',db.Float)
 
 ###################################
 ## abstract models

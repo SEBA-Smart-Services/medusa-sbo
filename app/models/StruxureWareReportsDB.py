@@ -67,13 +67,12 @@ class WebReportsAlarm(db.Model):
 class Alarm(db.Model):
     """
     A replication of site StruxureWareReportsDB.tb.AlarmsEvents table in medusa db
-    with site_id
+    with site_id and medusa_id
 
     """
-
-    __tablename__ = 'alarm'
-
-    id = db.Column('SeqNo', db.BigInteger, primary_key=True)
+    medusa_id = db.Column('Medusa_ID', db.Integer, primary_key=True)
+    site_id = db.Column('site_id', db.Integer, db.ForeignKey('site.ID'), nullable=False)
+    id = db.Column('SeqNo', db.BigInteger)
     MonitoredPoint = db.Column('MonitoredPoint', db.String(1024))
     PreviousAlarmState = db.Column('PreviousAlarmState', db.Integer)
     AlarmState = db.Column('AlarmState', db.Integer)
@@ -111,4 +110,43 @@ class Alarm(db.Model):
     OriginatedGUID = db.Column('OriginatedGUID', db.String(50))
     DateTimeStamp = db.Column('DateTimeStamp', db.DateTime)
 
+
+class LogTimeValue(db.Model):
+    """
+    A replication of site StruxureWareReportsDB.tbLogTimeValues table in medusa db
+    with site_id and medusa_id
+
+    """
+    # __tablename__ = 'tbLogTimeValues'     obsolete since migrating away from webreports
+    medusa_id = db.Column('Medusa_ID', db.Integer, primary_key=True)
     site_id = db.Column('site_id', db.Integer, db.ForeignKey('site.ID'), nullable=False)
+    datetimestamp = db.Column('DateTimeStamp', db.DateTime)
+    seqno = db.Column('SeqNo', db.BigInteger)
+    float_value = db.Column('FloatVALUE', db.Float)
+    parent_id = db.Column('ParentID', db.Integer)
+    odometer_value = db.Column('OdometerValue', db.Float)
+
+# trend logs, as they exist in the struxureware object heirarchy
+class LoggedEntity(db.Model):
+    """
+    A replication of site StruxureWareReportsDB.tbLoggedEntities table in medusa db
+    with site_id and medusa_id
+
+    """
+    # __tablename__ = 'tbLoggedEntities'     obsolete since migrating away from webreports
+    medusa_id = db.Column('Medusa_ID', db.Integer, primary_key=True)
+    site_id = db.Column('site_id', db.Integer, db.ForeignKey('site.ID'), nullable=False)
+    id = db.Column('ID', db.Integer)
+    guid = db.Column('GUID', db.String(50))
+    path = db.Column('Path', db.String(1024))
+    descr = db.Column('Descr', db.String(512))
+    disabled = db.Column('Disabled', db.Boolean)
+    last_mod = db.Column('LastMod', db.DateTime)
+    version = db.Column('Version', db.Integer)
+    type = db.Column('Type', db.String(80))
+    log_point = db.Column('LogPoint', db.String(1024))
+    unit_prefix = db.Column('UNITPREFIX', db.String(512))
+    unit = db.Column('Unit', db.String(512))
+    base_value = db.Column('BaseValue', db.Float)
+    meter_startpoint = db.Column('MeterStartPoint', db.Float)
+    last_read_value = db.Column('LastReadValue', db.Float)
