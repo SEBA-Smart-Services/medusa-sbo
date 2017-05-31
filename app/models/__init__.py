@@ -214,6 +214,8 @@ class Site(db.Model):
     email_trigger_priority = db.Column('Email_trigger_priority', db.Integer, default=0, nullable=False)
     cmms_trigger_priority = db.Column('CMMS_trigger_priority', db.Integer, default=0, nullable=False)
     assets = db.relationship('Asset', backref='site')
+    loggedentities = db.relationship('LoggedEntity', backref='site')
+    logtimevalues = db.relationship('LogTimeValue', backref='site')
     alarms = db.relationship('Alarm', backref='site')
     inbuildings_assets = db.relationship('InbuildingsAsset', backref='site', cascade='save-update, merge, delete, delete-orphan')
     inbuildings_config = db.relationship('InbuildingsConfig', backref='site', uselist=False, cascade='save-update, merge, delete, delete-orphan')

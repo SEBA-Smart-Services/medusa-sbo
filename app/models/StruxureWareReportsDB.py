@@ -70,6 +70,7 @@ class Alarm(db.Model):
     with site_id and medusa_id
 
     """
+
     medusa_id = db.Column('Medusa_ID', db.Integer, primary_key=True)
     site_id = db.Column('site_id', db.Integer, db.ForeignKey('site.ID'), nullable=False)
     id = db.Column('SeqNo', db.BigInteger)

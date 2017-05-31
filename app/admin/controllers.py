@@ -2,7 +2,7 @@ from app import app, db
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_user import current_user
-from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, FunctionalDescriptorCategory, PointType, InbuildingsAsset, Result, EmailTemplate, Email, User, Role, Alarm
+from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, FunctionalDescriptorCategory, PointType, InbuildingsAsset, Result, EmailTemplate, Email, User, Role, Alarm, LoggedEntity, LogTimeValue
 from app.weather.models import Weather
 
 # configuration of views for Admin page
@@ -66,6 +66,12 @@ class RoleView(ProtectedView):
 class AlarmView(ProtectedView):
      column_display_pk = True
 
+class LoggedEntityView(ProtectedView):
+     column_display_pk = True
+
+class LogTimeValueView(ProtectedView):
+     column_display_pk = True
+
 admin.add_view(SiteView(Site, db.session))
 admin.add_view(AssetTypeView(AssetType, db.session))
 admin.add_view(FunctionalDescriptorView(FunctionalDescriptor, db.session))
@@ -82,3 +88,5 @@ admin.add_view(RoleView(Role, db.session))
 admin.add_view(ProtectedView(Weather, db.session))
 admin.add_view(ProtectedView(FunctionalDescriptorCategory, db.session))
 admin.add_view(AlarmView(Alarm, db.session))
+admin.add_view(LoggedEntityView(LoggedEntity, db.session))
+admin.add_view(LogTimeValueView(LogTimeValue, db.session))
