@@ -1,5 +1,6 @@
-## general setup
-required apt-get update before other packages could be installed
+## Initial Setup
+Update the package lists, as some packages need to be installed
+'apt-get update'
 check permissions for /var/www/medusa, /var/lib/medusa folder
 set timezone to brisbane
     sudo ln -sf /usr/share/zoneinfo/Australia/Brisbane /etc/localtime
