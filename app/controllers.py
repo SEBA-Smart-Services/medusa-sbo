@@ -45,25 +45,27 @@ def homepage_all():
 # show overview dashboard
 @app.route('/site/all/dashboard')
 def dashboard_all():
-    results = Result.get_unresolved_by_priority()[0:4]
-    num_results = len(Result.get_unresolved())
+    sites = current_user.sites
+    site_ids = [site.id for site in sites]
+    results = Result.query.join(Result.asset).join(Asset.site).filter((Result.active == True) | (Result.acknowledged == False), Site.id.in_(site_ids)).order_by(Asset.priority.asc()).all()
+    num_results = len(results)
 
-    if not Result.get_unresolved_by_priority():
+    if num_results == 0:
         # there are no issues across any sites. Celebrate!
         top_priority = "-"
     else:
-        top_priority = Result.get_unresolved_by_priority()[0].asset.priority
+        top_priority = results[0].asset.priority
 
-    if len(Asset.query.all()) > 0:
+    if len(Asset.query.join(Asset.site).filter(Site.id.in_(site_ids)).all()) > 0:
         try:
-            avg_health = mean([asset.health for asset in Asset.query.all()])
+            avg_health = mean([asset.health for asset in Asset.query.join(Asset.site).filter(Site.id.in_(site_ids)).all()])
         except TypeError:
             # one of the asset healths is Null
             for asset in Asset.query.all():
                 if asset.health is None:
                     asset.health = 0
             db.session.commit()
-            avg_health = mean([asset.health for asset in Asset.query.all()])
+            avg_health = mean([asset.health for asset in Asset.query.join(Asset.site).filter(Site.id.in_(site_ids)).all()])
 
     else:
         avg_health = 0
@@ -78,13 +80,13 @@ def dashboard_all():
     except Exception as e:
         message = "No data. " + str(e)
 
-    low_health_assets = len(Asset.query.filter(Asset.health < 0.5).all())
-    return render_template('dashboard.html', results=results, num_results=num_results, top_priority=top_priority, avg_health=avg_health, low_health_assets=low_health_assets, allsites=True, alarmcount=nalarms)
+    low_health_assets = len(Asset.query.join(Asset.site).filter(Asset.health < 0.5, Site.id.in_(site_ids)).all())
+    return render_template('dashboard.html', results=results[0:5], num_results=num_results, top_priority=top_priority, avg_health=avg_health, low_health_assets=low_health_assets, allsites=True, alarmcount=nalarms)
 
 # list all sites
 @app.route('/site/all/sites')
 def site_list():
-    sites = Site.query.all()
+    sites = current_user.sites
     issues = {}
     priority = {}
     for site in sites:
@@ -100,13 +102,19 @@ def site_list():
 # list all unresolved issues
 @app.route('/site/all/issues')
 def unresolved_list_all():
-    results = Result.get_unresolved()
+    sites = current_user.sites
+    results = []
+    for site in sites:
+        results.extend(site.get_unresolved())
     return render_template('issues.html', results=results, allsites=True)
 
 # handle update from acknowledging/editing notes of issues for all issues
 @app.route('/site/all/issues/_submit', methods=['POST'])
 def unresolved_issues_submit_all():
-    results = Result.get_unresolved()
+    sites = current_user.sites
+    results = []
+    for site in sites:
+        results.extend(site.get_unresolved())
 
     # unacknowledge all results and set notes field
     for result in results:
@@ -125,7 +133,7 @@ def unresolved_issues_submit_all():
 # display chart of unresolved issues over time
 @app.route('/site/all/issue-chart')
 def unresolved_chart():
-    sites = Site.query.all()
+    sites = current_user.sites
     history = IssueHistoryTimestamp.query.filter(IssueHistoryTimestamp.timestamp > datetime.datetime.now()-datetime.timedelta(hours=24)).all()
 
     # generate array to be converted into chart

@@ -5,7 +5,7 @@ from flask import _app_ctx_stack
 from flask_sqlalchemy import SignallingSession
 import sys, datetime
 from .StruxureWareReportsDB import Alarm, LogTimeValue, LoggedEntity
-from .users import User, Role, UsersRoles
+from .users import User, Role, UsersRoles, UsersSites
 
 ###################################
 ## models in report server database

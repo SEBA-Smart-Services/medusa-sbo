@@ -16,6 +16,8 @@ class User(db.Model, UserMixin):
     # Relationships
     roles = db.relationship('Role', secondary='users_roles',
                             backref=db.backref('users', lazy='dynamic'))
+    sites = db.relationship('Site', secondary='users_sites',
+                            backref=db.backref('users', lazy='dynamic'))
 
     def __repr__(self):
         return self.username
@@ -36,3 +38,9 @@ class UsersRoles(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     user_id = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE'))
     role_id = db.Column(db.Integer(), db.ForeignKey('role.id', ondelete='CASCADE'))
+
+# association between users and sites
+class UsersSites(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    user_id = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE'))
+    site_id = db.Column(db.Integer(), db.ForeignKey('site.ID', ondelete='CASCADE'))
