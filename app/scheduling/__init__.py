@@ -3,6 +3,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import app
 
 # set up scheduler
+# blocking scheduler if it has its own process
+# background scheduler if it's running in the same process as flask
 scheduler = BlockingScheduler()
 backgroundscheduler = BackgroundScheduler()
 

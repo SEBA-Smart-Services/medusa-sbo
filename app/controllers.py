@@ -20,6 +20,7 @@ def check_valid_login():
         not login_valid and
         # check if it's allowed to be public, see public_endpoint decorator
         not getattr(app.view_functions[request.endpoint], 'is_public', False    ) ) :
+        # redirect to login page if they are not authenticated
         return redirect(url_for('user.login'))
 
 # decorator to make pages not require login
@@ -42,11 +43,15 @@ def main():
 def homepage_all():
     return redirect(url_for('dashboard_all'))
 
-# show overview dashboard
+# show overview dashboard. has aggregated info for all the sites that are attached to the currently logged in user
 @app.route('/site/all/dashboard')
 def dashboard_all():
     sites = current_user.sites
+    # sqlalchemy can't do relationship filtering to see if an attribute is in a list of objects (e.g. to see if asset.site is in sites)
+    # instead, we do the filtering on the ids (e.g. to see if asset.site.id is in the list of site ids)
     site_ids = [site.id for site in sites]
+    # get only results that are active or unacknowledged
+    # needs to be joined to the site table to do filtering on the site id
     results = Result.query.join(Result.asset).join(Asset.site).filter((Result.active == True) | (Result.acknowledged == False), Site.id.in_(site_ids)).order_by(Asset.priority.asc()).all()
     num_results = len(results)
 
@@ -56,11 +61,12 @@ def dashboard_all():
     else:
         top_priority = results[0].asset.priority
 
+    # join to site table to allow filtering by site id
     if len(Asset.query.join(Asset.site).filter(Site.id.in_(site_ids)).all()) > 0:
         try:
             avg_health = mean([asset.health for asset in Asset.query.join(Asset.site).filter(Site.id.in_(site_ids)).all()])
         except TypeError:
-            # one of the asset healths is Null
+            # one of the asset healths is Null, so set it to zero
             for asset in Asset.query.all():
                 if asset.health is None:
                     asset.health = 0
@@ -80,10 +86,12 @@ def dashboard_all():
     except Exception as e:
         message = "No data. " + str(e)
 
+    # join to site table to allow filtering by site id
     low_health_assets = len(Asset.query.join(Asset.site).filter(Asset.health < 0.5, Site.id.in_(site_ids)).all())
+    # only send results[0:5], to display the top 5 priority issues in the list
     return render_template('dashboard.html', results=results[0:5], num_results=num_results, top_priority=top_priority, avg_health=avg_health, low_health_assets=low_health_assets, allsites=True, alarmcount=nalarms)
 
-# list all sites
+# list all sites that are attached to the logged in user
 @app.route('/site/all/sites')
 def site_list():
     sites = current_user.sites
@@ -99,7 +107,7 @@ def site_list():
         priority[site.name] = top_priority
     return render_template('sites.html', sites=sites, issues=issues, priority=priority, allsites=True)
 
-# list all unresolved issues
+# list all unresolved issues for the sites attached to the logged in user
 @app.route('/site/all/issues')
 def unresolved_list_all():
     sites = current_user.sites
@@ -121,7 +129,7 @@ def unresolved_issues_submit_all():
         result.acknowledged = False
         result.notes = request.form['notes-' + str(result.id)]
 
-    # acknowledge results as per input
+    # re-acknowledge results as per input
     for result_id in request.form.getlist('acknowledge'):
         result = Result.query.filter_by(id=result_id).one()
         result.acknowledged = True
@@ -137,12 +145,13 @@ def unresolved_chart():
     history = IssueHistoryTimestamp.query.filter(IssueHistoryTimestamp.timestamp > datetime.datetime.now()-datetime.timedelta(hours=24)).all()
 
     # generate array to be converted into chart
-    # header row
+    # currently just builds a string character by character, can probably be done better
+    # header row, contains the x axis label followed by the name of each site
     array = "[['Time',"
     for site in sites:
         array += "'" + site.name + "',"
     array += "],"
-    # data rows
+    # data rows. each row starts with a timestamp, followed by the issue counts for each site at that time
     for timestamp in history:
         array += "[new Date(" + str(date_to_millis(timestamp.timestamp)) + "),"
         for site in sites:
@@ -168,6 +177,7 @@ def map():
     return response
 
 # conversion tool for adding entries to the issue chart
+# necessary to match python date format to javascript date format
 @app.template_filter('date_to_millis')
 def date_to_millis(d):
     """Converts a datetime object to the number of milliseconds since the unix epoch."""
@@ -188,9 +198,11 @@ def add_site():
             return render_template('add_site.html', form=form, allsites=True)
 
         site = Site(name=form.name.data)
+        # generate cmms config object for the new site (currently only inbuildings)
         site.inbuildings_config = InbuildingsConfig(enabled=False, key="")
 
         # convert port input to a string
+        # if blank it will be recorded as 'None', so manually set empty string
         if form.db_port.data is None:
             form.db_port.data = ""
         form.db_port.data = str(form.db_port.data)
@@ -217,6 +229,7 @@ def homepage(sitename):
 @app.route('/site/<sitename>/dashboard')
 def dashboard_site(sitename):
     site = Site.query.filter_by(name=sitename).one()
+    # only show the top 5 issues by priority in the list
     results = site.get_unresolved_by_priority()[0:4]
     num_results = len(site.get_unresolved())
 
@@ -230,7 +243,7 @@ def dashboard_site(sitename):
         try:
             avg_health = mean([asset.health for asset in site.assets])
         except TypeError:
-            # one of the asset healths is Null
+            # one of the asset healths is Null, so fix and set to 0
             for asset in site.assets:
                 if asset.health is None:
                     asset.health = 0
@@ -239,6 +252,7 @@ def dashboard_site(sitename):
     else:
         avg_health = 0
 
+    # count the number of assets with <50% health
     low_health_assets = len(Asset.query.filter(Asset.site == site, Asset.health < 0.5).all())
 
     # get alarms display data
@@ -293,7 +307,7 @@ def unresolved_issues_submit(sitename):
         result.acknowledged = False
         result.notes = request.form['notes-' + str(result.id)]
 
-    # acknowledge results as per input
+    # re-acknowledge results as per input
     for result_id in request.form.getlist('acknowledge'):
         result = Result.query.filter_by(id=result_id).one()
         result.acknowledged = True
@@ -323,7 +337,7 @@ def asset_issues_submit(sitename, asset_id):
         result.acknowledged = False
         result.notes = request.form['notes-' + str(result.id)]
 
-    # acknowledge results as per input
+    # re-acknowledge results as per input
     for result_id in request.form.getlist('acknowledge'):
         result = Result.query.filter_by(id=result_id).one()
         result.acknowledged = True

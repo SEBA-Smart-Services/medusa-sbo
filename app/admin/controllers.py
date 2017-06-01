@@ -12,6 +12,7 @@ from app.weather.models import Weather
 admin = Admin(app)
 
 # view that requires the current user to be authenticated as admin
+# all views should be subclasses of this
 class ProtectedView(ModelView):
     def is_accessible(self):
         return current_user.has_role('admin')
@@ -31,6 +32,7 @@ class AssetPointView(ProtectedView):
 class PointTypeView(ProtectedView):
     form_excluded_columns = ['algorithms']
 
+# lock the algorithm models from being edited - these are automatically generated from the code
 class AlgorithmView(ProtectedView):
     form_excluded_columns = ['results']
     can_create = False
@@ -72,6 +74,7 @@ class LoggedEntityView(ProtectedView):
 class LogTimeValueView(ProtectedView):
      column_display_pk = True
 
+# attach the model views to the admin page
 admin.add_view(SiteView(Site, db.session))
 admin.add_view(AssetTypeView(AssetType, db.session))
 admin.add_view(FunctionalDescriptorView(FunctionalDescriptor, db.session))

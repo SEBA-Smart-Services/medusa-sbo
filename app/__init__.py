@@ -5,7 +5,7 @@ import os, ast, configparser
 # set up Flask
 app = Flask(__name__)
 
-# choose which part of the config file to load
+# choose which part of the config file to load. default to dev config if the environmental var doesn't exist
 config_file = os.getenv('MEDUSA_CONFIG', '/var/lib/medusa/medusa-development.ini')
 
 # configparser handles everything as strings so some additional conversion work is needed
@@ -16,6 +16,7 @@ config.optionxform = str
 config.read(config_file)
 
 # convert the job list to a python dictionary object and load. this is special because it contains \n characters that need removing
+# we do this via literal_eval, i.e. 'True' becomes a python True and '"string"' becomes a python "string"
 app.config['JOBS'] = ast.literal_eval(config['flask']['JOBS'].replace('\n',''))
 config['flask'].pop('JOBS')
 
@@ -23,7 +24,6 @@ config['flask'].pop('JOBS')
 # convert the strings to python objects
 for key in config['flask']:
     app.config[key] = ast.literal_eval(config['flask'][key])
-
 
 # set up database
 db = SQLAlchemy(app)
@@ -53,6 +53,7 @@ bugsnag.configure(
 )
 handle_exceptions(app)
 
+# import the remaining. in particular, all views and models must be imported, as well as anything with a decorator
 # packages
 from app import models, add, admin, cmms, weather, algorithms, reports, scheduling
 # modules

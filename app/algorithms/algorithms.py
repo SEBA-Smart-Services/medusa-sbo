@@ -8,7 +8,10 @@ import random
 from scipy.fftpack import fft
 
 
-# class used to select data
+# class used to select data from a webreports server and present it in a useful format for algorithms
+# instances are specific to each asset
+# functions require you to specify the name of the point type as a string - this can be improved, and will not work
+# if there are multiple of the same type of point
 class DataGrab():
 
     def __init__(self, session, asset):
@@ -54,9 +57,10 @@ class DataGrab():
 # apply all the algorithms against a single asset
 def check_asset(asset):
 
-    # get database session for this asset
+    # get webreports database session for this asset
     session = registry.get(asset.site.db_key)
 
+    # skip all checks if it can't connect
     if not session is None:
         datagrab = DataGrab(session, asset)
 
@@ -64,7 +68,7 @@ def check_asset(asset):
         for result in Result.query.filter_by(asset=asset, recent=True):
             result.recent = False
 
-        # get list of previously active results. result that are still active will be removed from this list
+        # get list of previously active results. result that are still active will be removed from this list as we go
         # the remainder will be set to inactive
         previously_active = set(Result.query.filter_by(asset=asset, active=True).all())
 
@@ -72,6 +76,7 @@ def check_asset(asset):
         algorithms_passed = 0
         t = time.time()
 
+        # run all algorithms that have not been excluded
         for algorithm in set(asset.algorithms) - set(asset.exclusions):
 
             point_list = []
@@ -124,6 +129,7 @@ def check_asset(asset):
 
             print('Asset Health: {}'.format(asset.health))
 
+        # if no algorithms are being run, mark as unhealthy
         else:
             asset.health = 0
         db.session.commit()
@@ -145,6 +151,7 @@ def check_all():
 # dummy class used to access all the algorithm checks
 # 'points_required' specifies which points each algorithm will request data for
 # 'functions_required' specifies the functional descriptors that the algorithm requires to operate
+# these are used when mapping the algorithms to the assets
 class AlgorithmClass():
     points_required = []
     functions_required = []
@@ -377,9 +384,9 @@ class testfunc5(AlgorithmClass):
         return [result, passed]
 
 
-# save the check results
+# save the algorithm results
 def save_result(asset, algorithm, value, passed, point_list):
-    # find existing results that are active
+    # find existing results that are active, or were active and are still unacknowledged
     result = Result.query.filter(Result.asset_id==asset.id, Result.algorithm_id==algorithm.id, (Result.active==True) | (Result.acknowledged==False)).first()
     # note: do not change the acknowledged state, if the result already exists
 
@@ -389,6 +396,7 @@ def save_result(asset, algorithm, value, passed, point_list):
         result.acknowledged = passed
         db.session.add(result)
 
+    # update with details of the algorithm check
     result.recent_timestamp = datetime.datetime.now()
     result.value = value
     result.passed = passed

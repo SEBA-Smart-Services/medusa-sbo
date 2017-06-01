@@ -11,13 +11,13 @@ def edit_asset(sitename, asset_id):
     asset = Asset.query.filter_by(id=asset_id).one()
 
     if request.method == 'GET':
-        # prepopulate form
+        # prepopulate form from asset attributes
         form = EditAssetForm(obj=asset)
 
         # get database session for this site
         session = registry.get(site.db_key)
 
-        # set available logs
+        # grab logs from remote webreports database
         if not session is None:
             logs = session.query(LoggedEntity).filter_by(type='trend.ETLog').all()
             session.close()
@@ -34,7 +34,7 @@ def edit_asset(sitename, asset_id):
             # get database session for this site
             session = registry.get(site.db_key)
 
-            # set available logs
+            # grab logs from remote webreports database
             if not session is None:
                 logs = session.query(LoggedEntity).filter_by(type='trend.ETLog').all()
                 session.close()
@@ -43,20 +43,19 @@ def edit_asset(sitename, asset_id):
 
             return render_template('edit_asset.html', site=site, asset=asset, logs=logs, form=form)
 
-        # set asset attributes
+        # set asset attributes based on form
         form.populate_obj(asset)
 
         # get database session for this site
         session = registry.get(asset.site.db_key)
 
-        # record previous points
+        # record previous points. points that still exist will be removed from this list as we go along
         old_points = list(asset.points)
 
-        # TODO: need a better system of reading in values than string-matching point1 and log1
+        # read in points and their corresponding logs in the same manner as in add_asset
+        # one difference, is that we have to preserve previous points
         # if the point was here previously, it is an input with name prev_pointX and value point.id
         # if it is a new point, it is an input with name pointX and value pointType.name
-        # update points
-        # just guessing that an asset won't have more than 100 points. need a more elegant solution here
         for i in range(1, 100):
             # first check if the point was previously on there
             point_id = request.form.get('prev_point' + str(i))
@@ -88,7 +87,7 @@ def edit_asset(sitename, asset_id):
                         log = session.query(LoggedEntity).filter_by(path=log_path).one()
                         point.loggedentity_id = log.id
 
-        # delete points that have been removed
+        # delete points that no longer exist
         for point in old_points:
             db.session.delete(point)
 
@@ -100,6 +99,9 @@ def edit_asset(sitename, asset_id):
             asset.functions.append(function)
 
         # set excluded algorithms
+        # the database operates via excluding algorithms
+        # however the form only sends through algorithms that are ticked (i.e. included)
+        # therefore subtract the inclusions from the total set of algorithms to get the exclusions
         asset.exclusions.clear()
         inclusions = []
         included_list = request.form.getlist('algorithm')

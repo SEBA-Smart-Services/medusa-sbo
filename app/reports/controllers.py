@@ -3,14 +3,14 @@ from app.models import Site, Asset, Result
 from flask import render_template, url_for, redirect
 from flask_weasyprint import HTML, render_pdf
 
-# provide a page to download a report for a site
+# provide a url to download a report for a site
 @app.route('/site/<sitename>/report')
 def report_page(sitename):
     site = Site.query.filter_by(name=sitename).one()
     html = generate_report_html(site)
     return render_pdf(html)
 
-# provide a page to download a report for a site
+# provide a url to force a site report to be sent out via emails
 @app.route('/site/<sitename>/issues/_send')
 def send_report_trigger(sitename):
     site = Site.query.filter_by(name=sitename).one()
@@ -25,6 +25,7 @@ def generate_report_html(site):
     for asset in assets:
         recent_results[asset] = Result.query.filter_by(asset=asset, recent=True).all()
         unresolved_results[asset] = Result.query.filter(Result.asset==asset, (Result.active == True) | (Result.acknowledged == False)).all()
+    # render as raw html
     html_string = render_template('report.html', assets=assets, site=site, recent_results=recent_results, unresolved_results=unresolved_results)
     return HTML(string=html_string)
 
