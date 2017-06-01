@@ -2,11 +2,9 @@
 
 ## Initial setup
 Update the package lists, as some packages need to be installed
-
 `sudo apt-get update`
 
-Create and set permissions for medusa folders
-
+Create and set permissions for medusa folders and files
 ```
 sudo mkdir /var/www/medusa
 sudo chown www-data:www-data /var/www/medusa
@@ -17,10 +15,12 @@ sudo chmod 775 /var/lib/medusa
 sudo mkdir /var/log/uwsgi
 sudo chown www-data:www-data /var/log/uwsgi
 sudo chmod 775 /var/log/uwsgi
+sudo touch /var/log/uwsgi/medusa.log
+sudo chown www-data:www-data /var/log/uwsgi/medusa.log
+sudo chmod 775 /var/log/uwsgi/medusa.log
 ```
 
 Set timezone to brisbane
-
 `sudo ln -sf /usr/share/zoneinfo/Australia/Brisbane /etc/localtime`
 
 ## Edit linux configuration files
@@ -30,41 +30,58 @@ alias python=python3
 alias pip=pip3
 ```
 
-## Nginx
-sudo apt-get install nginx
-add medusa config file to /etc/nginx/sites-available, edit server_name
-sudo ln -s /etc/nginx/sites-available/medusa /etc/nginx/sites-enabled
+## Download project from Git
+`git clone https://github.com/SEBA-Smart-Services/medusa-sbo.git /var/www/medusa/`
 
-## Git
-sudo git clone https://github.com/SEBA-Smart-Services/medusa-sbo.git /var/www/medusa/
-manually copy /var/www/medusa/config.py
+## Install and configure Nginx
+Install the package
+`sudo apt-get install nginx`
 
-## python pip
-sudo apt-get install python3-dev python3-pip
-sudo apt-get install libmysqlclient-dev
-create virtualenv
-    sudo pip install virtualenv
-    sudo virtualenv -p python3 /var/www/medusa/env
-inside virtualenv:
-    sudo pip install -r requirements.txt
+Add the medusa config file. If necessary, edit server_name to match the url being used
+`cp /var/www/medusa/docs/ec2conf/etc/nginx/sites-available/medusa /etc/nginx/sites-available/medusa`
 
-## uwsgi
-create /var/lib/medusa directory (home for config files)
-create /etc/systemd/system/medusa.service
-create /etc/systemd/system/medusa-config.service
+Symlink the file to enable it
+`sudo ln -s /etc/nginx/sites-available/medusa /etc/nginx/sites-enabled`
 
-## logging
-check permissions on log file at /var/log/uwsgi/medusa.log
-
-## Weasyprint
+## Install Weasyprint requirements
 Weasyprint is used for generating PDF reports.
 
 Deployment of Weasyprint on a new server requires the installation of several packages via apt-get, as well as standard pip install. Documentation for this install can be found here: http://weasyprint.readthedocs.io/en/latest/install.html
-Do:
+
+For ubuntu 16.04 LTS:
+```
 sudo apt-get install libxml2-dev libxslt1-dev libffi-dev
 sudo apt-get install python3-lxml python3-cffi libcairo2 libpango1.0-0 libgdk-pixbuf2.0-0 shared-mime-info
+```
 
-## Deploying to production
+## Install pip and download modules
+Download packages for pip
+```
+sudo apt-get install python3-dev python3-pip
+sudo apt-get install libmysqlclient-dev
+```
+
+Create a virtualenv
+```
+sudo pip install virtualenv
+sudo virtualenv -p python3 /var/www/medusa/env
+```
+
+Activate virtualenv and download modules
+```
+source /var/www/medusa/env/bin/activate
+pip install -r requirements.txt
+```
+
+## Configure services
+Medusa uses a primary service that runs uWSGI, and a secondary service to download an updated config file from S3.
+```
+sudo cp /var/www/medusa/docs/ec2conf/etc/systemd/system/medusa.service /etc/systemd/system/medusa.service
+sudo cp /var/www/medusa/docs/ec2conf/etc/systemd/system/medusa-config.service /etc/systemd/system/medusa-config.service
+
+```
+
+# Deploying to production
 on local machine:
 git pull
 git merge origin/sprint_X
