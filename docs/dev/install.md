@@ -1,16 +1,34 @@
-## Initial Setup
+# First Time Install
+
+## Initial setup
 Update the package lists, as some packages need to be installed
 
-`apt-get update`
+`sudo apt-get update`
 
-check permissions for /var/www/medusa, /var/lib/medusa folder
-set timezone to brisbane
-    sudo ln -sf /usr/share/zoneinfo/Australia/Brisbane /etc/localtime
+Create and set permissions for medusa folders
 
-## configuration files
-in .bashrc:
-    alias python=python3
-    alias pip=pip3
+```
+sudo mkdir /var/www/medusa
+sudo chown www-data:www-data /var/www/medusa
+sudo chmod 775 /var/www/medusa
+sudo mkdir /var/lib/medusa
+sudo chown www-data:www-data /var/lib/medusa
+sudo chmod 775 /var/lib/medusa
+sudo mkdir /var/log/uwsgi
+sudo chown www-data:www-data /var/log/uwsgi
+sudo chmod 775 /var/log/uwsgi
+```
+
+Set timezone to brisbane
+
+`sudo ln -sf /usr/share/zoneinfo/Australia/Brisbane /etc/localtime`
+
+## Edit linux configuration files
+Add to .bashrc:
+```
+alias python=python3
+alias pip=pip3
+```
 
 ## Nginx
 sudo apt-get install nginx
