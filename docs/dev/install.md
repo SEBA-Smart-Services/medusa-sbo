@@ -2,7 +2,9 @@
 
 ## Initial setup
 Update the package lists, as some packages need to be installed
-`sudo apt-get update`
+```
+sudo apt-get update
+```
 
 Create and set permissions for medusa folders and files
 ```
@@ -21,7 +23,9 @@ sudo chmod 775 /var/log/uwsgi/medusa.log
 ```
 
 Set timezone to brisbane
-`sudo ln -sf /usr/share/zoneinfo/Australia/Brisbane /etc/localtime`
+```
+sudo ln -sf /usr/share/zoneinfo/Australia/Brisbane /etc/localtime
+```
 
 ## Edit linux configuration files
 Add to .bashrc:
@@ -31,17 +35,25 @@ alias pip=pip3
 ```
 
 ## Download project from Git
-`git clone https://github.com/SEBA-Smart-Services/medusa-sbo.git /var/www/medusa/`
+```
+git clone https://github.com/SEBA-Smart-Services/medusa-sbo.git /var/www/medusa/
+```
 
 ## Install and configure Nginx
 Install the package
-`sudo apt-get install nginx`
+```
+sudo apt-get install nginx
+```
 
 Add the medusa config file. If necessary, edit server_name to match the url being used
-`cp /var/www/medusa/docs/ec2conf/etc/nginx/sites-available/medusa /etc/nginx/sites-available/medusa`
+```
+cp /var/www/medusa/docs/ec2conf/etc/nginx/sites-available/medusa /etc/nginx/sites-available/medusa
+```
 
 Symlink the file to enable it
-`sudo ln -s /etc/nginx/sites-available/medusa /etc/nginx/sites-enabled`
+```
+sudo ln -s /etc/nginx/sites-available/medusa /etc/nginx/sites-enabled
+```
 
 ## Install Weasyprint requirements
 Weasyprint is used for generating PDF reports.
@@ -70,7 +82,7 @@ sudo virtualenv -p python3 /var/www/medusa/env
 Activate virtualenv and download modules
 ```
 source /var/www/medusa/env/bin/activate
-pip install -r requirements.txt
+pip install -r /var/www/medusa/requirements.txt
 ```
 
 ## Configure services
@@ -82,18 +94,51 @@ sudo cp /var/www/medusa/docs/ec2conf/etc/systemd/system/medusa-config.service /e
 ```
 
 # Deploying to production
-on local machine:
+On a non-production machine, merge the latest sprint into the master branch
+```
+cd /var/www/medusa
 git pull
 git merge origin/sprint_X
 git push
-on prod server:
+```
+
+On the production server, stop all running services
+```
+sudo systemctl stop medusa
+sudo systemctl stop medusa-data-importer
+```
+
+Pull from git
+```
 git pull
-if changed, copy any .service files to systemd folder
-systemctl stop medusa/medusa-data-importer
-systemctl daemon-reload
-pip install -r requirements.txt in virtualenv for both medusa and medusa-data-importer
-set environmental variable: export MEDUSA_CONFIG=/var/lib/medusa/medusa-production.ini (only applies to this shell session)
-ensure latest config files have been downloaded: systemctl start medusa-config
-in medusa virtualenv:
-    python3 manage.py db upgrade
-systemctl start medusa/medusa-data-importer
+```
+
+If any .service files have been updated, copy them over and reload systemd, e.g:
+```
+sudo cp docs/ec2conf/etc/systemd/system/medusa.service /etc/systemd/system/medusa.service
+sudo systemctl daemon-reload
+```
+
+Update pip requirements
+```
+source env/bin/activate
+pip install -r requirements.txt
+```
+
+Ensure you have the latest config files (for the next step)
+```
+sudo systemctl start medusa-config
+```
+
+Migrate the database. Normally the path to the config file is provided in an environmental variable in the uWSGI service.
+Since we are doing it manually here, we must provide the env var ourself (only applies to this shell session).
+```
+export MEDUSA_CONFIG=/var/lib/medusa/medusa-production.ini
+python manage.py db upgrade
+```
+
+Restart services
+```
+sudo systemctl start medusa
+sudo systemctl start medusa-data-importer
+```
