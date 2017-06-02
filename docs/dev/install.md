@@ -110,6 +110,7 @@ sudo systemctl stop medusa-data-importer
 
 Pull from git
 ```
+cd /var/www/medusa
 git pull
 ```
 
