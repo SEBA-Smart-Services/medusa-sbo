@@ -137,6 +137,8 @@ Since we are doing it manually here, we must provide the env var ourself (only a
 export MEDUSA_CONFIG=/var/lib/medusa/medusa-production.ini
 python manage.py db upgrade
 ```
+If the upgrade hangs for more than 5 minutes, try restarting the RDS instance in AWS and the running the command again.
+Don't manually abort the upgrade process, but let it self-abort. Otherwise you run the risk of the migration files getting out of sync.
 
 Restart services
 ```
