@@ -5,7 +5,9 @@
 
 ### Developer docs
 - [Overview of software architecture](dev/architecture.md)
+- [Version control](dev/versioncontrol.md)
 - [Install and configure medusa server](dev/install.md)
+- [Styling](dev/styling.md)
 - [Email configuration](dev/email.md)
 
 ### Support or Contact
