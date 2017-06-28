@@ -1,7 +1,7 @@
 # Medusa architecture
 
 ## Technology
-The Medusa application currently has the following characteristics:
+The Medusa application stack currently has the following characteristics:
 - runs on [AWS EC2](https://aws.amazon.com/ec2/) instance (Ubuntu server)
 - is served on an [nginx](https://nginx.org/en/) web server
 - reverse proxied to nginx using [uwsgi](https://uwsgi-docs.readthedocs.io/en/latest/)
