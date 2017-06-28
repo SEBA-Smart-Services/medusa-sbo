@@ -11,6 +11,8 @@ The Medusa application currently has the following characteristics:
 - models data using [SQLALchemy](https://www.sqlalchemy.org/)
 - data lives in a [MySQL](https://www.mysql.com/) instance running on [AWS RDS](https://aws.amazon.com/rds/)
 
+![Image of software architecture, revision 0.3](software_architectureR0.3.jpg)
+
 ## File system:
 - Medusa app lives in `/var/www/medusa`
 - Configuration files live in `/var/lib/medusa`. Configuration is loaded from an [S3 bucket](https://aws.amazon.com/s3/) when the `Medusa` systemd service
