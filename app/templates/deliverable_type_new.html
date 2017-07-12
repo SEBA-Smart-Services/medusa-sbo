@@ -1,0 +1,22 @@
+{% extends "layout-empty.html" %}
+{% block content %}
+  <div style="width: 80%; margin: auto">
+    <h3>New Deliverable Type</h3>
+
+    <br>
+
+    <div>
+      <form action="/deliverable_type/new" method="POST">
+        <input type="text" name="type_name" placeholder="Deliverable Type Name" required class="mdl-textfield__input">
+        <br>
+        <input type="text" name="type_description" placeholder="Give a description of the delivable type" required class="mdl-textfield__input">
+        <br>
+
+        <br>
+        <input type="submit" value="Create deliverable type" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+      </form>
+      <br>
+    </div>
+</div>
+
+{% endblock %}

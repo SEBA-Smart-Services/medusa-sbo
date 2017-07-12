@@ -5,10 +5,19 @@ from app.cmms.controllers import CMMS
 from smtplib import SMTPRecipientsRefused, SMTPDataError
 import os
 
+#create pathway to config
+mydir = os.path.dirname(os.path.abspath(__file__))
+new_path = os.path.join(mydir, '..', '..', 'config.txt')
+
+import configparser
+config = configparser.ConfigParser()
+config.read(new_path)
+notify_email = config.get("emails","notify_email")
+
 class Notifier():
 
     def __init__(self):
-        self.email_client = EmailClient('medusa@sebbqld.com')
+        self.email_client = EmailClient(notify_email)
         self.cmms = CMMS()
 
     def issue_notify(self, issue):

@@ -13,7 +13,8 @@
     <tbody>
       {% for site in sites %}
         <tr>
-          <td class="mdl-data-table__cell--non-numeric"><a href="/site/{{site.name}}">{{site.name}}</a></th>
+          <td class="mdl-data-table__cell--non-numeric">
+            <a href="/site/{{site.name}}">{{site.name}}</a></th>
           <td>{{site.assets|length}}</td>
           <td>{{issues[site.name]}}</td>
           <td>{{priority[site.name]}}</td>

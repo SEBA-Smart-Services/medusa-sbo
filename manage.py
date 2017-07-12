@@ -21,6 +21,13 @@ manager = Manager(app)
 
 manager.add_command('db', MigrateCommand)
 
+#need to keep passwords secure
+import configparser
+
+#read in config.txt file
+config = configparser.ConfigParser()
+config.read("/config.txt")
+
 # initial data for regenerating database
 # note: this hasn't been updated for a long time, is probably out of date
 # some asset types
@@ -63,10 +70,11 @@ roles = [
 
 test_asset_name = 'Test AHU'
 admin_user = 'sebb'
+#admin_pw = config.get("configurations","password")
 admin_pw = 'Schn3!d3r1'
 test_user = 'user'
+#test_pw = config.get("configurations","password")
 test_pw = 'Schn3!d3r1'
-
 
 # drop all data and tables in database and regenerate it from scratch
 @manager.command

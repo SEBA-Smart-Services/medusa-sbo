@@ -1,6 +1,7 @@
 from app import app, db, registry
 from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, PointType, Result, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp, InbuildingsConfig, Email
 from app.models import Alarm
+from app.models.ITP import Project, ITP, Deliverable, Location, Deliverable_type
 from app.forms import SiteConfigForm, AddSiteForm
 from flask import json, request, render_template, url_for, redirect, jsonify, flash, make_response
 from flask_user import current_user
@@ -36,12 +37,12 @@ def public_endpoint(function):
 # default path
 @app.route('/')
 def main():
-    return redirect(url_for('homepage_all'))
-
-# set homepage for overall view
-@app.route('/site/all')
-def homepage_all():
     return redirect(url_for('dashboard_all'))
+
+# set homepage for overall view (Not sure why this is needed?)
+#@app.route('/site/all')
+#def homepage_all():
+#    return redirect(url_for('dashboard_all'))
 
 # show overview dashboard. has aggregated info for all the sites that are attached to the currently logged in user
 @app.route('/site/all/dashboard')
@@ -172,8 +173,6 @@ def unresolved_chart():
 def map():
     # TODO: figure out how to auto sign into the inbuildings page. Attempt at cookies below doesn't work
     response = make_response(render_template('map.html', allsites=True))
-    response.set_cookie('ARRAffinity', 'd5fb9e944f8abbefd6bc0a9a39c159ffc6fbb4084e000bed662582769266cb00', domain='.inbuildings.info')
-    response.set_cookie('PHPSESSID', 'pudr7sj47olg948h1ollv8vrv7', domain='inbuildings.info')
     return response
 
 # conversion tool for adding entries to the issue chart
@@ -457,3 +456,361 @@ def return_alarms(sitename):
         nalarms=nalarms,
 	    rows=nalarms
     )
+
+
+################################################################################
+########################## controllers for ITP routes###########################
+################################################################################
+
+##################### Project navigation controllers ###########################
+
+#Route for all Projects for a given site
+#projects need to filter on site_id and then loop to create a list of projects to send to view
+#in table maybe add a ITP tab to go straight to ITPs
+@app.route('/site/<sitename>/projects')
+def site_projects_list(sitename):
+    site = Site.query.filter_by(name=sitename).one()
+    #site_projects = Project.query.filter_by(site_id = site.id).all()
+    projects = []
+    for i in Project.query.all():
+        projects.append(i)
+
+    return render_template('site_projects_list.html', site=site, projects=projects)
+
+#Route for individual Project for a given Site
+@app.route('/site/<sitename>/projects/<projectname>')
+def site_project(sitename, projectname):
+    site = Site.query.filter_by(name=sitename).one()
+    project = Project.query.filter_by(name=projectname).one()
+    project_ITP = ITP.query.filter_by(project_id=project.id).one()
+    return render_template('site_project.html', site=site, project=project, ITP=project_ITP)
+
+#Route for creating a new Project for a given Site
+#add in __init__ to schema so the variables can just be passed to the new Project
+#including site_id
+@app.route('/site/<sitename>/projects/new', methods=['POST','GET'])
+def site_project_new(sitename):
+    site = Site.query.filter_by(name=sitename).one()
+
+    if request.method == 'POST':
+        project_name = request.form['project_name']
+        description = request.form['project_description']
+        new_site = Project()
+        new_site.name = project_name
+        db.session.add(new_site)
+        db.session.commit()
+        return redirect(url_for('site_projects_list', sitename=site))
+    else:
+        return render_template('site_project_new.html', site=site)
+
+#Route for editing a current project
+@app.route('/site/<sitename>/projects/<projectname>/edit', methods=['POST','GET'])
+def site_project_edit(sitename, projectname):
+    site = Site.query.filter_by(name=sitename).one()
+    project = Project.query.filter_by(name=projectname).one()
+
+    if request.method == 'POST':
+        project_name = request.form['project_name']
+        if (project_name != "" and project_name != project.name):
+            project.name = project_name
+        description = request.form['project_description']
+        #if (description != "" and request.form['project_description'] == project.description):
+        #    description = request.form['project_description']
+        db.session.commit()
+        return redirect(url_for('site_projects_list', sitename=site))
+    else:
+        return render_template('site_project_edit.html', site=site, project=project)
+
+#Route for deleting a current project
+@app.route('/site/<sitename>/projects/<projectname>/delete', methods=['POST','GET'])
+def site_project_delete(sitename, projectname):
+    site = Site.query.filter_by(name=sitename).one()
+    project = Project.query.filter_by(name=projectname).one()
+
+    if request.method == 'POST':
+        db.session.delete(project)
+        db.session.commit()
+        return redirect(url_for('site_projects_list', sitename=site))
+    else:
+        return render_template('site_project_delete.html', site=site, project=project)
+
+############################ ITP navigation controllers ########################
+
+#Route for ITP list
+#filter project on site_id aswell to ensure there is no overlap
+#@app.route('/site/<sitename>/projects/<projectname>/ITP')
+#def site_project_ITP_list(sitename, projectname):
+#    site = Site.query.filter_by(name=sitename).one()
+#    project = Project.query.filter_by(name=projectname).one()
+#    ITPs = ITP.query.filter_by(project_id=project.id).all()
+#
+#    return render_template('project_ITP_list.html', site=site, project=project, ITPs=ITPs)
+
+#Route for details on ITP for project
+@app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>')
+def site_project_ITP(sitename, projectname, ITPname):
+    site = Site.query.filter_by(name=sitename).one()
+    project = Project.query.filter_by(name=projectname).one()
+    project_ITP = ITP.query.filter_by(name=ITPname).one()
+
+    return render_template('project_ITP.html', site=site, project=project, ITP=project_ITP)
+
+#Route for creating new ITP
+@app.route('/site/<sitename>/projects/<projectname>/ITP/new', methods=['POST','GET'])
+def site_project_ITP_new(sitename, projectname):
+    site = Site.query.filter_by(name=sitename).one()
+    project = Project.query.filter_by(name=projectname).one()
+
+    if request.method == 'POST':
+        ITP_name = request.form['ITP_name']
+        new_ITP = ITP()
+        new_ITP.name = ITP_name
+        new_ITP.project_id = project.id
+        db.session.add(new_ITP)
+        db.session.commit()
+        return redirect(url_for('site_project_ITP_list', sitename=site, projectname=project.name))
+    else:
+        return render_template('project_ITP_new.html', site=site, project=project)
+
+#Route for editing a current ITP
+@app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/edit', methods=['POST','GET'])
+def site_project_ITP_edit(sitename, projectname, ITPname):
+    site = Site.query.filter_by(name=sitename).one()
+    project = Project.query.filter_by(name=projectname).one()
+    project_ITP = ITP.query.filter_by(name=ITPname).one()
+
+    if request.method == 'POST':
+        ITP_name = request.form['ITP_name']
+        if (ITP_name != "" and ITP_name != project_ITP.name):
+            project_ITP.name = ITP_name
+        description = request.form['ITP_description']
+        #if (description != "" and request.form['project_description'] == project.description):
+        #    description = request.form['project_description']
+        db.session.commit()
+        return redirect(url_for('site_project_ITP_list', sitename=site, projectname=project.name))
+    else:
+        return render_template('project_ITP_edit.html', site=site, project=project, ITP=project_ITP)
+
+#Route for deleting a current ITP
+@app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/delete', methods=['POST','GET'])
+def site_project_ITP_delete(sitename, projectname, ITPname):
+    site = Site.query.filter_by(name=sitename).one()
+    project = Project.query.filter_by(name=projectname).one()
+    project_ITP = ITP.query.filter_by(name=ITPname).one()
+
+    if request.method == 'POST':
+        db.session.delete(project_ITP)
+        db.session.commit()
+        return redirect(url_for('site_project_ITP_list', sitename=site, projectname=project.name))
+    else:
+        return render_template('project_ITP_delete.html', site=site, project=project, ITP=project_ITP)
+
+################### deliverable type navigation controllers ####################
+
+#Route for list of deliverable_types
+#@app.route('/deliverable_type')
+#def deliverable_type_list():
+#    types = Deliverable_type.query.all()
+#
+#    return render_template('deliverable_type.html', types=types, allsites=True)
+
+#Route for creating new deliverable_type
+#@app.route('/deliverable_type/new', methods=['POST','GET'])
+#def deliverable_type_new():
+#    all_deliverable_types = Deliverable_type.query.all()
+
+#    if request.method == 'POST':
+#        type_name = request.form['type_name']
+        #ensure deliverable doesnt already exsist
+
+#        if len(Deliverable_type.query.filter_by(name=type_name).all()) == 0:
+#            deliverable_type = Deliverable_type()
+#            deliverable_type.name = type_name
+#            db.session.add(deliverable_type)
+#            db.session.commit()
+#            return redirect(url_for('deliverable_type_list'))
+        #could do DOM event to point out that it already exsists
+#        return render_template('deliverable_type_new.html', allsites=True)
+#    else:
+#        return render_template('deliverable_type_new.html', allsites=True)
+
+#Route for editing a current deliverable
+#@app.route('/deliverable_type/<deliverabletypename>/edit', methods=['POST','GET'])
+#def deliverable_type_edit(deliverabletypename):
+#    deliverable_type = Deliverable_type.query.filter_by(name=deliverabletypename).one()
+
+#    if request.method == 'POST':
+#        deliverable_type_name = request.form['type_name']
+#        if (deliverable_type_name != "" and deliverable_type_name != deliverable_type.name):
+#            deliverable_type.name = deliverable_type_name
+#        description = request.form['type_description']
+        #if (description != "" and request.form['project_description'] == project.description):
+        #    description = request.form['project_description']
+#        db.session.commit()
+#        return redirect(url_for('deliverable_type_list'))
+#    else:
+#        return render_template('deliverable_type_edit.html', deliverable_type=deliverable_type, allsites=True)
+
+#Route for deleting a current deliverable
+#@app.route('/deliverable_type/<deliverabletypename>/delete', methods=['POST','GET'])
+#def deliverable_type_delete(deliverabletypename):
+#    deliverable_type = Deliverable_type.query.filter_by(name=deliverabletypename).one()
+
+#    if request.method == 'POST':
+#        db.session.delete(deliverable_type)
+#        db.session.commit()
+#        return redirect(url_for('deliverable_type_list'))
+#    else:
+#        return render_template('deliverable_type_delete.html', deliverable_type=deliverable_type, allsites=True)
+
+
+
+####################### location navigation controllers ########################
+
+#Route for locations
+#@app.route('/locations')
+#def location_list():
+#    locations = Location.query.all()
+#    return render_template('location.html', locations=locations, allsites=True)
+
+#Route for creating new locations
+#@app.route('/locations/new', methods=['POST','GET'])
+#def location_new():
+#    all_locations = Location.query.all()
+
+#    if request.method == 'POST':
+#        location_name = request.form['location_name']
+
+        #ensure location doesnt already exist
+#        if len(Location.query.filter_by(name=location_name).all()) == 0:
+#            location = Location()
+#            location.name = location_name
+#            db.session.add(location)
+#            db.session.commit()
+#            return redirect(url_for('location_list'))
+        #could do DOM event to point out that it already exsists?
+#        return render_template('location_new.html', allsites=True)
+#    else:
+#        return render_template('location_new.html', allsites=True)
+
+#Route for editing current locations
+#@app.route('/locations/<locationname>/edit', methods=['POST','GET'])
+#def location_edit(locationname):
+#    location = Location.query.filter_by(name=locationname).one()
+
+#    if request.method == 'POST':
+#        location_name = request.form['location_name']
+#        if (location_name != "" and location_name != location.name):
+#            location.name = location_name
+#        description = request.form['location_description']
+        #if (description != "" and request.form['project_description'] == project.description):
+        #    description = request.form['project_description']
+#        db.session.commit()
+#        return redirect(url_for('location_list'))
+#    else:
+#        return render_template('location_edit.html', location=location, allsites=True)
+
+#Route for editing current locations
+#@app.route('/locations/<locationname>/delete', methods=['POST','GET'])
+#def location_delete(locationname):
+#    location = Location.query.filter_by(name=locationname).one()
+
+#    if request.method == 'POST':
+#        db.session.delete(location)
+#        db.session.commit()
+#        return redirect(url_for('location_list'))
+#    else:
+#        return render_template('location_delete.html', location=location, allsites=True)
+
+
+###################### deliverable navigation controllers ######################
+#maybe have section for new deliverable type and location creation?
+#regex search for names (case insensitive) if not found add to list
+
+#Route for deliverable list
+@app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable')
+def site_project_ITP_deliverable_list(sitename, projectname, ITPname):
+    site = Site.query.filter_by(name=sitename).one()
+    project = Project.query.filter_by(name=projectname).one()
+    project_ITP = ITP.query.filter_by(name=ITPname).one()
+    deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id).all()
+
+    return render_template('ITP_deliverable_list.html', site=site, project=project, ITP=project_ITP, deliverables=deliverables)
+
+#Route for deliverable
+@app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>')
+def site_project_ITP_deliverable(sitename, projectname, ITPname, deliverablename):
+    site = Site.query.filter_by(name=sitename).one()
+    project = Project.query.filter_by(name=projectname).one()
+    project_ITP = ITP.query.filter_by(name=ITPname).one()
+    deliverable = Deliverable.query.filter_by(name=deliverablename).one()
+
+    return render_template('ITP_deliverable.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable)
+
+#Route for new deliverable
+@app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/new', methods=['POST','GET'])
+def site_project_ITP_deliverable_new(sitename, projectname, ITPname):
+    site = Site.query.filter_by(name=sitename).one()
+    project = Project.query.filter_by(name=projectname).one()
+    project_ITP = ITP.query.filter_by(name=ITPname).one()
+    deliverable_types = Deliverable_type.query.all()
+    locations = Location.query.all()
+
+    print(locations)
+
+    if request.method == 'POST':
+        name = request.form['deliverable_name']
+        location = request.form['deliverable_location']
+        deliverable_type = request.form['deliverable_type']
+        deliverable = Deliverable()
+        deliverable.name = name
+        deliverable.deliverable_type_id = Deliverable_type.query.filter_by(name=deliverable_type).one().id
+        deliverable.location_id = Location.query.filter_by(name=location).one().id
+        deliverable.ITP_id = project_ITP.id
+        db.session.add(deliverable)
+        db.session.commit()
+        return redirect(url_for('site_project_ITP_deliverable_list', sitename=site, projectname=project.name, ITPname= project_ITP.name))
+    else:
+        return render_template('ITP_deliverable_new.html', site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations)
+
+#Route for editing a current ITP
+@app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/edit', methods=['POST','GET'])
+def site_project_ITP_deliverable_edit(sitename, projectname, ITPname, deliverablename):
+    site = Site.query.filter_by(name=sitename).one()
+    project = Project.query.filter_by(name=projectname).one()
+    project_ITP = ITP.query.filter_by(name=ITPname).one()
+    deliverable = Deliverable_type.query.filter_by(name=deliverablename).one()
+    deliverable_types = Deliverable_type.query.all()
+    locations = Location.query.all()
+
+    if request.method == 'POST':
+        deliverable_name = request.form['deliverable_name']
+        if (deliverable_name != "" and deliverable_name != deliverable.name):
+            deliverable.name = deliverable_name
+        description = request.form['deliverable_description']
+        #if (description != "" and request.form['project_description'] == project.description):
+        #    description = request.form['project_description']
+        db.session.commit()
+        return redirect(url_for('site_project_ITP_deliverable_list', sitename=site, projectname=projectname.name, ITPname=project_ITP.name))
+    else:
+        return render_template('ITP_deliverable_edit.html', site=site, project=project, ITP=project_ITP, types=deliverable_list, locations=locations, deliverable=deliverable)
+
+#Route for deleting a current ITP
+@app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/delete', methods=['POST','GET'])
+def site_project_ITP_deliverable_delete(sitename, projectname, ITPname, deliverablename):
+    site = Site.query.filter_by(name=sitename).one()
+    project = Project.query.filter_by(name=projectname).one()
+    project_ITP = ITP.query.filter_by(name=ITPname).one()
+    deliverable = Deliverable_type.query.filter_by(name=deliverablename).one()
+
+    if request.method == 'POST':
+        db.session.delete(deliverable)
+        db.session.commit()
+        return redirect(url_for('site_project_ITP_deliverable_list', sitename=site, projectname=project.name, ITPname=project_ITP.name))
+    else:
+        return render_template('ITP_deliverable_delete.html', site=site, project=project, ITP=project_ITP)
+
+############################ ITC navigation controllers ########################
+
+
+#Route for checks list

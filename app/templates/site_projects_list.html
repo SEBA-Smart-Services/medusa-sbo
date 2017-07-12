@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h3>Projects</h3>
+
+  <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+    <thead>
+      <tr>
+        <th class="mdl-data-table__cell--non-numeric">Name</th>
+        <th class="mdl-data-table__cell--non-numeric">Description</th>
+        <th class="mdl-data-table__cell--non-numeric">Status</th>
+        <th class="mdl-data-table__cell--non-numeric">Completed?</th>
+        <th class="mdl-data-table__cell--non-numeric"></th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for project in projects %}
+      <tr>
+        <td class="mdl-data-table__cell--non-numeric">
+          <a href="/site/{{site.name}}/projects/{{project.name}}">{{project.name}}</a></th>
+        <td class="mdl-data-table__cell--non-numeric">{{project.name}}</td>
+        <td class="mdl-data-table__cell--non-numeric">{{project.name}}</td>
+        <td class="mdl-data-table__cell--non-numeric">{{project.name}}</td>
+        <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
+          <a href="/site/{{site.name}}/projects/{{project.name}}/edit">
+            Edit
+          </a>/
+          <a href="/site/{{site.name}}/projects/{{project.name}}/delete">
+            Delete
+          </a>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <br>
+  <div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--6-col">
+      <form action="/site/{{site.name}}">
+        <input type="submit" value="Back" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        </input>
+      </form>
+    </div>
+
+    <div class="mdl-cell mdl-cell--6-col" style="right:0; position:fixed;">
+      <form action="/site/{{site.name}}/projects/new">
+        <input type="submit" value="New Project" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        </input>
+      </form>
+    </div>
+  </div>
+
+
+{% endblock %}

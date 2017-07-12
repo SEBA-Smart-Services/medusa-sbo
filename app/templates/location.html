@@ -1,0 +1,45 @@
+{% extends "layout-empty.html" %}
+{% block content %}
+  <div style="width: 80%; margin: auto">
+    <h3>Current Locations</h3>
+
+    <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+      <thead>
+        <tr>
+          <th class="mdl-data-table__cell--non-numeric">Name</th>
+          <th class="mdl-data-table__cell--non-numeric">Description</th>
+          <th class="mdl-data-table__cell--non-numeric">edit</th>
+          <th class="mdl-data-table__cell--non-numeric">delete</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for location in locations %}
+        <tr>
+          <td class="mdl-data-table__cell--non-numeric">{{location.name}}</th>
+          <td class="mdl-data-table__cell--non-numeric">{{location.name}}</td>
+          <td class="mdl-data-table__cell--non-numeric" style="width:5%">
+            <a href="/locations/{{location.name}}/edit">
+              edit
+            </a>
+          </td>
+          <td class="mdl-data-table__cell--non-numeric" style="width:5%">
+            <a href="/locations/{{location.name}}/delete">
+              delete
+            </a>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+
+    <br>
+    <br>
+
+    <form action="/locations/new">
+      <input type="submit" value="New Location" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+      </input>
+    </form>
+  </div>
+
+
+{% endblock %}

@@ -4,6 +4,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_user import current_user
 from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, FunctionalDescriptorCategory, PointType, InbuildingsAsset, Result, EmailTemplate, Email, User, Role, Alarm, LoggedEntity, LogTimeValue
 from app.weather.models import Weather
+from app.models.ITP import Deliverable_type, Location
 
 # configuration of views for Admin page
 # some columns (eg results) are excluded, since it tries to load and display >10,000 entries and crashes the page
@@ -74,6 +75,12 @@ class LoggedEntityView(ProtectedView):
 class LogTimeValueView(ProtectedView):
      column_display_pk = True
 
+class DeliverableTypeView(ProtectedView):
+    column_display_pk = True
+
+class LocationView(ProtectedView):
+    column_display_pk = True
+
 # attach the model views to the admin page
 admin.add_view(SiteView(Site, db.session))
 admin.add_view(AssetTypeView(AssetType, db.session))
@@ -93,3 +100,5 @@ admin.add_view(ProtectedView(FunctionalDescriptorCategory, db.session))
 admin.add_view(AlarmView(Alarm, db.session))
 admin.add_view(LoggedEntityView(LoggedEntity, db.session))
 admin.add_view(LogTimeValueView(LogTimeValue, db.session))
+admin.add_view(DeliverableTypeView(Deliverable_type, db.session))
+admin.add_view(LocationView(Location, db.session))

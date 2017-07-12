@@ -17,14 +17,18 @@
       </div>
 
       <div class="mdl-cell mdl-cell--6-col mdl-shadow--4dp mdl-typography--text-center">
-        <div class="mdl-card__title"><h2 class="mdl-card__title-text">Average asset health</h2></div>
-        <svg width="200px" height="200px" viewBox="0 0 1 1">
-          <g id="piechart">
-            <circle cx=0.5 cy=0.5 r=0.44 stroke="blue" stroke-width="0.09" stroke-dasharray="2.5" stroke-dashoffset="{{2.5-avg_health*2.5}}" fill="none" transform='rotate(-90 0.5 0.5)'/>
-            <circle class="circle_animation" cx=0.5 cy=0.5 r=0.44 stroke="white" stroke-width="0.1" fill="none" transform='rotate(-90 0.5 0.5)'/>
-          </g>
-          <text x="0.5" y="0.5" font-family="Roboto" font-size="0.2" fill="#888" text-anchor="middle" dy="0.1">{{(avg_health*100)|round(1)}}%</text>
-        </svg>
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Average asset health</h2>
+        </div>
+        <div>
+          <svg width="90%" height="90%" viewBox="0 0 1 1">
+            <g id="piechart">
+              <circle cx=0.5 cy=0.5 r=0.44 stroke="blue" stroke-width="0.09" stroke-dasharray="3" stroke-dashoffset="{{2.5-avg_health*2.5}}" fill="none" transform='rotate(-90 0.5 0.5)'/>
+              <circle class="circle_animation" cx=0.5 cy=0.5 r=0.44 stroke="white" stroke-width="0.1" fill="none" transform='rotate(-90 0.5 0.5)'/>
+            </g>
+            <text x="0.5" y="0.5" font-family="Roboto" font-size="0.2" fill="#888" text-anchor="middle" dy="0.1">{{(avg_health*100)|round(1)}}%</text>
+          </svg>
+        </div>
         <br><br>
       </div>
 
@@ -37,16 +41,18 @@
 
     <div class="mdl-cell mdl-cell--6-col">
       <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
-        <div class="mdl-card__title"><h2 class="mdl-card__title-text">Top issues</h2></div>
-        <table class="mdl-data-table mdl-js-data-table" style="width:100%;table-layout:fixed;white-space: normal">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Top issues</h2>
+        </div>
+        <table class="mdl-data-table mdl-js-data-table" style="width:100%;table-layout:fixed;white-space: normal;">
           <thead>
             <tr>
               {% if allsites == True %}
-              <th class="mdl-data-table__cell--non-numeric"">Site</th>
+              <th class="mdl-data-table__cell--non-numeric">Site</th>
               {% endif %}
-              <th class="mdl-data-table__cell--non-numeric"">Asset</th>
+              <th class="mdl-data-table__cell--non-numeric">Asset</th>
               <th class="mdl-data-table__cell--non-numeric" style="width:45%">Algorithm</th>
-              <th class="mdl-data-table__cell--non-numeric"">Notes</th>
+              <th class="mdl-data-table__cell--non-numeric">Notes</th>
               <th>Priority</th>
             </tr>
           </thead>
@@ -55,7 +61,7 @@
             {% if allsites == True or result.asset.site.name == site.name %}
             <tr>
               {% if allsites == True %}
-              <td class="mdl-data-table__cell--non-numeric"">{{result.asset.site.name}}</td>
+              <td class="mdl-data-table__cell--non-numeric">{{result.asset.site.name}}</td>
               {% endif %}
               <td class="mdl-data-table__cell--non-numeric">{{result.asset.name}}</td>
               <td class="mdl-data-table__cell--non-numeric">{{result.algorithm.descr}}</td>
@@ -92,7 +98,8 @@
 
         var options = {
           colors: ['red'],
-
+          width: '100%',
+          height: '100%',
           hAxis: {
             title: 'Week',
           },

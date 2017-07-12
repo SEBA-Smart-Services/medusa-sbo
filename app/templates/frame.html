@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Medusa</title>
@@ -49,57 +49,102 @@
   <body>
     <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
       <header class="mdl-layout__header">
-        <div class="mdl-layout__header-row">
-          <span class="mdl-layout-title">
-            <img src="/static/img/logo-schneider-electric.png" style="width:130px;height:40px;" />
-          </span>
-          <span class="mdl-layout-title">
+        <div class="mdl-layout__header-row" style="padding-left: 10px">
+          <div style="height: 80%;">
+            <a id="logoLink" href="/">
+              <img id="schnLogo" src="/static/img/logo-schneider-electric.png"/>
+            </a>
+          </div>
+          <div>
             <h3 class="logo">&nbsp;&nbsp;Medusa</h3>
-          </span>
+          </div>
           <div class="mdl-layout-spacer"></div>
           <!-- Navigation -->
-          <nav class="mdl-navigation">
-            {% if allsites == True %}
-              <a class="mdl-navigation__link" href="/site/all/dashboard">Dashboard</a>
-              {% if current_user.is_authenticated %}
-                {% if current_user.has_role('performance_centre') %}
-                  <a class="mdl-navigation__link" href="/site/all/weather">Weather</a>
-                  <a class="mdl-navigation__link" href="/site/all/map">Map</a>
+          <div class="mdl-layout">
+              <nav class="largeNav mdl-navigation" style="right: 0; position: fixed">
+                {% if allsites == True %}
+                  <a class="mdl-navigation__link" href="/site/all/dashboard">Dashboard</a>
+                  {% if current_user.is_authenticated %}
+                    {% if current_user.has_role('performance_centre') %}
+                      <a class="mdl-navigation__link" href="/site/all/weather">Weather</a>
+                      <a class="mdl-navigation__link" href="/site/all/map">Map</a>
+                    {% endif %}
+                  {% endif %}
+                  <a class="mdl-navigation__link" href="/site/all/sites">Sites</a>
+                  <a class="mdl-navigation__link" href="/site/all/issues">Issues</a>
+                  <a class="mdl-navigation__link" href="/site/all/issue-chart">Issue Chart</a>
+                  {% if current_user.is_authenticated %}
+                    {% if current_user.has_role('admin') %}
+                      <a class="mdl-navigation__link" href="/site/all/add_site">Add Site</a>
+                    {% endif %}
+                  {% endif %}
+                {% else %}
+                  <a class="mdl-navigation__link" href="/site/{{site.name}}/dashboard">Dashboard</a>
+                  <a class="mdl-navigation__link" href="/site/{{site.name}}/projects">Projects</a>
+                  <a class="mdl-navigation__link" href="/site/{{site.name}}/issues">Issues</a>
+                  <a class="mdl-navigation__link" href="/site/{{site.name}}/assets">Assets</a>
+                  <a class="mdl-navigation__link" href="/site/{{site.name}}/add">Add Asset</a>
+                  <a class="mdl-navigation__link" href="/site/{{site.name}}/config">Site Config</a>
+                  <a class="mdl-navigation__link" href="/site/all">All Sites</a>
                 {% endif %}
-              {% endif %}
-              <a class="mdl-navigation__link" href="/site/all/sites">Sites</a>
-              <a class="mdl-navigation__link" href="/site/all/issues">Issues</a>
-              <a class="mdl-navigation__link" href="/site/all/issue-chart">Issue Chart</a>
-              {% if current_user.is_authenticated %}
-                {% if current_user.has_role('admin') %}
-                  <a class="mdl-navigation__link" href="/site/all/add_site">Add Site</a>
+                {% if current_user.is_authenticated %}
+                  {% if current_user.has_role('admin') %}
+                    <a class="mdl-navigation__link" href="/admin/site">Admin</a>
+                  {% endif %}
+                  <p class="mdl-navigation__link">
+                    <a class="navlink-manual" href="{{ url_for('user.profile') }}">{{ current_user.username }}</a>
+                    &nbsp;|&nbsp;
+                    <a class="navlink-manual" href="{{ url_for('user.logout') }}">Sign out</a>
+                  </p>
+                {% else %}
+                  <a class="mdl-navigation__link" href="{{ url_for('user.login') }}">Sign in</a>
                 {% endif %}
-              {% endif %}
-            {% else %}
-              <a class="mdl-navigation__link" href="/site/{{site.name}}/dashboard">Dashboard</a>
-              <a class="mdl-navigation__link" href="/site/{{site.name}}/issues">Issues</a>
-              <a class="mdl-navigation__link" href="/site/{{site.name}}/assets">Assets</a>
-              <a class="mdl-navigation__link" href="/site/{{site.name}}/add">Add Asset</a>
-              <a class="mdl-navigation__link" href="/site/{{site.name}}/config">Site Config</a>
-              <a class="mdl-navigation__link" href="/site/all">All Sites</a>
-            {% endif %}
-            {% if current_user.is_authenticated %}
-              {% if current_user.has_role('admin') %}
-                <a class="mdl-navigation__link" href="/admin/site">Admin</a>
-              {% endif %}
-              <p class="mdl-navigation__link">
-                <a class="navlink-manual" href="{{ url_for('user.profile') }}">{{ current_user.username }}</a>
-                &nbsp;|&nbsp;
-                <a class="navlink-manual" href="{{ url_for('user.logout') }}">Sign out</a>
-              </p>
-            {% else %}
-              <a class="mdl-navigation__link" href="{{ url_for('user.login') }}">Sign in</a>
-            {% endif %}
-          </nav>
+              </nav>
+            <div class="mdl-layout__drawer" style="right: 0; position: fixed">
+              <nav class="mdl-navigation">
+                {% if allsites == True %}
+                  <a class="mdl-navigation__link" href="/site/all/dashboard">Dashboard</a>
+                  {% if current_user.is_authenticated %}
+                    {% if current_user.has_role('performance_centre') %}
+                      <a class="mdl-navigation__link" href="/site/all/weather">Weather</a>
+                      <a class="mdl-navigation__link" href="/site/all/map">Map</a>
+                    {% endif %}
+                  {% endif %}
+                  <a class="mdl-navigation__link" href="/site/all/sites">Sites</a>
+                  <a class="mdl-navigation__link" href="/site/all/issues">Issues</a>
+                  <a class="mdl-navigation__link" href="/site/all/issue-chart">Issue Chart</a>
+                  {% if current_user.is_authenticated %}
+                    {% if current_user.has_role('admin') %}
+                      <a class="mdl-navigation__link" href="/site/all/add_site">Add Site</a>
+                    {% endif %}
+                  {% endif %}
+                {% else %}
+                  <a class="mdl-navigation__link" href="/site/{{site.name}}/dashboard">Dashboard</a>
+                  <a class="mdl-navigation__link" href="/site/{{site.name}}/issues">Issues</a>
+                  <a class="mdl-navigation__link" href="/site/{{site.name}}/assets">Assets</a>
+                  <a class="mdl-navigation__link" href="/site/{{site.name}}/add">Add Asset</a>
+                  <a class="mdl-navigation__link" href="/site/{{site.name}}/config">Site Config</a>
+                  <a class="mdl-navigation__link" href="/site/all">All Sites</a>
+                {% endif %}
+                {% if current_user.is_authenticated %}
+                  {% if current_user.has_role('admin') %}
+                    <a class="mdl-navigation__link" href="/admin/site">Admin</a>
+                  {% endif %}
+                  <p class="mdl-navigation__link">
+                    <a class="navlink-manual" href="{{ url_for('user.profile') }}">{{ current_user.username }}</a>
+                    &nbsp;|&nbsp;
+                    <a class="navlink-manual" href="{{ url_for('user.logout') }}">Sign out</a>
+                  </p>
+                {% else %}
+                  <a class="mdl-navigation__link" href="{{ url_for('user.login') }}">Sign in</a>
+                {% endif %}
+              </nav>
+            </div>
+          </div>
         </div>
         {% if not allsites == True %}
-          <div class="mdl-layout__header-row" style="height:35px">
-            <span class="mdl-layout-title" style="margin-top:-15px;">
+          <div class="mdl-layout__header-row">
+            <span class="mdl-layout-title" >
               <h4>{{site.name}}</h4>
             </span>
           </div>

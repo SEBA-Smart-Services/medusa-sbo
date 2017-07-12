@@ -12,8 +12,26 @@
   color: white;
 }
 
+@media screen and (max-width: 1310px){
+  nav.largeNav{
+    display: none !important;
+  }
+}
+
+@media screen and (min-width: 1310px){
+  div.smallNav{
+    display: none !important;
+  }
+}
+
+#schnLogo{
+  height: 100%;
+}
+
 .logo {
   font-family: 'Varela Round', sans-serif;
+  height: 100%;
+  padding-left: 2%;
 }
 
 /*Footer*/

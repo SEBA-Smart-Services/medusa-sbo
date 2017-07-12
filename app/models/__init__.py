@@ -6,6 +6,7 @@ from flask_sqlalchemy import SignallingSession
 import sys, datetime
 from .StruxureWareReportsDB import Alarm, LogTimeValue, LoggedEntity
 from .users import User, Role, UsersRoles, UsersSites
+from .ITP import Project
 
 ###################################
 ## models in report server database
@@ -221,6 +222,7 @@ class Site(db.Model):
     inbuildings_config = db.relationship('InbuildingsConfig', backref='site', uselist=False, cascade='save-update, merge, delete, delete-orphan')
     issue_history = db.relationship('IssueHistory', backref='site', cascade='save-update, merge, delete, delete-orphan')
     emails = db.relationship('Email', backref='site', cascade='save-update, merge, delete, delete-orphan')
+    project = db.relationship('Project', backref='site', cascade='save-update, merge, delete, delete-orphan')
 
     def __repr__(self):
         return self.name

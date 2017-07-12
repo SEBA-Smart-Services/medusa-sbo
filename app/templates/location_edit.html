@@ -1,0 +1,21 @@
+{% extends "layout-empty.html" %}
+{% block content %}
+  <div style="width: 80%; margin: auto">
+    <h3>Edit {{location.name}}</h3>
+
+    <br>
+
+    <div>
+      <form action="/locations/{{location.name}}/edit" method="POST">
+        <input type="text" name="location_name" placeholder="Location Name" class="mdl-textfield__input">
+        <br>
+        <input type="text" name="location_description" placeholder="Give a description of the location" class="mdl-textfield__input">
+        <br>
+
+        <br>
+        <input type="submit" value="Save Changes" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+      </form>
+    </div>
+  </div>
+
+{% endblock %}

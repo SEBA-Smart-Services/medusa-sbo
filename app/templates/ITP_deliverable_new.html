@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h3>New Deliverable for {{ITP.name}}</h3>
+
+  <br>
+
+  <div>
+    <form action="/site/{{ site.name }}/projects/{{ project.name }}/ITP/{{ ITP.name }}/deliverable/new" method="POST">
+      <input type="text" name="deliverable_name" placeholder="Deliverable Name" required class="mdl-textfield__input">
+      <br>
+      <input type="text" name="deliverable_description" placeholder="Give a description of the deliverable" required class="mdl-textfield__input">
+      <br>
+      <select name="deliverable_type" class="mdl-textfield__input">
+        {% for type in types %}
+          <option value="{{type.name}}">{{type.name}}</option>
+        {% endfor %}
+      </select>
+      <br>
+      <select name="deliverable_location" class="mdl-textfield__input">
+        {% for location in locations %}
+          <option value="{{location.name}}">{{location.name}}</option>
+        {% endfor %}
+      </select>
+      <br>
+      <input type="submit" value="Create Deliverable" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+    </form>
+  </div>
+
+{% endblock %}

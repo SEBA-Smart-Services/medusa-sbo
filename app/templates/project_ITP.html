@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h3>ITP for {{ project.name }}</h3>
+
+  <div>
+    <div>
+      <h4>Details on ITP</h4>
+        <p>Job Number: table?</p>
+        <p>Assigned To: table?</p>
+        <p>Date: table?</p>
+        <p>Percentage Complete: As a graph</p>
+        <p>All ITCS</p>
+        <p>All Deliverables: Drill down</p>
+    </div>
+    <br>
+    <div>
+      <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable">{{ITP.name}} - deliverables</a>
+    </div>
+  </div>
+
+{% endblock %}

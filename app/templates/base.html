@@ -27,6 +27,7 @@
         .no-margins { margin: 0px; }
         .with-margins { margin: 10px; }
         .col-centered { float: none; margin: 0 auto; }
+        * {box-sizing: content-box;}
     </style>
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -39,74 +40,79 @@
 
 
 <body>
-    {% block body %}
-    <div id="header-div" class="clearfix no-margins">
-      <header class="mdl-layout__header is-casting-shadow">
-        <div class="mdl-layout__header-row">
-          <span class="mdl-layout-title">
-            <img src="/static/img/logo-schneider-electric.png" style="width:130px;height:40px;">
-          </span>
-          <span class="mdl-layout-title">
-            <h3 class="logo">&nbsp;&nbsp;Medusa</h3>
-          </span>
-          <div class="pull-right">
-              {% if call_or_get(current_user.is_authenticated) %}
-                  <a href="{{ url_for('user.profile') }}">{{ current_user.username }}</a>
-                  &nbsp; | &nbsp;
-                  <a href="{{ url_for('user.logout') }}">Sign out</a>
-              {% else %}
-                  <a href="{{ url_for('user.login') }}">Sign in</a>
-              {% endif %}
-          </div>
-        </header>
+  {% block body %}
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header class="mdl-layout__header is-casting-shadow">
+      <div class="mdl-layout__header-row">
+        <span class="mdl-layout-title">
+          <a href="/">
+            <img src="/static/img/logo-schneider-electric.png" style="width:130px;height:40px;" />
+          </a>
+        </span>
+        <span class="mdl-layout-title">
+          <h3 class="logo">&nbsp;&nbsp;Medusa</h3>
+        </span>
+        <div class="mld-layout-spacer"></div>
+        <nav class="mdl-navigation" style="position: fixed; right: 0;">
+          {% if call_or_get(current_user.is_authenticated) %}
+              <a class="mdl-navigation__link" href="{{ url_for('user.profile') }}">{{ current_user.username }}</a>
+              &nbsp; | &nbsp;
+              <a class="mdl-navigation__link" href="{{ url_for('user.logout') }}">Sign out</a>
+          {% else %}
+              <a class="mdl-navigation__link" href="{{ url_for('user.login') }}">Sign in</a>
+          {% endif %}
+        </nav>
       </div>
-    </div>
-    {% block menu %}
-    <div id="menu-div" class="with-margins">
-        <a href="/">Home</a>
-        {% if call_or_get(current_user.is_authenticated) %}
-            &nbsp; | &nbsp; <a href="{{ url_for('user.profile') }}">User profile</a>
-        {% endif %}
-    </div>
-    {% endblock %}
-    <hr class="no-margins"/>
 
-    <div id="main-div" class="with-margins">
-    {# One-time system messages called Flash messages #}
-    {% block flash_messages %}
-        {%- with messages = get_flashed_messages(with_categories=true) -%}
-            {% if messages %}
-                {% for category, message in messages %}
-                    {% if category=='error' %}
-                        {% set category='danger' %}
-                    {% endif %}
-                    <div class="alert alert-{{category}}">{{ message|safe }}</div>
-                {% endfor %}
+      </header>
+      <main class="mdl-layout__content" style="flex: 1 0 auto;">
+        {% block menu %}
+        <div id="menu-div" class="with-margins">
+            <a href="/">Home</a>
+            {% if call_or_get(current_user.is_authenticated) %}
+                &nbsp; | &nbsp; <a href="{{ url_for('user.profile') }}">User profile</a>
             {% endif %}
-        {%- endwith %}
-    {% endblock %}
+        </div>
+        {% endblock %}
+        <hr class="no-margins"/>
 
-    {% block main %}{% block content %}{% endblock %}{% endblock %}
+        <div id="main-div" class="with-margins">
+        {# One-time system messages called Flash messages #}
+        {% block flash_messages %}
+            {%- with messages = get_flashed_messages(with_categories=true) -%}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        {% if category=='error' %}
+                            {% set category='danger' %}
+                        {% endif %}
+                        <div class="alert alert-{{category}}">{{ message|safe }}</div>
+                    {% endfor %}
+                {% endif %}
+            {%- endwith %}
+        {% endblock %}
+
+        {% block main %}
+          {% block content %}
+          {% endblock %}
+        {% endblock %}
+        </div>
+
+        <br/>
+        <hr class="no-margins"/>
+      </main>
+
+      {% endblock %}
+
+      <footer class="mdl-mini-footer">
+        <div class="mdl-mini-footer__left-section">
+          <div class="mdl-logo">More Information</div>
+          <ul class="mdl-mini-footer__link-list">
+            <li><a href="#">Help</a></li>
+            <li><a href="#">Privacy & Terms</a></li>
+          </ul>
+          &copy; Copyright Schneider Electric 2017
+        </div>
+      </footer>
     </div>
-
-    <br/>
-    <hr class="no-margins"/>
-    <footer class="mdl-mini-footer">
-      <div class="mdl-mini-footer__left-section">
-        <div class="mdl-logo">More Information</div>
-        <ul class="mdl-mini-footer__link-list">
-          <li><a href="#">Help</a></li>
-          <li><a href="#">Privacy & Terms</a></li>
-        </ul>
-        &copy; Copyright Schneider Electric 2017
-      </div>
-    </footer>
-    {% endblock %}
-
-
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-    <!-- Bootstrap -->
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
   </body>
 </html>

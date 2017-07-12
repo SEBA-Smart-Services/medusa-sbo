@@ -1,0 +1,22 @@
+{% extends "layout-empty.html" %}
+{% block content %}
+  <div style="width: 80%; margin: auto">
+    <h3>New Location</h3>
+
+    <br>
+
+    <div>
+      <form action="/locations/new" method="POST">
+        <input type="text" name="location_name" placeholder="Location Name" required class="mdl-textfield__input">
+        <br>
+        <input type="text" name="location_description" placeholder="Give a description of the location" required class="mdl-textfield__input">
+        <br>
+
+        <br>
+        <input type="submit" value="Create Location" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+      </form>
+      <br>
+    </div>
+</div>
+
+{% endblock %}
