@@ -4,21 +4,51 @@ TODO: document user quickstart
 
 
 ## 1. Need To Download & Install The Following Programs
-In order to work on the application you will need to download the following programs or get an account. Sometimes you will need an admin from the service to add you to the group to access the information there. 
-
+In order to work on the application you will need to download the following programs or get an account.
 ### PuTTY
+PuTTY is needed to SSH into the application.
+
+You can download PuTTY from [here](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html).
+You will also need the key generator utility as well so either download the single package with all the utilities or make sure you get the key generator utility as well.
+
+You will need to grab the keys that will give PuTTY access to the development environment. The keys can be found on the google drive under Medusa -> Engineering -> Security
+
 Need to generate a key to remote access the application
 
 ### Python
+Currently the app is being developed in Python3, 
+
+Download virtual environment as well 
 
 ### Atom (or any other text editor that allows you to work with github)
+Atom is a great text editor that is easy to integrate with the git repository so you can make changes and see the results quickly.
 
+Need remote Sync to access git.
 
 ## 2. Need Access Or Accounts For The Following
 
+### Google Drive
+You will need a google account so you can access several key pieces of information. Once you have an account give one of the medusa admins your account so they can send you an invite.
+
+### Amazon Web Server
 
 ## 3. Current File System
+Currently the Filing system needs some cleaning up however the following will outline where each thing lives.
 
+### Rendering Templates
+All Jinja templates can be found under app/templates
+
+### Database Models
+All models are 
+
+### Static Folder
+The static folder (app/static) contains all the external CSS, Javascript and Images for the application. Keeping these things seperate from the pages makes them reusable and easy to adapt as styles change.
+
+### Controllers
+Probably the most confusing part of the application is the controllers. While a majority of the controllers are contained within the app/controller.py script, there are some controllers that exist seperate to these.
+
+### Migrations
+The migrations folder is key to the version control for the database.
 
 ## 4. Useful Things To Know
 
