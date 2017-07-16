@@ -11,12 +11,14 @@
       <input type="text" name="deliverable_description" placeholder="Give a description of the deliverable" required class="mdl-textfield__input">
       <br>
       <select name="deliverable_type" class="mdl-textfield__input">
+        <option value=""></option>
         {% for type in types %}
           <option value="{{type.name}}">{{type.name}}</option>
         {% endfor %}
       </select>
       <br>
       <select name="deliverable_location" class="mdl-textfield__input">
+        <option value=""></option>
         {% for location in locations %}
           <option value="{{location.name}}">{{location.name}}</option>
         {% endfor %}

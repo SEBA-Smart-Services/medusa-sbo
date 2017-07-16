@@ -1,10 +1,72 @@
 {% extends "layout.html" %}
 {% block content %}
-  <h3>Deliverables</h3>
+  <h3>Deliverable</h3>
 
   <div>
-    <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/checks">{{deliverable.name}} - checks</a>
-  </div>
+    <div class="mdl-grid">
+      <div class="mdl-cell mdl-cell--6-col">
+        <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+          <div class="mdl-card__title">
+            <h2 class="mdl-card__title-text">Details</h2>
+          </div>
+          <table class="mdl-data-table mdl-js-data-table" style="width:100%;table-layout:fixed;white-space: normal;">
+            <tbody>
+              <tr>
+                <th class="mdl-data-table__cell--non-numeric">Component Number</th>
+                <td class="mdl-data-table__cell--non-numeric">#532434</td>
+              </tr>
+              <tr>
+                <th class="mdl-data-table__cell--non-numeric">Location</th>
+                <td class="mdl-data-table__cell--non-numeric">Room 2.51</td>
+              </tr>
+              <tr>
+                <th class="mdl-data-table__cell--non-numeric">Date Started</th>
+                <td class="mdl-data-table__cell--non-numeric">11/12/17</td>
+              </tr>
+              <tr>
+                <th class="mdl-data-table__cell--non-numeric">Date Completed</th>
+                <td class="mdl-data-table__cell--non-numeric">20/12/17</td>
+              </tr>
+              <tr>
+                <th class="mdl-data-table__cell--non-numeric">Assigned To</th>
+                <td class="mdl-data-table__cell--non-numeric">Foo Bar</td>
+              </tr>
+              <tr>
+                <th class="mdl-data-table__cell--non-numeric">ITC</th>
+                <td class="mdl-data-table__cell--non-numeric">
+                  <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC">
+                    {{deliverable.name}} - ITC
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
+      <div class="mdl-cell mdl-cell--4-col mdl-cell--1-offset mdl-grid">
+
+        <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+          <div class="mdl-card__title">
+            <h2 class="mdl-card__title-text">Inspection and Testing Checks</h2>
+          </div>
+          <div>
+            <svg width="90%" height="90%" viewBox="0 0 1 1">
+              <g id="piechart">
+                <circle cx=0.5 cy=0.5 r=0.44 stroke="blue" stroke-width="0.09" stroke-dasharray="3" stroke-dashoffset="{{2.5*2.5}}" fill="none" transform='rotate(-90 0.5 0.5)'/>
+                <circle class="circle_animation" cx=0.5 cy=0.5 r=0.44 stroke="white" stroke-width="0.1" fill="none" transform='rotate(-90 0.5 0.5)'/>
+              </g>
+              <text x="0.5" y="0.5" font-family="Roboto" font-size="0.2" fill="#888" text-anchor="middle" dy="0.1">70%</text>
+            </svg>
+          </div>
+          <br><br>
+        </div>
+      </div>
+
+      <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+        <div class="mdl-card__title"><h2 class="mdl-card__title-text">Alarms</h2></div>
+        <div id="chart_div" style="width:92.5%; padding-left:5%"></div>
+      </div>
+  </div>
 
 {% endblock %}

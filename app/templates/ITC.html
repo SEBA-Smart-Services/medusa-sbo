@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h3>Checks for {{ITC.name}}</h3>
+
+  <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+    <thead>
+      <tr>
+        <th class="mdl-data-table__cell--non-numeric">Description</th>
+        <th class="mdl-data-table__cell--non-numeric">Comments</th>
+        <th class="mdl-data-table__cell--non-numeric">Status</th>
+        <th class="mdl-data-table__cell--non-numeric">Completed?</th>
+        <th class="mdl-data-table__cell--non-numeric">Completion Date</th>
+        <th class="mdl-data-table__cell--non-numeric">Completed by</th>
+        <th class="mdl-data-table__cell--non-numeric"></th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for check in checks %}
+      <tr>
+        <td class="mdl-data-table__cell--non-numeric">{{check.check.check_description}}</th>
+        <td class="mdl-data-table__cell--non-numeric">{{check.comments}}</th>
+        <td class="mdl-data-table__cell--non-numeric">{{check.completion_by_user_id}}</td>
+        <td class="mdl-data-table__cell--non-numeric">
+          {% if check.is_done == True %}
+            <input type="checkbox" checked>
+          {% else %}
+            <input type="checkbox">
+          {% endif %}
+        </td>
+        <td class="mdl-data-table__cell--non-numeric">{{check.completion_datetime}}</td>
+        <td class="mdl-data-table__cell--non-numeric">{{check.completion_by_user_id}}</td>
+        <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
+          <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.name}}/check/{{check.id}}/edit">
+            Edit
+          </a>/
+          <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.name}}/check/{{check.id}}/delete">
+            Delete
+          </a>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <br>
+  <div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--6-col">
+      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC">
+        <input type="submit" value="Back" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        </input>
+      </form>
+    </div>
+
+    <div class="mdl-cell mdl-cell--6-col" style="right:0; position:fixed;">
+      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.name}}/check/new">
+        <input type="submit" value="New Check" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        </input>
+      </form>
+    </div>
+  </div>
+
+
+{% endblock %}

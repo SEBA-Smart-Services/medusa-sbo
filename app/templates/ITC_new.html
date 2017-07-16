@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h3>New ITC</h3>
+
+  <br>
+
+  <div>
+    <form action="/site/{{ site.name }}/projects/{{ project.name }}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/new" method="POST">
+      <input type="text" name="ITC_name" placeholder="ITC Name" required class="mdl-textfield__input">
+      <br>
+      <input type="text" name="ITC_comments" placeholder="Comments" required class="mdl-textfield__input">
+      <br>
+      <input type="submit" value="Create ITC" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+    </form>
+  </div>
+
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h3>Are You Sure You Want To Delete {{ check.id }}</h3>
+
+  <div>
+    <div>
+      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.name}}/check/{{check.id}}/delete" method="POST">
+        <input type="submit" value="Delete" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        </input>
+      </form>
+    </div>
+
+    <div>
+      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.name}}/check" method="GET">
+        <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        </input>
+      </form>
+    </div>
+  </div>
+
+{% endblock %}

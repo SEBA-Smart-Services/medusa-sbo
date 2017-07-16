@@ -26,9 +26,15 @@
               <tr>
                 <th class="mdl-data-table__cell--non-numeric">ITP</th>
                 <td class="mdl-data-table__cell--non-numeric">
-                  <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}">
-                    Inspection and Test Plan
-                  </a>
+                  {% if ITP == None %}
+                    <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/new">
+                      Create a new Inspection and Test Plan
+                    </a>
+                  {% else %}
+                    <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}">
+                      Inspection and Test Plan
+                    </a>
+                  {% endif %}
                 </td>
               </tr>
             </tbody>
