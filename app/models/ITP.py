@@ -1,5 +1,4 @@
 from app import db
-from app.models.users import User
 
 ################################
 #Project models
@@ -86,6 +85,7 @@ class ITC_check_map(db.Model):
     completion_datetime = db.Column(db.DateTime())
     completion_by_user_id = db.Column(db.Integer(), db.ForeignKey('user.id'))
     comments = db.Column(db.String(500))
+    status = db.Column(db.String(200))
 
     def __init__(self, check_generic, ITC_id, comments):
         self.check_generic = check_generic
@@ -110,6 +110,7 @@ class ITC(db.Model):
     ITC_check_map = db.relationship('ITC_check_map',
         backref='ITC')
     comment = db.Column(db.String(500))
+    status = db.Column(db.String(200))
 
     def __init__(self, name, deliverable_id, comment):
         self.name = name

@@ -1,5 +1,6 @@
 from flask_user import UserMixin
 from app import db
+from app.models.ITP import ITC_check_map
 
 
 # Define the User data model. Make sure to add the flask_user.UserMixin !!
@@ -18,6 +19,7 @@ class User(db.Model, UserMixin):
                             backref=db.backref('users', lazy='dynamic'))
     sites = db.relationship('Site', secondary='users_sites',
                             backref=db.backref('users', lazy='dynamic'))
+    ITCs = db.relationship('ITC_check_map', backref='user')
 
     def __repr__(self):
         return self.username

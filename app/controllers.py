@@ -2,6 +2,7 @@ from app import app, db, registry
 from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, PointType, Result, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp, InbuildingsConfig, Email
 from app.models import Alarm
 from app.models.ITP import Project, ITP, Deliverable, Location, Deliverable_type, ITC, ITC_check_map, Check_generic
+from app.models.users import User
 from app.forms import SiteConfigForm, AddSiteForm
 from flask import json, request, render_template, url_for, redirect, jsonify, flash, make_response
 from flask_user import current_user
@@ -837,10 +838,10 @@ def site_project_ITP_deliverable_ITC_new(sitename, projectname, ITPname, deliver
 #Route for editing a current ITC
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/ITC/<ITCname>/edit', methods=['POST','GET'])
 def site_project_ITP_deliverable_ITC_edit(sitename, projectname, ITPname, deliverablename, ITCname):
-    site = Site.query.filter_by(name=sitename).one()
-    project = Project.query.filter_by(name=projectname).one()
-    project_ITP = ITP.query.filter_by(name=ITPname).one()
-    deliverable = Deliverable.query.filter_by(name=deliverablename).one()
+    site = Site.query.filter_by(name=sitename).first()
+    project = Project.query.filter_by(name=projectname).first()
+    project_ITP = ITP.query.filter_by(name=ITPname).first()
+    deliverable = Deliverable.query.filter_by(name=deliverablename).first()
 
     if request.method == 'POST':
         ITC_name = request.form['ITC_name']
@@ -870,7 +871,42 @@ def site_project_ITP_deliverable_ITC_delete(sitename, projectname, ITPname, deli
     else:
         return render_template('ITC_delete.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable)
 
+#Route for updating check completion
+@app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/ITC/<ITCname>/check/change', methods=['POST'])
+def site_project_ITP_deliverable_ITC_change(sitename, projectname, ITPname, deliverablename, ITCname):
+    site = Site.query.filter_by(name=sitename).first()
+    project = Project.query.filter_by(name=projectname).first()
+    project_ITP = ITP.query.filter_by(name=ITPname).first()
+    deliverable = Deliverable.query.filter_by(name=deliverablename).first()
+    ITP_ITC = ITC.query.filter_by(name=ITCname).first()
+    user = current_user
+    checked = request.form.getlist('check_box')
+    completed_checks = ITC_check_map.query.filter_by(is_done=True).all()
 
+    print(checked)
+
+    #Change form status to done
+    for checkid in checked:
+        check = ITC_check_map.query.filter_by(id=checkid).first()
+        if check.is_done != True:
+            check.completion_datetime = datetime.datetime.now()
+            check.completion_by_user_id = User.query.filter_by(id=user.id).first().id
+            check.is_done = True
+            db.session.commit()
+
+    #Change unticked status to false
+    for completed_check in completed_checks:
+        print(completed_check.id)
+        print(checked)
+        print(str(completed_check.id) not in checked)
+        if str(completed_check.id) not in checked:
+            completed_check.completion_datetime = None
+            completed_check.completion_by_user_id = None
+            completed_check.is_done = False
+            db.session.commit()
+
+
+    return redirect(url_for('site_project_ITP_deliverable_ITC', sitename=site, projectname=project.name, ITPname=project_ITP.name, deliverablename=deliverable.name, ITCname=ITP_ITC.name))
 
 ####################### Check creation and editing #############################
 
