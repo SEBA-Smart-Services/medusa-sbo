@@ -2,28 +2,96 @@
 {% block content %}
   <h3>ITP for {{ project.name }}</h3>
 
+  <div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--6-col">
+      <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Details</h2>
+        </div>
+        <table class="mdl-data-table mdl-js-data-table" style="width:100%;table-layout:fixed;white-space: normal;">
+          <tbody>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">Job number</th>
+              <td class="mdl-data-table__cell--non-numeric">#532434</td>
+            </tr>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">Date</th>
+              <td class="mdl-data-table__cell--non-numeric">11/12/17</td>
+            </tr>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">Assigned To</th>
+              <td class="mdl-data-table__cell--non-numeric">Foo Bar</td>
+            </tr>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">Percentage Complete</th>
+              <td class="mdl-data-table__cell--non-numeric">{{ITP.percentage_complete}}%</td>
+            </tr>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">Deliverables</th>
+              <td class="mdl-data-table__cell--non-numeric">
+                {% if ITP == None %}
+                  <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/new">
+                    Create a new Deliverable
+                  </a>
+                {% else %}
+                  <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable">
+                    Deliverables
+                  </a>
+                {% endif %}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="mdl-cell mdl-cell--6-col mdl-grid">
+      <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Deliverable List</h2>
+        </div>
+        <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+          <thead>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">Name</th>
+              <th class="mdl-data-table__cell--non-numeric">Type</th>
+              <th class="mdl-data-table__cell--non-numeric">Status</th>
+              <th class="mdl-data-table__cell--non-numeric">Percentage Complete</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for deliverable in deliverables %}
+            <tr>
+              <td class="mdl-data-table__cell--non-numeric">
+                <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}">
+                  {{deliverable.name}}
+                </a>
+              </td>
+              <td class="mdl-data-table__cell--non-numeric">{{deliverable.type}}</th>
+              <td class="mdl-data-table__cell--non-numeric">{{deliverable.Deliverable_ITC_map}}</td>
+              <td class="mdl-data-table__cell--non-numeric"></td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <br>
   <div>
-    <div>
-      <h4>Details on ITP</h4>
-        <p>Job Number: table?</p>
-        <p>Assigned To: table?</p>
-        <p>Date: table?</p>
-        <p>Percentage Complete: As a graph</p>
-        <p>All ITCS</p>
-        <p>All Deliverables: Drill down</p>
-    </div>
-    <br>
-    <div>
-      <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable">{{ITP.name}} - deliverables</a>
-    </div>
-    <div>
-      <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/edit">
-        Edit
-      </a>/
-      <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/delete">
-        Delete
-      </a>
-    </div>
+    <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/edit">
+      Edit
+    </a>/
+    <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/delete">
+      Delete
+    </a>
+  </div>
+
+  <div class="mdl-cell mdl-cell--6-col">
+    <form action="/site/{{site.name}}/projects/{{project.name}}">
+      <input type="submit" value="Back" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+      </input>
+    </form>
   </div>
 
 {% endblock %}

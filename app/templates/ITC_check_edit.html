@@ -15,6 +15,19 @@
         {% endfor %}
       </select>
       <br>
+      {% if check.is_done == True %}
+        <select name="check_status" class="mdl-textfield__input">
+          <option value="Completed">Completed</option>
+        </select>
+      {% else %}
+        <select name="check_status" class="mdl-textfield__input">
+          <option value="Not Started">Not Started</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
+          <option value="Not Applicable">Not Applicable</option>
+        </select>
+      {% endif %}
+      <br>
       <input type="submit" value="Save Changes" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     </form>
   </div>

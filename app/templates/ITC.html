@@ -7,6 +7,10 @@
 {% block content %}
   <h3>Checks for {{ITC.name}}</h3>
 
+  <h5>{{ITC.percentage_complete}}% completed</h5>
+
+  <br>
+
   <div>
     <form method="POST" action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.name}}/check/change">
       <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
@@ -26,7 +30,7 @@
           <tr>
             <td class="mdl-data-table__cell--non-numeric">{{check.check.check_description}}</th>
             <td class="mdl-data-table__cell--non-numeric">{{check.comments}}</th>
-            <td class="mdl-data-table__cell--non-numeric">{{check.completion_by_user_id}}</td>
+            <td class="mdl-data-table__cell--non-numeric">{{check.status}}</td>
             <td class="mdl-data-table__cell--non-numeric">
               {% if check.is_done == True %}
                 <label class="mdl-checkbox mdl-js-checkbox">
@@ -52,6 +56,7 @@
         {% endfor %}
         </tbody>
       </table>
+      <br>
       <input type="submit" value="save changes" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
       </input>
     </form>

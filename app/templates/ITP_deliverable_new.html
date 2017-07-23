@@ -10,18 +10,25 @@
       <br>
       <input type="text" name="deliverable_description" placeholder="Give a description of the deliverable" required class="mdl-textfield__input">
       <br>
-      <select name="deliverable_type" class="mdl-textfield__input">
+      <select name="deliverable_type" class="mdl-textfield__input" required>
         <option value=""></option>
         {% for type in types %}
           <option value="{{type.name}}">{{type.name}}</option>
         {% endfor %}
       </select>
       <br>
-      <select name="deliverable_location" class="mdl-textfield__input">
+      <select name="deliverable_location" class="mdl-textfield__input" required>
         <option value=""></option>
         {% for location in locations %}
           <option value="{{location.name}}">{{location.name}}</option>
         {% endfor %}
+      </select>
+      <br>
+      <select name="deliverable_status" class="mdl-textfield__input" required>
+        <option value="Not Started">Not Started</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Completed">Completed</option>
+        <option value="Not Applicable">Not Applicable</option>
       </select>
       <br>
       <input type="submit" value="Create Deliverable" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">

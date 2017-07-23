@@ -9,7 +9,7 @@
         <th class="mdl-data-table__cell--non-numeric">Comments</th>
         <th class="mdl-data-table__cell--non-numeric">Deliverable</th>
         <th class="mdl-data-table__cell--non-numeric">Status</th>
-        <th class="mdl-data-table__cell--non-numeric">Completed?</th>
+        <th class="mdl-data-table__cell--non-numeric">Percent Complete</th>
         <th class="mdl-data-table__cell--non-numeric"></th>
       </tr>
     </thead>
@@ -20,10 +20,11 @@
           <a href="/site/{{ site.name }}/projects/{{ project.name }}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.name}}">
             {{ITC.name}}
           </a>
-        </th>
+        </td>
         <td class="mdl-data-table__cell--non-numeric">{{ITC.comment}}</td>
         <td class="mdl-data-table__cell--non-numeric">{{ITC.deliverable}}</td>
-        <td class="mdl-data-table__cell--non-numeric">{{ITC.name}}</td>
+        <td class="mdl-data-table__cell--non-numeric">{{ITC.status}}</td>
+        <td class="mdl-data-table__cell--non-numeric">{{ITC.percentage_complete}}%</td>
         <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
           <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.name}}/edit">
             Edit
@@ -39,16 +40,23 @@
 
   <br>
   <div class="mdl-grid">
-    <div class="mdl-cell mdl-cell--6-col">
-      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable">
+    <div class="mdl-cell mdl-cell--4-col">
+      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}">
         <input type="submit" value="Back" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
         </input>
       </form>
     </div>
 
-    <div class="mdl-cell mdl-cell--6-col" style="right:0; position:fixed;">
+    <div class="mdl-cell mdl-cell--4-col">
       <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/new">
-        <input type="submit" value="New ITC" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        <input type="submit" value="Create a New ITC" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        </input>
+      </form>
+    </div>
+
+    <div class="mdl-cell mdl-cell--4-col" style="right:0; position:fixed;">
+      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/new">
+        <input type="submit" value="Add ITC" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
         </input>
       </form>
     </div>
