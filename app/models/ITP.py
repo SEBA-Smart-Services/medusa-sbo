@@ -68,18 +68,22 @@ class Deliverable(db.Model):
     ITP_id = db.Column(db.Integer(), db.ForeignKey('ITP.id', ondelete='CASCADE'))
     Deliverable_ITC_map = db.relationship('Deliverable_ITC_map',
         backref = 'deliverable')
+    status = db.Column(db.String(200))
+    percentage_complete = db.Column(db.Integer())
 
     def __init__(self, name, deliverable_type_id, location_id, ITP_id):
         self.name = name
         self.deliverable_type_id = deliverable_type_id
         self.location_id = location_id
         self.ITP_id = ITP_id
+        self.status = "Not Started"
+        self.percentage_complete = 0
 
     def __repr__(self):
         return self.name
 
 ###############################
-#Section on ITCs
+#Section on Generic ITCs
 ###############################
 
 class Check_generic(db.Model):
@@ -88,6 +92,9 @@ class Check_generic(db.Model):
     check_description = db.Column(db.String(500))
     ITC_check_map = db.relationship('ITC_check_map',
         backref = 'check')
+
+    def __init__(self, check_description):
+        self.check_description = check_description
 
     def __repr__(self):
         return self.check_description
@@ -135,10 +142,14 @@ class Deliverable_ITC_map(db.Model):
     deliverable_check_map = db.relationship('Deliverable_check_map',
         backref='deliver_ITC',
         primaryjoin="Deliverable_ITC_map.id == Deliverable_check_map.deliverable_ITC_map_id")
+    status = db.Column(db.String(200))
+    percentage_complete = db.Column(db.Integer())
 
     def __init__(self, deliverable_id, ITC_id):
         self.deliverable_id = deliverable_id
         self.ITC_id = ITC_id
+        self.status = "Not Started"
+        self.percentage_complete = 0
 
 #many-many table for adding all checks specific to deliverable
 class Deliverable_check_map(db.Model):
