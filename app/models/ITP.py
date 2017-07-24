@@ -113,7 +113,7 @@ class ITC(db.Model):
 #Section on mapping
 ###############################
 
-# many-many mapping table defining checks in an ITC
+# many-many mapping table defining checks in an generic ITC
 class ITC_check_map(db.Model):
     __tablename__ = "ITC_check_map"
     id = db.Column(db.Integer(), primary_key=True)
@@ -126,6 +126,7 @@ class ITC_check_map(db.Model):
         self.check_generic = check_generic
         self.ITC_id = ITC_id
 
+#many-many mapping table for defining a list of ITC to a deliverable
 class Deliverable_ITC_map(db.Model):
     __tablename__ = "Deliverable_ITC_map"
     id = db.Column(db.Integer(), primary_key=True)
@@ -139,6 +140,7 @@ class Deliverable_ITC_map(db.Model):
         self.deliverable_id = deliverable_id
         self.ITC_id = ITC_id
 
+#many-many table for adding all checks specific to deliverable
 class Deliverable_check_map(db.Model):
     __tablename__ = "Deliverable_check_map"
     id = db.Column(db.Integer(), primary_key=True)
@@ -150,7 +152,8 @@ class Deliverable_check_map(db.Model):
     comments = db.Column(db.String(500))
     status = db.Column(db.String(200))
 
-    def __init__(self, deliverable_ITC_id, ITC_check_id):
-        self.deliverable_ITC_id = deliverable_ITC_id
+    def __init__(self, deliverable_ITC_map_id, ITC_check_id):
+        self.deliverable_ITC_map_id = deliverable_ITC_map_id
         self.ITC_check_id = ITC_check_id
         self.status = "Not Started"
+        self.is_done = False

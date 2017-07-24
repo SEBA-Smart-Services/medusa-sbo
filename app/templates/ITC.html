@@ -12,7 +12,7 @@
   <br>
 
   <div>
-    <form method="POST" action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.name}}/check/change">
+    <form method="POST" action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.ITC.name}}/check/change">
       <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
         <thead>
           <tr>
@@ -28,7 +28,7 @@
         <tbody>
         {% for check in checks %}
           <tr>
-            <td class="mdl-data-table__cell--non-numeric">{{check.check.check_description}}</th>
+            <td class="mdl-data-table__cell--non-numeric">{{check.ITC_check.check.check_description}}</th>
             <td class="mdl-data-table__cell--non-numeric">{{check.comments}}</th>
             <td class="mdl-data-table__cell--non-numeric">{{check.status}}</td>
             <td class="mdl-data-table__cell--non-numeric">

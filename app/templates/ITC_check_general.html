@@ -1,30 +1,26 @@
 {% extends "layout.html" %}
 {% block content %}
-  <h3>Generic ITC list</h3>
+  <h3>Generic ITC - {{ITC.name}}</h3>
 
   <div class="mdl-cell mdl-cell--12-col mdl-grid">
       <table class="mdl-data-table mdl-js-data-table mdl-cell--12-col" >
         <thead>
           <tr>
             <th class="mdl-data-table__cell--non-numeric">Name</th>
-            <th class="mdl-data-table__cell--non-numeric">Deliverable Type</th>
+            <th class="mdl-data-table__cell--non-numeric">Description</th>
             <th class="mdl-data-table__cell--non-numeric"></th>
           </tr>
         </thead>
         <tbody>
-          {% for ITC in ITCs %}
+          {% for check in checks %}
             <tr>
-              <td class="mdl-data-table__cell--non-numeric">
-                <a href="/ITC/generic/{{ITC.id}}">
-                  {{ITC.name}}
-                </a>
-              </td>
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.deliverable_type}}</td>
+              <td class="mdl-data-table__cell--non-numeric">{{check.ITC.name}}</td>
+              <td class="mdl-data-table__cell--non-numeric">{{check.check.check_description}}</td>
               <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
-                <a href="/ITC/generic/{{ITC.id}}/edit">
+                <a href="/ITC/generic/{{ITC.id}}/check/edit">
                   Edit
                 </a>/
-                <a href="/ITC/generic/{{ITC.id}}/delete">
+                <a href="/ITC/generic/{{ITC.id}}/check/delete">
                   Delete
                 </a>
               </td>
@@ -34,8 +30,8 @@
       </table>
 
       <div class="mdl-cell mdl-cell--6-col">
-        <form action="/ITC/new">
-          <input type="submit" value="New ITC" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        <form action="/ITC/generic/{{ITC.id}}/check/new">
+          <input type="submit" value="New check" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
           </input>
         </form>
       </div>

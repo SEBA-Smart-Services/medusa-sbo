@@ -5,12 +5,9 @@
   <br>
 
   <div>
-    <form action="/site/{{ site.name }}/projects/{{ project.name }}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.name}}/check/new" method="POST">
-      <input type="text" name="check_comments" placeholder="Comments" required class="mdl-textfield__input">
-      <br>
-      <select name="check_generic" class="mdl-textfield__input">
-        <option value=""></option>
-        {% for check in checks_generic %}
+    <form action="/ITC/generic/{{ITC.id}}/check/new" method="POST">
+      <select name="check_generic" class="mdl-textfield__input" required>
+        {% for check in checks %}
           <option value="{{check.id}}">{{check.check_description}}</option>
         {% endfor %}
       </select>
