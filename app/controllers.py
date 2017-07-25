@@ -860,10 +860,13 @@ def site_project_ITP_deliverable_ITC_list(sitename, projectname, ITPname, delive
     deliverable = Deliverable.query.filter_by(ITP_id=project_ITP.id, name=deliverablename).first()
     ITP_ITCs = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
 
+    print(ITP_ITCs)
+
     for ITC in ITP_ITCs:
         total = 0
         completed = 0
-        checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=deliverable.id).all()
+        checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=ITC.id).all()
+        print(checks)
         for check in checks:
             total += 1
             if check.is_done == True:
@@ -932,19 +935,19 @@ def site_project_ITP_deliverable_ITC_delete(sitename, projectname, ITPname, deli
         return render_template('ITC_delete.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC)
 
 #Route for updating check completion
-@app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/ITC/<ITCname>/check/change', methods=['POST'])
-def site_project_ITP_deliverable_ITC_change(sitename, projectname, ITPname, deliverablename, ITCname):
+@app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/ITC/<ITCid>/check/change', methods=['POST'])
+def site_project_ITP_deliverable_ITC_change(sitename, projectname, ITPname, deliverablename, ITCid):
     site = Site.query.filter_by(name=sitename).first()
     project = Project.query.filter_by(name=projectname).first()
     project_ITP = ITP.query.filter_by(name=ITPname).first()
     deliverable = Deliverable.query.filter_by(name=deliverablename).first()
-    ITP_ITC = ITC.query.filter_by(name=ITCname).first()
-    deliver_ITC = Deliverable_ITC_map.query.filter_by(ITC_id=ITP_ITC.id).first()
+    deliver_ITC = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).first()
     user = current_user
     checked = request.form.getlist('check_box')
     completed_checks = Deliverable_check_map.query.filter_by(is_done=True, deliverable_ITC_map_id=deliver_ITC.id).all()
     checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=deliver_ITC.id).all()
 
+    print(ITCid)
 
     #Change form status to done
     for checkid in checked:
@@ -965,7 +968,7 @@ def site_project_ITP_deliverable_ITC_change(sitename, projectname, ITPname, deli
             completed_check.status = "In Progress"
             db.session.commit()
 
-    return redirect(url_for('ITC_testing', sitename=site, projectname=project.name, ITPname=project_ITP.name, deliverablename=deliverable.name, ITCid=deliver_ITC.ITC_id))
+    return redirect(url_for('ITC_testing', sitename=site, projectname=project.name, ITPname=project_ITP.name, deliverablename=deliverable.name, ITCid=ITCid))
 
 ################################################################################
 ###################### Specific ITC check list items ###########################
@@ -1017,7 +1020,7 @@ def ITC_testing(sitename, projectname, ITPname, deliverablename, ITCid):
     else:
         percentage_complete = (completed/total)*100
 
-    return render_template('ITC.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=deliver_ITC, checks=deliverable_checks, percentage_complete=percentage_complete)
+    return render_template('ITC.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=deliver_ITC, checks=deliverable_checks, ITCid=ITCid, percentage_complete=percentage_complete)
 
 #Route for editing a check
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/ITC/<ITCname>/checks/<checkid>/edit', methods=['POST','GET'])
