@@ -5,9 +5,9 @@
   </script>
 {% endblock %}
 {% block content %}
-  <h3>Checks for {{ITC.name}}</h3>
+  <h3>Checks for {{ITC.ITC.name}}</h3>
 
-  <h5>{{ITC.percentage_complete}}% completed</h5>
+  <h5>{{percentage_complete}}% completed</h5>
 
   <br>
 
@@ -45,10 +45,10 @@
             <td class="mdl-data-table__cell--non-numeric">{{check.completion_datetime}}</td>
             <td class="mdl-data-table__cell--non-numeric">{{check.user}}</td>
             <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
-              <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.name}}/check/{{check.id}}/edit">
+              <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.ITC.name}}/checks/{{check.id}}/edit">
                 Edit
               </a>/
-              <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.name}}/check/{{check.id}}/delete">
+              <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.ITC.name}}/checks/{{check.id}}/delete">
                 Delete
               </a>
             </td>

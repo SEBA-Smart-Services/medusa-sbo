@@ -102,7 +102,7 @@
             {% for ITC in ITCs %}
               <tr>
                 <td class="mdl-data-table__cell--non-numeric">
-                  <a href="/site/{{ site.name }}/projects/{{ project.name }}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.name}}">
+                  <a href="/site/{{ site.name }}/projects/{{ project.name }}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.ITC.id}}/checks">
                     {{ITC.ITC.name}}
                   </a>
                 </td>
@@ -110,10 +110,10 @@
                 <td class="mdl-data-table__cell--non-numeric">{{ITC.status}}</td>
                 <td class="mdl-data-table__cell--non-numeric">{{ITC.percentage_complete}}%</td>
                 <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
-                  <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.name}}/edit">
+                  <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.ITC.name}}/edit">
                     Edit
                   </a>/
-                  <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.name}}/delete">
+                  <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.ITC.name}}/delete">
                     Delete
                   </a>
                 </td>
