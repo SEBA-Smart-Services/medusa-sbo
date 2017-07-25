@@ -5,7 +5,7 @@
   <br>
 
   <div>
-    <form action="/ITC/generic/{{ITC.id}}/check/new" method="POST">
+    <form action="/generic/ITC/{{ITC.id}}/check/new" method="POST">
       <select name="check_generic" class="mdl-textfield__input" required>
         {% for check in checks %}
           <option value="{{check.id}}">{{check.check_description}}</option>
@@ -19,8 +19,16 @@
         <option value="Not Applicable">Not Applicable</option>
       </select>
       <br>
-      <input type="submit" value="Create ITC" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+      <input type="submit" value="Create Check" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     </form>
+
+    <div class="mdl-cell mdl-cell--6-col">
+      <form action="/generic/ITC/{{ITC.id}}" method="GET">
+        <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        </input>
+      </form>
+    </div>
+
   </div>
 
 {% endblock %}

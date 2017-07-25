@@ -1138,6 +1138,41 @@ def ITC_check_general_new(ITCid):
     else:
         return render_template('ITC_check_new.html', ITC=ITP_ITC, checks=checks_generic, allsites=True)
 
+#Route for editing a generic check
+@app.route('/generic/ITC/<ITCid>/check/<checkid>/edit', methods=['POST', 'GET'])
+def ITC_check_general_edit(ITCid, checkid):
+    ITP_ITC = ITC.query.filter_by(id=ITCid).first()
+    check = ITC_check_map.query.filter_by(id=checkid).first()
+
+    if request.method == 'POST':
+        description = request.form['check_description']
+        if (description != "" and description != check.check.check_description):
+            old_check = Check_generic.query.filter_by(check_description=description).first()
+            if old_check == None:
+                new_check = Check_generic(description)
+                db.session.add(new_check)
+                db.session.commit()
+                check.check_generic = new_check.id
+                db.session.commit()
+            else:
+                check.check_generic = old_check.id
+                db.session.commit()
+        return redirect(url_for('ITC_general', ITCid=ITP_ITC.id))
+    else:
+        return render_template('generic_ITC_check_edit.html', ITC=ITP_ITC, check=check, allsites=True)
+
+#Route for deleting a generic check
+@app.route('/generic/ITC/<ITCid>/check/<checkid>/delete', methods=['POST', 'GET'])
+def ITC_check_general_delete(ITCid, checkid):
+    ITP_ITC = ITC.query.filter_by(id=ITCid).first()
+    check = ITC_check_map.query.filter_by(id=checkid).first()
+
+    if request.method == 'POST':
+        db.session.delete(check)
+        db.session.commit()
+        return redirect(url_for('ITC_general', ITCid=ITP_ITC.id))
+    else:
+        return render_template('generic_ITC_check_delete.html', ITC=ITP_ITC, check=check, allsites=True)
 
 ################ Check creation and editing for generic ITC ####################
 

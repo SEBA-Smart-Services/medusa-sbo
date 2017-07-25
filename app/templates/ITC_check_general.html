@@ -17,10 +17,10 @@
               <td class="mdl-data-table__cell--non-numeric">{{check.ITC.name}}</td>
               <td class="mdl-data-table__cell--non-numeric">{{check.check.check_description}}</td>
               <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
-                <a href="/generic/ITC/{{ITC.id}}/check/edit">
+                <a href="/generic/ITC/{{ITC.id}}/check/{{check.id}}/edit">
                   Edit
                 </a>/
-                <a href="/generic/ITC/{{ITC.id}}/check/delete">
+                <a href="/generic/ITC/{{ITC.id}}/check/{{check.id}}/delete">
                   Delete
                 </a>
               </td>
@@ -29,12 +29,23 @@
         </tbody>
       </table>
 
-      <div class="mdl-cell mdl-cell--6-col">
-        <form action="/generic/ITC/{{ITC.id}}/check/new">
-          <input type="submit" value="New check" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
-          </input>
-        </form>
+      <br><br>
+      <div class="mdl-cell mdl-cell--12-col">
+        <div class="mdl-cell mdl-cell--6-col">
+          <form action="/generic/ITC/{{ITC.id}}/check/new">
+            <input type="submit" value="New check" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+            </input>
+          </form>
+        </div>
+
+        <div class="mdl-cell mdl-cell--6-col">
+          <form action="/generic/ITC" method="GET">
+            <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+            </input>
+          </form>
+        </div>
       </div>
+    </div>
   </div>
 
 {% endblock %}
