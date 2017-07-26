@@ -981,12 +981,9 @@ def start_ITC_testing(sitename, projectname, ITPname, deliverablename, ITCid):
     project = Project.query.filter_by(name=projectname).first()
     project_ITP = ITP.query.filter_by(name=ITPname).first()
     deliverable = Deliverable.query.filter_by(name=deliverablename).first()
-    deliver_ITC = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).first()
+    deliver_ITC = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id, id=ITCid).first()
     ITC_checks = ITC_check_map.query.filter_by(ITC_id=deliver_ITC.ITC_id).all()
     deliver_checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=deliver_ITC.id).all()
-
-    all_checks = Deliverable_check_map.query.all()
-    all_ITC = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
 
     for check in deliver_checks:
         db.session.delete(check)
@@ -1006,7 +1003,7 @@ def ITC_testing(sitename, projectname, ITPname, deliverablename, ITCid):
     project = Project.query.filter_by(name=projectname).first()
     project_ITP = ITP.query.filter_by(name=ITPname).first()
     deliverable = Deliverable.query.filter_by(name=deliverablename).first()
-    deliver_ITC = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).first()
+    deliver_ITC = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id, id=ITCid).first()
     deliverable_checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=deliver_ITC.id).all()
 
     total = 0

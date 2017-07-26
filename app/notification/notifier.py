@@ -7,12 +7,13 @@ import os
 
 #create pathway to config
 mydir = os.path.dirname(os.path.abspath(__file__))
-new_path = os.path.join(mydir, '..', '..', 'config.txt')
+#new_path = os.path.join(mydir, '..', '..', 'config.txt')
 
 import configparser
 config = configparser.ConfigParser()
-config.read(new_path)
-notify_email = config.get("emails","notify_email")
+#config.read(new_path)
+config.read('/var/lib/medusa/medusa-development.ini')
+notify_email = config.get("configurations","notify_email")
 
 class Notifier():
 
