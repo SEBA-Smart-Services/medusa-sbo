@@ -61,7 +61,11 @@ class EmailView(ProtectedView):
     pass
 
 class UserView(ProtectedView):
-    pass
+    column_exclude_list = ('confirmed_at', 'password')
+    form_create_rules = ('first_name', 'last_name','email', 'company', 'roles', 'sites')
+    column_list = ('id', 'first_name', 'last_name','email', 'company','roles', 'sites', 'email_confirmed')
+    #create_template='create_user.html'
+    column_filters = ('first_name', 'last_name', 'roles.name', 'sites.name')
 
 class RoleView(ProtectedView):
     pass
@@ -81,8 +85,6 @@ class DeliverableTypeView(ProtectedView):
 class LocationView(ProtectedView):
     column_display_pk = True
 
-class CheckGenericView(ProtectedView):
-    column_display_pk = True
 
 # attach the model views to the admin page
 admin.add_view(SiteView(Site, db.session))
@@ -105,4 +107,3 @@ admin.add_view(LoggedEntityView(LoggedEntity, db.session))
 admin.add_view(LogTimeValueView(LogTimeValue, db.session))
 admin.add_view(DeliverableTypeView(Deliverable_type, db.session))
 admin.add_view(LocationView(Location, db.session))
-admin.add_view(CheckGenericView(Check_generic, db.session))
