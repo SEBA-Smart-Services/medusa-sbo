@@ -1,4 +1,4 @@
-from app import app, db, registry
+from app import app, db, registry, user_datastore, security
 from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, PointType, Result, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp, InbuildingsConfig, Email
 from app.models import Alarm
 from app.models.ITP import Project, ITP, Deliverable, Location, Deliverable_type, ITC, ITC_check_map, Check_generic, Deliverable_ITC_map, Deliverable_check_map
@@ -8,7 +8,16 @@ from flask import json, request, render_template, url_for, redirect, jsonify, fl
 from flask_user import current_user
 from statistics import mean
 import datetime, time
+from flask_wtf import Form
+from wtforms import TextField, PasswordField, validators
+from werkzeug.security import check_password_hash
+from flask_security.utils import encrypt_password
 
+#@app.before_first_request
+#def create_user():
+#    db.create_all()
+#    user_datastore.create_user(email='medusa@test.com', password=encrypt_password('password123'), company='schneider-electric', first_name='Medusa', last_name='')
+#    db.session.commit()
 
 # enforce login required for all pages
 @app.before_request
@@ -17,33 +26,26 @@ def check_valid_login():
 
     if (request.endpoint and
         # not required for login page or static content
-        request.endpoint != 'user.login' and
+        request.endpoint != 'security.login' and
         request.endpoint != 'static' and
         not login_valid and
         # check if it's allowed to be public, see public_endpoint decorator
-        not getattr(app.view_functions[request.endpoint], 'is_public', False    ) ) :
+        not getattr(app.view_functions[request.endpoint], 'is_public', False    )) :
         # redirect to login page if they are not authenticated
-        return redirect(url_for('user.login'))
+        return redirect(url_for('security.login'))
 
 # decorator to make pages not require login
 def public_endpoint(function):
     function.is_public = True
     return function
 
-
 ###################################
 ## main pages for all sites
 ###################################
-
 # default path
 @app.route('/')
 def main():
     return redirect(url_for('dashboard_all'))
-
-# set homepage for overall view (Not sure why this is needed?)
-#@app.route('/site/all')
-#def homepage_all():
-#    return redirect(url_for('dashboard_all'))
 
 # show overview dashboard. has aggregated info for all the sites that are attached to the currently logged in user
 @app.route('/site/all/dashboard')

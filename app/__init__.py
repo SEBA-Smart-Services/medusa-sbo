@@ -28,6 +28,16 @@ for key in config['flask']:
 # set up database
 db = SQLAlchemy(app)
 
+from flask_security import Security, SQLAlchemyUserDatastore
+from app.models.users import User, Role
+#Set up flask_security
+user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+security = Security(app, user_datastore)
+app.config['DEBUG'] = True
+app.config['SECURITY_REGISTERABLE'] = True
+app.config['SECRET_KEY'] = config['security']['key_gen']
+app.config['SECURITY_PASSWORD_SALT'] = config['security']['salt']
+
 # set up database connection registry
 from app.models import SessionRegistry
 registry = SessionRegistry()

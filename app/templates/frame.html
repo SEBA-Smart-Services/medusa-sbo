@@ -94,7 +94,7 @@
                     <a class="mdl-navigation__link" href="/admin/site">Admin</a>
                   {% endif %}
                   <p class="mdl-navigation__link">
-                    <a class="navlink-manual" href="{{ url_for('user.profile') }}">{{ current_user.username }}</a>
+                    <a class="navlink-manual" href="{{ url_for('user.profile') }}">{{ current_user.email }}</a>
                     &nbsp;|&nbsp;
                     <a class="navlink-manual" href="{{ url_for('user.logout') }}">Sign out</a>
                   </p>
@@ -133,7 +133,7 @@
                     <a class="mdl-navigation__link" href="/admin/site">Admin</a>
                   {% endif %}
                   <p class="mdl-navigation__link">
-                    <a class="navlink-manual" href="{{ url_for('user.profile') }}">{{ current_user.username }}</a>
+                    <a class="navlink-manual" href="{{ url_for('user.profile') }}">{{ current_user.email }}</a>
                     &nbsp;|&nbsp;
                     <a class="navlink-manual" href="{{ url_for('user.logout') }}">Sign out</a>
                   </p>

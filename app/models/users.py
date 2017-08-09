@@ -1,6 +1,6 @@
-from flask_user import UserMixin
 from app import db
 from app.models.ITP import ITC_check_map, Deliverable_ITC_map
+from flask_security import UserMixin, RoleMixin
 
 
 # Define the User data model. Make sure to add the flask_user.UserMixin !!
@@ -8,16 +8,22 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
 
     # User authentication information (required for Flask-User)
-    username = db.Column(db.Unicode(255), nullable=False, server_default=u'', unique=True)
-    confirmed_at = db.Column(db.DateTime())
-    company = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), nullable=False, unique=True)
-    email_confirmed = db.Column(db.Boolean())
+    password = db.Column(db.String(255), nullable=False, server_default='')
+
+    company = db.Column(db.String(255), nullable=False)
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
-    password = db.Column(db.String(255), nullable=False, server_default='')
     # reset_password_token = db.Column(db.String(100), nullable=False, server_default='')
+
     active = db.Column(db.Boolean(), nullable=False, server_default='0')
+    authenticated = db.Column(db.Boolean, default=False)
+    last_login_at = db.Column(db.DateTime())
+    current_login_at = db.Column(db.DateTime())
+    last_login_ip = db.Column(db.String(100))
+    current_login_ip = db.Column(db.String(100))
+    login_count = db.Column(db.Integer)
+    confirmed_at = db.Column(db.DateTime())
 
     # Relationships
     roles = db.relationship('Role', secondary='users_roles',
@@ -27,11 +33,23 @@ class User(db.Model, UserMixin):
     Deliverable_ITC = db.relationship('Deliverable_check_map', backref='user')
 
     def __repr__(self):
-        return self.username
+        return self.email
 
+    # def is_active(self):
+    #     return True
+    #
+    # def get_id(self):
+    #     print(self.id)
+    #     return self.email
+    #
+    # def is_authenticated(self):
+    #     return self.authenticated
+    #
+    # def is_anonymous(self):
+    #     return False
 
 # Define the Role data model
-class Role(db.Model):
+class Role(db.Model, RoleMixin):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(50), nullable=False, server_default=u'', unique=True)  # for @roles_accepted()
     label = db.Column(db.Unicode(255), server_default=u'')  # for display purposes

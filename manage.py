@@ -69,10 +69,6 @@ roles = [
 ]
 
 test_asset_name = 'Test AHU'
-admin_user = 'sebb'
-admin_pw = config.get("configurations","password")
-test_user = 'user'
-test_pw = config.get("configurations","password")
 
 # drop all data and tables in database and regenerate it from scratch
 @manager.command
