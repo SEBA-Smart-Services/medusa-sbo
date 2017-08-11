@@ -31,12 +31,14 @@ db = SQLAlchemy(app)
 from flask_security import Security, SQLAlchemyUserDatastore
 from app.models.users import User, Role
 #Set up flask_security
-user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-security = Security(app, user_datastore)
 app.config['DEBUG'] = True
 app.config['SECURITY_REGISTERABLE'] = True
 app.config['SECRET_KEY'] = config['security']['key_gen']
+app.config['SECURITY_PASSWORD_HASH'] = 'bcrypt'
 app.config['SECURITY_PASSWORD_SALT'] = config['security']['salt']
+app.config['SECURITY_EMAIL_SENDER'] = config['configurations']['notify_email']
+user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+security = Security(app, user_datastore)
 
 # set up database connection registry
 from app.models import SessionRegistry

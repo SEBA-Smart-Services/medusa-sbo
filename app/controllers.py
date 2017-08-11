@@ -1,4 +1,4 @@
-from app import app, db, registry, user_datastore, security
+from app import app, db, registry, user_datastore, security, config
 from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, PointType, Result, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp, InbuildingsConfig, Email
 from app.models import Alarm
 from app.models.ITP import Project, ITP, Deliverable, Location, Deliverable_type, ITC, ITC_check_map, Check_generic, Deliverable_ITC_map, Deliverable_check_map
@@ -47,51 +47,91 @@ def public_endpoint(function):
 def main():
     return redirect(url_for('dashboard_all'))
 
+#Test flask Mail
+# @app.route('/testemail')
+# def test_email():
+#     from flask_mail import Mail, Message
+#     app.config['MAIL_SERVER'] = (config['flask']['EMAIL_HOST']).strip('\'')
+#     app.config['MAIL_PORT'] = config['flask']['EMAIL_PORT']
+#     app.config['MAIL_USE_SSL'] = True
+#     app.config['MAIL_USERNAME'] = (config['flask']['EMAIL_USERNAME']).strip('\'')
+#     app.config['MAIL_PASSWORD'] = (config['flask']['EMAIL_PASSWORD'])
+#     app.config['MAIL_DEFAULT_SENDER'] = (config['configurations']['notify_email']).strip('\'')
+#     app.config['MAIL_DEBUG'] = True
+#     app.config['MAIL_SUPRESS_SEND'] = False
+#     app.config['TESTING'] = False
+#     app.config['MAIL_USE_TLS'] = False
+#     mail = Mail(app)
+#
+#     print(mail)
+#     print(mail.sender)
+#     print(mail.password)
+#     print(mail.server)
+#     print(mail.port)
+#
+#     msg = Message("Hello",
+#                     body = "testing",
+#                     recipients=["kieran.quirkebrown@schneider-electric.com"])
+#
+#     print(msg)
+#
+#     mail.send(msg)
+#
+#     return url_for('main')
+
 # show overview dashboard. has aggregated info for all the sites that are attached to the currently logged in user
 @app.route('/site/all/dashboard')
 def dashboard_all():
     sites = current_user.sites
     # sqlalchemy can't do relationship filtering to see if an attribute is in a list of objects (e.g. to see if asset.site is in sites)
     # instead, we do the filtering on the ids (e.g. to see if asset.site.id is in the list of site ids)
-    site_ids = [site.id for site in sites]
-    # get only results that are active or unacknowledged
-    # needs to be joined to the site table to do filtering on the site id
-    results = Result.query.join(Result.asset).join(Asset.site).filter((Result.active == True) | (Result.acknowledged == False), Site.id.in_(site_ids)).order_by(Asset.priority.asc()).all()
-    num_results = len(results)
+    if len(sites) > 0:
+        site_ids = [site.id for site in sites]
+        # get only results that are active or unacknowledged
+        # needs to be joined to the site table to do filtering on the site id
+        results = Result.query.join(Result.asset).join(Asset.site).filter((Result.active == True) | (Result.acknowledged == False), Site.id.in_(site_ids)).order_by(Asset.priority.asc()).all()
+        num_results = len(results)
 
-    if num_results == 0:
-        # there are no issues across any sites. Celebrate!
-        top_priority = "-"
-    else:
-        top_priority = results[0].asset.priority
+        if num_results == 0:
+            # there are no issues across any sites. Celebrate!
+            top_priority = "-"
+        else:
+            top_priority = results[0].asset.priority
 
-    # join to site table to allow filtering by site id
-    if len(Asset.query.join(Asset.site).filter(Site.id.in_(site_ids)).all()) > 0:
+        # join to site table to allow filtering by site id
+        if len(Asset.query.join(Asset.site).filter(Site.id.in_(site_ids)).all()) > 0:
+            try:
+                avg_health = mean([asset.health for asset in Asset.query.join(Asset.site).filter(Site.id.in_(site_ids)).all()])
+            except TypeError:
+                # one of the asset healths is Null, so set it to zero
+                for asset in Asset.query.all():
+                    if asset.health is None:
+                        asset.health = 0
+                db.session.commit()
+                avg_health = mean([asset.health for asset in Asset.query.join(Asset.site).filter(Site.id.in_(site_ids)).all()])
+
+        else:
+            avg_health = 0
+
+        # get alarms display data
+
+        nalarms = "FAIL"
+        # get database session for this site
         try:
-            avg_health = mean([asset.health for asset in Asset.query.join(Asset.site).filter(Site.id.in_(site_ids)).all()])
-        except TypeError:
-            # one of the asset healths is Null, so set it to zero
-            for asset in Asset.query.all():
-                if asset.health is None:
-                    asset.health = 0
-            db.session.commit()
-            avg_health = mean([asset.health for asset in Asset.query.join(Asset.site).filter(Site.id.in_(site_ids)).all()])
+            nalarms = get_alarms_per_week(db.session, nweeks=8)
 
+        except Exception as e:
+            message = "No data. " + str(e)
+
+        # join to site table to allow filtering by site id
+        low_health_assets = len(Asset.query.join(Asset.site).filter(Asset.health < 0.5, Site.id.in_(site_ids)).all())
     else:
+        results = []
+        num_results = 0
+        top_priority = "-"
         avg_health = 0
-
-    # get alarms display data
-
-    nalarms = "FAIL"
-    # get database session for this site
-    try:
-        nalarms = get_alarms_per_week(db.session, nweeks=8)
-
-    except Exception as e:
-        message = "No data. " + str(e)
-
-    # join to site table to allow filtering by site id
-    low_health_assets = len(Asset.query.join(Asset.site).filter(Asset.health < 0.5, Site.id.in_(site_ids)).all())
+        low_health_assets = []
+        nalarms = []
     # only send results[0:5], to display the top 5 priority issues in the list
     return render_template('dashboard.html', results=results[0:5], num_results=num_results, top_priority=top_priority, avg_health=avg_health, low_health_assets=low_health_assets, allsites=True, alarmcount=nalarms)
 

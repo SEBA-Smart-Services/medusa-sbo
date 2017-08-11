@@ -1,16 +1,30 @@
-from app import app, db
+from app import app, db, config
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_user import current_user
 from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, FunctionalDescriptorCategory, PointType, InbuildingsAsset, Result, EmailTemplate, Email, User, Role, Alarm, LoggedEntity, LogTimeValue
 from app.weather.models import Weather
 from app.models.ITP import Deliverable_type, Location, Check_generic
+from flask_mail import Mail, Message
 
 # configuration of views for Admin page
 # some columns (eg results) are excluded, since it tries to load and display >10,000 entries and crashes the page
 # default sort column is needed on views that have enough entries to use pagination
 
 admin = Admin(app)
+
+#Flask Mail Setup
+app.config['MAIL_SERVER'] = (config['flask']['EMAIL_HOST']).strip('\'')
+app.config['MAIL_PORT'] = config['flask']['EMAIL_PORT']
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USERNAME'] = (config['flask']['EMAIL_USERNAME']).strip('\'')
+app.config['MAIL_PASSWORD'] = config['flask']['EMAIL_PASSWORD']
+app.config['MAIL_DEFAULT_SENDER'] = (config['configurations']['notify_email']).strip('\'')
+app.config['MAIL_DEBUG'] = True
+app.config['MAIL_SUPRESS_SEND'] = False
+app.config['TESTING'] = False
+app.config['MAIL_USE_TLS'] = False
+mail = Mail(app)
 
 # view that requires the current user to be authenticated as admin
 # all views should be subclasses of this
@@ -61,11 +75,47 @@ class EmailView(ProtectedView):
     pass
 
 class UserView(ProtectedView):
-    column_exclude_list = ('confirmed_at', 'password')
+    column_exclude_list = ('password')
     form_create_rules = ('first_name', 'last_name','email', 'company', 'roles', 'sites')
-    column_list = ('id', 'first_name', 'last_name','email', 'company','roles', 'sites', 'email_confirmed')
     #create_template='create_user.html'
     column_filters = ('first_name', 'last_name', 'roles.name', 'sites.name')
+    column_editable_list = ['first_name', 'last_name']
+    form_excluded_columns = ['Deliverable_ITC', 'password', 'last_login_ip', 'last_login_at', 'current_login_ip', 'current_login_at', 'login_count', 'confirmed_at']
+    can_view_details = True
+
+    def after_model_change(self, form, model, is_created):
+        if model.active == 1:
+            print('account is active')
+            pass
+        else:
+            print('account needs to be activated')
+            # msg = Message("Hello",
+            #                 recipients=[model.email])
+            # msg.body = "testing"
+            #
+            # print(msg.sender)
+            # print(msg.recipients)
+            # print(mail.server)
+            # print(mail.port)
+            # print(msg)
+            #mail.send(msg)
+
+            import smtplib
+
+            user = app.config['MAIL_USERNAME']
+            pw = app.config['MAIL_PASSWORD']
+            host = app.config['MAIL_SERVER']
+            port = app.config['MAIL_PORT']
+            me   = app.config['MAIL_DEFAULT_SENDER']
+            you  = (model.email,)
+            body = "The gorgon Medusa has risen!! \n Stare into my eyes!"
+            msg  = ("From: %s\r\nTo: %s\r\n\r\n" % (me, ", ".join(you)))
+            msg = msg + body
+            s = smtplib.SMTP(host, port, timeout = 10)
+            s.starttls()
+            s.login(user, pw)
+            s.sendmail(me, you, msg)
+            s.quit()
 
 class RoleView(ProtectedView):
     pass
