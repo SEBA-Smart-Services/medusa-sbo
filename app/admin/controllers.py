@@ -77,7 +77,7 @@ class EmailView(ProtectedView):
 
 class UserView(ProtectedView):
     column_exclude_list = ('password')
-    form_create_rules = ('first_name', 'last_name','email', 'company', 'roles', 'sites')
+    form_create_rules = ('first_name', 'last_name','email', 'company', 'roles', 'sites', 'active', 'authenticated')
     #create_template='create_user.html'
     column_filters = ('first_name', 'last_name', 'roles.name', 'sites.name')
     column_editable_list = ['first_name', 'last_name']
@@ -87,19 +87,30 @@ class UserView(ProtectedView):
     def after_model_change(self, form, model, is_created):
         if model.active == 1:
             print('account is active')
-            pass
         else:
             print('account needs to be activated')
-            from app.templates.security import email
-            try:
-                html = render_template('welcome.html', user=user
-            except:
-                html = "<b>HTML did not render</b>"
-            msg = Message("Hello",
-                            recipients=[model.email])
-            msg.html = html
 
+        if len(model.password) == 0:
+            import string
+            import random
+            from flask_security.utils import hash_password
+            def pw_gen(size=10, chars=string.ascii_uppercase + string.ascii_lowercase + string.digits):
+                return ''.join(random.choice(chars) for _ in range(size))
+
+            password = pw_gen()
+            print(password)
+            model.password = password
+            from app.templates.security import email
+            msg = Message("Medusa Temp Password",
+                        recipients=[model.email])
+            msg.body = "Your temporary password is: " + password
             mail.send(msg)
+            from flask_security.changeable import change_user_password
+            print(model)
+            print(model.password)
+            model.password = hash_password(password)
+            db.session.commit()
+
 
 class RoleView(ProtectedView):
     pass

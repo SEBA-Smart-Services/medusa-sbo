@@ -1,3 +1,7 @@
+{% extends 'flask_user/public_base.html' %}
+
+{% block content %}
+
 {% from "security/_macros.html" import render_field_with_errors, render_field %}
 {% include "security/_messages.html" %}
 <h1>{{ _('Register') }}</h1>
@@ -11,3 +15,5 @@
   {{ render_field(register_user_form.submit) }}
 </form>
 {% include "security/_menu.html" %}
+
+{% endblock %}

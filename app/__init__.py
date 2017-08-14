@@ -40,6 +40,8 @@ app.config['SECRET_KEY'] = config['security']['key_gen']
 app.config['SECURITY_PASSWORD_HASH'] = 'bcrypt'
 app.config['SECURITY_PASSWORD_SALT'] = config['security']['salt']
 app.config['SECURITY_EMAIL_SENDER'] = config['configurations']['notify_email']
+app.config['SECURITY_CHANGEABLE'] = True
+app.config['SECURITY_POST_CHANGE_VIEW'] = '/'
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
 

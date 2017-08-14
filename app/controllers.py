@@ -13,21 +13,27 @@ from wtforms import TextField, PasswordField, validators
 from werkzeug.security import check_password_hash
 from flask_security.utils import encrypt_password
 
-#@app.before_first_request
-#def create_user():
-#    db.create_all()
-#    user_datastore.create_user(email='medusa@test.com', password=encrypt_password('password123'), company='schneider-electric', first_name='Medusa', last_name='')
-#    db.session.commit()
-
 # enforce login required for all pages
 @app.before_request
 def check_valid_login():
     login_valid = current_user.is_authenticated
 
+    print(request.endpoint)
+
+    if current_user.is_anonymous == False:
+        print((datetime.datetime.now() - current_user.confirmed_at).total_seconds())
+        if((datetime.datetime.now() - current_user.confirmed_at).total_seconds() < 36005 and request.endpoint != 'security.change_password'):
+            return redirect(url_for('security.change_password'))
+
     if (request.endpoint and
         # not required for login page or static content
         request.endpoint != 'security.login' and
         request.endpoint != 'static' and
+        request.endpoint != 'security.forgot_password' and
+        request.endpoint != 'security.reset_password' and
+        request.endpoint != 'security.send_confirmation' and
+        request.endpoint != 'security.confirm_email' and
+        request.endpoint != 'security.register' and
         not login_valid and
         # check if it's allowed to be public, see public_endpoint decorator
         not getattr(app.view_functions[request.endpoint], 'is_public', False    )) :
