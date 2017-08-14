@@ -12,11 +12,49 @@
     <div class="mdl-cell mdl-cell--4-col mdl-cell--1-offset mdl-grid">
 
       <div class="mdl-cell mdl-cell--6-col mdl-shadow--4dp mdl-typography--text-center">
-        <div class="mdl-card__title"><h2 class="mdl-card__title-text">Total Issues</h2></div>
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Number of Issues</h2>
+        </div>
         <h1 style="font-size: 700%">{{ num_results }}</h1>
       </div>
 
       <div class="mdl-cell mdl-cell--6-col mdl-shadow--4dp mdl-typography--text-center">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Average asset health</h2>
+        </div>
+        <div id="donutchart"></div>
+        <script type="text/javascript">
+          google.charts.load("current", {packages:["corechart"]});
+          google.charts.setOnLoadCallback(drawChart);
+          function drawChart(){
+            var data = google.visualization.arrayToDataTable([
+              ['State', 'Percentage'],
+              ['Healthy', 80],
+              ['Unhealthy', 15],
+              ['Unknown', 5]
+            ]);
+
+            var options = {
+              pieHole: 0.4,
+              colors: ['green', 'red', 'orange'],
+              pieSliceTextStyle: {
+                color: 'black',
+              },
+              legend: 'none'
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('donutchart'));
+            chart.draw(data, options);
+          }
+
+          $(window).resize(function(){
+            drawChart();
+          });
+        </script>
+        <br><br>
+      </div>
+
+      <!-- <div class="mdl-cell mdl-cell--6-col mdl-shadow--4dp mdl-typography--text-center">
         <div class="mdl-card__title">
           <h2 class="mdl-card__title-text">Average asset health</h2>
         </div>
@@ -30,7 +68,7 @@
           </svg>
         </div>
         <br><br>
-      </div>
+      </div> -->
 
       <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
         <div class="mdl-card__title"><h2 class="mdl-card__title-text">Alarms</h2></div>
@@ -79,8 +117,6 @@
   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" style="position: fixed; left: -1000px; height: -1000px;">
   </svg>
 
-
-  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script type="text/javascript">
   google.charts.load('current', {packages: ['corechart', 'bar']});
   google.charts.setOnLoadCallback(drawAnnotations);
@@ -112,5 +148,9 @@
         var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
         chart.draw(data, options);
       }
+
+      $(window).resize(function(){
+         drawAnnotations();
+      });
   </script>
 {% endblock %}

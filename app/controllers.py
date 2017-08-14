@@ -21,7 +21,6 @@ def check_valid_login():
     print(request.endpoint)
 
     if current_user.is_anonymous == False:
-        print((datetime.datetime.now() - current_user.confirmed_at).total_seconds())
         if((datetime.datetime.now() - current_user.confirmed_at).total_seconds() < 36005 and request.endpoint != 'security.change_password'):
             return redirect(url_for('security.change_password'))
 
