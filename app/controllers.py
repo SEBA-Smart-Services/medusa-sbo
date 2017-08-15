@@ -20,10 +20,6 @@ def check_valid_login():
 
     print(request.endpoint)
 
-    if current_user.is_anonymous == False:
-        if((datetime.datetime.now() - current_user.confirmed_at).total_seconds() < 36005 and request.endpoint != 'security.change_password'):
-            return redirect(url_for('security.change_password'))
-
     if (request.endpoint and
         # not required for login page or static content
         request.endpoint != 'security.login' and
@@ -33,6 +29,7 @@ def check_valid_login():
         request.endpoint != 'security.send_confirmation' and
         request.endpoint != 'security.confirm_email' and
         request.endpoint != 'security.register' and
+        request.endpoint != 'security.change_password' and
         not login_valid and
         # check if it's allowed to be public, see public_endpoint decorator
         not getattr(app.view_functions[request.endpoint], 'is_public', False    )) :
