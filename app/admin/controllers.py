@@ -78,7 +78,7 @@ class EmailView(ProtectedView):
     pass
 
 class UserView(ProtectedView):
-    column_exclude_list = ('password')
+    column_exclude_list = ('password', 'last_login_ip', 'last_login_at', 'current_login_ip', 'current_login_at', 'login_count')
     form_create_rules = ('first_name', 'last_name','email', 'company', 'roles', 'sites', 'active', 'authenticated')
     #create_template='create_user.html'
     column_filters = ('first_name', 'last_name', 'roles.name', 'sites.name')
@@ -107,7 +107,7 @@ class UserView(ProtectedView):
             from app.templates.security import email
             msg = Message("Medusa Temp Password",
                         recipients=[model.email])
-            msg.body = "Your temporary password is: " + password + "\nPlease click on the following confirmation link " + confirmation_link
+            msg.body = "Your temporary password is: " + password + "\n\nPlease click on the following confirmation link " + confirmation_link
             mail.send(msg)
             from flask_security.changeable import change_user_password
             model.password = hash_password(password)

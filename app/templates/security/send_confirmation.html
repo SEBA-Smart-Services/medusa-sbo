@@ -12,4 +12,9 @@
   </form>
   {% include "security/_menu.html" %}
 
+  <script>
+      document.getElementById("email").setAttribute("class", "mdl-textfield__input")
+      document.getElementById("submit").setAttribute("class", "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent")
+  </script>
+
 {% endblock %}

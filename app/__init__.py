@@ -33,7 +33,7 @@ from app.models.users import User, Role
 #Set up flask_security
 app.config['DEBUG'] = True
 app.config['SECURITY_CONFIRMABLE'] = True
-app.config['SECURITY_REGISTERABLE'] = True
+app.config['SECURITY_REGISTERABLE'] = False
 app.config['SECURITY_RECOVERABLE'] = True
 app.config['SECURITY_TRACKABLE'] = True
 app.config['SECRET_KEY'] = config['security']['key_gen']
@@ -42,6 +42,7 @@ app.config['SECURITY_PASSWORD_SALT'] = config['security']['salt']
 app.config['SECURITY_EMAIL_SENDER'] = config['configurations']['notify_email']
 app.config['SECURITY_CHANGEABLE'] = True
 app.config['SECURITY_POST_CHANGE_VIEW'] = '/'
+app.config['SECURITY_POST_RESET_VIEW'] = '/'
 app.config['SECURITY_POST_CONFIRM_VIEW'] = 'security.change_password'
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)

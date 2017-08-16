@@ -55,6 +55,19 @@
         <div class="mld-layout-spacer"></div>
         <nav class="mdl-navigation" style="position: fixed; right: 0;">
           {% if call_or_get(current_user.is_authenticated) %}
+              <a class="mdl-navigation__link" href="/site/all/dashboard">Dashboard</a>
+              {% if current_user.has_role('performance_centre') %}
+                <a class="mdl-navigation__link" href="/site/all/weather">Weather</a>
+                <a class="mdl-navigation__link" href="/site/all/map">Map</a>
+              {% endif %}
+              <a class="mdl-navigation__link" href="/generic">Generic</a>
+              <a class="mdl-navigation__link" href="/site/all/sites">Sites</a>
+              <a class="mdl-navigation__link" href="/site/all/issues">Issues</a>
+              <a class="mdl-navigation__link" href="/site/all/issue-chart">Issue Chart</a>
+              {% if current_user.has_role('admin') %}
+                <a class="mdl-navigation__link" href="/site/all/add_site">Add Site</a>
+                <a class="mdl-navigation__link" href="/admin/site">Admin</a>
+              {% endif %}
               <a class="mdl-navigation__link" href="{{ url_for('user.profile') }}">{{ current_user.email }}</a>
               &nbsp; | &nbsp;
               <a class="mdl-navigation__link" href="{{ url_for('user.logout') }}">Sign out</a>
@@ -66,15 +79,6 @@
 
       </header>
       <main class="mdl-layout__content" style="flex: 1 0 auto;">
-        {% block menu %}
-        <div id="menu-div" class="with-margins">
-            <a href="/">Home</a>
-            {% if call_or_get(current_user.is_authenticated) %}
-                &nbsp; | &nbsp; <a href="{{ url_for('user.profile') }}">User profile</a>
-            {% endif %}
-        </div>
-        {% endblock %}
-        <hr class="no-margins"/>
 
         <div id="main-div" class="with-margins">
         {# One-time system messages called Flash messages #}
@@ -98,7 +102,6 @@
         </div>
 
         <br/>
-        <hr class="no-margins"/>
       </main>
 
       {% endblock %}
