@@ -1,11 +1,11 @@
-from app import app, db, config
+from app import app, db, mail
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_user import current_user
 from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, FunctionalDescriptorCategory, PointType, InbuildingsAsset, Result, EmailTemplate, Email, User, Role, Alarm, LoggedEntity, LogTimeValue
 from app.weather.models import Weather
 from app.models.ITP import Deliverable_type, Location, Check_generic
-from flask_mail import Mail, Message
+from flask_mail import Message
 from flask import render_template, url_for
 
 # configuration of views for Admin page
@@ -15,17 +15,16 @@ from flask import render_template, url_for
 admin = Admin(app)
 
 #Flask Mail Setup
-app.config['MAIL_SERVER'] = (config['flask']['EMAIL_HOST']).strip('\'')
-app.config['MAIL_PORT'] = config['flask']['EMAIL_PORT']
-app.config['MAIL_USE_SSL'] = False
-app.config['MAIL_USERNAME'] = (config['flask']['EMAIL_USERNAME']).strip('\'')
-app.config['MAIL_PASSWORD'] = (config['flask']['EMAIL_PASSWORD']).strip('\'')
-app.config['MAIL_DEFAULT_SENDER'] = (config['configurations']['notify_email']).strip('\'')
-app.config['MAIL_DEBUG'] = True
-app.config['MAIL_SUPRESS_SEND'] = False
-app.config['TESTING'] = False
-app.config['MAIL_USE_TLS'] = True
-mail = Mail(app)
+# app.config['MAIL_SERVER'] = (config['flask']['EMAIL_HOST']).strip('\'')
+# app.config['MAIL_PORT'] = config['flask']['EMAIL_PORT']
+# app.config['MAIL_USE_SSL'] = False
+# app.config['MAIL_USERNAME'] = (config['flask']['EMAIL_USERNAME']).strip('\'')
+# app.config['MAIL_PASSWORD'] = (config['flask']['EMAIL_PASSWORD']).strip('\'')
+# app.config['MAIL_DEFAULT_SENDER'] = (config['configurations']['notify_email']).strip('\'')
+# app.config['MAIL_DEBUG'] = True
+# app.config['MAIL_SUPRESS_SEND'] = False
+# app.config['TESTING'] = False
+# app.config['MAIL_USE_TLS'] = True
 
 # view that requires the current user to be authenticated as admin
 # all views should be subclasses of this

@@ -1,4 +1,4 @@
-from app import app, db, registry, user_datastore, security, config
+from app import app, db, registry, user_datastore, security
 from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, PointType, Result, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp, InbuildingsConfig, Email
 from app.models import Alarm
 from app.models.ITP import Project, ITP, Deliverable, Location, Deliverable_type, ITC, ITC_check_map, Check_generic, Deliverable_ITC_map, Deliverable_check_map

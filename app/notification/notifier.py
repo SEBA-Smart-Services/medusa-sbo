@@ -1,4 +1,4 @@
-from app import cmms
+from app import app, cmms
 from app.models import EmailTemplate
 from .emailClient import EmailClient
 from app.cmms.controllers import CMMS
@@ -13,12 +13,12 @@ import configparser
 config = configparser.ConfigParser()
 #config.read(new_path)
 config.read('/var/lib/medusa/medusa-development.ini')
-notify_email = config.get("configurations","notify_email")
+sender = app.config["MAIL_DEFAULT_SENDER"]
 
 class Notifier():
 
     def __init__(self):
-        self.email_client = EmailClient(notify_email)
+        self.email_client = EmailClient(sender)
         self.cmms = CMMS()
 
     def issue_notify(self, issue):

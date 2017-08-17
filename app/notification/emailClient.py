@@ -12,8 +12,8 @@ class EmailClient(object):
 
     def __init__(self, sender):
         # initial settings
-        self.set_host(app.config['EMAIL_HOST'], app.config['EMAIL_PORT'])
-        self.set_auth(app.config['EMAIL_USERNAME'], app.config['EMAIL_PASSWORD'])
+        self.set_host(app.config['MAIL_SERVER'], app.config['MAIL_PORT'])
+        self.set_auth(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
         self.set_sender(sender)
 
     def set_host(self, host, port):
