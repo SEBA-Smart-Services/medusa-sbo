@@ -12,4 +12,3 @@ ExecStart=/var/www/medusa/env/bin/python3 /var/www/medusa/download_config.py
 
 [Install]
 WantedBy=multi-user.target
-

@@ -9,10 +9,6 @@ import os
 mydir = os.path.dirname(os.path.abspath(__file__))
 #new_path = os.path.join(mydir, '..', '..', 'config.txt')
 
-import configparser
-config = configparser.ConfigParser()
-#config.read(new_path)
-config.read('/var/lib/medusa/medusa-development.ini')
 sender = app.config["MAIL_DEFAULT_SENDER"]
 
 class Notifier():
