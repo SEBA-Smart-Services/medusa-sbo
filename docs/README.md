@@ -5,6 +5,7 @@
 - [Setup a site project with ITP](user/project.md)
 
 ### Developer docs
+- [New developer getting started](dev/onboarding.md)
 - [Overview of software architecture](dev/architecture.md)
 - [Version control](dev/versioncontrol.md)
 - [Install and configure medusa server](dev/install.md)
