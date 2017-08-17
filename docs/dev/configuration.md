@@ -17,8 +17,8 @@ The medusa app config is loaded in the following workflow:
 1. Follow the instructions in the previous section to roll out an EC2 instance.
 2. Stop the `medusa` service with `$ sudo systemctl stop medusa`
 3. Copy the latest medusa `systemd` service files into `/etc/systemd/system`:
-  - [medusa.service](medusa-sbo/docs/ec2conf/etc/systemd/system/medusa.service)
-  - [medusa-config.service](medusa-sbo/docs/ec2conf/etc/systemd/system/medusa-config.service)
+  - [medusa.service](../ec2conf/etc/systemd/system/medusa.service)
+  - [medusa-config.service](../ec2conf/etc/systemd/system/medusa-config.service)
 4. Start the  `medusa` service with `$ sudo systemctl start medusa`
 
 ## Testing outside of the systemd environment
