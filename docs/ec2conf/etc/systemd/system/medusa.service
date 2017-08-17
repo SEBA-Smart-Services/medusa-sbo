@@ -7,8 +7,14 @@ Requires=medusa-config.service
 User=www-data
 Group=www-data
 WorkingDirectory=/var/www/medusa
-Environment="PATH=/var/www/medusa/env/bin" "MEDUSA_CONFIG=/var/lib/medusa/medusa-production.ini"
-ExecStart=/var/www/medusa/env/bin/uwsgi --ini $MEDUSA_CONFIG
+Environment=PATH=/var/www/medusa/env/bin
+# load all Flask settings into environment, select which config to use in medusa/app/__init__.py
+Environment=MEDUSA_DEVELOPMENT_SETTINGS=/var/lib/medusa/medusa-development.cfg
+Environment=MEDUSA_TESTING_SETTINGS=/var/lib/medusa/medusa-testing.cfg
+Environment=MEDUSA_PRODUCTION_SETTINGS=/var/lib/medusa/medusa-production.cfg
+# Set which uwsgi settings to load
+Environment=UWSGI_SETTINGS=/var/lib/medusa/uwsgi-development.ini
+ExecStart=/var/www/medusa/env/bin/uwsgi --ini $UWSGI_SETTINGS
 
 [Install]
 WantedBy=multi-user.target
