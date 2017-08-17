@@ -53,6 +53,10 @@ from app.models.users import User, Role
 # app.config['SECURITY_CHANGEABLE'] = True
 # app.config['SECURITY_POST_CHANGE_VIEW'] = '/'
 
+app.config['SECURITY_POST_CHANGE_VIEW'] = '/'
+app.config['SECURITY_POST_RESET_VIEW'] = '/'
+app.config['SECURITY_POST_CONFIRM_VIEW'] = 'security.change_password'
+
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
 

@@ -7,6 +7,8 @@ from app.weather.models import Weather
 from app.models.ITP import Deliverable_type, Location, Check_generic
 from flask_mail import Message
 from flask import render_template, url_for
+from flask_security.utils import hash_password, send_mail
+from flask_security.confirmable import generate_confirmation_link
 
 # configuration of views for Admin page
 # some columns (eg results) are excluded, since it tries to load and display >10,000 entries and crashes the page
@@ -75,7 +77,7 @@ class EmailView(ProtectedView):
     pass
 
 class UserView(ProtectedView):
-    column_exclude_list = ('password')
+    column_exclude_list = ('password', 'last_login_ip', 'last_login_at', 'current_login_ip', 'current_login_at', 'login_count')
     form_create_rules = ('first_name', 'last_name','email', 'company', 'roles', 'sites', 'active', 'authenticated')
     #create_template='create_user.html'
     column_filters = ('first_name', 'last_name', 'roles.name', 'sites.name')
@@ -89,27 +91,26 @@ class UserView(ProtectedView):
         else:
             print('account needs to be activated')
 
+        #Randomly generate temp user pw and send to email
         if len(model.password) == 0:
             import string
             import random
-            from flask_security.utils import hash_password
             def pw_gen(size=10, chars=string.ascii_uppercase + string.ascii_lowercase + string.digits):
                 return ''.join(random.choice(chars) for _ in range(size))
 
             password = pw_gen()
-            print(password)
             model.password = password
+            confirmation_link, token = generate_confirmation_link(model)
+            print(confirmation_link)
+            print(token)
             from app.templates.security import email
             msg = Message("Medusa Temp Password",
                         recipients=[model.email])
-            msg.body = "Your temporary password is: " + password
+            msg.body = "Your temporary password is: " + password + "\n\nPlease click on the following confirmation link " + confirmation_link
             mail.send(msg)
             from flask_security.changeable import change_user_password
-            print(model)
-            print(model.password)
             model.password = hash_password(password)
             db.session.commit()
-
 
 class RoleView(ProtectedView):
     pass
