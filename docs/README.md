@@ -2,6 +2,7 @@
 
 ### User guide
 - [Quickstart](user/README.md)
+- [Setup a site project with ITP](user/project.md)
 
 ### Developer docs
 - [Overview of software architecture](dev/architecture.md)
