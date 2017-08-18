@@ -1,0 +1,44 @@
+{% extends "layout-empty.html" %}
+{% block content %}
+  <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
+      <h3>Projects</h3>
+  </div>
+
+  <div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+      <div class="mdl-card__title">
+        <h2 class="mdl-card__title-text">Projects</h2>
+      </div>
+      <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+        <thead>
+          <tr>
+            <th class="mdl-data-table__cell--non-numeric">Name</th>
+            <th class="mdl-data-table__cell--non-numeric">Project Number</th>
+            <th class="mdl-data-table__cell--non-numeric">Site</th>
+            <th class="mdl-data-table__cell--non-numeric">percentage complete</th>
+            <th class="mdl-data-table__cell--non-numeric">Assigned to</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for project in projects %}
+            <tr>
+              <td class="mdl-data-table__cell--non-numeric"><a href="/site/{{project.site}}/projects/{{project.name}}">{{ project.name }}</a></td>
+              <td class="mdl-data-table__cell--non-numeric">#534</td>
+              <td class="mdl-data-table__cell--non-numeric">{{ project.site }}</td>
+              <td class="mdl-data-table__cell--non-numeric">0%</td>
+              <td class="mdl-data-table__cell--non-numeric">Person A<td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <form action="/generic" method="GET">
+      <input type="submit" value="Create Template" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+      </input>
+    </form>
+
+
+
+  </div>
+{% endblock %}

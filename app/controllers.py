@@ -471,6 +471,21 @@ def return_alarms(sitename):
     )
 
 
+####################### View all projects for user #############################
+
+@app.route('/projects')
+def all_projects():
+    all_projects = []
+    for site in current_user.sites:
+        print(site.id)
+        projects = Project.query.filter_by(site_id=site.id).all()
+        all_projects = all_projects + projects
+
+    print(all_projects)
+
+    return render_template('projects.html', projects=all_projects, allsites=True)
+
+
 ################################################################################
 ########################## controllers for ITP routes###########################
 ################################################################################

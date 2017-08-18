@@ -76,17 +76,23 @@
                       <a class="mdl-navigation__link" href="/site/all/map">Map</a>
                     {% endif %}
                   {% endif %}
-                  <a class="mdl-navigation__link" href="/generic">Generic</a>
-                  <a class="mdl-navigation__link" href="/site/all/sites">Facilities</a>
+                  <a class="mdl-navigation__link" href="/site/all/sites">Sites</a>
                   <a class="mdl-navigation__link" href="/site/all/issues">Issues</a>
+                  <a class="mdl-navigation__link" href="/projects">Projects</a>
                   <a class="mdl-navigation__link" href="/site/all/issue-chart">Issue Chart</a>
+                  {% if current_user.is_authenticated %}
+                    {% if current_user.has_role('admin') %}
+                      <a class="mdl-navigation__link" href="/site/all/add_site">Add Site</a>
+                    {% endif %}
+                  {% endif %}
                 {% else %}
                   <a class="mdl-navigation__link" href="/site/{{site.name}}/dashboard">Dashboard</a>
                   <a class="mdl-navigation__link" href="/site/{{site.name}}/projects">Projects</a>
                   <a class="mdl-navigation__link" href="/site/{{site.name}}/issues">Issues</a>
                   <a class="mdl-navigation__link" href="/site/{{site.name}}/assets">Assets</a>
+                  <a class="mdl-navigation__link" href="/site/{{site.name}}/add">Add Asset</a>
                   <a class="mdl-navigation__link" href="/site/{{site.name}}/config">Site Config</a>
-                  <a class="mdl-navigation__link" href="/site/all">All Facilities</a>
+                  <a class="mdl-navigation__link" href="/site/all">All Sites</a>
                 {% endif %}
                 {% if current_user.is_authenticated %}
                   {% if current_user.has_role('admin') %}
@@ -123,15 +129,21 @@
                 <a class="mdl-navigation__link" href="/site/all/map">Map</a>
               {% endif %}
             {% endif %}
-            <a class="mdl-navigation__link" href="/site/all/sites">Facilities</a>
+            <a class="mdl-navigation__link" href="/site/all/sites">Sites</a>
             <a class="mdl-navigation__link" href="/site/all/issues">Issues</a>
             <a class="mdl-navigation__link" href="/site/all/issue-chart">Issue Chart</a>
+            {% if current_user.is_authenticated %}
+              {% if current_user.has_role('admin') %}
+                <a class="mdl-navigation__link" href="/site/all/add_site">Add Site</a>
+              {% endif %}
+            {% endif %}
           {% else %}
             <a class="mdl-navigation__link" href="/site/{{site.name}}/dashboard">Dashboard</a>
             <a class="mdl-navigation__link" href="/site/{{site.name}}/issues">Issues</a>
             <a class="mdl-navigation__link" href="/site/{{site.name}}/assets">Assets</a>
+            <a class="mdl-navigation__link" href="/site/{{site.name}}/add">Add Asset</a>
             <a class="mdl-navigation__link" href="/site/{{site.name}}/config">Site Config</a>
-            <a class="mdl-navigation__link" href="/site/all">All Facilities</a>
+            <a class="mdl-navigation__link" href="/site/all">All Sites</a>
           {% endif %}
           {% if current_user.is_authenticated %}
             {% if current_user.has_role('admin') %}
