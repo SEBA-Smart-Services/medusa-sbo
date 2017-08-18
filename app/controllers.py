@@ -223,9 +223,13 @@ def add_site():
         form.populate_obj(site)
         site.generate_key()
 
-        db.session.add(site)
-        db.session.commit()
-        return redirect(url_for('add_asset', sitename=site.name))
+        if Site.query.filter_by(name=site.name).first() is None:
+            db.session.add(site)
+            db.session.commit()
+            return redirect(url_for('add_asset', sitename=site.name))
+        else:
+            error = "Facility name " + site.name + " already exists!"
+            return render_template('add_site.html', form=form, allsites=True, error=error)
 
 ###################################
 ## main pages for single site
