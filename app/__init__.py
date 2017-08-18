@@ -20,9 +20,10 @@ from app.models.users import User, Role
 
 #######################################################
 # NEED TO MIGRATE THIS TO CFG FILE AND RMEOVE FROM CODE
-app.config['SECURITY_POST_CHANGE_VIEW'] = '/'
-app.config['SECURITY_POST_RESET_VIEW'] = '/'
-app.config['SECURITY_POST_CONFIRM_VIEW'] = 'security.change_password'
+# app.config['SECURITY_POST_CHANGE_VIEW'] = '/'
+# app.config['SECURITY_POST_RESET_VIEW'] = '/'
+# app.config['SECURITY_POST_CONFIRM_VIEW'] = 'security.change_password'
+# app.config['USER_CHANGE_PASSWORD_URL'] = '/change'
 ######################################################
 
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
@@ -58,4 +59,3 @@ handle_exceptions(app)
 from app import models, add, admin, cmms, weather, algorithms, reports, scheduling
 # modules
 from app import controllers
-
