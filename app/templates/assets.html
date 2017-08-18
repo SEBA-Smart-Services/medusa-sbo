@@ -1,6 +1,14 @@
 {% extends "layout.html" %}
 {% block content %}
-<h3>Asset List</h3>
+<h3 class="page-title">Assets
+  {% if current_user.is_authenticated %}
+    {% if current_user.has_role('admin') %}
+      <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="float: right;" href="/site/{{site.name}}/add">
+        <i class="material-icons">add</i>
+      </a>
+    {% endif %}
+  {% endif %}
+</h3>
 
 {# for asset_type in asset_types #}
   {# if asset_quantity[asset_type.name] > 0 #}
