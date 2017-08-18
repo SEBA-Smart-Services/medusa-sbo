@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h3>Deliverables for {{ ITP.name }}</h3>
+
+  <div>
+    <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+      <thead>
+        <tr>
+          <th class="mdl-data-table__cell--non-numeric">Name</th>
+          <th class="mdl-data-table__cell--non-numeric">Description</th>
+          <th class="mdl-data-table__cell--non-numeric">Deliverable Type</th>
+          <th class="mdl-data-table__cell--non-numeric">Location</th>
+          <th class="mdl-data-table__cell--non-numeric">Percentage Complete</th>
+          <th class="mdl-data-table__cell--non-numeric"></th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for deliverable in deliverables %}
+        <tr>
+          <td class="mdl-data-table__cell--non-numeric">
+            <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}">
+              {{deliverable.name}}
+            </a>
+          </th>
+          <td class="mdl-data-table__cell--non-numeric">{{deliverable.name}}</td>
+          <td class="mdl-data-table__cell--non-numeric">{{deliverable.type.name}}</td>
+          <td class="mdl-data-table__cell--non-numeric">{{deliverable.location.name}}</td>
+          <td class="mdl-data-table__cell--non-numeric">{{deliverable.percentage_complete}}%</td>
+          <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
+            <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/edit">
+              Edit
+            </a>/
+            <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/delete">
+              Delete
+            </a>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+
+    <br>
+
+    <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/new">
+      <input type="submit" value="New Deliverable" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+      </input>
+    </form>
+
+    <br>
+
+    <div>
+      <form action="/site/{{ site.name }}/projects/{{project.name}}/ITP/{{ITP.name}}" method="GET">
+        <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        </input>
+      </form>
+    </div>
+  </div>
+
+
+{% endblock %}

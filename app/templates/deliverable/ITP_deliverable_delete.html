@@ -1,17 +1,19 @@
 {% extends "layout.html" %}
 {% block content %}
-  <h3>Are You Sure You Want To Delete {{ project.name }}</h3>
+  <h3>Are You Sure You Want To Delete {{ deliverable.name }}</h3>
 
   <div>
     <div>
-      <form action="/site/{{site.name}}/projects/{{project.name}}/delete" method="POST">
+      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/delete" method="POST">
         <input type="submit" value="Delete" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
         </input>
       </form>
     </div>
 
+    <br>
+
     <div>
-      <form action="/site/{{site.name}}/projects" method="GET">
+      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable" method="GET">
         <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
         </input>
       </form>
