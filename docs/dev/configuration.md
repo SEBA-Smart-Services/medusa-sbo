@@ -26,7 +26,7 @@ The medusa app config is loaded in the following workflow:
 If running the app outside of `systemd`, eg using the Flask built-in development server, the relevant environment varibales can be loaded manually from the shell:
 
 ```
-$ export MEDUSA_DEVELOPMENT_SETTINGS=/var/lib/medusa/medusa-development.ini
-$ export MEDUSA_TESTING_SETTINGS=/var/lib/medusa/medusa-testing.ini
-$ export MEDUSA_PRODUCTION_SETTINGS=/var/lib/medusa/medusa-production.ini
+$ export MEDUSA_DEVELOPMENT_SETTINGS=/var/lib/medusa/medusa-development.cfg
+$ export MEDUSA_TESTING_SETTINGS=/var/lib/medusa/medusa-testing.cfg
+$ export MEDUSA_PRODUCTION_SETTINGS=/var/lib/medusa/medusa-production.cfg
 ```
