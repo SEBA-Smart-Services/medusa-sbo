@@ -489,7 +489,7 @@ def site_projects_list(sitename):
     for i in site_projects:
         projects.append(i)
 
-    return render_template('site_projects_list.html', site=site, projects=projects)
+    return render_template('project/site_projects_list.html', site=site, projects=projects)
 
 #Route for individual Project for a given Site
 @app.route('/site/<sitename>/projects/<projectname>')
@@ -497,7 +497,7 @@ def site_project(sitename, projectname):
     site = Site.query.filter_by(name=sitename).first()
     project = Project.query.filter_by(name=projectname).first()
     project_ITP = ITP.query.filter_by(project_id=project.id).first()
-    return render_template('site_project.html', site=site, project=project, ITP=project_ITP)
+    return render_template('project/site_project.html', site=site, project=project, ITP=project_ITP)
 
 #Route for creating a new Project for a given Site
 #add in __init__ to schema so the variables can just be passed to the new Project
@@ -512,7 +512,7 @@ def site_project_new(sitename):
         db.session.commit()
         return redirect(url_for('site_projects_list', sitename=site))
     else:
-        return render_template('site_project_new.html', site=site)
+        return render_template('project/site_project_new.html', site=site)
 
 #Route for editing a current project
 @app.route('/site/<sitename>/projects/<projectname>/edit', methods=['POST','GET'])
@@ -530,7 +530,7 @@ def site_project_edit(sitename, projectname):
         db.session.commit()
         return redirect(url_for('site_projects_list', sitename=site))
     else:
-        return render_template('site_project_edit.html', site=site, project=project)
+        return render_template('project/site_project_edit.html', site=site, project=project)
 
 #Route for deleting a current project
 @app.route('/site/<sitename>/projects/<projectname>/delete', methods=['POST','GET'])
@@ -543,7 +543,7 @@ def site_project_delete(sitename, projectname):
         db.session.commit()
         return redirect(url_for('site_projects_list', sitename=site))
     else:
-        return render_template('site_project_delete.html', site=site, project=project)
+        return render_template('project/site_project_delete.html', site=site, project=project)
 
 ############################ ITP navigation controllers ########################
 
@@ -567,7 +567,7 @@ def site_project_ITP(sitename, projectname, ITPname):
 #        project_ITP.percentage_complete = (completed/total)
 #        db.session.commit()
 
-    return render_template('project_ITP.html', site=site, project=project, ITP=project_ITP, deliverables=deliverables)
+    return render_template('ITP/project_ITP.html', site=site, project=project, ITP=project_ITP, deliverables=deliverables)
 
 #Route for creating new ITP
 @app.route('/site/<sitename>/projects/<projectname>/ITP/new', methods=['POST','GET'])
@@ -581,7 +581,7 @@ def site_project_ITP_new(sitename, projectname):
         db.session.commit()
         return redirect(url_for('site_project_ITP', sitename=site, projectname=project.name, ITPname=new_ITP))
     else:
-        return render_template('project_ITP_new.html', site=site, project=project)
+        return render_template('ITP/project_ITP_new.html', site=site, project=project)
 
 #Route for editing a current ITP
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/edit', methods=['POST','GET'])
@@ -600,7 +600,7 @@ def site_project_ITP_edit(sitename, projectname, ITPname):
         db.session.commit()
         return redirect(url_for('site_project_ITP', sitename=site, projectname=project.name, ITPname=project_ITP))
     else:
-        return render_template('project_ITP_edit.html', site=site, project=project, ITP=project_ITP)
+        return render_template('ITP/project_ITP_edit.html', site=site, project=project, ITP=project_ITP)
 
 #Route for deleting a current ITP
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/delete', methods=['POST','GET'])
@@ -614,7 +614,7 @@ def site_project_ITP_delete(sitename, projectname, ITPname):
         db.session.commit()
         return redirect(url_for('site_project', sitename=site, projectname=project.name))
     else:
-        return render_template('project_ITP_delete.html', site=site, project=project, ITP=project_ITP)
+        return render_template('ITP/project_ITP_delete.html', site=site, project=project, ITP=project_ITP)
 
 ################### deliverable type navigation controllers ####################
 
@@ -763,7 +763,7 @@ def site_project_ITP_deliverable_list(sitename, projectname, ITPname):
         deliverable.percentage_complete = percent
         db.session.commit()
 
-    return render_template('ITP_deliverable_list.html', site=site, project=project, ITP=project_ITP, deliverables=deliverables)
+    return render_template('deliverable/ITP_deliverable_list.html', site=site, project=project, ITP=project_ITP, deliverables=deliverables)
 
 #Route for deliverable
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>')
@@ -792,7 +792,7 @@ def site_project_ITP_deliverable(sitename, projectname, ITPname, deliverablename
         deliverable.percentage_complete = percent
         db.session.commit()
 
-    return render_template('ITP_deliverable.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable_current, ITCs=ITP_ITCs)
+    return render_template('deliverable/ITP_deliverable.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable_current, ITCs=ITP_ITCs)
 
 #Route for new deliverable
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/new', methods=['POST','GET'])
@@ -819,7 +819,7 @@ def site_project_ITP_deliverable_new(sitename, projectname, ITPname):
 
         return redirect(url_for('site_project_ITP_deliverable_list', sitename=site, projectname=project.name, ITPname= project_ITP.name))
     else:
-        return render_template('ITP_deliverable_new.html', site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations)
+        return render_template('deliverable/ITP_deliverable_new.html', site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations)
 
 #Route for editing a current deliverable
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/edit', methods=['POST','GET'])
@@ -841,7 +841,7 @@ def site_project_ITP_deliverable_edit(sitename, projectname, ITPname, deliverabl
         db.session.commit()
         return redirect(url_for('site_project_ITP_deliverable_list', sitename=site, projectname=project.name, ITPname=project_ITP.name))
     else:
-        return render_template('ITP_deliverable_edit.html', site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations, deliverable=deliverable)
+        return render_template('deliverable/ITP_deliverable_edit.html', site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations, deliverable=deliverable)
 
 #Route for deleting a current deliverable
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/delete', methods=['POST','GET'])
@@ -856,7 +856,7 @@ def site_project_ITP_deliverable_delete(sitename, projectname, ITPname, delivera
         db.session.commit()
         return redirect(url_for('site_project_ITP_deliverable_list', sitename=site, projectname=project.name, ITPname=project_ITP.name))
     else:
-        return render_template('ITP_deliverable_delete.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable)
+        return render_template('deliverable/ITP_deliverable_delete.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable)
 
 
 
@@ -890,7 +890,7 @@ def site_project_ITP_deliverable_ITC_list(sitename, projectname, ITPname, delive
         ITC.percentage_complete = percent
         db.session.commit()
 
-    return render_template('ITC_list.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITCs=ITP_ITCs)
+    return render_template('specific_ITC/ITC_list.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITCs=ITP_ITCs)
 
 #Should now use routes below for generating ITCs on start of testing
 #Route for one ITC - listing out all checks
@@ -928,7 +928,7 @@ def site_project_ITP_deliverable_ITC_edit(sitename, projectname, ITPname, delive
         db.session.commit()
         return redirect(url_for('site_project_ITP_deliverable_ITC_list', sitename=site, projectname=project.name, ITPname=project_ITP.name, deliverablename=deliverable.name))
     else:
-        return render_template('ITC_edit.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC)
+        return render_template('specific_ITC/ITC_edit.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC)
 
 #Route for deleting a current ITC
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/ITC/<ITCname>/delete', methods=['POST','GET'])
@@ -944,7 +944,7 @@ def site_project_ITP_deliverable_ITC_delete(sitename, projectname, ITPname, deli
         db.session.commit()
         return redirect(url_for('site_project_ITP_deliverable_ITC_list', sitename=site, projectname=project.name, ITPname=project_ITP.name, deliverablename=deliverable.name))
     else:
-        return render_template('ITC_delete.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC)
+        return render_template('specific_ITC/ITC_delete.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC)
 
 #Route for updating check completion
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/ITC/<ITCid>/check/change', methods=['POST'])
@@ -1029,7 +1029,7 @@ def ITC_testing(sitename, projectname, ITPname, deliverablename, ITCid):
     else:
         percentage_complete = (completed/total)*100
 
-    return render_template('ITC.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=deliver_ITC, checks=deliverable_checks, ITCid=ITCid, percentage_complete=percentage_complete)
+    return render_template('specific_ITC/ITC.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=deliver_ITC, checks=deliverable_checks, ITCid=ITCid, percentage_complete=percentage_complete)
 
 #Route for editing a check
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/ITC/<ITCname>/checks/<checkid>/edit', methods=['POST','GET'])
@@ -1054,7 +1054,7 @@ def site_project_ITP_deliverable_ITC_check_edit(sitename, projectname, ITPname, 
         db.session.commit()
         return redirect(url_for('ITC_testing', sitename=site, projectname=project.name, deliverablename=deliverable.name, ITPname=project_ITP.name, ITCid=ITP_ITC.id))
     else:
-        return render_template('ITC_check_edit.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC, check=check)
+        return render_template('specific_ITC/ITC_check_edit.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC, check=check)
 
 #Route for deleting a check
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/ITC/<ITCname>/checks/<checkid>/delete', methods=['POST','GET'])
@@ -1071,7 +1071,34 @@ def site_project_ITP_deliverable_ITC_check_delete(sitename, projectname, ITPname
         db.session.commit()
         return redirect(url_for('ITC_testing', sitename=site, projectname=project.name, deliverablename=deliverable.name, ITPname=project_ITP.name, ITCid=ITP_ITC.id))
     else:
-        return render_template('ITC_check_delete.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC, check=check)
+        return render_template('specific_ITC/ITC_check_delete.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC, check=check)
+
+
+#Route for adding a check
+# @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/ITC/<ITCname>/check/new', methods=['POST','GET'])
+# def site_project_ITP_deliverable_ITC_check_new(sitename, projectname, ITPname, deliverablename, ITCname, checkid):
+#     site = Site.query.filter_by(name=sitename).first()
+#     project = Project.query.filter_by(name=projectname).first()
+#     project_ITP = ITP.query.filter_by(name=ITPname).first()
+#     deliverable = Deliverable.query.filter_by(name=deliverablename).first()
+#     ITP_ITC = ITC.query.filter_by(name=ITCname).first()
+#     check = ITC_check_map.query.filter_by(ITC_id=ITP_ITC.id).first()
+#
+#     if request.method == 'POST':
+#         comments = request.form['check_comment']
+#         if (comments != "" and comments == check.comments):
+#             check.comments = comments
+#         check_generic = request.form['check_generic']
+#         if (check_generic != "" and check_generic != check.check_generic):
+#             check.check_generic = check_generic
+#         check_status = request.form['check_status']
+#         if (check_status != "" and check_status != check.status and check.is_done != True):
+#             check.status = check_status
+#         db.session.commit()
+#         return redirect(url_for('ITC_testing', sitename=site, projectname=project.name, deliverablename=deliverable.name, ITPname=project_ITP.name, ITCid=ITP_ITC.id))
+#     else:
+#         return render_template('ITC_check_edit.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC, check=check)
+
 
 ################################################################################
 ############################ Generic ITC creation ##############################
@@ -1088,7 +1115,7 @@ def ITC_general(ITCid):
     general_ITC = ITC.query.filter_by(id=ITCid).first()
     checks = ITC_check_map.query.filter_by(ITC_id=general_ITC.id).all()
 
-    return render_template('ITC_check_general.html', ITC=general_ITC, checks=checks, allsites=True)
+    return render_template('generic_ITC/ITC_check_general.html', ITC=general_ITC, checks=checks, allsites=True)
 
 #Route for new ITC
 @app.route('/generic/ITC/new', methods=['POST','GET'])
@@ -1102,14 +1129,14 @@ def ITC_general_new():
         db.session.commit()
         return redirect(url_for('ITC_general_list'))
     else:
-        return render_template('ITC_new.html', deliverables=deliverable_types, allsites=True)
+        return render_template('generic_ITC/ITC_new.html', deliverables=deliverable_types, allsites=True)
 
 #Route for viewing all general ITC
 @app.route('/generic/ITC', methods=['POST','GET'])
 def ITC_general_list():
     ITCs = ITC.query.all()
 
-    return render_template('ITC_general.html', ITCs=ITCs, allsites=True)
+    return render_template('generic_ITC/ITC_general.html', ITCs=ITCs, allsites=True)
 
 #Delete generic check
 @app.route('/generic/ITC/<ITCid>/delete', methods=['POST','GET'])
@@ -1121,7 +1148,7 @@ def ITC_general_delete(ITCid):
         db.session.commit()
         return redirect(url_for('ITC_general_list'))
     else:
-        return render_template('ITC_general_delete.html', ITC=ITC_generic, allsites=True)
+        return render_template('generic_ITC/ITC_general_delete.html', ITC=ITC_generic, allsites=True)
 
 #Edit generic check
 @app.route('/generic/ITC/<ITCid>/edit', methods=['POST','GET'])
@@ -1139,7 +1166,7 @@ def ITC_general_edit(ITCid):
         db.session.commit()
         return redirect(url_for('ITC_general_list'))
     else:
-        return render_template('ITC_general_edit.html', ITC=ITC_generic, allsites=True)
+        return render_template('generic_ITC/ITC_general_edit.html', ITC=ITC_generic, allsites=True)
 
 
 ################ Check creation and editing for generic ITC ####################
@@ -1159,7 +1186,7 @@ def ITC_check_general_new(ITCid):
         db.session.commit()
         return redirect(url_for('ITC_general', ITCid=ITP_ITC.id))
     else:
-        return render_template('ITC_check_new.html', ITC=ITP_ITC, checks=checks_generic, allsites=True)
+        return render_template('generic_ITC_check/ITC_check_new.html', ITC=ITP_ITC, checks=checks_generic, allsites=True)
 
 #Route for editing a generic check
 @app.route('/generic/ITC/<ITCid>/check/<checkid>/edit', methods=['POST', 'GET'])
@@ -1182,7 +1209,7 @@ def ITC_check_general_edit(ITCid, checkid):
                 db.session.commit()
         return redirect(url_for('ITC_general', ITCid=ITP_ITC.id))
     else:
-        return render_template('generic_ITC_check_edit.html', ITC=ITP_ITC, check=check, allsites=True)
+        return render_template('generic_ITC_check/generic_ITC_check_edit.html', ITC=ITP_ITC, check=check, allsites=True)
 
 #Route for deleting a generic check
 @app.route('/generic/ITC/<ITCid>/check/<checkid>/delete', methods=['POST', 'GET'])
@@ -1195,7 +1222,7 @@ def ITC_check_general_delete(ITCid, checkid):
         db.session.commit()
         return redirect(url_for('ITC_general', ITCid=ITP_ITC.id))
     else:
-        return render_template('generic_ITC_check_delete.html', ITC=ITP_ITC, check=check, allsites=True)
+        return render_template('generic_ITC_check/generic_ITC_check_delete.html', ITC=ITP_ITC, check=check, allsites=True)
 
 ################ Check creation and editing for generic ITC ####################
 
@@ -1208,14 +1235,14 @@ def generic_check_new():
         db.session.commit()
         return redirect(url_for('generic_check_list'))
     else:
-        return render_template('generic_check_new.html', allsites=True)
+        return render_template('generic_check/generic_check_new.html', allsites=True)
 
 #Route for viewing all generic checks
 @app.route('/generic/check')
 def generic_check_list():
     checks = Check_generic.query.all()
 
-    return render_template('generic_check_list.html', checks=checks, allsites=True)
+    return render_template('generic_check/generic_check_list.html', checks=checks, allsites=True)
 
 #Route for editing generic checks
 @app.route('/generic/check/<checkid>/edit', methods=['POST', 'GET'])
@@ -1229,7 +1256,7 @@ def generic_check_edit(checkid):
         db.session.commit()
         return redirect(url_for('generic_check_list'))
     else:
-        return render_template('generic_check_edit.html', check=check, allsites=True)
+        return render_template('generic_check/generic_check_edit.html', check=check, allsites=True)
 
 #Route for deleting generic check
 @app.route('/generic/check/<checkid>/delete', methods=['POST', 'GET'])
@@ -1241,7 +1268,7 @@ def generic_check_delete(checkid):
         db.session.commit()
         return redirect(url_for('generic_check_list'))
     else:
-        return render_template('generic_check_delete.html', check=check, allsites=True)
+        return render_template('generic_check/generic_check_delete.html', check=check, allsites=True)
 
 
 
