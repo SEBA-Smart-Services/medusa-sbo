@@ -30,6 +30,15 @@
       <br>
       <input type="submit" value="Save Changes" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     </form>
+
+    <br>
+
+    <div>
+      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.name}}/check" method="GET">
+        <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        </input>
+      </form>
+    </div>
   </div>
 
 {% endblock %}
