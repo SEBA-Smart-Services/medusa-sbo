@@ -1,7 +1,6 @@
-import os
-import configparser
 import boto3
 import json
+from app import app
 
 
 def check_200_resp(resp):
@@ -17,23 +16,13 @@ def check_200_resp(resp):
         return False
 
 # FAKE SITE ID FOR TESTING
-SITE_ID = 69
+# SITE_ID = 69
 
 
-SETTINGS = 'MEDUSA_DEVELOPMENT_SETTINGS'
-SETTINGS_PATH = os.environ[SETTINGS]
-# arbitrary fake section name required for configparser to parse the section-less config file
-SECTION = 'AWS'
-with open(SETTINGS_PATH, 'r') as f:
-    config_string = '[' + SECTION + ']\n' + f.read()
-
-config = configparser.ConfigParser()
-config.read_string(config_string)
-
-AWS_ACCESS_KEY_ID = config.get(SECTION, 'AWS_ACCESS_KEY_ID').strip('"')
-AWS_SECRET_ACCESS_KEY = config.get(SECTION, 'AWS_SECRET_ACCESS_KEY').strip('"')
-AWS_S3_UPLOADER_IAM_GROUP = config.get(SECTION, 'AWS_S3_UPLOADER_IAM_GROUP').strip('"')
-AWS_S3_UPLOADER_IAM_USERNAME_BASE = config.get(SECTION, 'AWS_S3_UPLOADER_IAM_USERNAME_BASE').strip('"')
+AWS_ACCESS_KEY_ID = app.config['AWS_ACCESS_KEY_ID']
+AWS_SECRET_ACCESS_KEY = app.config['AWS_SECRET_ACCESS_KEY']
+AWS_S3_UPLOADER_IAM_GROUP = app.config['AWS_S3_UPLOADER_IAM_GROUP']
+AWS_S3_UPLOADER_IAM_USERNAME_BASE = app.config['AWS_S3_UPLOADER_IAM_USERNAME_BASE']
 AWS_S3_UPLOADER_IAM_USERNAME = '-'.join([
     AWS_S3_UPLOADER_IAM_USERNAME_BASE,
     str(SITE_ID)
@@ -78,8 +67,6 @@ if success:
     if not user_exists:
         print('\nCreating IAM user: ' + AWS_S3_UPLOADER_IAM_USERNAME + ' ...')
         create_user_resp = iam.create_user(UserName=AWS_S3_UPLOADER_IAM_USERNAME)
-        # print(create_user_resp)
-        print(create_user_resp['User']['UserName'])
         success =  check_200_resp(create_user_resp)
         if success:
             print('FUCKING SUCCESS!!!')
@@ -97,12 +84,6 @@ print('\nCreating access key for user: ' + AWS_S3_UPLOADER_IAM_USERNAME + ' ...'
 create_access_key_resp = iam.create_access_key(
     UserName=AWS_S3_UPLOADER_IAM_USERNAME
 )
-print(create_user_resp['User']['UserName'])
-print(create_access_key_resp['AccessKey']['UserName'])
-print(create_access_key_resp['AccessKey']['Status'])
-print(create_access_key_resp['AccessKey']['SecretAccessKey'])
-print(create_access_key_resp['AccessKey']['AccessKeyId'])
-# print(create_access_key_resp)
 success =  check_200_resp(create_access_key_resp)
 # print(create_access_key_resp)
 if success:

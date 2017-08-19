@@ -1,3 +1,6 @@
 from flask_wtf import FlaskForm
-# from wtforms import StringField, IntegerField, PasswordField, BooleanField, TextAreaField
-# from wtforms.validators import DataRequired, Optional, InputRequired
+from wtforms import BooleanField
+
+# form for site config page
+class SiteAgentConfigForm(FlaskForm):
+    enabled = BooleanField('enabled', validators=[])

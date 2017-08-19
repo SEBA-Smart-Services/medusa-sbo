@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block content %}
+<h3>Site data agent</h3>
+  <form method="POST" action="/">
+      {{ form.csrf_token }}
+      {{ macros.show_errors(form) }}
+      {{ form.enabled.label }} {{ form.enabled(size=20) }}
+      <input type=submit value=Submit class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+  </form>
+    <p>Access key ID: <span id="keyid">?</span></p>
+    <p>Secret access key: <span id="keyvalue">?</span></p>
+  <a href=# id="generate">generate new access key</a>
+  <br>
+  <div id="progress" class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active" style="display:none"></div>
+  <p>fan</p>
+  <script type=text/javascript>
+
+  $(function() {
+    // $("#progress").hide();
+    $('a#generate').bind('click', function() {
+      $("#progress").show();
+      $.getJSON($SCRIPT_ROOT + '/_generate_aws_access_keys/{{ site.id }}', {
+        siteId: {{ site.id }}
+      }, function(data) {
+        $("#keyvalue").text(data.secretAccessKey),
+        $("#keyid").text(data.accessKeyId);
+        $("#progress").hide();
+      });
+      return false;
+    });
+  });
+</script>
+{% endblock %}
