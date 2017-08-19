@@ -8,6 +8,15 @@ from .StruxureWareReportsDB import Alarm, LogTimeValue, LoggedEntity
 from .users import User, Role, UsersRoles, UsersSites
 from .ITP import Project
 
+
+# a base class that all models can inherit from
+class Base(db.Model):
+    __abstract__ = True
+
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime, default=db.func.now())
+    updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
+
 ###################################
 ## models in report server database
 ###################################
@@ -223,6 +232,8 @@ class Site(db.Model):
     issue_history = db.relationship('IssueHistory', backref='site', cascade='save-update, merge, delete, delete-orphan')
     emails = db.relationship('Email', backref='site', cascade='save-update, merge, delete, delete-orphan')
     project = db.relationship('Project', backref='site', cascade='save-update, merge, delete, delete-orphan')
+    site_data_uploader = db.relationship("SiteDataUploader", uselist=False, back_populates="site")
+
 
     def __repr__(self):
         return self.name
