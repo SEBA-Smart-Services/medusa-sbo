@@ -366,7 +366,24 @@ def asset_issues_submit(sitename, asset_id):
 @app.route('/site/<sitename>/config', methods=['GET','POST'])
 def site_config(sitename):
     site = Site.query.filter_by(name=sitename).one()
-    inbuildings_config = InbuildingsConfig.query.filter_by(site=site).one()
+
+    #################################
+    # There appears to be some orphan sites without InbuildingsConfig relationships
+    # not sure how/when??
+    # this page breaks for these sites'
+    # this try/except statement prevents this
+    try:
+        inbuildings_config = InbuildingsConfig.query.filter_by(site=site).one()
+    except:
+        inbuildings_config = None
+
+    ib = InbuildingsConfig.query.limit(10).all()
+    all_sites = Site.query.limit(10).all()
+    print(ib)
+    for s in ib:
+        print('IB site id', s.site_id)
+    for s in all_sites:
+        print('site', s.name, s.id, s.inbuildings_config)
 
     if request.method == 'POST':
         form = SiteConfigForm()
@@ -385,8 +402,14 @@ def site_config(sitename):
         site.generate_key()
 
         # update inbuildings settings
-        inbuildings_config.enabled = form.inbuildings_enabled.data
-        inbuildings_config.key = form.inbuildings_key.data
+        #################################
+        # There appears to be some orphan sites without InbuildingsConfig relationships
+        # not sure how/when??
+        # this page breaks for these sites'
+        # this if statement prevents this
+        if inbuildings_config is not None:
+            inbuildings_config.enabled = form.inbuildings_enabled.data
+            inbuildings_config.key = form.inbuildings_key.data
 
         # update emails
         emails = []
@@ -403,8 +426,18 @@ def site_config(sitename):
     elif request.method == 'GET':
         # prefill form with information from site object
         form = SiteConfigForm(obj=site)
-        form.inbuildings_enabled.data = inbuildings_config.enabled
-        form.inbuildings_key.data = inbuildings_config.key
+
+        #################################
+        # There appears to be some orphan sites without InbuildingsConfig relationships
+        # not sure how/when??
+        # this page breaks for these sites'
+        # this if statement prevents this
+        if inbuildings_config is None:
+            form.inbuildings_enabled.data = False # inbuildings_config.enabled
+            form.inbuildings_key.data = ''# inbuildings_config.key
+        else:
+            form.inbuildings_enabled.data = inbuildings_config.enabled
+            form.inbuildings_key.data = inbuildings_config.key
         # turn emails into csv
         form.email_list.data = ','.join([email.address for email in site.emails])
         return render_template('site_config.html', site=site, form=form)
