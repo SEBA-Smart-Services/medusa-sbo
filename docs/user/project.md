@@ -51,10 +51,24 @@ saved into the templates.
 
 TODO: ADD PICTURE
 
-10. If you return to the ITC list screen you will see that the percentage complete portion of the ITC is automatically updated (all views
-should have been updated with the latest completion percentage). If you want to re enter the testing check list you need to click on the 
-name link (**WARNING: IF YOU CLICK START TESTING AGAIN THE CHECK LIST WILL BE REGENERATED AND ALL CURRENT PROGRESS WILL BE LOST.**)
+10. If you return to the ITC list screen you will see that the percentage complete portion of the ITC is automatically updated (all views should have been updated with the latest completion percentage). If you want to re enter the testing check list you need to click on the name link (**WARNING: IF YOU CLICK START TESTING AGAIN THE CHECK LIST WILL BE REGENERATED AND ALL CURRENT PROGRESS WILL BE LOST.**)
+
+TODO: ADD PICTURE
 
 ## Setting up a template ITC
 
-1. 
+1. A new template can be created from the main page through the *Generic* tab. In the generic tab there are two lists one for generic checks and one for generic (template) ITCs. Generic checks are used to populate a template ITC so first go into the generic check list by clicking on the corresponding link.
+
+TODO: ADD PICTURE
+
+2. This page contains all current generic checks that have been created which can be edited or deleted in a similar fashion to the above. To create a new check click **NEW CHECK** and fill out the details.
+
+TODO: ADD PICTURE
+
+3. Once you have all the checks you need for your new ITC return to the main page of the generic tab and click on the link for generic ITCs. Once again you will see all the previously created template ITCs with their associated deliverable type and Name. If you click on the name you will see all the generic checks that have been associated with that particular ITC. New checks can be added by clicking on the **NEW CHECK** button and selecting from the drop down menu (Currently only one check can be added at a time).
+
+TODO: ADD PICTURE
+
+4. To create a new ITC click on the **NEW ITC** button give it a name and a deliverable type which will be used to generate all the ITCs for a given deliverable. 
+
+
