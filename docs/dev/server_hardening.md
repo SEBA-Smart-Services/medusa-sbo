@@ -51,7 +51,7 @@ server {
 
 ### EC2 Security Group
 - Use the medusa-dev Security Group:
-![medusa-dev EC2 security group](img/dev-server-ec2-sec-group.png)
+![medusa-dev EC2 security group](dev-server-ec2-sec-group.png)
 
 ### Poweroff when not in use
 Reduces exposure (and saves running costs)!
