@@ -10,11 +10,12 @@ class User(db.Model, UserMixin):
     # User authentication information (required for Flask-User)
     email = db.Column(db.String(255), nullable=False, unique=True)
     password = db.Column(db.String(255), nullable=False, server_default='')
+    password_active = db.Column(db.Boolean())
+    password_change_date = db.Column(db.DateTime())
 
     company = db.Column(db.String(255), nullable=False)
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
-    # reset_password_token = db.Column(db.String(100), nullable=False, server_default='')
 
     active = db.Column(db.Boolean(), nullable=False, server_default='0')
     authenticated = db.Column(db.Boolean, default=False)

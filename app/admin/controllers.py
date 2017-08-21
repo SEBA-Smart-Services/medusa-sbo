@@ -54,12 +54,6 @@ class ResultView(ProtectedView):
 class SiteView(ProtectedView):
     form_excluded_columns = ['issue_history']
 
-    # def after_model_change(self, form, model, is_created):
-    #     users = User.query.all()
-    #     for user in users:
-    #         if 'admin' in user.roles:
-    #             user.sites.append(model)
-    #             db.session.commit()
 
 class AssetTypeView(ProtectedView):
     pass
@@ -84,14 +78,6 @@ class UserView(ProtectedView):
             print('account is active')
         else:
             print('account needs to be activated')
-
-        # print(model.roles)
-        #
-        # if 'admin' in model.roles:
-        #     sites = Site.query.all()
-        #     model.sites = sites
-        #     db.session.commit()
-        #     print('updating admin')
 
         #Randomly generate temp user pw and send to email
         if len(model.password) == 0:

@@ -1,4 +1,5 @@
 from app import db
+import datetime
 
 ################################
 #Project models
@@ -6,15 +7,21 @@ from app import db
 class Project(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(255), nullable=False, unique=True)
+    job_number = db.Column(db.Integer(), nullable=False)
+    assigned_to = db.Column(db.String(255))
     description = db.Column(db.String(500))
+    start_date = db.Column(db.DateTime())
+    completion_date = db.Column(db.DateTime())
     site_id = db.Column(db.Integer(), db.ForeignKey('site.ID', ondelete='CASCADE'))
     ITP = db.relationship('ITP',
         backref = 'project')
 
-    def __init__(self, name, description, site_id):
+    def __init__(self, name, job_number, description, site_id):
         self.name = name
+        self.job_number = job_number
         self.description = description
         self.site_id = site_id
+        self.start_date = datetime.datetime.now()
 
     def __repr__(self):
         return self.name
