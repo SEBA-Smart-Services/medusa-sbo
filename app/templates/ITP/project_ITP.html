@@ -15,8 +15,12 @@
               <td class="mdl-data-table__cell--non-numeric">#532434</td>
             </tr>
             <tr>
-              <th class="mdl-data-table__cell--non-numeric">Date</th>
+              <th class="mdl-data-table__cell--non-numeric">Start Date</th>
               <td class="mdl-data-table__cell--non-numeric">11/12/17</td>
+            </tr>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">Completion Date</th>
+              <td class="mdl-data-table__cell--non-numeric">{{completion_datetime}}</td>
             </tr>
             <tr>
               <th class="mdl-data-table__cell--non-numeric">Assigned To</th>
@@ -24,7 +28,7 @@
             </tr>
             <tr>
               <th class="mdl-data-table__cell--non-numeric">Percentage Complete</th>
-              <td class="mdl-data-table__cell--non-numeric">{{ITP.percentage_complete}}%</td>
+              <td class="mdl-data-table__cell--non-numeric">{{percentage_complete}}%</td>
             </tr>
             <tr>
               <th class="mdl-data-table__cell--non-numeric">Deliverables</th>
@@ -68,8 +72,8 @@
                 </a>
               </td>
               <td class="mdl-data-table__cell--non-numeric">{{deliverable.type}}</th>
-              <td class="mdl-data-table__cell--non-numeric">{{deliverable.Deliverable_ITC_map}}</td>
-              <td class="mdl-data-table__cell--non-numeric"></td>
+              <td class="mdl-data-table__cell--non-numeric">{{deliverable.status}}</td>
+              <td class="mdl-data-table__cell--non-numeric">{{deliverable.percentage_complete}}</td>
             </tr>
           {% endfor %}
           </tbody>

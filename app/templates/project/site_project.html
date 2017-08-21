@@ -54,10 +54,10 @@
           function drawChart(){
             var data = google.visualization.arrayToDataTable([
               ['Completion', 'Percentage'],
-              ['Completed', 20],
-              ['In Progress', 30],
-              ['Not Applicable', 10],
-              ['Not Started', 40]
+              ['Completed', {{percents[0]}}],
+              ['In Progress', {{percents[1]}}],
+              ['Not Applicable', {{percents[2]}}],
+              ['Not Started', {{percents[3]}}]
             ]);
 
             var options = {

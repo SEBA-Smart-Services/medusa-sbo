@@ -45,10 +45,10 @@
             <td class="mdl-data-table__cell--non-numeric">{{check.completion_datetime}}</td>
             <td class="mdl-data-table__cell--non-numeric">{{check.user}}</td>
             <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
-              <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.ITC.name}}/checks/{{check.id}}/edit">
+              <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.id}}/checks/{{check.id}}/edit">
                 Edit
               </a>/
-              <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.ITC.name}}/checks/{{check.id}}/delete">
+              <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.id}}/checks/{{check.id}}/delete">
                 Delete
               </a>
             </td>
@@ -66,13 +66,13 @@
   <div class="mdl-grid">
     <div class="mdl-cell mdl-cell--6-col">
       <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC">
-        <input type="submit" value="Back" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
         </input>
       </form>
     </div>
 
     <div class="mdl-cell mdl-cell--6-col" style="right:0; position:fixed;">
-      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.name}}/check/new">
+      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.id}}/check/new">
         <input type="submit" value="New Check" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
         </input>
       </form>
