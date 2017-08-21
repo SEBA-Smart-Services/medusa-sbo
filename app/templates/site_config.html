@@ -1,46 +1,22 @@
 {% extends "layout.html" %}
 {% block content %}
-    <form action="{{ url_for('site_config', sitename=site.name) }}" onsubmit="convert_never_to_zero()" method=post>
-      {{ form.csrf_token }}
-      {{ macros.show_errors(form) }}
-      <h3>WebReports Connection</h3>
-      <table class=full-width>
-        <tr>
-          <td style="width:250px"><h4>Username:</h4></td>
-          <td><div class="mdl-textfield mdl-js-textfield">
-            {{ form.db_username(class="mdl-textfield__input", autocomplete="off") }}
-            <label class="mdl-textfield__label" for="db_username"></label>
-          </div></td>
-        </tr>
-        <tr>
-          <td style="width:250px"><h4>Password:</h4></td>
-          <td><div class="mdl-textfield mdl-js-textfield">
-            {{ form.db_password(class="mdl-textfield__input", autocomplete="off") }}
-            <label class="mdl-textfield__label" for="db_password"></label>
-          </div></td>
-        </tr>
-        <tr>
-          <td style="width:250px"><h4>Server Address:</h4></td>
-          <td><div class="mdl-textfield mdl-js-textfield">
-            {{ form.db_address(class="mdl-textfield__input", autocomplete="off") }}
-            <label class="mdl-textfield__label" for="db_address"></label>
-          </div></td>
-        </tr>
-        <tr>
-          <td style="width:250px"><h4>Port:</h4></td>
-          <td><div class="mdl-textfield mdl-js-textfield">
-            {{ form.db_port(class="mdl-textfield__input", autocomplete="off") }}
-            <label class="mdl-textfield__label" for="db_port"></label>
-          </div></td>
-        </tr>
-        <tr>
-          <td style="width:250px"><h4>Database Name:</h4></td>
-          <td><div class="mdl-textfield mdl-js-textfield">
-            {{ form.db_name(class="mdl-textfield__input", autocomplete="off") }}
-            <label class="mdl-textfield__label" for="db_name"></label>
-          </div></td>
-        </tr>
-      </table>
+  <ul class="mdl-list">
+  <li class="mdl-list__item">
+    <span class="mdl-list__item-primary-content">
+      <a href="/site/{{ site.name }}/config/sitedataagent">Site data agent</a>
+    </span>
+  </li>
+  <li class="mdl-list__item">
+    <span class="mdl-list__item-primary-content">
+      <a href="#">Notifications</a>
+    </span>
+  </li>
+  <li class="mdl-list__item">
+    <span class="mdl-list__item-primary-content">
+      <a href="#">CMMS integration</a>
+    </span>
+  </li>
+  </ul>
 
       <br><br>
       <h3>Notifications</h3>

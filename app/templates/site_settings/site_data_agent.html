@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+{% block content %}
+<h3>Site data agent</h3>
+<div id="progress2" class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active" style="display:none"></div>
+<div id="progress" class="mdl-progress mdl-js-progress mdl-progress__indeterminate" style="display:none"></div>
+<div class="">
+  <p>Enabled: <label id="data-agent-check" class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="data-agent-enabled">
+    <input type="checkbox" id="data-agent-enabled" class="mdl-switch__input">
+    <span class="mdl-switch__label"></span>
+  </label> <span id="isenabled">{{ is_enabled }}</span></p>
+</div>
+    <p>Access key ID: <span id="keyid">?</span></p>
+    <p>Secret access key: <span id="keyvalue">?</span></p>
+    <br>
+    <div class="">
+      <button href=# id="generate" class="mdl-button mdl-js-button mdl-js-ripple-effect">
+        Save/Generate new key
+      </button>
+    </div>
+  <br>
+  <div class="">
+    <button href=# id="download" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+      Download agent config
+    </button>
+  </div>
+  <script type=text/javascript>
+
+  $(function() {
+
+    // $('#data-agent-check').click(function() {
+    $('button#generate').bind('click', function() {
+      var isChecked = $('#data-agent-check').is('.is-checked') ? 1:0
+      console.log(isChecked)
+      $("#progress").show();
+      $.getJSON($SCRIPT_ROOT + '/_generate_access_keys/{{ site.id }}', {
+        siteId: {{ site.id }},
+        isChecked: isChecked
+      }, function(data) {
+        $("#keyvalue").text(data.secretAccessKey),
+        $("#keyid").text(data.accessKeyId),
+        $("#isenabled").text(data.isEnabled),
+        $("#progress").hide();
+      });
+      return false;
+    });
+  });
+
+    $.ajax({
+        url: 'on_off.aspx',
+        type: 'POST',
+        data: { strID:$("input:checkbox").attr("id"), strState:isChecked }
+    });
+
+</script>
+{% endblock %}
