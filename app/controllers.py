@@ -551,31 +551,35 @@ def site_project(sitename, projectname):
     site = Site.query.filter_by(name=sitename).first()
     project = Project.query.filter_by(name=projectname).first()
     project_ITP = ITP.query.filter_by(project_id=project.id).first()
-    deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id).all()
 
-    total = 0
-    completed = 0
-    in_progress = 0
-    not_applicable = 0
-    not_started = 0
-    for deliverable in deliverables:
-        ITCs = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
-        print(ITCs)
-        for ITC in ITCs:
-            checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=ITC.id).all()
-            print(checks)
-            for check in checks:
-                total += 1
-                if check.status == "Completed":
-                    completed += 1
-                elif check.status == "In Progress":
-                    in_progress += 1
-                elif check.status == "Not Applicable":
-                    not_applicable += 1
-                else:
-                    not_started += 1
-    if total != 0:
-        percents = [(completed/total)*100,(in_progress/total)*100,(not_applicable/total)*100,(not_started/total)*100]
+    if project_ITP != None:
+        deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id).all()
+
+        total = 0
+        completed = 0
+        in_progress = 0
+        not_applicable = 0
+        not_started = 0
+        for deliverable in deliverables:
+            ITCs = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
+            print(ITCs)
+            for ITC in ITCs:
+                checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=ITC.id).all()
+                print(checks)
+                for check in checks:
+                    total += 1
+                    if check.status == "Completed":
+                        completed += 1
+                    elif check.status == "In Progress":
+                        in_progress += 1
+                    elif check.status == "Not Applicable":
+                        not_applicable += 1
+                    else:
+                        not_started += 1
+        if total != 0:
+            percents = [(completed/total)*100,(in_progress/total)*100,(not_applicable/total)*100,(not_started/total)*100]
+        else:
+            percents = [0,0,0,0]
     else:
         percents = [0,0,0,0]
 
@@ -587,14 +591,17 @@ def site_project(sitename, projectname):
 @app.route('/site/<sitename>/projects/new', methods=['POST','GET'])
 def site_project_new(sitename):
     site = Site.query.filter_by(name=sitename).first()
+    users = User.query.all()
+    print(users)
 
     if request.method == 'POST':
-        new_site = Project(request.form['project_name'], request.form['project_description'], site.id)
+        new_site = Project(request.form['project_name'], request.form['job_number'], request.form['project_description'], site.id)
+        new_site.assigned_to = request.form['assigned_to']
         db.session.add(new_site)
         db.session.commit()
         return redirect(url_for('site_projects_list', sitename=site))
     else:
-        return render_template('project/site_project_new.html', site=site)
+        return render_template('project/site_project_new.html', site=site, users=users)
 
 #Route for editing a current project
 @app.route('/site/<sitename>/projects/<projectname>/edit', methods=['POST','GET'])
@@ -607,8 +614,14 @@ def site_project_edit(sitename, projectname):
         if (project_name != "" and project_name != project.name):
             project.name = project_name
         description = request.form['project_description']
-        #if (description != "" and request.form['project_description'] == project.description):
-        #    description = request.form['project_description']
+        if (description != "" and request.form['project_description'] != project.description):
+            project.description = request.form['project_description']
+        job_number = request.form['job_number']
+        if (job_number != "" and request.form['job_number'] != project.job_number):
+            project.job_number = request.form['job_number']
+        assigned_to = request.form['assigned_to']
+        if (assigned_to != "" and request.form['assigned_to'] != project.assigned_to):
+            project.assigned_to = request.form['assigned_to']
         db.session.commit()
         return redirect(url_for('site_projects_list', sitename=site))
     else:
@@ -638,10 +651,12 @@ def site_project_ITP(sitename, projectname, ITPname):
     project_ITP = ITP.query.filter_by(name=ITPname).first()
     deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id).all()
 
+    all_ITCs = []
     total = 0
     completed = 0
     for deliverable in deliverables:
         ITCs = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
+        all_ITCs += ITCs
         for ITC in ITCs:
             checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=ITC.id).all()
             for check in checks:
@@ -660,7 +675,7 @@ def site_project_ITP(sitename, projectname, ITPname):
             if check.completion_datetime < completion_date:
                 completion_date = check.completion_datetime
 
-    return render_template('ITP/project_ITP.html', site=site, project=project, ITP=project_ITP, deliverables=deliverables, percentage_complete=percent, completion_date=completion_date)
+    return render_template('ITP/project_ITP.html', site=site, project=project, ITP=project_ITP, deliverables=deliverables, percentage_complete=percent, completion_date=completion_date, ITCs=all_ITCs)
 
 #Route for creating new ITP
 @app.route('/site/<sitename>/projects/<projectname>/ITP/new', methods=['POST','GET'])

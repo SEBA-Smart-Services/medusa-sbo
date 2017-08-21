@@ -10,6 +10,14 @@
       <br>
       <input type="text" name="project_description" placeholder="Give a description of the project" class="mdl-textfield__input">
       <br>
+      <input type="text" name="job_number" placeholder="5368" required class="mdl-textfield__input">
+      <br>
+      <select name="assigned_to" class="mdl-textfield__input" required>
+        <option value=""></option>
+        {% for user in users %}
+          <option value="{{user.name}}">{{user.name}}</option>
+        {% endfor %}
+      </select>
 
       <br>
       <input type="submit" value="Save Changes" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">

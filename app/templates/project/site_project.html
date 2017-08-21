@@ -12,15 +12,19 @@
           <tbody>
             <tr>
               <th class="mdl-data-table__cell--non-numeric">Job number</th>
-              <td class="mdl-data-table__cell--non-numeric">#532434</td>
+              <td class="mdl-data-table__cell--non-numeric">#{{project.job_number}}</td>
             </tr>
             <tr>
-              <th class="mdl-data-table__cell--non-numeric">Date</th>
-              <td class="mdl-data-table__cell--non-numeric">11/12/17</td>
+              <th class="mdl-data-table__cell--non-numeric">Start Date</th>
+              <td class="mdl-data-table__cell--non-numeric">{{project.start_date}}</td>
+            </tr>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">Completion Date</th>
+              <td class="mdl-data-table__cell--non-numeric">{{project.completion_date}}</td>
             </tr>
             <tr>
               <th class="mdl-data-table__cell--non-numeric">Assigned To</th>
-              <td class="mdl-data-table__cell--non-numeric">Foo Bar</td>
+              <td class="mdl-data-table__cell--non-numeric">{{project.assigned_to}}</td>
             </tr>
             <tr>
               <th class="mdl-data-table__cell--non-numeric">ITP</th>
@@ -41,7 +45,7 @@
       </div>
     </div>
 
-    <div class="mdl-cell mdl-cell--6-col mdl-grid">
+    <div class="mdl-cell mdl-cell--6-col">
 
       <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
         <div class="mdl-card__title">
