@@ -108,9 +108,13 @@ def dashboard_all():
 # list all sites that are attached to the logged in user
 @app.route('/site/all/sites')
 def site_list():
-    sites = current_user.sites
     issues = {}
     priority = {}
+    if "admin" in current_user.roles:
+        sites = Site.query.all()
+    else:
+        sites = current_user.sites
+
     for site in sites:
         issues[site.name] = len(site.get_unresolved())
         if not site.get_unresolved_by_priority():
