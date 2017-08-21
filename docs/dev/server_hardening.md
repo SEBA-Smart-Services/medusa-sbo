@@ -50,7 +50,7 @@ server {
  Delete any DNS records pointing any subdomains to the dev server.
 
 ### EC2 Security Group
-- Use the medusa-dev Security Group:
+- Use the `medusa-dev` Security Group only:
 ![medusa-dev EC2 security group](dev-server-ec2-sec-group.png)
 
 ### Poweroff when not in use
