@@ -1,17 +1,47 @@
 {% extends "layout.html" %}
 {% block content %}
 <h3>Site data agent</h3>
-<div id="progress2" class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active" style="display:none"></div>
-<div id="progress" class="mdl-progress mdl-js-progress mdl-progress__indeterminate" style="display:none"></div>
 <div class="">
-  <p>Enabled: <label id="data-agent-check" class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="data-agent-enabled">
-    <input type="checkbox" id="data-agent-enabled" class="mdl-switch__input">
-    <span class="mdl-switch__label"></span>
-  </label> <span id="isenabled">{{ is_enabled }}</span></p>
+  <h6>A Medusa Site Data Agent installation can collect data from a site Building Management System and push to Medusa.</h6>
+  <p>The <b>Site Data Agent</b> can be downloaded from <a href="https://github.com/SEBA-Smart-Services/medusa-system-agent/releases" target="_blank">here</a>.</p>
+  <p>Instructions for installing and configuring a <b>Site Data Agent</b> can be found <a href="https://seba-smart-services.github.io/medusa-system-agent/" target="_blank">here</a>.</p>
+  <p>To enable:
+  <ol>
+    <li>Toggle on the enable switch below.</li>
+    <li>Click <b>SAVE/GENERATE NEW KEY</b>.</li>
+    <li>Wait for the access key to generate, then click <b>DOWNLOAD AGENT CONFIG</b>.</li>
+    <li>Download, install and configure the <b>Medusa Site Data Agent</b> onsite, following the <a href="https://seba-smart-services.github.io/medusa-system-agent/" target="_blank">instructions</a>.</li>
+    <li>Import the downloaded agent config and copy onto the local site server, as per the instructions.</li>
+  </ol>
+
 </div>
-    <p>Access key ID: <span id="keyid">?</span></p>
-    <p>Secret access key: <span id="keyvalue">?</span></p>
-    <br>
+<div id="progress" class="mdl-progress mdl-js-progress mdl-progress__indeterminate" style="display:none"></div>
+<ul class="mdl-list">
+  <li class="mdl-list__item mdl-list__item--two-line">
+    <span class="mdl-list__item-primary-content">
+      <i class="mdl-list__item-icon">
+        <label id="data-agent-check" class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="data-agent-enabled">
+          <input type="checkbox" id="data-agent-enabled" class="mdl-switch__input">
+          <span class="mdl-switch__label"></span>
+        </label>
+      </i>
+      <span id="isenabled">{{ access_key["is_enabled"] }}</span>
+      <span class="mdl-list__item-sub-title">Enable</span>
+    </span>
+  </li>
+  <li class="mdl-list__item mdl-list__item--two-line">
+    <span class="mdl-list__item-primary-content">
+      <span id="keyid">{{ access_key["access_key_id"] }}</span>
+      <span class="mdl-list__item-sub-title">Access key ID</span>
+    </span>
+  </li>
+  <li class="mdl-list__item mdl-list__item--two-line">
+    <span class="mdl-list__item-primary-content">
+      <span id="keyvalue">{{ access_key["secret_access_key"] }}</span>
+      <span class="mdl-list__item-sub-title">Secret access key</span>
+    </span>
+  </li>
+</ul>
     <div class="">
       <button href=# id="generate" class="mdl-button mdl-js-button mdl-js-ripple-effect">
         Save/Generate new key
@@ -44,12 +74,6 @@
       return false;
     });
   });
-
-    $.ajax({
-        url: 'on_off.aspx',
-        type: 'POST',
-        data: { strID:$("input:checkbox").attr("id"), strState:isChecked }
-    });
 
 </script>
 {% endblock %}

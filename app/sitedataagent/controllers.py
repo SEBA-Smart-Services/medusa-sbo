@@ -7,26 +7,22 @@ from app.sitedataagent.aws_utils import AwsIamManager
 # site config page
 @app.route('/site/<sitename>/config/sitedataagent', methods=['GET','POST'])
 def site_data_agent(sitename):
-
+    # no POST of data to this url, handled by jquery to endpoint below.
     site = Site.query.filter_by(name=sitename).one()
 
     form = SiteAgentConfigForm()
-
-    if request.method == 'POST':
-
-        if form.validate_on_submit():
-            return redirect(url_for('site_data_agent', sitename=sitename, form=form))
-
-
-        return 'little success ' + site.name# redirect(url_for('site_data_agent', sitename=sitename))
-
-    elif request.method == 'GET':
-
-        return render_template('site_settings/site_data_agent.html', site=site, is_enabled="not working yet")
-
+    ##
+    # temporary!!!, replace with model to db!
+    access_key = {
+        "is_enabled": "not working yet",
+        "access_key_id": "not working yet 123",
+        "secret_access_key": "not working yet 456"
+    }
+    if request.method == 'GET':
+        return render_template('site_settings/site_data_agent.html', site=site, access_key=access_key)
 
 @app.route('/_generate_access_keys/<int:site_id>')
-def add_numbers(site_id):
+def generate_access_keys(site_id):
     # create IAM object from AWS utils
     iam = AwsIamManager(site_id)
     # get enabled state of site data agent from client over ajax
