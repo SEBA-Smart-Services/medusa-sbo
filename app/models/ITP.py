@@ -77,6 +77,11 @@ class Deliverable(db.Model):
         backref = 'deliverable')
     status = db.Column(db.String(200))
     percentage_complete = db.Column(db.Integer())
+    component_number = db.Column(db.Integer())
+    assigned_to = db.Column(db.String(255))
+    start_date = db.Column(db.DateTime)
+    completion_date = db.Column(db.DateTime())
+    completed = db.Column(db.Boolean())
 
     def __init__(self, name, deliverable_type_id, location_id, ITP_id):
         self.name = name

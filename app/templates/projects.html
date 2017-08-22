@@ -23,20 +23,22 @@
           {% for project in projects %}
             <tr>
               <td class="mdl-data-table__cell--non-numeric"><a href="/site/{{project.site}}/projects/{{project.name}}">{{ project.name }}</a></td>
-              <td class="mdl-data-table__cell--non-numeric">#534</td>
+              <td class="mdl-data-table__cell--non-numeric">#{{project.job_number}}</td>
               <td class="mdl-data-table__cell--non-numeric">{{ project.site }}</td>
               <td class="mdl-data-table__cell--non-numeric">0%</td>
-              <td class="mdl-data-table__cell--non-numeric">Person A<td>
+              <td class="mdl-data-table__cell--non-numeric">{{project.assigned_to}}<td>
             </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
 
-    <form action="/generic" method="GET">
-      <input type="submit" value="Create Template" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
-      </input>
-    </form>
+    <div>
+      <form action="/generic" method="GET">
+        <input type="submit" value="Create Generic Templates" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        </input>
+      </form>
+    </div>
 
 
 

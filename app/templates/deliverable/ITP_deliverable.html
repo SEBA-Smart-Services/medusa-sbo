@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% block title %}- {{project.name}}{% endblock %}
 {% block content %}
   <h3>Deliverable</h3>
 
@@ -13,7 +14,7 @@
             <tbody>
               <tr>
                 <th class="mdl-data-table__cell--non-numeric">Component Number</th>
-                <td class="mdl-data-table__cell--non-numeric">#532434</td>
+                <td class="mdl-data-table__cell--non-numeric">#{{deliverable.component_number}}</td>
               </tr>
               <tr>
                 <th class="mdl-data-table__cell--non-numeric">Location</th>
@@ -21,19 +22,19 @@
               </tr>
               <tr>
                 <th class="mdl-data-table__cell--non-numeric">Date Started</th>
-                <td class="mdl-data-table__cell--non-numeric">11/12/17</td>
+                <td class="mdl-data-table__cell--non-numeric">{{deliverable.start_date}}</td>
               </tr>
               <tr>
                 <th class="mdl-data-table__cell--non-numeric">Date Completed</th>
-                <td class="mdl-data-table__cell--non-numeric">20/12/17</td>
+                <td class="mdl-data-table__cell--non-numeric">{{deliverable.completion_date}}</td>
               </tr>
               <tr>
                 <th class="mdl-data-table__cell--non-numeric">Assigned To</th>
-                <td class="mdl-data-table__cell--non-numeric">Foo Bar</td>
+                <td class="mdl-data-table__cell--non-numeric">{{deliverable.assigned_to}}</td>
               </tr>
               <tr>
-                <th class="mdl-data-table__cell--non-numeric">% Complete</th>
-                <td class="mdl-data-table__cell--non-numeric">{{deliverable.percentage_complete}}%</td>
+                <th class="mdl-data-table__cell--non-numeric">ITCs Complete</th>
+                <td class="mdl-data-table__cell--non-numeric">{{totals[1]}}/{{totals[0]}}</td>
               </tr>
               <tr>
                 <th class="mdl-data-table__cell--non-numeric">ITC</th>

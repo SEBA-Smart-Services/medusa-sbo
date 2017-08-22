@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% block title %}- {{project.name}}{% endblock %}
 {% block content %}
   <h3>Edit {{project.name}} for {{site.name}}</h3>
 
@@ -10,12 +11,14 @@
       <br>
       <input type="text" name="project_description" placeholder="Give a description of the project" class="mdl-textfield__input">
       <br>
-      <input type="text" name="job_number" placeholder="5368" required class="mdl-textfield__input">
+      <input type="text" name="job_number" placeholder="5368" class="mdl-textfield__input">
       <br>
-      <select name="assigned_to" class="mdl-textfield__input" required>
+      <input type="date" name="start_date" class="mdl-textfield__input">
+      <br>
+      <select name="assigned_to" class="mdl-textfield__input">
         <option value=""></option>
         {% for user in users %}
-          <option value="{{user.name}}">{{user.name}}</option>
+          <option value="{{user}}">{{user}}</option>
         {% endfor %}
       </select>
 

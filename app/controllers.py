@@ -184,14 +184,6 @@ def unresolved_chart():
 
     return render_template('issue_chart.html', sites=sites, array=array, history=history, allsites=True)
 
-# show map of all tech locations
-# NOTE: currently just set to iframe a blank google maps
-@app.route('/site/all/map')
-def map():
-    # TODO: figure out how to auto sign into the inbuildings page. Attempt at cookies below doesn't work
-    response = make_response(render_template('map.html', allsites=True))
-    return response
-
 # conversion tool for adding entries to the issue chart
 # necessary to match python date format to javascript date format
 @app.template_filter('date_to_millis')
@@ -296,7 +288,8 @@ def dashboard_site(sitename):
         avg_health=avg_health,
         low_health_assets=low_health_assets,
         site=site,
-        alarmcount=nalarms
+        alarmcount=nalarms,
+        specificSite=True
     )
 
 # list assets on the site
@@ -307,14 +300,14 @@ def asset_list(sitename):
     asset_quantity = {}
     for asset_type in asset_types:
         asset_quantity[asset_type.name] = len(Asset.query.filter_by(site=site, type=asset_type).all())
-    return render_template('assets.html', assets=site.assets, asset_quantity=asset_quantity, asset_types=asset_types, site=site)
+    return render_template('assets.html', specificSite=True, assets=site.assets, asset_quantity=asset_quantity, asset_types=asset_types, site=site)
 
 # list unresolved issues on the site
 @app.route('/site/<sitename>/issues')
 def unresolved_list(sitename):
     site = Site.query.filter_by(name=sitename).one()
     results = site.get_unresolved()
-    return render_template('issues.html', results=results, site=site)
+    return render_template('issues.html', specificSite=True, results=results, site=site)
 
 # handle update from acknowledging/editing notes of issues for a site
 @app.route('/site/<sitename>/issues/_submit', methods=['POST'])
@@ -334,7 +327,7 @@ def unresolved_issues_submit(sitename):
 
     db.session.commit()
 
-    return redirect(url_for('unresolved_list', sitename=sitename))
+    return redirect(url_for('unresolved_list', specificSite=True, sitename=sitename))
 
 # show details for a single asset
 @app.route('/site/<sitename>/details/<asset_id>')
@@ -344,7 +337,7 @@ def asset_details(sitename, asset_id):
     recent_results = Result.query.filter_by(asset=asset, recent=True).all()
     unresolved_results = Result.query.filter(Result.asset==asset, (Result.active == True) | (Result.acknowledged == False)).all()
     algorithms = set(asset.algorithms) - set(asset.exclusions)
-    return render_template('asset_details.html', asset=asset, site=site, recent_results=recent_results, unresolved_results=unresolved_results, algorithms=algorithms)
+    return render_template('asset_details.html', specificSite=True, asset=asset, site=site, recent_results=recent_results, unresolved_results=unresolved_results, algorithms=algorithms)
 
 # handle update from acknowledging/editing notes of issues for a single asset
 @app.route('/site/<sitename>/results/<asset_id>/_submit', methods=['POST'])
@@ -364,7 +357,7 @@ def asset_issues_submit(sitename, asset_id):
 
     db.session.commit()
 
-    return redirect(url_for('asset_details', sitename=sitename, asset_id=asset_id))
+    return redirect(url_for('asset_details', specificSite=True, sitename=sitename, asset_id=asset_id))
 
 # site config page
 @app.route('/site/<sitename>/config', methods=['GET','POST'])
@@ -394,7 +387,7 @@ def site_config(sitename):
 
         # if form has errors, return the page (errors will display)
         if not form.validate_on_submit():
-            return render_template('site_config.html', inbuildings_config=inbuildings_config, site=site, form=form)
+            return render_template('site_config.html', specificSite=True, inbuildings_config=inbuildings_config, site=site, form=form)
 
         # convert port input to a string
         if form.db_port.data is None:
@@ -425,7 +418,7 @@ def site_config(sitename):
         site.emails = emails
 
         db.session.commit()
-        return redirect(url_for('homepage', sitename=sitename))
+        return redirect(url_for('homepage', specificSite=True, sitename=sitename))
 
     elif request.method == 'GET':
         # prefill form with information from site object
@@ -444,7 +437,7 @@ def site_config(sitename):
             form.inbuildings_key.data = inbuildings_config.key
         # turn emails into csv
         form.email_list.data = ','.join([email.address for email in site.emails])
-        return render_template('site_config.html', site=site, form=form)
+        return render_template('site_config.html', specificSite=True, site=site, form=form)
 
 
 # TESTING ALARMS CG
@@ -508,7 +501,8 @@ def return_alarms(sitename):
         message=message,
         alarms=alarm_names,
         nalarms=nalarms,
-	    rows=nalarms
+	    rows=nalarms,
+        specificSite=True
     )
 
 
@@ -524,7 +518,7 @@ def all_projects():
 
     print(all_projects)
 
-    return render_template('projects.html', projects=all_projects, allsites=True)
+    return render_template('projects.html', specificSite=True, projects=all_projects, allsites=True)
 
 
 ################################################################################
@@ -543,7 +537,7 @@ def site_projects_list(sitename):
     for i in site_projects:
         projects.append(i)
 
-    return render_template('project/site_projects_list.html', site=site, projects=projects)
+    return render_template('project/site_projects_list.html', specificSite=True, site=site, projects=projects)
 
 #Route for individual Project for a given Site
 @app.route('/site/<sitename>/projects/<projectname>')
@@ -583,7 +577,7 @@ def site_project(sitename, projectname):
     else:
         percents = [0,0,0,0]
 
-    return render_template('project/site_project.html', site=site, project=project, ITP=project_ITP, percents=percents)
+    return render_template('project/site_project.html', specificSite=True, site=site, project=project, ITP=project_ITP, percents=percents)
 
 #Route for creating a new Project for a given Site
 #add in __init__ to schema so the variables can just be passed to the new Project
@@ -601,13 +595,14 @@ def site_project_new(sitename):
         db.session.commit()
         return redirect(url_for('site_projects_list', sitename=site))
     else:
-        return render_template('project/site_project_new.html', site=site, users=users)
+        return render_template('project/site_project_new.html', specificSite=True, site=site, users=users)
 
 #Route for editing a current project
 @app.route('/site/<sitename>/projects/<projectname>/edit', methods=['POST','GET'])
 def site_project_edit(sitename, projectname):
     site = Site.query.filter_by(name=sitename).first()
     project = Project.query.filter_by(name=projectname).first()
+    users = User.query.all()
 
     if request.method == 'POST':
         project_name = request.form['project_name']
@@ -619,13 +614,16 @@ def site_project_edit(sitename, projectname):
         job_number = request.form['job_number']
         if (job_number != "" and request.form['job_number'] != project.job_number):
             project.job_number = request.form['job_number']
+        start_date = request.form['start_date']
+        if (start_date != "" and request.form['start_date'] != project.start_date):
+            project.start_date = request.form['start_date']
         assigned_to = request.form['assigned_to']
         if (assigned_to != "" and request.form['assigned_to'] != project.assigned_to):
             project.assigned_to = request.form['assigned_to']
         db.session.commit()
         return redirect(url_for('site_projects_list', sitename=site))
     else:
-        return render_template('project/site_project_edit.html', site=site, project=project)
+        return render_template('project/site_project_edit.html', specificSite=True, site=site, project=project, users=users)
 
 #Route for deleting a current project
 @app.route('/site/<sitename>/projects/<projectname>/delete', methods=['POST','GET'])
@@ -638,7 +636,7 @@ def site_project_delete(sitename, projectname):
         db.session.commit()
         return redirect(url_for('site_projects_list', sitename=site))
     else:
-        return render_template('project/site_project_delete.html', site=site, project=project)
+        return render_template('project/site_project_delete.html', specificSite=True, site=site, project=project)
 
 ############################ ITP navigation controllers ########################
 
@@ -675,7 +673,7 @@ def site_project_ITP(sitename, projectname, ITPname):
             if check.completion_datetime < completion_date:
                 completion_date = check.completion_datetime
 
-    return render_template('ITP/project_ITP.html', site=site, project=project, ITP=project_ITP, deliverables=deliverables, percentage_complete=percent, completion_date=completion_date, ITCs=all_ITCs)
+    return render_template('ITP/project_ITP.html', specificSite=True, site=site, project=project, ITP=project_ITP, deliverables=deliverables, percentage_complete=percent, completion_date=completion_date, ITCs=all_ITCs)
 
 #Route for creating new ITP
 @app.route('/site/<sitename>/projects/<projectname>/ITP/new', methods=['POST','GET'])
@@ -689,7 +687,7 @@ def site_project_ITP_new(sitename, projectname):
         db.session.commit()
         return redirect(url_for('site_project_ITP', sitename=site, projectname=project.name, ITPname=new_ITP))
     else:
-        return render_template('ITP/project_ITP_new.html', site=site, project=project)
+        return render_template('ITP/project_ITP_new.html', specificSite=True, site=site, project=project)
 
 #Route for editing a current ITP
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/edit', methods=['POST','GET'])
@@ -708,7 +706,7 @@ def site_project_ITP_edit(sitename, projectname, ITPname):
         db.session.commit()
         return redirect(url_for('site_project_ITP', sitename=site, projectname=project.name, ITPname=project_ITP))
     else:
-        return render_template('ITP/project_ITP_edit.html', site=site, project=project, ITP=project_ITP)
+        return render_template('ITP/project_ITP_edit.html', specificSite=True, site=site, project=project, ITP=project_ITP)
 
 #Route for deleting a current ITP
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/delete', methods=['POST','GET'])
@@ -722,7 +720,7 @@ def site_project_ITP_delete(sitename, projectname, ITPname):
         db.session.commit()
         return redirect(url_for('site_project', sitename=site, projectname=project.name))
     else:
-        return render_template('ITP/project_ITP_delete.html', site=site, project=project, ITP=project_ITP)
+        return render_template('ITP/project_ITP_delete.html', specificSite=True, site=site, project=project, ITP=project_ITP)
 
 ################### deliverable type navigation controllers ####################
 
@@ -871,7 +869,7 @@ def site_project_ITP_deliverable_list(sitename, projectname, ITPname):
         deliverable.percentage_complete = percent
         db.session.commit()
 
-    return render_template('deliverable/ITP_deliverable_list.html', site=site, project=project, ITP=project_ITP, deliverables=deliverables)
+    return render_template('deliverable/ITP_deliverable_list.html', specificSite=True, site=site, project=project, ITP=project_ITP, deliverables=deliverables)
 
 #Route for deliverable
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>')
@@ -888,10 +886,15 @@ def site_project_ITP_deliverable(sitename, projectname, ITPname, deliverablename
     in_progress = 0
     not_applicable = 0
     not_started = 0
+    totals = []
+    ITC_complete = 0
+    total_ITC = 0
     ITCs = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable_current.id).all()
-    print(ITCs)
     for ITC in ITCs:
         checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=ITC.id).all()
+        total_ITC += 1
+        if ITC.status == "Completed":
+            ITC_complete += 1
         print(checks)
         for check in checks:
             total += 1
@@ -905,12 +908,22 @@ def site_project_ITP_deliverable(sitename, projectname, ITPname, deliverablename
                 not_started += 1
     if total != 0:
         percents = [(completed/total)*100,(in_progress/total)*100,(not_applicable/total)*100,(not_started/total)*100]
+        totals = [total_ITC, ITC_complete]
     else:
         percents = [0,0,0,0]
+        totals = [0, 0]
     deliverable_current.percentage_complete = percents[0]
+    print(deliverable_current.percentage_complete)
+    print(deliverable_current.completion_date)
+    if (deliverable_current.percentage_complete == 100 and deliverable_current.completion_date == None):
+        print("now complete")
+        deliverable_current.completion_date = datetime.datetime.now()
+    else:
+        print("Not complete")
+        deliverable_current.completion_date = " "
     db.session.commit()
 
-    return render_template('deliverable/ITP_deliverable.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable_current, ITCs=ITP_ITCs, percents=percents)
+    return render_template('deliverable/ITP_deliverable.html', specificSite=True, site=site, project=project, ITP=project_ITP, deliverable=deliverable_current, ITCs=ITP_ITCs, percents=percents, totals=totals)
 
 #Route for new deliverable
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/new', methods=['POST','GET'])
@@ -944,7 +957,7 @@ def site_project_ITP_deliverable_new(sitename, projectname, ITPname):
 
         return redirect(url_for('site_project_ITP_deliverable_list', sitename=site, projectname=project.name, ITPname= project_ITP.name))
     else:
-        return render_template('deliverable/ITP_deliverable_new.html', site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations)
+        return render_template('deliverable/ITP_deliverable_new.html', specificSite=True, site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations)
 
 #Route for editing a current deliverable
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/edit', methods=['POST','GET'])
@@ -955,18 +968,28 @@ def site_project_ITP_deliverable_edit(sitename, projectname, ITPname, deliverabl
     deliverable = Deliverable.query.filter_by(name=deliverablename).first()
     deliverable_types = Deliverable_type.query.all()
     locations = Location.query.all()
+    users = User.query.all()
 
     if request.method == 'POST':
         deliverable_name = request.form['deliverable_name']
         if (deliverable_name != "" and deliverable_name != deliverable.name):
             deliverable.name = deliverable_name
-        description = request.form['deliverable_description']
-        #if (description != "" and request.form['project_description'] == project.description):
-        #    description = request.form['project_description']
+        deliverable_number = request.form['deliverable_number']
+        if (deliverable_number != "" and deliverable_number != deliverable.component_number):
+            deliverable.component_number = deliverable_number
+        # description = request.form['deliverable_description']
+        # if (description != "" and description != deliverable.description):
+        #     deliverable.description = description
+        start_date = request.form['start_date']
+        if (start_date != "" and start_date != deliverable.start_date):
+            deliverable.start_date = start_date
+        assigned_to = request.form['assigned_to']
+        if (assigned_to != "" and assigned_to != deliverable.assigned_to):
+            deliverable.assigned_to = assigned_to
         db.session.commit()
         return redirect(url_for('site_project_ITP_deliverable_list', sitename=site, projectname=project.name, ITPname=project_ITP.name))
     else:
-        return render_template('deliverable/ITP_deliverable_edit.html', site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations, deliverable=deliverable)
+        return render_template('deliverable/ITP_deliverable_edit.html', specificSite=True, site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations, deliverable=deliverable, users=users)
 
 #Route for deleting a current deliverable
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/delete', methods=['POST','GET'])
@@ -981,7 +1004,7 @@ def site_project_ITP_deliverable_delete(sitename, projectname, ITPname, delivera
         db.session.commit()
         return redirect(url_for('site_project_ITP_deliverable_list', sitename=site, projectname=project.name, ITPname=project_ITP.name))
     else:
-        return render_template('deliverable/ITP_deliverable_delete.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable)
+        return render_template('deliverable/ITP_deliverable_delete.html', specificSite=True, site=site, project=project, ITP=project_ITP, deliverable=deliverable)
 
 
 #Route for adding a check
@@ -1025,7 +1048,6 @@ def site_project_ITP_deliverable_ITC_list(sitename, projectname, ITPname, delive
         total = 0
         completed = 0
         checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=ITC.id).all()
-        print(checks)
         for check in checks:
             total += 1
             if check.is_done == True:
@@ -1038,9 +1060,11 @@ def site_project_ITP_deliverable_ITC_list(sitename, projectname, ITPname, delive
 
         if percent == 100:
             ITC.status = "Completed"
+        elif (percent != 100 and ITC.status == "Completed"):
+            ITC.status = "In Progress"
         db.session.commit()
 
-    return render_template('specific_ITC/ITC_list.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITCs=ITP_ITCs)
+    return render_template('specific_ITC/ITC_list.html', specificSite=True, site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITCs=ITP_ITCs)
 
 #Route for editing a current ITC
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/ITC/<ITCid>/edit', methods=['POST','GET'])
@@ -1065,7 +1089,7 @@ def site_project_ITP_deliverable_ITC_edit(sitename, projectname, ITPname, delive
         db.session.commit()
         return redirect(url_for('site_project_ITP_deliverable_ITC_list', sitename=site, projectname=project.name, ITPname=project_ITP.name, deliverablename=deliverable.name))
     else:
-        return render_template('specific_ITC/ITC_edit.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC)
+        return render_template('specific_ITC/ITC_edit.html', specificSite=True, site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC)
 
 #Route for deleting a current ITC
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/ITC/<ITCid>/delete', methods=['POST','GET'])
@@ -1081,7 +1105,7 @@ def site_project_ITP_deliverable_ITC_delete(sitename, projectname, ITPname, deli
         db.session.commit()
         return redirect(url_for('site_project_ITP_deliverable_ITC_list', sitename=site, projectname=project.name, ITPname=project_ITP.name, deliverablename=deliverable.name))
     else:
-        return render_template('specific_ITC/ITC_delete.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC)
+        return render_template('specific_ITC/ITC_delete.html', specificSite=True, site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC)
 
 #Route for updating check completion
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/ITC/<ITCid>/check/change', methods=['POST'])
@@ -1146,7 +1170,7 @@ def start_ITC_testing(sitename, projectname, ITPname, deliverablename, ITCid):
     deliver_ITC.status = "In Progress"
     db.session.commit()
 
-    return redirect(url_for('ITC_testing', sitename=site, projectname=project.name, ITPname=project_ITP.name, deliverablename=deliverable.name, ITCid=ITCid))
+    return redirect(url_for('ITC_testing', specificSite=True, sitename=site, projectname=project.name, ITPname=project_ITP.name, deliverablename=deliverable.name, ITCid=ITCid))
 
 #Route for looking at all current checks for an ITC
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/ITC/<ITCid>/checks')
@@ -1173,7 +1197,7 @@ def ITC_testing(sitename, projectname, ITPname, deliverablename, ITCid):
         deliver_ITC.status = "Completed"
         db.session.commit()
 
-    return render_template('specific_ITC/ITC.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=deliver_ITC, checks=deliverable_checks, ITCid=ITCid, percentage_complete=percentage_complete)
+    return render_template('specific_ITC/ITC.html', specificSite=True, site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=deliver_ITC, checks=deliverable_checks, ITCid=ITCid, percentage_complete=percentage_complete)
 
 #Route for editing a check
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/ITC/<ITCid>/checks/<checkid>/edit', methods=['POST','GET'])
@@ -1198,7 +1222,7 @@ def site_project_ITP_deliverable_ITC_check_edit(sitename, projectname, ITPname, 
         db.session.commit()
         return redirect(url_for('ITC_testing', sitename=site, projectname=project.name, deliverablename=deliverable.name, ITPname=project_ITP.name, ITCid=ITP_ITC.id))
     else:
-        return render_template('specific_ITC/ITC_check_edit.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC, check=check)
+        return render_template('specific_ITC/ITC_check_edit.html', specificSite=True, site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC, check=check)
 
 #Route for deleting a check
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/ITC/<ITCid>/checks/<checkid>/delete', methods=['POST','GET'])
@@ -1215,7 +1239,7 @@ def site_project_ITP_deliverable_ITC_check_delete(sitename, projectname, ITPname
         db.session.commit()
         return redirect(url_for('ITC_testing', sitename=site, projectname=project.name, deliverablename=deliverable.name, ITPname=project_ITP.name, ITCid=ITP_ITC.id))
     else:
-        return render_template('specific_ITC/ITC_check_delete.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC, check=check)
+        return render_template('specific_ITC/ITC_check_delete.html', specificSite=True, site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC, check=check)
 
 
 ################################################################################
