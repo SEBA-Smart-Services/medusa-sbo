@@ -72,9 +72,7 @@
         <table class="mdl-data-table mdl-js-data-table" style="width:100%;table-layout:fixed;white-space: normal;">
           <thead>
             <tr>
-              {% if allsites == True %}
               <th class="mdl-data-table__cell--non-numeric">Site</th>
-              {% endif %}
               <th class="mdl-data-table__cell--non-numeric">Asset</th>
               <th class="mdl-data-table__cell--non-numeric">Algorithm</th>
               <th class="mdl-data-table__cell--non-numeric">Notes</th>
@@ -83,17 +81,13 @@
           </thead>
           <tbody>
             {% for result in results %}
-            {% if allsites == True or result.asset.site.name == site.name %}
-            <tr>
-              {% if allsites == True %}
-              <td class="mdl-data-table__cell--non-numeric">{{result.asset.site.name}}</td>
-              {% endif %}
-              <td class="mdl-data-table__cell--non-numeric">{{result.asset.name}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{result.algorithm.descr}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{result.notes}}</td>
-              <td>{{result.asset.priority}}</td>
-            </tr>
-            {% endif %}
+              <tr>
+                <td class="mdl-data-table__cell--non-numeric">{{result.asset.site.name}}</td>
+                <td class="mdl-data-table__cell--non-numeric">{{result.asset.name}}</td>
+                <td class="mdl-data-table__cell--non-numeric">{{result.algorithm.descr}}</td>
+                <td class="mdl-data-table__cell--non-numeric">{{result.notes}}</td>
+                <td>{{result.asset.priority}}</td>
+              </tr>
             {% endfor %}
           </tbody>
         </table>
