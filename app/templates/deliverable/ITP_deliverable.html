@@ -22,7 +22,11 @@
               </tr>
               <tr>
                 <th class="mdl-data-table__cell--non-numeric">Date Started</th>
-                <td class="mdl-data-table__cell--non-numeric">{{deliverable.start_date.strftime('%d-%m-%Y')}}</td>
+                {% if deliverable.start_date != none %}
+                  <td class="mdl-data-table__cell--non-numeric">{{deliverable.start_date.strftime('%d-%m-%Y')}}</td>
+                {% else %}
+                  <td class="mdl-data-table__cell--non-numeric"></td>
+                {% endif %}
               </tr>
               <tr>
                 <th class="mdl-data-table__cell--non-numeric">Date Completed</th>
