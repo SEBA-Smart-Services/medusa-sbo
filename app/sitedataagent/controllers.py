@@ -32,23 +32,17 @@ def site_data_agent(sitename):
         access_key["secret_access_key"] = uploader.aws_secret_access_key
     else:
         uploader = None
-    # try:
-    #     uploader = SiteDataUploader.query.filter_by(site_id=site.id).one()
-    # except Exception as e:
-    #     uploader = None
 
-    # temporary!!!, replace with model to db!
-    # access_key = {
-    #     "is_enabled": "not working yet",
-    #     "access_key_id": "not working yet 123",
-    #     "secret_access_key": "not working yet 456"
-    # }
     if request.method == 'GET':
         # return (str(site) + str(uploader))
         return render_template('site_settings/site_data_agent.html', site=site, access_key=access_key)
 
 @app.route('/_generate_access_keys/<int:site_id>')
 def generate_access_keys(site_id):
+    """
+    generates AWS user and access key for site data agent, writes to DB,
+    returns values to client via jquery
+    """
     # create IAM object from AWS utils
     iam = AwsIamManager(site_id)
 
@@ -105,12 +99,12 @@ def generate_access_keys(site_id):
 
 @app.route('/_download_dataagent_config/<int:site_id>')
 def download_dataagent_config(site_id):
+    """
+    downloads site data agent config files as zip
+    """
 
     DATA_AGENT_TEMPLATE = app.config["DATA_AGENT_TEMPLATE"]
     CHIMERA_TEMPLATE = app.config["CHIMERA_TEMPLATE"]
-    # AWS_S3_SITEDATA_BUCKET = app.config["AWS_S3_SITEDATA_BUCKET"]
-    # AWS_S3_SITEDATA_PATH = app.config["AWS_S3_SITEDATA_PATH"]
-    # AWS_S3_REGION = app.config["AWS_S3_REGION"]
     TEMP_STORAGE = "/tmp"
 
     class ConfigGenerator(object):
@@ -168,16 +162,6 @@ def download_dataagent_config(site_id):
                 app.logger.info('writing config to temporary storage ' + str(f))
                 outfile.write(config)
 
-        # def zipper(src, dst):
-        #     zf = zipfile.ZipFile(dst, "w", zipfile.ZIP_DEFLATED)
-        #     abs_src = os.path.abspath(src)
-        #     for dirname, subdirs, files in os.walk(src):
-        #         for filename in files:
-        #             absname = os.path.abspath(os.path.join(dirname, filename))
-        #             arcname = absname[len(abs_src) + 1:]
-        #             zf.write(absname, arcname)
-        #             zf.close()
-
         def get_config_filename(self, template_file):
             return os.path.basename(template_file)
 
@@ -229,8 +213,6 @@ def download_dataagent_config(site_id):
             memory_file.seek(0)
             return memory_file
 
-
-
     try:
         uploader = SiteDataUploader.query.filter_by(site_id=site_id).one()
     except:
@@ -251,19 +233,14 @@ def download_dataagent_config(site_id):
         "SITE_ID": site_id
     }
 
-
+    # generate config as zip file in memory
     config_files = [
         CHIMERA_TEMPLATE,
         DATA_AGENT_TEMPLATE
     ]
     config_generator = ConfigGenerator()
-    # template = config_generator.generate_config(CHIMERA_TEMPLATE, placeholders=config_settings)
     out = config_generator.make_config_zip(config_files, config_settings)
-    # config_generator.rm_temp_dir()
 
-    # template = 'abc'
-    # # save file to byte object
-    # out = BytesIO(template.encode('utf-8'))
     # send the file to client
     response = make_response(send_file(out, attachment_filename='config.zip', as_attachment=True))
     # prevent browser from caching the download

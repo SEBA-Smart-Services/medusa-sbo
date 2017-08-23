@@ -71,3 +71,31 @@ from app import models, add, admin, cmms, weather, algorithms, reports
 # import scheduling
 
 # modules
+
+###########################################
+# TESTING ONLY, REMOVE!
+# from app.algorithms import (
+#     ChwValveHunting,
+#     PIDLoopHunting,
+#     RunningTime,
+#     SimultnsHeatCool,
+#     UnitOffZoneOccupied,
+#     UnitRunZoneUnoccupied,
+#     ZoneTempHeatingCheck
+# )
+#
+# check5 = ChwValveHunting()
+# check2 = SimultnsHeatCool()
+# check3 = UnitRunZoneUnoccupied()
+# check4 = UnitOffZoneOccupied()
+# check1 = ZoneTempHeatingCheck()
+# check6 = RunningTime()
+#
+# app.logger.info(check1.description)
+# app.logger.info(check2.description)
+# app.logger.info(check3.description)
+# app.logger.info(check4.description)
+# app.logger.info(check5.description)
+# app.logger.info(check5.freq_cutoff)
+# app.logger.info(check6.description)
+###########################################
