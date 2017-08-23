@@ -21,7 +21,11 @@
     <span class="mdl-list__item-primary-content">
       <i class="mdl-list__item-icon">
         <label id="data-agent-check" class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="data-agent-enabled">
-          <input type="checkbox" id="data-agent-enabled" class="mdl-switch__input">
+          <input type="checkbox" id="data-agent-enabled" class="mdl-switch__input"
+            {% if access_key['is_enabled'] %}
+              checked
+            {% endif %}
+          >
           <span class="mdl-switch__label"></span>
         </label>
       </i>
