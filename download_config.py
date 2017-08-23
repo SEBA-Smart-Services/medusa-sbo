@@ -63,4 +63,4 @@ def download_dir(client, resource, bucket, source, local):
         except:
             print('FAIL')
 
-download_dir(s3_client, s3, BUCKET_NAME, BUCKET_CONFIG_DIR, LOCAL_CONFIG_DIR + '/test')
+download_dir(s3_client, s3, BUCKET_NAME, BUCKET_CONFIG_DIR, LOCAL_CONFIG_DIR)
