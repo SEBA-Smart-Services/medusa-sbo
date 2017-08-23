@@ -12,7 +12,6 @@ from flask_wtf import Form
 from wtforms import TextField, PasswordField, validators
 from werkzeug.security import check_password_hash
 from flask_security.utils import encrypt_password
-from jinja2 import environmentfilter
 
 # enforce login required for all pages
 @app.before_request
@@ -42,13 +41,6 @@ def public_endpoint(function):
     function.is_public = True
     return function
 
-@environmentfilter
-def does_exist(value):
-    try:
-        if value != None:
-            return True
-    except:
-        return False
 
 ###################################
 ## main pages for all sites

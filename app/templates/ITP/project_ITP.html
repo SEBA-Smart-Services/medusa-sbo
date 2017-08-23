@@ -135,4 +135,8 @@
     </form>
   </div>
 
+  <br>
+
+  <input type=button onclick="window.location.href='{{ url_for('ITC_report_page', siteid=site.id, projectid=project.id, ITPid=ITP.id) }}'" value="Download Report" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+
 {% endblock %}
