@@ -1,5 +1,6 @@
 from app import app, event
 from app.models import Site, Asset, Result
+from app.models.ITP import Project, ITP, Deliverable, Deliverable_ITC_map
 from flask import render_template, url_for, redirect
 from flask_weasyprint import HTML, render_pdf
 
@@ -9,6 +10,21 @@ def report_page(sitename):
     site = Site.query.filter_by(name=sitename).one()
     html = generate_report_html(site)
     return render_pdf(html)
+
+# provide a url to download a report for a ITCs
+@app.route('/site/<siteid>/projects/<projectid>/ITP/<ITPid>/report')
+def ITC_report_page(siteid, projectid, ITPid):
+    site = Site.query.filter_by(id=siteid).first()
+    project = Project.query.filter_by(id=projectid).first()
+    project_ITP = ITP.query.filter_by(id=ITPid).first()
+    deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id).all()
+
+    ITCs = []
+    for deliverable in deliverables:
+        ITCs += Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
+
+    html = render_template('ITC_report.html', site=site, project=project, project_ITP=project_ITP, deliverables=deliverables, ITCs=ITCs)
+    return render_pdf(HTML(string=html))
 
 # provide a url to force a site report to be sent out via emails
 @app.route('/site/<sitename>/issues/_send')
