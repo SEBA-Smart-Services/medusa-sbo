@@ -555,12 +555,26 @@ def site_project(sitename, projectname):
         in_progress = 0
         not_applicable = 0
         not_started = 0
+        totals = []
+        ITC_complete = 0
+        ITC_in_progress = 0
+        ITC_not_applicable = 0
+        ITC_not_started = 0
+        total_ITC = 0
         for deliverable in deliverables:
             ITCs = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
-            print(ITCs)
             for ITC in ITCs:
+                total_ITC += 1
+                if ITC.status == "Completed":
+                    ITC_complete += 1
+                elif ITC.status == "In Progress":
+                    ITC_in_progress += 1
+                elif ITC.status == "Not Applicable":
+                    ITC_not_applicable += 1
+                else:
+                    ITC_not_started += 1
+
                 checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=ITC.id).all()
-                print(checks)
                 for check in checks:
                     total += 1
                     if check.status == "Completed":
@@ -573,12 +587,15 @@ def site_project(sitename, projectname):
                         not_started += 1
         if total != 0:
             percents = [(completed/total)*100,(in_progress/total)*100,(not_applicable/total)*100,(not_started/total)*100]
+            totals = [total_ITC, ITC_complete, ITC_in_progress, ITC_not_applicable, ITC_not_started]
         else:
             percents = [0,0,0,0]
+            totals = [0,0,0,0]
     else:
         percents = [0,0,0,0]
+        totals = [0,0,0,0]
 
-    return render_template('project/site_project.html', site=site, project=project, ITP=project_ITP, percents=percents)
+    return render_template('project/site_project.html', site=site, project=project, ITP=project_ITP, percents=percents, totals=totals)
 
 #Route for creating a new Project for a given Site
 #add in __init__ to schema so the variables can just be passed to the new Project
@@ -653,28 +670,62 @@ def site_project_ITP(sitename, projectname, ITPname):
     all_ITCs = []
     total = 0
     completed = 0
+    in_progress = 0
+    not_applicable = 0
+    not_started = 0
+    totals = []
+    ITC_complete = 0
+    ITC_in_progress = 0
+    ITC_not_applicable = 0
+    ITC_not_started = 0
+    total_ITC = 0
     for deliverable in deliverables:
         ITCs = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
         all_ITCs += ITCs
         for ITC in ITCs:
+            total_ITC += 1
+            if ITC.status == "Completed":
+                ITC_complete += 1
+            elif ITC.status == "In Progress":
+                ITC_in_progress += 1
+            elif ITC.status == "Not Applicable":
+                ITC_not_applicable += 1
+            else:
+                ITC_not_started += 1
+
             checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=ITC.id).all()
             for check in checks:
                 total += 1
-                if check.is_done == True:
+                if check.status == "Completed":
                     completed += 1
+                elif check.status == "In Progress":
+                    in_progress += 1
+                elif check.status == "Not Applicable":
+                    not_applicable += 1
+                else:
+                    not_started += 1
     if total != 0:
-        percent = (completed/total)*100
+        percents = [(completed/total)*100,(in_progress/total)*100,(not_applicable/total)*100,(not_started/total)*100]
+        totals = [total_ITC, ITC_complete, ITC_in_progress, ITC_not_applicable, ITC_not_started]
     else:
-        percent = 0
+        percents = [0,0,0,0]
+        totals = [0,0,0,0]
+
+    if deliverable.percentage_complete > 0 and deliverable.percentage_complete < 100:
+        deliverable.status = "In Progress"
+    elif deliverable.percentage_complete == 100:
+        delvierable.status = "Completed"
+    else:
+        deliverable.status = "Not Started"
 
     completion_date = "-"
-    if percent == 100:
+    if percents[0] == 100:
         completion_date = checks[0].completion_datetime
         for check in checks:
             if check.completion_datetime < completion_date:
                 completion_date = check.completion_datetime
 
-    return render_template('ITP/project_ITP.html', site=site, project=project, ITP=project_ITP, deliverables=deliverables, percentage_complete=percent, completion_date=completion_date, ITCs=all_ITCs)
+    return render_template('ITP/project_ITP.html', site=site, project=project, ITP=project_ITP, deliverables=deliverables, completion_date=completion_date, ITCs=all_ITCs, percents=percents, totals=totals)
 
 #Route for creating new ITP
 @app.route('/site/<sitename>/projects/<projectname>/ITP/new', methods=['POST','GET'])
@@ -751,6 +802,13 @@ def site_project_ITP_deliverable_list(sitename, projectname, ITPname):
         else:
             percent = 0
         deliverable.percentage_complete = percent
+
+        if percent > 0 and percent < 100:
+            deliverable.status = "In Progress"
+        elif percent == 100:
+            delvierable.status = "Completed"
+        else:
+            deliverable.status = "Not Started"
         db.session.commit()
 
     return render_template('deliverable/ITP_deliverable_list.html', site=site, project=project, ITP=project_ITP, deliverables=deliverables)
@@ -772,14 +830,23 @@ def site_project_ITP_deliverable(sitename, projectname, ITPname, deliverablename
     not_started = 0
     totals = []
     ITC_complete = 0
+    ITC_in_progress = 0
+    ITC_not_applicable = 0
+    ITC_not_started = 0
     total_ITC = 0
     ITCs = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable_current.id).all()
     for ITC in ITCs:
-        checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=ITC.id).all()
         total_ITC += 1
         if ITC.status == "Completed":
             ITC_complete += 1
-        print(checks)
+        elif ITC.status == "In Progress":
+            ITC_in_progress += 1
+        elif ITC.status == "Not Applicable":
+            ITC_not_applicable += 1
+        else:
+            ITC_not_started += 1
+
+        checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=ITC.id).all()
         for check in checks:
             total += 1
             if check.status == "Completed":
@@ -792,10 +859,10 @@ def site_project_ITP_deliverable(sitename, projectname, ITPname, deliverablename
                 not_started += 1
     if total != 0:
         percents = [(completed/total)*100,(in_progress/total)*100,(not_applicable/total)*100,(not_started/total)*100]
-        totals = [total_ITC, ITC_complete]
+        totals = [total_ITC, ITC_complete, ITC_in_progress, ITC_not_applicable, ITC_not_started]
     else:
         percents = [0,0,0,0]
-        totals = [0, 0]
+        totals = [0,0,0,0]
     deliverable_current.percentage_complete = percents[0]
     print(deliverable_current.percentage_complete)
     print(deliverable_current.completion_date)
@@ -1003,8 +1070,6 @@ def site_project_ITP_deliverable_ITC_change(sitename, projectname, ITPname, deli
     checked = request.form.getlist('check_box')
     completed_checks = Deliverable_check_map.query.filter_by(is_done=True, deliverable_ITC_map_id=deliver_ITC.id).all()
     checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=deliver_ITC.id).all()
-
-    print(ITCid)
 
     #Change form status to done
     for checkid in checked:

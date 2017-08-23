@@ -22,18 +22,22 @@
               </tr>
               <tr>
                 <th class="mdl-data-table__cell--non-numeric">Date Started</th>
-                <td class="mdl-data-table__cell--non-numeric">{{deliverable.start_date}}</td>
+                <td class="mdl-data-table__cell--non-numeric">{{deliverable.start_date.strftime('%d-%m-%Y')}}</td>
               </tr>
               <tr>
                 <th class="mdl-data-table__cell--non-numeric">Date Completed</th>
-                <td class="mdl-data-table__cell--non-numeric">{{deliverable.completion_date}}</td>
+                {% if deliverable.completion_date != none %}
+                  <td class="mdl-data-table__cell--non-numeric">{{deliverable.completion_date.strftime('%d-%m-%Y')}}</td>
+                {% else %}
+                  <td class="mdl-data-table__cell--non-numeric"></td>
+                {% endif %}
               </tr>
               <tr>
                 <th class="mdl-data-table__cell--non-numeric">Assigned To</th>
                 <td class="mdl-data-table__cell--non-numeric">{{deliverable.assigned_to}}</td>
               </tr>
               <tr>
-                <th class="mdl-data-table__cell--non-numeric">ITCs Complete</th>
+                <th class="mdl-data-table__cell--non-numeric">Inspection and Test Checks Completed</th>
                 <td class="mdl-data-table__cell--non-numeric">{{totals[1]}}/{{totals[0]}}</td>
               </tr>
               <tr>
@@ -61,10 +65,10 @@
             function drawChart(){
               var data = google.visualization.arrayToDataTable([
                 ['Completion', 'Percentage'],
-                ['Completed', {{deliverable.percentage_complete}}],
-                ['In Progress', {{percents[1]}}],
-                ['Not Applicable', {{percents[2]}}],
-                ['Not Started', {{percents[3]}}]
+                ['Completed', {{totals[1]}}],
+                ['In Progress', {{totals[2]}}],
+                ['Not Applicable', {{totals[3]}}],
+                ['Not Started', {{totals[4]}}]
               ]);
 
               var options = {
@@ -90,7 +94,7 @@
 
       <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
         <div class="mdl-card__title">
-          <h2 class="mdl-card__title-text">Inspection and Checklists</h2>
+          <h2 class="mdl-card__title-text">Inspection and Testing Checks list</h2>
         </div>
         <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
           <thead>
@@ -98,7 +102,7 @@
               <th class="mdl-data-table__cell--non-numeric">Name</th>
               <th class="mdl-data-table__cell--non-numeric">Comments</th>
               <th class="mdl-data-table__cell--non-numeric">Status</th>
-              <th class="mdl-data-table__cell--non-numeric">Percentage Complete</th>
+              <th class="mdl-data-table__cell--non-numeric">Complete</th>
               <th class="mdl-data-table__cell--non-numeric"></th>
             </tr>
           </thead>
@@ -112,7 +116,7 @@
                 </td>
                 <td class="mdl-data-table__cell--non-numeric">{{ITC.comment}}</td>
                 <td class="mdl-data-table__cell--non-numeric">{{ITC.status}}</td>
-                <td class="mdl-data-table__cell--non-numeric">{{ITC.percentage_complete}}%</td>
+                <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %ITC.percentage_complete}}%</td>
                 <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
                   <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.name}}/edit">
                     Edit

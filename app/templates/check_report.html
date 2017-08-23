@@ -21,49 +21,54 @@
   </head>
 
   <body>
-    <h2 style="text-align:center">Inspection and Test Plan Report - {{project.name}}</h2>
+    <h2 style="text-align:center">Inspection and Test Check list - {{ITC.ITC.name}}</h2>
+    <br>
+    <h4>Project Name:</h4> {{project.name}}
     <br>
     <h4>Job Number:</h4> {{project.job_number}}
     <br>
-    <h4>Description:</h4> {{project.description}}
+    <h4>Location:</h4> {{deliverable.location.name}}
     <br>
-    <h4>Location:</h4> {{site.name}}
+    <h4>Deliverable Start Date:</h4> {{deliverable.start_date.strftime('%d-%m-%Y')}}
     <br>
-    <h4>Start Date:</h4> {{project.start_date.strftime('%d-%m-%Y')}}
-    <br>
-    <h4>Completion Date:</h4>
-    {% if project.completion_date != none %}
-      {{project.completion_date.strftime('%d-%m-%Y')}}
+    <h4>Deliverable Completion Date:</h4>
+    {% if deliverable.completion_date != none %}
+      {{deliverable.completion_date.strftime('%d-%m-%Y')}}
     {% endif %}
     <br>
-    <h4>Assigned to:</h4> {{project.assigned_to}}
+    <h4>Assigned to:</h4> {{deliverable.assigned_to}}
     <br>
     <p style="page-break-after: always"></p>
-    {% for deliverable in deliverables %}
       <h3>{{deliverable.name}} - {{deliverable.type.name}}</h3>
       <table class="mdl-data-table mdl-js-data-table" style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
         <thead>
           <tr>
-            <th class="mdl-data-table__cell--non-numeric">ITC ID</th>
-            <th class="mdl-data-table__cell--non-numeric">Name</th>
+            <th class="mdl-data-table__cell--non-numeric">Check Description</th>
             <th class="mdl-data-table__cell--non-numeric">Status</th>
-            <th class="mdl-data-table__cell--non-numeric">Complete</th>
+            <th class="mdl-data-table__cell--non-numeric">Completed</th>
+            <th class="mdl-data-table__cell--non-numeric">Completed By</th>
+            <th class="mdl-data-table__cell--non-numeric">Completion Date</th>
+            <th class="mdl-data-table__cell--non-numeric">Comments</th>
           </tr>
         </thead>
         <tbody>
-        {% for ITC in ITCs %}
+        {% for check in checks %}
           {% if ITC.deliverable.id == deliverable.id %}
             <tr>
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.id}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.ITC.name}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.status}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.percentage_complete}}%</td>
+              <td class="mdl-data-table__cell--non-numeric">{{check.ITC_check.check.check_description}}</td>
+              <td class="mdl-data-table__cell--non-numeric">{{check.status}}</td>
+              <td class="mdl-data-table__cell--non-numeric">{{check.is_done}}</td>
+              {% if check.user != none %}
+                <td class="mdl-data-table__cell--non-numeric">{{check.user.first_name}} {{check.user.last_name}}</td>
+              {% endif %}
+              {% if check.completion_datetime != none %}
+                <td class="mdl-data-table__cell--non-numeric">{{check.completion_datetime.strftime('%d-%m-%Y')}}</td>
+              {% endif %}
+              <td class="mdl-data-table__cell--non-numeric">{{check.comments}}</td>
             </tr>
           {% endif %}
         {% endfor %}
         </tbody>
       </table>
-      <p style="page-break-after: always"></p>
-    {% endfor %}
   </body>
 </html>

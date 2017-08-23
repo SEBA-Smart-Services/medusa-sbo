@@ -17,19 +17,21 @@
             </tr>
             <tr>
               <th class="mdl-data-table__cell--non-numeric">Start Date</th>
-              <td class="mdl-data-table__cell--non-numeric">{{project.start_date}}</td>
+              <td class="mdl-data-table__cell--non-numeric">{{project.start_date.strftime('%d-%m-%Y')}}</td>
             </tr>
             <tr>
               <th class="mdl-data-table__cell--non-numeric">Completion Date</th>
-              <td class="mdl-data-table__cell--non-numeric">{{project.completion_datetime}}</td>
+              {% if project.completion_datetime != none %}
+                <td class="mdl-data-table__cell--non-numeric">{{project.completion_datetime}}</td>
+              {% endif %}
             </tr>
             <tr>
               <th class="mdl-data-table__cell--non-numeric">Assigned To</th>
               <td class="mdl-data-table__cell--non-numeric">{{project.assigned_to}}</td>
             </tr>
             <tr>
-              <th class="mdl-data-table__cell--non-numeric">Percentage Complete</th>
-              <td class="mdl-data-table__cell--non-numeric">{{percentage_complete}}%</td>
+              <th class="mdl-data-table__cell--non-numeric">Inspection and Test Checks Completed</th>
+              <td class="mdl-data-table__cell--non-numeric">{{totals[1]}}/{{totals[0]}}</td>
             </tr>
             <tr>
               <th class="mdl-data-table__cell--non-numeric">Deliverables</th>
@@ -61,7 +63,7 @@
               <th class="mdl-data-table__cell--non-numeric">Name</th>
               <th class="mdl-data-table__cell--non-numeric">Type</th>
               <th class="mdl-data-table__cell--non-numeric">Status</th>
-              <th class="mdl-data-table__cell--non-numeric">Percentage Complete</th>
+              <th class="mdl-data-table__cell--non-numeric">Complete</th>
             </tr>
           </thead>
           <tbody>
@@ -74,7 +76,7 @@
               </td>
               <td class="mdl-data-table__cell--non-numeric">{{deliverable.type}}</th>
               <td class="mdl-data-table__cell--non-numeric">{{deliverable.status}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{deliverable.percentage_complete}}</td>
+              <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %deliverable.percentage_complete}}%</td>
             </tr>
           {% endfor %}
           </tbody>
@@ -85,7 +87,7 @@
     <div class="mdl-cell mdl-cell--12-col">
       <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
         <div class="mdl-card__title">
-          <h2 class="mdl-card__title-text">ITCs List</h2>
+          <h2 class="mdl-card__title-text">Checks</h2>
         </div>
         <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
           <thead>
@@ -95,7 +97,7 @@
               <th class="mdl-data-table__cell--non-numeric">Deliverable Name</th>
               <th class="mdl-data-table__cell--non-numeric">Type</th>
               <th class="mdl-data-table__cell--non-numeric">Status</th>
-              <th class="mdl-data-table__cell--non-numeric">Percentage Complete</th>
+              <th class="mdl-data-table__cell--non-numeric">Complete</th>
             </tr>
           </thead>
           <tbody>
@@ -110,7 +112,7 @@
               <td class="mdl-data-table__cell--non-numeric">{{ITC.deliverable.name}}</td>
               <td class="mdl-data-table__cell--non-numeric">{{ITC.ITC.deliverable_type.name}}</td>
               <td class="mdl-data-table__cell--non-numeric">{{ITC.status}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.percentage_complete}}</td>
+              <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %ITC.percentage_complete}}%</td>
             </tr>
           {% endfor %}
           </tbody>
