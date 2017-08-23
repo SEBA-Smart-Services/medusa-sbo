@@ -63,5 +63,11 @@ from app.sitedataagent import controllers, models
 
 # import the remaining. in particular, all views and models must be imported, as well as anything with a decorator
 # packages
-from app import models, add, admin, cmms, weather, algorithms, reports, scheduling
+from app import models, add, admin, cmms, weather, algorithms, reports
+
+####
+# scheduling is currently broken, keeps throwing errors in medusa.log,
+# commented out until resolved
+# import scheduling
+
 # modules

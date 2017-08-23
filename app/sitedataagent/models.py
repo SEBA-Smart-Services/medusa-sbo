@@ -12,10 +12,8 @@ class SiteDataUploader(Base):
     site_id = db.Column(db.Integer, db.ForeignKey('site.ID'))
     site = db.relationship("Site", back_populates="site_data_uploader")
 
-    def __init__(self, username, access_key_id, secret_access_key):
-        self.aws_username = username
-        self.aws_access_key_id = access_key_id
-        self.aws_secret_access_key = secret_access_key
+    def __init__(self):
+        pass
 
     def __repr__(self):
         return '<SiteDataUploader %r>' % self.aws_username
