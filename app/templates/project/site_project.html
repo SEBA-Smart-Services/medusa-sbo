@@ -17,11 +17,13 @@
             </tr>
             <tr>
               <th class="mdl-data-table__cell--non-numeric">Start Date</th>
-              <td class="mdl-data-table__cell--non-numeric">{{project.start_date}}</td>
+              <td class="mdl-data-table__cell--non-numeric">{{project.start_date.strftime('%d-%m-%Y')}}</td>
             </tr>
             <tr>
               <th class="mdl-data-table__cell--non-numeric">Completion Date</th>
-              <td class="mdl-data-table__cell--non-numeric">{{project.completion_date}}</td>
+              {% if project.completion_date != none %}
+                <td class="mdl-data-table__cell--non-numeric">{{project.completion_date}}</td>
+              {% endif %}
             </tr>
             <tr>
               <th class="mdl-data-table__cell--non-numeric">Assigned To</th>
@@ -59,10 +61,10 @@
           function drawChart(){
             var data = google.visualization.arrayToDataTable([
               ['Completion', 'Percentage'],
-              ['Completed', {{percents[0]}}],
-              ['In Progress', {{percents[1]}}],
-              ['Not Applicable', {{percents[2]}}],
-              ['Not Started', {{percents[3]}}]
+              ['Completed', {{totals[1]}}],
+              ['In Progress', {{totals[2]}}],
+              ['Not Applicable', {{totals[3]}}],
+              ['Not Started', {{totals[4]}}]
             ]);
 
             var options = {

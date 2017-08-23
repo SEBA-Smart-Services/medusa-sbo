@@ -18,20 +18,24 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/list.min.js') }}"></script>
     <script defer type="text/javascript" src="{{ url_for('static', filename='js/material.components.ext.min.js') }}"></script>
     <script defer type="text/javascript" src="{{ url_for('static', filename='js/getmdl-select.min.js') }}"></script>
+
+    <style>
+      @page {
+        size: A4 landscape;
+      }
+    </style>
   </head>
 
   <body>
-    <h2 style="text-align:center">Inspection and Test Plan Report - {{project.name}}</h2>
+    <h2 style="text-align:center">Deliverables list - {{project_ITP.name}}</h2>
+    <br>
+    <h4>Project Name:</h4> {{project.name}}
     <br>
     <h4>Job Number:</h4> {{project.job_number}}
     <br>
-    <h4>Description:</h4> {{project.description}}
+    <h4>Project Start Date:</h4> {{project.start_date.strftime('%d-%m-%Y')}}
     <br>
-    <h4>Location:</h4> {{site.name}}
-    <br>
-    <h4>Start Date:</h4> {{project.start_date.strftime('%d-%m-%Y')}}
-    <br>
-    <h4>Completion Date:</h4>
+    <h4>Project Completion Date:</h4>
     {% if project.completion_date != none %}
       {{project.completion_date.strftime('%d-%m-%Y')}}
     {% endif %}
@@ -39,31 +43,39 @@
     <h4>Assigned to:</h4> {{project.assigned_to}}
     <br>
     <p style="page-break-after: always"></p>
-    {% for deliverable in deliverables %}
-      <h3>{{deliverable.name}} - {{deliverable.type.name}}</h3>
       <table class="mdl-data-table mdl-js-data-table" style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
         <thead>
           <tr>
-            <th class="mdl-data-table__cell--non-numeric">ITC ID</th>
-            <th class="mdl-data-table__cell--non-numeric">Name</th>
+            <th class="mdl-data-table__cell--non-numeric">Deliverable Name</th>
+            <th class="mdl-data-table__cell--non-numeric">Deliverable Type</th>
             <th class="mdl-data-table__cell--non-numeric">Status</th>
+            <th class="mdl-data-table__cell--non-numeric">Location</th>
+            <th class="mdl-data-table__cell--non-numeric">Assigned To</th>
+            <th class="mdl-data-table__cell--non-numeric">Completion Date</th>
             <th class="mdl-data-table__cell--non-numeric">Complete</th>
           </tr>
         </thead>
         <tbody>
-        {% for ITC in ITCs %}
-          {% if ITC.deliverable.id == deliverable.id %}
+          {% for deliverable in deliverables %}
             <tr>
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.id}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.ITC.name}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.status}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.percentage_complete}}%</td>
+              <td class="mdl-data-table__cell--non-numeric">{{deliverable.name}}</td>
+              <td class="mdl-data-table__cell--non-numeric">{{deliverable.type.name}}</td>
+              <td class="mdl-data-table__cell--non-numeric">{{deliverable.status}}</td>
+              <td class="mdl-data-table__cell--non-numeric">{{deliverable.location}}</td>
+              {% if deliverable.assigned_to != none %}
+                <td class="mdl-data-table__cell--non-numeric">{{deliverable.assigned_to}}</td>
+              {% else %}
+                <td class="mdl-data-table__cell--non-numeric"></td>
+              {% endif %}
+              {% if deliverable.completion_date != none %}
+                <td class="mdl-data-table__cell--non-numeric">{{deliverable.completion_date.strftime('%d-%m-%Y')}}</td>
+              {% else %}
+                <td class="mdl-data-table__cell--non-numeric"></td>
+              {% endif %}
+              <td class="mdl-data-table__cell--non-numeric">{{deliverable.percentage_complete}}%</td>
             </tr>
-          {% endif %}
         {% endfor %}
         </tbody>
       </table>
-      <p style="page-break-after: always"></p>
-    {% endfor %}
   </body>
 </html>

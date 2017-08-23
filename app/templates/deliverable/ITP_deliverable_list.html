@@ -10,8 +10,8 @@
           <th class="mdl-data-table__cell--non-numeric">Name</th>
           <th class="mdl-data-table__cell--non-numeric">Description</th>
           <th class="mdl-data-table__cell--non-numeric">Deliverable Type</th>
-          <th class="mdl-data-table__cell--non-numeric">Location</th>
-          <th class="mdl-data-table__cell--non-numeric">Percentage Complete</th>
+          <th class="mdl-data-table__cell--non-numeric">Status</th>
+          <th class="mdl-data-table__cell--non-numeric">Complete</th>
           <th class="mdl-data-table__cell--non-numeric"></th>
         </tr>
       </thead>
@@ -25,8 +25,8 @@
           </th>
           <td class="mdl-data-table__cell--non-numeric">{{deliverable.name}}</td>
           <td class="mdl-data-table__cell--non-numeric">{{deliverable.type.name}}</td>
-          <td class="mdl-data-table__cell--non-numeric">{{deliverable.location.name}}</td>
-          <td class="mdl-data-table__cell--non-numeric">{{deliverable.percentage_complete}}%</td>
+          <td class="mdl-data-table__cell--non-numeric">{{deliverable.status}}</td>
+          <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %deliverable.percentage_complete}}%</td>
           <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
             <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/edit">
               Edit
@@ -48,12 +48,17 @@
     </form>
 
     <br>
+    <div class="mdl-grid">
+      <div class="mdl-cell mdl-cell--6-col">
+        <form action="/site/{{ site.name }}/projects/{{project.name}}/ITP/{{ITP.name}}" method="GET">
+          <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+          </input>
+        </form>
+      </div>
 
-    <div>
-      <form action="/site/{{ site.name }}/projects/{{project.name}}/ITP/{{ITP.name}}" method="GET">
-        <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
-        </input>
-      </form>
+      <div class="mdl-cell mdl-cell--6-col">
+        <input type=button onclick="window.location.href='{{ url_for('deliverables_report_page', siteid=site.id, projectid=project.id, ITPid=ITP.id) }}'" value="Download Report" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+      </div>
     </div>
   </div>
 

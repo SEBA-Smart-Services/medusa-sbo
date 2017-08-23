@@ -8,7 +8,7 @@
 {% block content %}
   <h3>Checks for {{ITC.ITC.name}}</h3>
 
-  <h5>{{percentage_complete}}% completed</h5>
+  <h5>{{'%0.0f' %percentage_complete}}% completed</h5>
 
   <br>
 
@@ -65,18 +65,22 @@
 
   <br>
   <div class="mdl-grid">
-    <div class="mdl-cell mdl-cell--6-col">
+    <div class="mdl-cell mdl-cell--4-col">
       <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC">
         <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
         </input>
       </form>
     </div>
 
-    <div class="mdl-cell mdl-cell--6-col" style="right:0; position:fixed;">
+    <div class="mdl-cell mdl-cell--4-col">
       <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.id}}/check/new">
         <input type="submit" value="New Check" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
         </input>
       </form>
+    </div>
+
+    <div class="mdl-cell mdl-cell--4-col" style="right:0; position:fixed;">
+      <input type=button onclick="window.location.href='{{ url_for('checks_report_page', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id) }}'" value="Download Report" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     </div>
   </div>
 

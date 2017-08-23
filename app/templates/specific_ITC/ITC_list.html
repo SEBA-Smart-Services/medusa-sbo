@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}- {{project.name}}{% endblock %}
 {% block content %}
-  <h3>ITCs</h3>
+  <h3>Inspection and Testing Checks</h3>
 
   <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
     <thead>
@@ -10,7 +10,7 @@
         <th class="mdl-data-table__cell--non-numeric">Comments</th>
         <th class="mdl-data-table__cell--non-numeric">Deliverable</th>
         <th class="mdl-data-table__cell--non-numeric">Status</th>
-        <th class="mdl-data-table__cell--non-numeric">Percent Complete</th>
+        <th class="mdl-data-table__cell--non-numeric">Complete</th>
         <th class="mdl-data-table__cell--non-numeric">Start Testing</th>
         <th class="mdl-data-table__cell--non-numeric"></th>
       </tr>
@@ -26,7 +26,7 @@
         <td class="mdl-data-table__cell--non-numeric">{{ITC.comment}}</td>
         <td class="mdl-data-table__cell--non-numeric">{{ITC.deliverable}}</td>
         <td class="mdl-data-table__cell--non-numeric">{{ITC.status}}</td>
-        <td class="mdl-data-table__cell--non-numeric">{{ITC.percentage_complete}}%</td>
+        <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %ITC.percentage_complete}}%</td>
         <td class="mdl-data-table__cell--non-numeric">
           <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.id}}/starttest">
             Start testing
