@@ -186,7 +186,14 @@ def download_dataagent_config(site_id):
             filename = self.get_config_filename(template_file)
             self.write_config_to_temp(filename, config)
 
-        def make_config_zip(self, template_files, config_dict):
+        def make_config_zip2(self, template_files, config_dict):
+            """
+            USING TEMP STORAGE
+            write config files from templates to randomly named dir in storage:
+                /tmp/vzw2p222/config_filename1.ini
+                /tmp/vzw2p222/config_filename2.ini
+            package into zip file in memory and return as memory stream
+            """
             self.mk_temp_dir()
             for template_file in template_files:
                 self.make_config_from_template(template_file, config_dict)
@@ -201,6 +208,24 @@ def download_dataagent_config(site_id):
                         file_content = file.read()
                     zf.writestr(data, file_content)
             self.rm_temp_dir
+            memory_file.seek(0)
+            return memory_file
+
+        def make_config_zip(self, template_files, config_dict):
+            """
+            NO STORAGE REQUIRED
+            write config files to memory
+            package files into zip file in memory and return as memory stream
+            """
+            memory_file = BytesIO()
+            with zipfile.ZipFile(memory_file, 'w') as zf:
+                for f in config_files:
+                    app.logger.info(f)
+                    data = zipfile.ZipInfo(os.path.basename(f))
+                    data.compress_type = zipfile.ZIP_DEFLATED
+                    config = self.generate_config(f, placeholders=config_dict)
+                    zf.writestr(data, config)
+            # self.rm_temp_dir
             memory_file.seek(0)
             return memory_file
 
