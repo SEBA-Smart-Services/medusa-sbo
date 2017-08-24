@@ -3,8 +3,6 @@ import json
 import logging
 from app import app
 
-
-
 class SaltAPI():
 
     def __init__(self, **kwargs):
@@ -53,7 +51,13 @@ class SaltAPI():
            return True
         return False # returns [{}] if request fails
 
-
+    def get_minion_grains(self, minion_id):
+        req = requests.get(self.salt_host + "/minions/" + minion_id, headers=self._get_headers(), verify=self.verify_ssl_cert)
+        resp = req.json()
+        data = resp["return"][0]
+        data2 = data[minion_id]
+        return data2
+        
 # testing
 if __name__ == '__main__':
     api=SaltAPI()
@@ -62,3 +66,4 @@ if __name__ == '__main__':
     print(api.is_minion_reachable(minion))
     api.logout()
     print(api.is_minion_reachable(minion))
+    print(api.get_minion_grains(minion))

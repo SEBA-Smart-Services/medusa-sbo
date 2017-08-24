@@ -44,6 +44,9 @@
   </button>
 </div>
 
+
+<input type=button onclick="window.location.href='{{ url_for('update_minion_data', sitename=site.name) }}'" value="Refres" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+
 <script type="text/javascript">
   var options = {
       valueNames: ['name', 'health', 'type', 'location', 'group', 'priority', 'notes']
