@@ -1,6 +1,15 @@
 {% extends "layout.html" %}
 {% block content %}
-  <h3>{{asset.name}}</h3>
+  <h3>{{asset.name}}
+    {% if current_user.is_authenticated %}
+      {% if current_user.has_role('admin') %}
+        <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="float: right;" href="{{ url_for('edit_asset', asset_id=asset.id, sitename=site.name) }}">
+          <i class="material-icons">edit</i>
+        </a>
+      {% endif %}
+    {% endif %}
+  </h3>
+
   <br>
 
   <h3>Results</h3>
@@ -98,7 +107,7 @@
     </tr>
   </table>
 
-  <h4>Functional Descriptors:</h4>
+  <h5>Functional Description</h5>
   <table class="checkbox-list" id="functional_descriptor_section">
     {% for function in asset.functions %}
       <tr>
@@ -110,17 +119,43 @@
   </table>
 
   <br>
-  <h4>Points:</h4>
-  <table class="checkbox-list" id="point_section">
-    {% for point in asset.points %}
+  <h5>Points</h5>
+  <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp mdl-data-table--selectable">
+    <thead>
       <tr>
-        <td style="width:250px">{{point.type.name}}</td>
+        <th class="mdl-data-table__cell--non-numeric">Online</th>
+        <th class="mdl-data-table__cell--non-numeric">Name</th>
+        <th>Data</th>
       </tr>
-    {% endfor %}
+    </thead>
+    <tbody>
+      {% for point in asset.points %}
+      <tr id="asset-point-{{ point.id }}">
+        {% if point.loggedentity_id == None %}
+          <td class="mdl-data-table__cell--non-numeric">
+            <i class="material-icons mdl-list__item-icon">remove</i>
+          </td>
+          <td class="mdl-data-table__cell--non-numeric">{{ point.type.name }}</td>
+          <td>
+            <i class="material-icons mdl-list__item-icon">remove</i>
+          </td>
+        {% else %}
+          <td class="mdl-data-table__cell--non-numeric">
+            <i class="material-icons mdl-list__item-icon" style="color:rgba(100, 221, 23, 1.0)">check_circle</i>
+          </td>
+          <td class="mdl-data-table__cell--non-numeric">{{ point.type.name }}</td>
+          <td>
+            <a href="#" id="show-dialog">
+              <i class="material-icons mdl-list__item-icon">insert_chart</i>
+            </a>
+          </td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
   </table>
-
   <br>
-  <h4>Algorithms:</h4>
+  <h4>Algorithms</h4>
   <table class="checkbox-list" id="algorithm_section">
     {% for algorithm in algorithms %}
       <tr>
@@ -130,15 +165,59 @@
   </table>
 
   <br>
-  <h4>Notes:</h4>
+  <h4>Notes</h4>
   {{asset.notes}}
 
   <br>
   <br>
-    <input type="button" value="Edit" onclick="location.href='{{ url_for('edit_asset', asset_id=asset.id, sitename=site.name) }}';"
-    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     <input type="button" value="Download XML" onclick="location.href='{{ url_for('asset_xml_select', sitename=site.name) }}';"
     class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
   <br>
+
+
+  <dialog class="mdl-dialog">
+    <h4 class="mdl-dialog__title">Allow data collection?</h4>
+    <div class="mdl-dialog__content">
+      <p>
+        Allowing us to collect data will let us get you the information you want faster.
+      </p>
+    </div>
+    <div class="mdl-dialog__actions">
+      <button type="button" class="mdl-button">Agree</button>
+      <button type="button" class="mdl-button close">Disagree</button>
+    </div>
+  </dialog>
+  <script>
+  // $(function() {
+  //
+  //   // $('#data-agent-check').click(function() {
+  //   $('button#generate').bind('click', function() {
+  //     var isChecked = $('#data-agent-check').is('.is-checked') ? 1:0
+  //     console.log(isChecked)
+  //     $("#progress").show();
+  //     $.getJSON($SCRIPT_ROOT + '/_generate_access_keys/{{ site.id }}', {
+  //       siteId: {{ site.id }},
+  //       isChecked: isChecked
+  //     }, function(data) {
+  //       $("#keyvalue").text(data.secretAccessKey),
+  //       $("#keyid").text(data.accessKeyId),
+  //       $("#isenabled").text(data.isEnabled),
+  //       $("#progress").hide();
+  //     });
+  //     return false;
+  //   });
+  // });
+    var dialog = document.querySelector('dialog');
+    var showDialogButton = document.querySelector('[id*="show-dialog"]');
+    if (! dialog.showModal) {
+      dialogPolyfill.registerDialog(dialog);
+    }
+    showDialogButton.addEventListener('click', function() {
+      dialog.showModal();
+    });
+    dialog.querySelector('.close').addEventListener('click', function() {
+      dialog.close();
+    });
+  </script>
 
 {% endblock %}

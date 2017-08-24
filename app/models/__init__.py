@@ -139,7 +139,10 @@ class Algorithm(db.Model):
     @orm.reconstructor
     def init_on_load(self):
         # find the corresponding class in the code that matches the 'name' field
-        self.algorithm = getattr(sys.modules['app.algorithms.algorithms'], self.name)
+        try:
+            self.algorithm = getattr(sys.modules['app.algorithms.algorithms'], self.name)
+        except:
+            app.logger.error('Failed to run orm recontructor for algorithms on load') 
 
     # call the code from the actual algorithm
     def run(self, *args, **kwargs):
