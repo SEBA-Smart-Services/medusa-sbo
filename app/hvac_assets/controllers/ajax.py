@@ -8,5 +8,5 @@ def get_pointdata(asset_point_id):
     """
 
     return jsonify(
-        data=None
+        testKey="penis"
     )
