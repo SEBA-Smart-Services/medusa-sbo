@@ -54,6 +54,7 @@ from app import controllers
 from app.sitedataagent import controllers, models
 from app.ict import controllers
 from app.hvac_assets import controllers
+from app.ticket import controllers, models
 # import the remaining. in particular, all views and models must be imported, as well as anything with a decorator
 # packages
 from app import models, add, admin, cmms, weather, algorithms, reports, scheduling
