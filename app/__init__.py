@@ -18,14 +18,6 @@ mail = Mail(app)
 from flask_security import Security, SQLAlchemyUserDatastore
 from app.models.users import User, Role
 
-#######################################################
-# NEED TO MIGRATE THIS TO CFG FILE AND RMEOVE FROM CODE
-# app.config['SECURITY_POST_CHANGE_VIEW'] = '/'
-# app.config['SECURITY_POST_RESET_VIEW'] = '/'
-# app.config['SECURITY_POST_CONFIRM_VIEW'] = 'security.change_password'
-# app.config['USER_CHANGE_PASSWORD_URL'] = '/change'
-######################################################
-
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
 
@@ -67,32 +59,8 @@ from app.ict import controllers, models
 # import the remaining. in particular, all views and models must be imported, as well as anything with a decorator
 # packages
 from app import models, add, admin, cmms, weather, algorithms, reports, scheduling
-# modules
 
-###########################################
-# TESTING ONLY, REMOVE!
-# from app.algorithms import (
-#     ChwValveHunting,
-#     PIDLoopHunting,
-#     RunningTime,
-#     SimultnsHeatCool,
-#     UnitOffZoneOccupied,
-#     UnitRunZoneUnoccupied,
-#     ZoneTempHeatingCheck
-# )
-#
-# check5 = ChwValveHunting()
-# check2 = SimultnsHeatCool()
-# check3 = UnitRunZoneUnoccupied()
-# check4 = UnitOffZoneOccupied()
-# check1 = ZoneTempHeatingCheck()
-# check6 = RunningTime()
-#
-# app.logger.info(check1.description)
-# app.logger.info(check2.description)
-# app.logger.info(check3.description)
-# app.logger.info(check4.description)
-# app.logger.info(check5.description)
-# app.logger.info(check5.freq_cutoff)
-# app.logger.info(check6.description)
-###########################################
+from app.scheduled.tasks import register_points
+
+app.logger.info('registering points...')
+register_points()

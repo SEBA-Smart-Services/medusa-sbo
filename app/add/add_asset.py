@@ -77,12 +77,15 @@ def add_asset(sitename):
         # the database operates via excluding algorithms
         # however the form only sends through algorithms that are ticked (i.e. included)
         # therefore subtract the inclusions from the total set of algorithms to get the exclusions
-        inclusions = []
-        included_list = request.form.getlist('algorithm')
-        for algorithm_descr in included_list:
-            inclusions.append(Algorithm.query.filter_by(descr=algorithm_descr).one())
-        exclusions = set(Algorithm.query.all()) - set(inclusions)
-        asset.exclusions.extend(exclusions)
+        try:
+            inclusions = []
+            included_list = request.form.getlist('algorithm')
+            for algorithm_descr in included_list:
+                inclusions.append(Algorithm.query.filter_by(descr=algorithm_descr).one())
+                exclusions = set(Algorithm.query.all()) - set(inclusions)
+                asset.exclusions.extend(exclusions)
+        except:
+            app.logger.error('add asset failed to set associated algorithms') 
 
         db.session.commit()
         # close webreports session
