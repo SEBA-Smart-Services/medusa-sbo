@@ -236,7 +236,7 @@ class Site(db.Model):
     emails = db.relationship('Email', backref='site', cascade='save-update, merge, delete, delete-orphan')
     project = db.relationship('Project', backref='site', cascade='save-update, merge, delete, delete-orphan')
     site_data_uploader = db.relationship("SiteDataUploader", uselist=False, back_populates="site")
-
+    it_assets = db.relationship('ITasset', backref='site')
 
     def __repr__(self):
         return self.name
