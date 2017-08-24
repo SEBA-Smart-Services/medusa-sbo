@@ -53,9 +53,9 @@
     </div>
   <br>
   <div class="">
-    <button href=# id="download" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-      Download agent config
-    </button>
+    <form action="{{ url_for('download_dataagent_config', site_id=site.id) }}">
+      <input id="download" type=submit value="Download agent config" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+    </form>
   </div>
   <script type=text/javascript>
 

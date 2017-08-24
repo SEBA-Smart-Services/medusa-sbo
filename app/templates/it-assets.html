@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+{% block content %}
+<h3 class="page-title">IT Assets
+  {% if current_user.is_authenticated %}
+
+  {% endif %}
+</h3>
+
+    <table id="asset-table" class="mdl-data-table mdl-js-data-table full-width">
+      <thead>
+        <tr>
+          <th class="mdl-data-table__cell--non-numeric sort" data-sort="name">Name</th>
+          <th class="mdl-data-table__cell--non-numeric sort" data-sort="operatingsystem">OS</th>
+          <th class="mdl-data-table__cell--non-numeric sort" data-sort="platform">Platform</th>
+          <th class="mdl-data-table__cell--non-numeric sort" data-sort="ipaddress">IP Address</th>
+          <th class="mdl-data-table__cell--non-numeric sort" data-sort="onlinestatus">Online Status</th>
+          <th class="mdl-data-table__cell--non-numeric"></th>
+        </tr>
+      </thead>
+      <tbody class="list">
+        {% for ITasset in ict_assets %}
+
+            <tr>
+              <td class="mdl-data-table__cell--non-numeric name">{{ITasset.minion_name}}</td>
+              <td id="test" class="mdl-data-table__cell--non-numeric operatingsystem">{{ITasset.operating_system}}</td>
+              <td class="mdl-data-table__cell--non-numeric platform">{{ITasset.platform}}</td>
+              <td class="mdl-data-table__cell--non-numeric ipaddress">{{ITasset.ip_address}}</td>
+              <td class="mdl-data-table__cell--non-numeric onlinestatus"></td>
+              <td class="mdl-data-table__cell--non-numeric">
+
+              </td>
+            </tr>
+
+        {% endfor %}
+
+      </tbody>
+    </table>
+
+<br><br>
+<div id="progress" class="mdl-progress mdl-js-progress mdl-progress__indeterminate" style="display:none"></div>
+<div class="">
+  <button href=# id="reload" class="mdl-button mdl-js-button mdl-js-ripple-effect">
+    Reload
+  </button>
+</div>
+
+<script type="text/javascript">
+  var options = {
+      valueNames: ['name', 'health', 'type', 'location', 'group', 'priority', 'notes']
+    }
+  var documentTable = new List('asset-table', options);
+  documentTable.sort("name",{order:"desc"});
+</script>
+
+<script type=text/javascript>
+
+$(function() {
+
+
+  $('button#reload').bind('click', function() {
+    $("#progress").show();
+    $.getJSON($SCRIPT_ROOT + '/_reload_it_data/{{ site.id }}', {
+      siteId: {{ site.id }},
+    }, function(data) {
+      $("#test").text(data.test),
+      $("#progress").hide();
+    });
+    return false;
+  });
+});
+
+</script>
+
+{% endblock %}

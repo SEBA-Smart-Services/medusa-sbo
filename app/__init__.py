@@ -63,13 +63,36 @@ from app.sitedataagent import controllers, models
 
 from app.ticket import controllers, models
 
+from app.ict import controllers, models
 # import the remaining. in particular, all views and models must be imported, as well as anything with a decorator
 # packages
-from app import models, add, admin, cmms, weather, algorithms, reports
-
-####
-# scheduling is currently broken, keeps throwing errors in medusa.log,
-# commented out until resolved
-# import scheduling
-
+from app import models, add, admin, cmms, weather, algorithms, reports, scheduling
 # modules
+
+###########################################
+# TESTING ONLY, REMOVE!
+# from app.algorithms import (
+#     ChwValveHunting,
+#     PIDLoopHunting,
+#     RunningTime,
+#     SimultnsHeatCool,
+#     UnitOffZoneOccupied,
+#     UnitRunZoneUnoccupied,
+#     ZoneTempHeatingCheck
+# )
+#
+# check5 = ChwValveHunting()
+# check2 = SimultnsHeatCool()
+# check3 = UnitRunZoneUnoccupied()
+# check4 = UnitOffZoneOccupied()
+# check1 = ZoneTempHeatingCheck()
+# check6 = RunningTime()
+#
+# app.logger.info(check1.description)
+# app.logger.info(check2.description)
+# app.logger.info(check3.description)
+# app.logger.info(check4.description)
+# app.logger.info(check5.description)
+# app.logger.info(check5.freq_cutoff)
+# app.logger.info(check6.description)
+###########################################
