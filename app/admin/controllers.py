@@ -3,6 +3,7 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_user import current_user
 from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, FunctionalDescriptorCategory, PointType, InbuildingsAsset, Result, EmailTemplate, Email, User, Role, Alarm, LoggedEntity, LogTimeValue
+from app.ict.models import ITasset
 from app.weather.models import Weather
 from app.models.ITP import Deliverable_type, Location, Check_generic
 from flask_mail import Message
@@ -118,6 +119,8 @@ class DeliverableTypeView(ProtectedView):
 class LocationView(ProtectedView):
     column_display_pk = True
 
+class ITassetView(ProtectedView):
+    pass
 
 # attach the model views to the admin page
 admin.add_view(SiteView(Site, db.session))
@@ -140,3 +143,4 @@ admin.add_view(LoggedEntityView(LoggedEntity, db.session))
 admin.add_view(LogTimeValueView(LogTimeValue, db.session))
 admin.add_view(DeliverableTypeView(Deliverable_type, db.session))
 admin.add_view(LocationView(Location, db.session))
+admin.add_view(ITassetView(ITasset, db.session))
