@@ -15,14 +15,15 @@ def edit_asset(sitename, asset_id):
         form = EditAssetForm(obj=asset)
 
         # get database session for this site
-        session = registry.get(site.db_key)
+        # session = registry.get(site.db_key)
 
         # grab logs from remote webreports database
-        if not session is None:
-            logs = session.query(LoggedEntity).filter_by(type='trend.ETLog').all()
-            session.close()
-        else:
-            logs = []
+        # if not session is None:
+        #     logs = session.query(LoggedEntity).filter_by(type='trend.ETLog').all()
+        #     session.close()
+        # else:
+        #     logs = []
+        logs = []
 
         return render_template('edit_asset.html', site=site, asset=asset, logs=logs, form=form)
 
@@ -32,14 +33,15 @@ def edit_asset(sitename, asset_id):
         # if form has errors, return the page (errors will display)
         if not form.validate_on_submit():
             # get database session for this site
-            session = registry.get(site.db_key)
+            # session = registry.get(site.db_key)
 
             # grab logs from remote webreports database
-            if not session is None:
-                logs = session.query(LoggedEntity).filter_by(type='trend.ETLog').all()
-                session.close()
-            else:
-                logs = []
+            # if not session is None:
+            #     logs = session.query(LoggedEntity).filter_by(type='trend.ETLog').all()
+            #     session.close()
+            # else:
+            #     logs = []
+            logs = []
 
             return render_template('edit_asset.html', site=site, asset=asset, logs=logs, form=form)
 
