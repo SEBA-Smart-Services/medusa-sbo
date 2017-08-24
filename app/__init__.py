@@ -61,6 +61,8 @@ from app import controllers
 # consider refactoring as Flask Blueprints
 from app.sitedataagent import controllers, models
 
+from app.ticket import controllers, models
+
 # import the remaining. in particular, all views and models must be imported, as well as anything with a decorator
 # packages
 from app import models, add, admin, cmms, weather, algorithms, reports

@@ -1,0 +1,145 @@
+<!-- extend from base layout -->
+{% extends "flicket_base.html" %}
+{% block content %}
+    <script src="{{ url_for('flicket_bp.static', filename='js/uri.js') }}"></script>
+
+    {% include('flicket_restjson_users.html') %}
+    {% include('flicket_restjson_categories.html') %}
+    {% include('flicket_restjson_departments.html') %}
+    {% include('flicket_restjson_statuses.html') %}
+
+
+    <div class="container">
+
+                <h1>{{ title }}</h1>
+
+
+        <div class="row">
+            <!-- Flicket search form -->
+            <form action=""
+                  class="form-horizontal flicket-form"
+                  enctype="multipart/form-data"
+                  method="post"
+                  name="search_ticket">
+                {{ form.hidden_tag() }}
+
+
+                <div class="form-group">
+                    <div class="col-sm-2 flicket-form-control">
+                        {{ form.department(class="form-control", id="department") }}
+                    </div>
+                    <div class="col-sm-2 flicket-form-control">
+                        {{ form.category(class="form-control", id="category") }}
+                    </div>
+                    <div class="col-sm-2 flicket-form-control">
+                        {{ form.status(class="form-control", id="status")}}
+                    </div>
+                    <div class="col-sm-2 flicket-form-control">
+                        {{ form.email(class="form-control", placeholder="email", id="autocomplete-email") }}
+                    </div>
+                    <div class="col-sm-3 flicket-form-control">
+                        {{ form.content(class="form-control", placeholder="contents") }}
+                    </div>
+                    <div class="col-sm-1 flicket-form-control text-right">
+                        <input class="btn btn-primary" type="submit" value="search"/>
+                    </div>
+                </div>
+                {% if form.email.errors %}
+                    <div class="alert alert-warning small">
+                        {% for error in form.email.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% if form.content.errors %}
+                    <div class="alert alert-warning small">
+                        {% for error in form.content.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </form>
+            <!-- / flicket search form -->
+        </div>
+
+        <table class="table table-responsive table-striped table-hover">
+            <tr>
+                <th class="text-nowrap">
+                    Ticket ID
+                </th>
+                <th>
+                    Priority
+                </th>
+                <th>
+                    Title
+                </th>
+                <th>
+                    Submitted By
+                </th>
+                <th>
+                    Date
+                </th>
+                <th>
+                    Replies
+                </th>
+                <th>
+                    Category
+                </th>
+                <th>
+                    Status
+                </th>
+                <th>
+                    Assigned
+                </th>
+            </tr>
+            {% for t in tickets.items %}
+                <tr {%- if t.current_status.status == 'Closed' %} class="success"{% endif %}>
+                    <td>
+                        <a href="{{ url_for('flicket_bp.ticket_view', ticket_id = t.id) }}">{{ t.id_zfill }}</a>
+                    </td>
+                    <td>
+                        {{ t.ticket_priority.priority }}
+                    </td>
+                    <td>
+                        {{ t.title }}
+                    </td>
+                    <td>
+                        {{ t.user.name }}
+                    </td>
+                    <td>
+                        {{ t.date_added.strftime('%Y-%m-%d') }}
+                    </td>
+                    <td>
+                        {{ t.num_replies }}
+                    </td>
+                    <td>
+                        {{ t.category.department.department }} - {{ t.category.category }}
+                    </td>
+                    <td>
+                        {{ t.current_status.status }}
+                    </td>
+                    <td>
+                        {{ t.assigned.name }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <ul class="pagination pagination-sm">{% for page in tickets.iter_pages() %}
+            {% if page %}
+                {% if page != tickets.page %}
+                    <li><a href="{{ url_for('flicket_bp.tickets', page=page, **request.args) }}"> {{ page }}</a>
+                    </li>
+                {% else %}
+                    <li class="active"><a
+                            href="{{ url_for('flicket_bp.tickets', page=page, **request.args) }}"> {{ page }}</a>
+                    </li>
+                {% endif %}
+            {% else %}
+                <li><a href="">...</a></li>
+            {% endif %}
+        {% endfor %}
+        </ul>
+
+    </div>
+{% endblock %}
