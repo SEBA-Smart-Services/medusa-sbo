@@ -145,7 +145,7 @@
           </td>
           <td class="mdl-data-table__cell--non-numeric">{{ point.type.name }}</td>
           <td>
-            <a href="#" id="show-dialog">
+            <a href="#" id="show-dialog-{{ point.id }}">
               <i class="material-icons mdl-list__item-icon">insert_chart</i>
             </a>
           </td>
@@ -176,10 +176,11 @@
 
 
   <dialog class="mdl-dialog">
-    <h4 class="mdl-dialog__title">Allow data collection?</h4>
+    <h4 class="mdl-dialog__title">Trend</h4>
     <div class="mdl-dialog__content">
-      <p>
-        Allowing us to collect data will let us get you the information you want faster.
+      <div id="progress" class="mdl-spinner mdl-js-spinner is-active" style="display:none"></div>
+      <p id="show-asset-point-id">
+        There should be something here.
       </p>
     </div>
     <div class="mdl-dialog__actions">
@@ -188,36 +189,39 @@
     </div>
   </dialog>
   <script>
-  // $(function() {
-  //
-  //   // $('#data-agent-check').click(function() {
-  //   $('button#generate').bind('click', function() {
-  //     var isChecked = $('#data-agent-check').is('.is-checked') ? 1:0
-  //     console.log(isChecked)
-  //     $("#progress").show();
-  //     $.getJSON($SCRIPT_ROOT + '/_generate_access_keys/{{ site.id }}', {
-  //       siteId: {{ site.id }},
-  //       isChecked: isChecked
-  //     }, function(data) {
-  //       $("#keyvalue").text(data.secretAccessKey),
-  //       $("#keyid").text(data.accessKeyId),
-  //       $("#isenabled").text(data.isEnabled),
-  //       $("#progress").hide();
-  //     });
-  //     return false;
-  //   });
-  // });
-    var dialog = document.querySelector('dialog');
-    var showDialogButton = document.querySelector('[id*="show-dialog"]');
-    if (! dialog.showModal) {
-      dialogPolyfill.registerDialog(dialog);
-    }
-    showDialogButton.addEventListener('click', function() {
+  $(function() {
+
+  // get dialog compoent
+  var dialog = document.querySelector('dialog');
+  if (! dialog.showModal) {
+    dialogPolyfill.registerDialog(dialog);
+  }
+  $( '[id*="show-dialog"]' ).click(function() {
+    // get asset_point_id of clicked row
+    var assetPointId = this.id;
+    assetPointId = assetPointId.replace('show-dialog-','');
+      console.log( assetPointId );
+      $("#show-asset-point-id").text(assetPointId),
       dialog.showModal();
-    });
+
+      // open progress bar
+      $("#progress").show();
+      // send request to server for log samples
+      $.getJSON($SCRIPT_ROOT + '/_pointdata/' + assetPointId, {
+        assetPointId: assetPointId,
+        period: 'day'
+      }, function(data) {
+        $("#testreq").text(data.testKey),
+        $("#progress").hide();
+      });
+
+  });
+
     dialog.querySelector('.close').addEventListener('click', function() {
       dialog.close();
     });
+
+  });
   </script>
 
 {% endblock %}
