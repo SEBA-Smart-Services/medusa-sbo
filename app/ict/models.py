@@ -10,6 +10,7 @@ class ITasset(Base):
     operating_system = db.Column(db.String(100))
     platform = db.Column(db.String(100))
     site_id = db.Column(db.Integer, db.ForeignKey('site.ID'))
-
+    online = db.Column(db.Boolean)
+    last_checked = db.Column(db.DateTime)
     def __init__(self):
         pass

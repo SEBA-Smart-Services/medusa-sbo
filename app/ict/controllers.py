@@ -3,7 +3,7 @@ from app import app, db
 from app.models import Site
 from app.ict.models import ITasset
 from app.ict.salt_client import SaltAPI
-
+import datetime
 # list IT assets on the site
 @app.route('/site/<sitename>/it-assets',  methods=['GET', 'POST'])
 def ict_asset_list(sitename):
@@ -32,7 +32,9 @@ def update_minion_data(sitename):
         onlinestatus = api.is_minion_reachable(ITasset.minion_name)
         ITasset.ip_address=ipaddress
         ITasset.operating_system=operatingsystem
-
+        ITasset.online = onlinestatus
+        now = datetime.datetime.now()
+        ITasset.last_checked = now.strftime('%Y-%m-%d %H:%M:%S')
     api.logout()
     db.session.commit()
     return redirect(url_for('ict_asset_list', sitename=site.name))
