@@ -2,10 +2,10 @@
 {% block content %}
   <h3>All Unresolved Issues</h3>
   <div>
-    {% if allsites == True %}
-    <form action="{{ url_for('unresolved_issues_submit_all') }}" method=post>
+    {% if site is defined %}
+      <form action="{{ url_for('unresolved_issues_submit', sitename=site.name) }}" method=post>
     {% else %}
-    <form action="{{ url_for('unresolved_issues_submit', sitename=site.name) }}" method=post>
+      <form action="{{ url_for('unresolved_issues_submit_all') }}" method=post>
     {% endif %}
       <table id="unresolved-table" class="mdl-data-table mdl-js-data-table wrap-text full-width">
         <thead>
@@ -25,7 +25,7 @@
         </thead>
         <tbody class="list">
           {% for result in results %}
-            {% if allsites == True or result.asset.site.name == site.name %}
+            {% if site is defined %}
               <tr>
                 <td class="timestamp mdl-data-table__cell--non-numeric">{{result.first_timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
                 <td class="asset mdl-data-table__cell--non-numeric">{{result.asset.name}}</td>
@@ -61,7 +61,7 @@
 
       <br><br>
       <input type=submit value=Save class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-      {% if not allsites == True %}
+      {% if site is defined %}
       <input type=button onclick="window.location.href='{{ url_for('report_page', sitename=site.name) }}'" value="Download Report" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
       <input type=button onclick="window.location.href='{{ url_for('send_report_trigger', sitename=site.name) }}'" value="Send Report" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
       {% endif %}

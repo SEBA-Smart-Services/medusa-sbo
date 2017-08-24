@@ -14,13 +14,11 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li><a href="{{ url_for('flicket_bp.tickets') }}">Tickets</a></li>
-                <li><a href="{{ url_for('flicket_bp.ticket_create') }}">Create Ticket</a></li>
-                <li><a href="{{ url_for('flicket_bp.departments') }}">Departments</a></li>
-                <li><a href="{{ url_for('flicket_bp.flicket_users') }}">Users</a></li>
-                <li><a href="{{ url_for('flicket_bp.faq') }}">FAQ</a></li>
+                <li><a href="{{ url_for('tickets') }}">Tickets</a></li>
+                <li><a href="{{ url_for('ticket_create') }}">Create Ticket</a></li>
+                <li><a href="{{ url_for('departments') }}">Departments</a></li>
                 {% if g.user.is_admin %}
-                <li><a href="{{ url_for('admin_bp.index') }}">Admin View</a></li>
+                <li><a href="{{ url_for('index') }}">Admin View</a></li>
                 {% endif %}
             </ul>
 
