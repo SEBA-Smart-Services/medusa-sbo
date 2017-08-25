@@ -46,18 +46,25 @@ class SaltAPI():
         req = requests.post(self.salt_host, data={"client": "local", "tgt": minion_id, "fun": "test.ping"}, headers=self._get_headers(), verify=self.verify_ssl_cert)
         logging.debug("Salt ping response: %s - %s", req.status_code, req.text)
         resp = req.json()
-        data = resp["return"][0]
-        if data[minion_id] == True:  # returns [{"node-name": True}] if ping succeeds
-           return True
-        return False # returns [{}] if request fails
+
+        #if ping succeeds, resp== {'return': [{'minion_name':True}]}
+        #if ping fails, resp=={'return':[{}]}
+
+        if resp["return"][0].get(minion_id, None):   #returns true if the minion name can be found in the responce
+            return resp["return"][0][minion_id]
+        else:
+            return False
 
     def get_minion_grains(self, minion_id):
+        #the minion must be online for grains to be checked
+        #function will fail if minion is offline
         req = requests.get(self.salt_host + "/minions/" + minion_id, headers=self._get_headers(), verify=self.verify_ssl_cert)
         resp = req.json()
         data = resp["return"][0]
         data2 = data[minion_id]
         return data2
-        
+
+
 # testing
 if __name__ == '__main__':
     api=SaltAPI()

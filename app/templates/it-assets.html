@@ -6,7 +6,7 @@
   {% endif %}
 </h3>
 
-    <table id="asset-table" class="mdl-data-table mdl-js-data-table full-width">
+    <table id="itasset-table" class="mdl-data-table mdl-js-data-table full-width">
       <thead>
         <tr>
           <th class="mdl-data-table__cell--non-numeric sort" data-sort="name">Name</th>
@@ -25,7 +25,15 @@
               <td id="test" class="mdl-data-table__cell--non-numeric operatingsystem">{{ITasset.operating_system}}</td>
               <td class="mdl-data-table__cell--non-numeric platform">{{ITasset.platform}}</td>
               <td class="mdl-data-table__cell--non-numeric ipaddress">{{ITasset.ip_address}}</td>
-              <td class="mdl-data-table__cell--non-numeric onlinestatus">{{ITasset.online}}</td>
+              {% if ITasset.online == True %}
+              <td class="mdl-data-table__cell--non-numeric">
+                <i class="material-icons mdl-list__item-icon" style="color:rgba(100, 221, 23, 1.0)">check_circle</i>
+              </td>
+              {% else %}
+              <td class="mdl-data-table__cell--non-numeric">
+                <i class="material-icons mdl-list__item-icon" style="color:rgba(255, 0, 0, 1.0)">remove_circle</i>
+              </td>
+              {% endif %}
               <td class="mdl-data-table__cell--non-numeric">
 
               </td>
@@ -37,37 +45,23 @@
     </table>
 
 <br><br>
-<div id="progress" class="mdl-progress mdl-js-progress mdl-progress__indeterminate" style="display:none"></div>
-<div class="">
-  <button href=# id="reload" class="mdl-button mdl-js-button mdl-js-ripple-effect">
-    Reload
-  </button>
-</div>
-
-
-<input type=button onclick="window.location.href='{{ url_for('update_minion_data', sitename=site.name) }}'" value="Refres" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+<div id="progress" class="mdl-progress mdl-js-progress mdl-progress__indeterminate" style="display:none">Rescanning IT Assets</div>
+<br><br>
+<input type=button id="rescan" onclick="window.location.href='{{ url_for('update_minion_data', sitename=site.name) }}'" value="Rescan IT Assets" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
 
 <script type="text/javascript">
   var options = {
-      valueNames: ['name', 'health', 'type', 'location', 'group', 'priority', 'notes']
+      valueNames: ['name', 'operatingsystem', 'platform', 'ipaddress']
     }
-  var documentTable = new List('asset-table', options);
+  var documentTable = new List('itasset-table', options);
   documentTable.sort("name",{order:"desc"});
 </script>
 
 <script type=text/javascript>
 
 $(function() {
-
-
-  $('button#reload').bind('click', function() {
+  $('input#rescan').bind('click', function() {
     $("#progress").show();
-    $.getJSON($SCRIPT_ROOT + '/_reload_it_data/{{ site.id }}', {
-      siteId: {{ site.id }},
-    }, function(data) {
-      $("#test").text(data.test),
-      $("#progress").hide();
-    });
     return false;
   });
 });
