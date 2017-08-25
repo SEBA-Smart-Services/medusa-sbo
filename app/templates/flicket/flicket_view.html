@@ -1,131 +1,151 @@
 <!-- extend from base layout -->
-{% extends "flicket_base.html" %}
+{% extends "layout.html" %}
 {% block content %}
-<div class="container">
+<div class="mdl-layout">
 
     <!-- flicket ticket details -->
-    <div class="row flicket-row-title-main">
-        <div class="col-sm-9">
-            <div class="flicket-ticket-cell flicket-ticket-title-title">
-                #{{ ticket.id_zfill }} - {{ ticket.title }}
-            </div>
-        </div>
-        <div class="col-sm-3 text-right" style="padding-top:10px;">
-            {% if g.user.is_admin %}
-            <a class="btn btn-default flicket-btn-delete"
-               href="{{ url_for('flicket_bp.delete_ticket', ticket_id = ticket.id) }}">delete</a>
-            {% endif %}
-        </div>
-    </div>
-    <div class="row flicket-row-title-details">
-        <div class="col-sm-2">
-            <div class="flicket-ticket-cell flicket-ticket-cell-title">Department</div>
-            <div class="flicket-ticket-cell">{{ ticket.category.department.department }}</div>
-        </div>
-        <div class="col-sm-3">
-            <div class="flicket-ticket-cell flicket-ticket-cell-title">Category</div>
-            <div class="flicket-ticket-cell">{{ ticket.category.category }}</div>
-        </div>
-        <div class="col-sm-2">
-            <div class="flicket-ticket-cell flicket-ticket-cell-title">Status</div>
-            <div class="flicket-ticket-cell">{{ ticket.current_status.status }}</div>
-        </div>
-        <div class="col-sm-2">
-            <div class="flicket-ticket-cell flicket-ticket-cell-title">Priority</div>
-            <div class="flicket-ticket-cell">{{ ticket.ticket_priority.priority }}</div>
-        </div>
-        <div class="col-sm-3">
-            <div class="flicket-ticket-cell flicket-ticket-cell-title">Assigned</div>
-            <div class="flicket-ticket-cell">
-                {% if ticket.assigned.username %}
-                {{ ticket.assigned.name }}
-                {% else %}ticket not assigned{% endif %}
-            </div>
-        </div>
-    </div>
-    <div class="row flicket-row-title-sub">
-        <div class="col-sm-9">
-            <div class="flicket-ticket-cell">
-                Subscribers{% for s in ticket.subscribers %} <a href="mailto:{{ s.user.email }}">{{ s.user.name }}</a>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="col-sm-3">
-            <div class="text-right">
-                {% if ticket.is_subscribed(g.user) %}
-                <a class="btn btn-default flicket-btn-unsubscribe"
-                   href="{{ url_for('flicket_bp.unsubscribe_ticket', ticket_id = ticket.id) }}">unsubscribe</a>
-                {% else %}
-                <a class="btn btn-default flicket-btn-subscribe"
-                   href="{{ url_for('flicket_bp.subscribe_ticket', ticket_id = ticket.id) }}">subscribe</a>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+    <div class="mdl-grid">
+      <div class="row flicket-row-title-main mdl-cell mdl-cell--12-col mdl-grid">
+          <div class="mdl-cell mdl-cell--11-col">
+              <h3>
+                  #{{ ticket.id_zfill }} - {{ ticket.ticket_name }}
+              </h3>
+          </div>
+          <div class="mdl-cell mdl-cell--1-col" style="margin-right: 0">
+              {% if current_user.has_role('admin') %}
+              <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="float: right;" href="{{ url_for('edit_ticket', ticket_id = ticket.id) }}">
+                <i class="material-icons">edit</i>
+              </a>
+              {% endif %}
+          </div>
+      </div>
 
-    <div class="row">
-        <div class="col-sm-8">
-            <ul class="pagination pagination-sm">{% for page in replies.iter_pages() %}
-                {% if page %}
-                {% if page != replies.page %}
-                <li>
-                    <a href="{{ url_for('flicket_bp.ticket_view', ticket_id=ticket.id, page=page, **request.args) }}">
-                        {{ page }}</a>
-                </li>
-                {% else %}
-                <li class="active"><a
-                        href="{{ url_for('flicket_bp.ticket_view', ticket_id=ticket.id, page=page, **request.args) }}">
-                    {{ page }}</a>
-                </li>
-                {% endif %}
-                {% else %}
-                <li><a href="">...</a></li>
-                {% endif %}
-                {% endfor %}
-            </ul>
-        </div>
-        <div class="col-sm-4 text-right">
-            <ul class="list-inline flicket-ticket-details-btn-ul">
-                <li class="flicket-ticket-details-btn-li"><a style="text-decoration: none"
-                                                             href="{{ url_for('flicket_bp.ticket_claim', ticket_id = ticket.id) }}">claim</a>
-                </li>
-                <li class="flicket-ticket-details-btn-li"><a style="text-decoration: none"
-                                                             href="{{ url_for('flicket_bp.release', ticket_id = ticket.id) }}">release</a>
-                </li>
-                <li class="flicket-ticket-details-btn-li"><a style="text-decoration: none"
-                                                             href="{{ url_for('flicket_bp.ticket_assign', ticket_id = ticket.id) }}">assign</a>
-                </li>
-            </ul>
-        </div>
-    </div>
+      <div class="mdl-cell mdl-cell--12-col mdl-grid">
+          <table class="mdl-data-table mdl-js-data-table mdl-cell mdl-cell--12-col">
+            <tbody>
+              <tr>
+                  <th class="mdl-data-table__cell--non-numeric">Description</th>
+                  <td class="mdl-data-table__cell--non-numeric">{{ ticket.description }}</td>
+              </tr>
+              <tr>
+                <th class="mdl-data-table__cell--non-numeric" style="width:20%">Department</th>
+                <td class="mdl-data-table__cell--non-numeric">{{ ticket.category.department.department }}</td>
+              </tr>
+              <tr>
+                  <th class="mdl-data-table__cell--non-numeric">Category</th>
+                  <td class="mdl-data-table__cell--non-numeric">{{ ticket.category.category }}</td>
+              </tr>
+              <tr>
+                  <th class="mdl-data-table__cell--non-numeric">Status</th>
+                  <td class="mdl-data-table__cell--non-numeric">{{ ticket.current_status.status }}</td>
+              </tr>
+              <tr>
+                  <th class="mdl-data-table__cell--non-numeric">Priority</th>
+                  <td class="mdl-data-table__cell--non-numeric">{{ ticket.ticket_priority.priority }}</td>
+              </tr>
+              <tr>
+                  <th class="mdl-data-table__cell--non-numeric">Assigned</th>
+                  <td class="mdl-data-table__cell--non-numeric">
+                      {% if ticket.assigned.email %}
+                        {{ ticket.assigned.email }}
+                      {% else %}
+                        ticket not assigned
+                      {% endif %}
+                  </td>
+              </tr>
+          </tbody>
+        </table>
+      </div>
 
-    <!-- display ticket-->
-    {{ display_post_box(ticket, page=page)|safe }}
-    <!-- end display ticket -->
-    <!-- display actions -->
-    {% for action in ticket.actions %}
-    <div class="row flicket-row flicket-row-action">
-        {{ action.output_action()|safe }}
-    </div>
-    {% endfor %}
-    <!-- end display actions -->
+      <br>
+      <br>
 
-    <!-- flicket ticket replies -->
-    {% for r in replies.items %}
-        <!-- display replies -->
-        {{ display_post_box(ticket=ticket, post=r, replies=replies, loop=loop, page=page)|safe }}
+      <div class="mdl-cell mdl-cell--12-col mdl-grid">
+          <div class="">
+              <div class="flicket-ticket-cell">
+                  Subscribers
+                  {% for s in ticket.subscribers %}
+                    <a href="mailto:{{ s.user.email }}">{{ s.user.name }}</a>
+                  {% endfor %}
+              </div>
+          </div>
+          <div class="col-sm-3">
+              <div class="text-right">
+                  {% if ticket.is_subscribed(current_user) %}
+                  <a class="btn btn-default flicket-btn-unsubscribe"
+                     href="{{ url_for('unsubscribe_ticket', ticket_id = ticket.id) }}">unsubscribe</a>
+                  {% else %}
+                  <a class="btn btn-default flicket-btn-subscribe"
+                     href="{{ url_for('subscribe_ticket', ticket_id = ticket.id) }}">subscribe</a>
+                  {% endif %}
+              </div>
+          </div>
+      </div>
 
+      <div class="mdl-cell mdl-cell--12-col mdl-grid">
+          <div class="">
+              <ul class="pagination pagination-sm">{% for page in replies.iter_pages() %}
+                  {% if page %}
+                  {% if page != replies.page %}
+                  <li>
+                      <a href="{{ url_for('ticket_view', ticket_id=ticket.id, page=page, **request.args) }}">
+                          {{ page }}</a>
+                  </li>
+                  {% else %}
+                  <li class="active"><a
+                          href="{{ url_for('ticket_view', ticket_id=ticket.id, page=page, **request.args) }}">
+                      {{ page }}</a>
+                  </li>
+                  {% endif %}
+                  {% else %}
+                  <li><a href="">...</a></li>
+                  {% endif %}
+                  {% endfor %}
+              </ul>
+          </div>
+          <div class="col-sm-4 text-right">
+              <ul class="list-inline flicket-ticket-details-btn-ul">
+                  <li class="flicket-ticket-details-btn-li">
+                    <a style="text-decoration: none" href="{{ url_for('ticket_claim', ticket_id = ticket.id) }}">claim</a>
+                  </li>
+                  <li class="flicket-ticket-details-btn-li">
+                    <a style="text-decoration: none" href="{{ url_for('release', ticket_id = ticket.id) }}">release</a>
+                  </li>
+                  <li class="flicket-ticket-details-btn-li"><a style="text-decoration: none"
+                                                               href="{{ url_for('ticket_assign', ticket_id = ticket.id) }}">assign</a>
+                  </li>
+              </ul>
+          </div>
+      </div>
+
+      <div class="mdl-cell mdl-cell--12-col mdl-grid">
         <!-- display actions -->
-        {% for action in r.actions %}
+        {% for action in ticket.actions %}
         <div class="row flicket-row flicket-row-action">
             {{ action.output_action()|safe }}
         </div>
-    {% endfor %}
-    <!-- end display actions -->
+        {% endfor %}
+        <!-- end display actions -->
 
-    {% endfor %}
+        <!-- flicket ticket replies -->
+        {% for r in replies.items %}
+            <!-- display replies -->
 
-    {% include('flicket_form_reply.html') %}
+            <!-- display actions -->
+            {% for action in r.actions %}
+            <div class="row flicket-row flicket-row-action">
+                {{ action.output_action()|safe }}
+            </div>
+        {% endfor %}
+        <!-- end display actions -->
+
+        {% endfor %}
+      </div>
+
+      <div class="mdl-cell mdl-cell--12-col mdl-grid">
+        {% include('flicket/flicket_form_reply.html') %}
+      </div>
+    </div>
 
 
 </div>

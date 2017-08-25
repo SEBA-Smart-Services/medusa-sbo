@@ -5,76 +5,82 @@
       name="create_ticket">
     {{ form.hidden_tag() }}
 
+    <div class="mdl-grid">
+      <div class="mdl-cell mdl-cell--12-col">
+          <label class="">Ticket Title</label>
+          <div class="">
+              {{ form.title(class="form-control mdl-textfield__input") }}
+          </div>
+      </div>
+      {% if form.title.errors %}
+          <div class="alert alert-warning small">
+              {% for error in form.title.errors %}
+                  {{ error }}
+              {% endfor %}
+          </div>
+      {% endif %}
 
-    <div class="form-group">
-        <label class="col-sm-3 control-label">Ticket Title</label>
-        <div class="col-sm-9">
-            {{ form.title(class="form-control") }}
-        </div>
-    </div>
-    {% if form.title.errors %}
-        <div class="alert alert-warning small">
-            {% for error in form.title.errors %}
-                {{ error }}
-            {% endfor %}
-        </div>
-    {% endif %}
+      <br>
 
-    <div class="form-group">
-        <label class="col-sm-3 control-label">Content</label>
-        <div class="col-sm-9">
-            {{ form.content(class="form-control") }}
-        </div>
-    </div>
-    {% if form.content.errors %}
-        <div class="alert alert-warning small">
-            {% for error in form.content.errors %}
-                {{ error }}
-            {% endfor %}
-        </div>
-    {% endif %}
+      <div class="form-group mdl-cell mdl-cell--12-col">
+          <label class="">Content</label>
+          <div class="mdl-textfield__input">
+              {{ form.content(class="form-control mdl-textfield__input") }}
+          </div>
+      </div>
+      <br>
+      {% if form.content.errors %}
+          <div class="alert alert-warning small">
+              {% for error in form.content.errors %}
+                  {{ error }}
+              {% endfor %}
+          </div>
+      {% endif %}
 
-    <div class="form-group">
-        <label class="col-sm-3 control-label">Priority Level</label>
-        <div class="col-sm-3">
-            {{ form.priority(class="form-control") }}
-        </div>
-        <label class="col-sm-3 control-label">Category</label>
-        <div class="col-sm-3">
-            {{ form.category(class="form-control") }}
-        </div>
-    </div>
+      <div class="form-group mdl-cell mdl-cell--12-col">
+          <label class="col-sm-3 control-label">Priority Level</label>
+          <div class="col-sm-3">
+              {{ form.priority(class="form-control") }}
+          </div>
+          <br>
+          <label class="col-sm-3 control-label">Category</label>
+          <div class="col-sm-3">
+              {{ form.category(class="form-control") }}
+          </div>
+      </div>
 
-    {% if form.priority.errors %}
-        <div class="alert alert-warning small">
-            {% for error in form.priority.errors %}
-                {{ error }}
-            {% endfor %}
-        </div>
-    {% endif %}
-
-
-    {% if form.category.errors %}
-        <div class="alert alert-warning small">
-            {% for error in form.category.errors %}
-                {{ error }}
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    {% if form.uploads %}
-        {{ form.uploads }}
-    {% endif %}
+      {% if form.priority.errors %}
+          <div class="alert alert-warning small">
+              {% for error in form.priority.errors %}
+                  {{ error }}
+              {% endfor %}
+          </div>
+      {% endif %}
 
 
-    <div class="form-group">
-        <label class="col-sm-3 control-label">{{ form.file.label }}</label>
-        <div class="col-sm-3">
-            {{ form.file }}
-        </div>
-        <div class="col-sm-6 text-right">
-            {{ form.submit(class="btn btn-primary") }}
-        </div>
+      {% if form.category.errors %}
+          <div class="alert alert-warning small">
+              {% for error in form.category.errors %}
+                  {{ error }}
+              {% endfor %}
+          </div>
+      {% endif %}
+      <br>
+      {% if form.uploads %}
+          {{ form.uploads }}
+      {% endif %}
+
+
+      <div class="form-group mdl-cell mdl-cell--12-col">
+          <label class="control-label">{{ form.file.label }}</label>
+          <div class="">
+              {{ form.file }}
+          </div>
+          <br>
+          <div class="">
+              {{ form.submit(class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent") }}
+          </div>
+      </div>
     </div>
 
 </form>

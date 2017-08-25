@@ -10,14 +10,9 @@ import json
 from flask import request
 from flask_login import login_required
 
-from application import app
-from application.flicket.models.flicket_models import (FlicketCategory,
-                                                       FlicketDepartment,
-                                                       FlicketTicket,
-                                                       FlicketPost,
-                                                       FlicketStatus)
-from application.flicket.models.flicket_user import FlicketUser
-from . import flicket_api_bp
+from app import app
+from app.ticket.models import (FlicketCategory, FlicketDepartment, FlicketTicket, FlicketPost, FlicketStatus)
+from app.models.users import User
 
 
 # todo currently unused
@@ -33,8 +28,7 @@ def alchemy_encoder(obj):
 
 
 # json api to display departments
-@flicket_api_bp.route(app.config['FLICKET_API'] + 'department/', methods=['GET', 'POST'])
-@login_required
+@app.route('/department', methods=['GET', 'POST'])
 def api_departments():
 
     departments = FlicketDepartment.query.all()
@@ -52,9 +46,8 @@ def api_departments():
 
 
 # json api to display categories
-@flicket_api_bp.route(app.config['FLICKET_API'] + 'category/', methods=['GET', 'POST'])
-@flicket_api_bp.route(app.config['FLICKET_API'] + 'category/<int:id>/', methods=['GET', 'POST'])
-@login_required
+#@flicket_api_bp.route(app.config['FLICKET_API'] + 'category/<int:id>/', methods=['GET', 'POST'])
+@app.route('/category')
 def api_categories(id=None):
 
     categories = FlicketCategory.query
@@ -75,8 +68,7 @@ def api_categories(id=None):
 
 
 # json api to get statuses from db
-@flicket_api_bp.route(app.config['FLICKET_API'] + 'statuses/', methods=['GET', 'POST'])
-@login_required
+@app.route('/statuses', methods=['GET', 'POST'])
 def api_statuses():
     statuses = FlicketStatus.query.all()
 
@@ -95,8 +87,7 @@ def api_statuses():
 
 # json api to display tickets
 # todo probably won't use this unitl I understand how to implement my pagination understanding
-@flicket_api_bp.route(app.config['FLICKET_API'] + 'tickets/<int:page>/', methods=['GET', 'POST'])
-@login_required
+@app.route('/tickets/other')
 def api_tickets(page=1):
 
     # get request arguments from the url
