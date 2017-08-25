@@ -268,16 +268,16 @@ class FlicketAction(db.Model):
 
         if self.assigned:
             return 'Ticket assigned to <a href="mailto:{1}">{0}</a> by <a href="mailto:{3}">{2}</a> | {4}'.format(
-                self.recipient.name, self.recipient.email, self.user.name, self.user.email, _date)
+                self.recipient.first_name, self.recipient.email, self.user.first_name, self.user.email, _date)
 
         if self.claimed:
-            return 'Ticked claimed by <a href="mailto:{}">{}</a>  | {}'.format(self.user.email, self.user.name, _date)
+            return 'Ticked claimed by <a href="mailto:{}">{}</a>  | {}'.format(self.user.email, self.user.first_name, _date)
 
         if self.released:
-            return 'Ticket released by <a href="mailto:{}">{}</a> | {}'.format(self.user.email, self.user.name, _date)
+            return 'Ticket released by <a href="mailto:{}">{}</a> | {}'.format(self.user.email, self.user.first_name, _date)
 
         if self.closed:
-            return 'Ticked closed by <a href="mailto:{}">{}</a> | {}'.format(self.user.email, self.user.name, _date)
+            return 'Ticked closed by <a href="mailto:{}">{}</a> | {}'.format(self.user.email, self.user.first_name, _date)
 
     def __repr__(self):
 

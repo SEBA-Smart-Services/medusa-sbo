@@ -9,10 +9,10 @@
     </tr>
     <tr>
         <th style="text-align: left">Assigned</th>
-        <td>{% if ticket.assigned.username %}{{ ticket.assigned.name }}{% else %}ticket not claimed{% endif %}</td>
+        <td>{% if ticket.assigned.email %}{{ ticket.assigned.email }}{% else %}ticket not claimed{% endif %}</td>
     </tr>
     <tr>
         <th style="text-align: left">Content</th>
-        <td>{{ ticket.content }}</td>
+        <td>{{ ticket.description }}</td>
     </tr>
 </table>

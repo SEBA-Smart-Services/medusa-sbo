@@ -172,6 +172,7 @@ def ticket_view(ticket_id, page=1):
 
             return redirect(url_for('change_status', ticket_id=ticket.id, status='Closed'))
 
+        print(ticket.subscribers)
         return redirect(url_for('ticket_view', ticket_id=ticket_id))
 
     # get post id and populate contents for auto quoting
@@ -185,9 +186,6 @@ def ticket_view(ticket_id, page=1):
 
     app.config['posts_per_page'] = 10
     replies = replies.paginate(page, app.config['posts_per_page'])
-
-    print(ticket.ticket_name)
-    print(current_user.roles)
 
     return render_template('flicket/flicket_view.html',
                            title='View Ticket',
@@ -283,6 +281,11 @@ def edit_ticket(ticket_id):
     form = EditTicketForm(ticket_id=ticket_id)
 
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
+
+    if ticket.current_status == None:
+        ticket_status = FlicketStatus.query.filter_by(status='Open').first()
+        ticket.current_status = ticket_status
+        db.session.commit()
 
     if not ticket:
         flash('Could not find ticket.', category='warning')
@@ -595,16 +598,20 @@ def ticket_assign(ticket_id=False):
     form = SearchEmailForm()
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
 
+    if ticket.current_status == None:
+        ticket_status = FlicketStatus.query.filter_by(status='Open').first()
+        ticket.current_status = ticket_status
+        db.session.commit()
+
     if ticket.current_status.status == 'Closed':
         flash("Can't assign a closed ticket.")
         return redirect(url_for('ticket_view', ticket_id=ticket_id))
 
     if form.validate_on_submit():
-
-        user = FlicketUser.query.filter_by(email=form.email.data).first()
+        user = User.query.filter_by(email=form.email.data).first()
 
         if ticket.assigned == user:
-            flash('User is already assigned to ticket silly')
+            flash('User is already assigned to ticket')
             return redirect(url_for('ticket_view', ticket_id=ticket.id ))
 
         # set status to in work

@@ -57,29 +57,39 @@
         </table>
       </div>
 
-      <br>
-      <br>
-
       <div class="mdl-cell mdl-cell--12-col mdl-grid">
-          <div class="">
-              <div class="flicket-ticket-cell">
-                  Subscribers
+            <h5>Subscribers</h5>
+              <table class="mdl-data-table mdl-js-data-table mdl-cell mdl-cell--12-col">
+                <thead>
+                  <tr>
+                    <th class="mdl-data-table__cell--non-numeric">email</th>
+                    <th class="mdl-data-table__cell--non-numeric">Name</th>
+                    <th class="mdl-data-table__cell--non-numeric">Last available</th>
+                  </tr>
+                </thead>
+                <tbody>
                   {% for s in ticket.subscribers %}
-                    <a href="mailto:{{ s.user.email }}">{{ s.user.name }}</a>
+                  <tr>
+                    <td class="mdl-data-table__cell--non-numeric">
+                      <a href="mailto:{{ s.user.email }}">{{ s.user.email }}</a>
+                    </td>
+                    <td class="mdl-data-table__cell--non-numeric">{{s.user.first_name}} {{s.user.last_name}}</td>
+                    <td class="mdl-data-table__cell--non-numeric">{{s.user.last_login_at}}</td>
+                  </tr>
                   {% endfor %}
-              </div>
-          </div>
-          <div class="col-sm-3">
-              <div class="text-right">
-                  {% if ticket.is_subscribed(current_user) %}
-                  <a class="btn btn-default flicket-btn-unsubscribe"
-                     href="{{ url_for('unsubscribe_ticket', ticket_id = ticket.id) }}">unsubscribe</a>
-                  {% else %}
-                  <a class="btn btn-default flicket-btn-subscribe"
-                     href="{{ url_for('subscribe_ticket', ticket_id = ticket.id) }}">subscribe</a>
-                  {% endif %}
-              </div>
-          </div>
+                </tbody>
+              </table>
+            <br>
+            <br>
+            <div>
+                {% if ticket.is_subscribed(current_user) %}
+                  <a class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
+                   href="{{ url_for('unsubscribe_ticket', ticket_id = ticket.id) }}">unsubscribe</a>
+                {% else %}
+                  <a class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
+                   href="{{ url_for('subscribe_ticket', ticket_id = ticket.id) }}">subscribe</a>
+                {% endif %}
+            </div>
       </div>
 
       <div class="mdl-cell mdl-cell--12-col mdl-grid">
@@ -120,11 +130,25 @@
 
       <div class="mdl-cell mdl-cell--12-col mdl-grid">
         <!-- display actions -->
-        {% for action in ticket.actions %}
-        <div class="row flicket-row flicket-row-action">
-            {{ action.output_action()|safe }}
-        </div>
-        {% endfor %}
+        <h5 class="mdl-cell mdl-cell--12-col">Actions</h5>
+        <br>
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for action in ticket.actions %}
+            <tr>
+              <td>
+                {{ action.output_action()|safe }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
         <!-- end display actions -->
 
         <!-- flicket ticket replies -->

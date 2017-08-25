@@ -1,16 +1,14 @@
 <!-- extend from base layout -->
-{% extends "flicket_base.html" %}
+{% extends "layout.html" %}
 
 {% block content %}
 
-{% include('flicket_restjson_users.html') %}
+{% include('flicket/flicket_restjson_users.html') %}
 
     <div class="container">
-        <h1>{{ title }}</h1>
-        <h2 class="flicket-title">#{{ ticket.id_zfill }} - {{ ticket.title }}</h2>
-        <p>
-            Type name and pick from drop down list to. For a complete list of <a href="{{ url_for('flicket_bp.flicket_users') }}" target="_blank">users</a>.
-        </p>
+        <h3>{{ title }}</h3>
+        <h4 class="flicket-title">#{{ ticket.id_zfill }} - {{ ticket.ticket_name }}</h4>
+
         <form action=""
               class="form-horizontal"
               enctype="multipart/form-data"
