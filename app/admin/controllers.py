@@ -4,8 +4,8 @@ from flask_admin.contrib.sqla import ModelView
 from flask_user import current_user
 from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, FunctionalDescriptorCategory, PointType, InbuildingsAsset, Result, EmailTemplate, Email, User, Role, Alarm, LoggedEntity, LogTimeValue
 from app.ict.models import ITasset
-from app.weather.models import Weather
-from app.models.ITP import Deliverable_type, Location, Check_generic
+from app.ticket.models import FlicketPriority, FlicketCategory, FlicketStatus
+from app.models.ITP import Deliverable_type, Location
 from flask_mail import Message
 from flask import render_template, url_for
 from flask_security.utils import hash_password, send_mail
@@ -122,6 +122,15 @@ class LocationView(ProtectedView):
 class ITassetView(ProtectedView):
     pass
 
+class TicketPriorityView(ProtectedView):
+    pass
+
+class TicketCategoryView(ProtectedView):
+    pass
+
+class TicketStatusView(ProtectedView):
+    pass
+
 # attach the model views to the admin page
 admin.add_view(SiteView(Site, db.session))
 admin.add_view(AssetTypeView(AssetType, db.session))
@@ -136,7 +145,6 @@ admin.add_view(EmailTemplateView(EmailTemplate, db.session))
 admin.add_view(EmailView(Email, db.session))
 admin.add_view(UserView(User, db.session))
 admin.add_view(RoleView(Role, db.session))
-admin.add_view(ProtectedView(Weather, db.session))
 admin.add_view(ProtectedView(FunctionalDescriptorCategory, db.session))
 admin.add_view(AlarmView(Alarm, db.session))
 admin.add_view(LoggedEntityView(LoggedEntity, db.session))
@@ -144,3 +152,6 @@ admin.add_view(LogTimeValueView(LogTimeValue, db.session))
 admin.add_view(DeliverableTypeView(Deliverable_type, db.session))
 admin.add_view(LocationView(Location, db.session))
 admin.add_view(ITassetView(ITasset, db.session))
+admin.add_view(TicketPriorityView(FlicketPriority, db.session))
+admin.add_view(TicketCategoryView(FlicketCategory, db.session))
+admin.add_view(TicketStatusView(FlicketStatus, db.session))

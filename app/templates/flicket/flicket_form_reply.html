@@ -1,7 +1,5 @@
 <!-- ticket reply -->
 
-{{ pagedown.html_head() }}
-
 <form action=""
       class="form-horizontal"
       enctype="multipart/form-data"
@@ -37,7 +35,7 @@
             </div>
             <div class="col-sm-7 text-right">
                 {% if ticket %}
-                {% if g.user.is_admin or (ticket.user == g.user) %}
+                {% if current_user.is_admin or (ticket.user == current_user) %}
                     {% if ticket.current_status.status != 'Closed' %}
                         {{ form.submit_close }}
                     {% endif %}

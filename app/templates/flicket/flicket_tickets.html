@@ -1,12 +1,6 @@
 <!-- extend from base layout -->
-{% extends "flicket_base.html" %}
+{% extends "layout.html" %}
 {% block content %}
-    <script src="{{ url_for('flicket_bp.static', filename='js/uri.js') }}"></script>
-
-    {% include('flicket_restjson_users.html') %}
-    {% include('flicket_restjson_categories.html') %}
-    {% include('flicket_restjson_departments.html') %}
-    {% include('flicket_restjson_statuses.html') %}
 
 
     <div class="container">
@@ -62,77 +56,81 @@
             <!-- / flicket search form -->
         </div>
 
-        <table class="table table-responsive table-striped table-hover">
+        <table class="mdl-data-table mdl-js-data-table">
+          <thead>
             <tr>
-                <th class="text-nowrap">
+                <th class="mdl-data-table__cell--non-numeric">
                     Ticket ID
                 </th>
-                <th>
+                <th class="mdl-data-table__cell--non-numeric">
                     Priority
                 </th>
-                <th>
+                <th class="mdl-data-table__cell--non-numeric">
                     Title
                 </th>
-                <th>
+                <th class="mdl-data-table__cell--non-numeric">
                     Submitted By
                 </th>
-                <th>
+                <th class="mdl-data-table__cell--non-numeric">
                     Date
                 </th>
-                <th>
+                <th class="mdl-data-table__cell--non-numeric">
                     Replies
                 </th>
-                <th>
+                <th class="mdl-data-table__cell--non-numeric">
                     Category
                 </th>
-                <th>
+                <th class="mdl-data-table__cell--non-numeric">
                     Status
                 </th>
-                <th>
+                <th class="mdl-data-table__cell--non-numeric">
                     Assigned
                 </th>
             </tr>
-            {% for t in tickets.items %}
+          </thead>
+          <tbody>
+            {% for t in tickets %}
                 <tr {%- if t.current_status.status == 'Closed' %} class="success"{% endif %}>
-                    <td>
-                        <a href="{{ url_for('flicket_bp.ticket_view', ticket_id = t.id) }}">{{ t.id_zfill }}</a>
+                    <td class="mdl-data-table__cell--non-numeric">
+                        <a href="{{ url_for('ticket_view', ticket_id = t.id) }}">{{ t.ticket_name }}</a>
                     </td>
-                    <td>
+                    <td class="mdl-data-table__cell--non-numeric">
                         {{ t.ticket_priority.priority }}
                     </td>
-                    <td>
+                    <td class="mdl-data-table__cell--non-numeric">
                         {{ t.title }}
                     </td>
-                    <td>
-                        {{ t.user.name }}
+                    <td class="mdl-data-table__cell--non-numeric">
+                        {{ t.user.email }}
                     </td>
-                    <td>
+                    <td class="mdl-data-table__cell--non-numeric">
                         {{ t.date_added.strftime('%Y-%m-%d') }}
                     </td>
-                    <td>
+                    <td class="mdl-data-table__cell--non-numeric">
                         {{ t.num_replies }}
                     </td>
-                    <td>
-                        {{ t.category.department.department }} - {{ t.category.category }}
+                    <td class="mdl-data-table__cell--non-numeric">
+                        {{ t.category.category }}
                     </td>
-                    <td>
+                    <td class="mdl-data-table__cell--non-numeric">
                         {{ t.current_status.status }}
                     </td>
-                    <td>
-                        {{ t.assigned.name }}
+                    <td class="mdl-data-table__cell--non-numeric">
+                        {{ t.assigned.email }}
                     </td>
                 </tr>
             {% endfor %}
+          </tbody>
         </table>
 
-        <ul class="pagination pagination-sm">{% for page in tickets.iter_pages() %}
+        <ul class="pagination pagination-sm mdl-list">{% for page in tickets %}
             {% if page %}
                 {% if page != tickets.page %}
-                    <li><a href="{{ url_for('flicket_bp.tickets', page=page, **request.args) }}"> {{ page }}</a>
+                    <li class="mdl-list__item"><a href="{{ url_for('tickets', page=page, **request.args) }}"> {{ page }}</a>
                     </li>
                 {% else %}
-                    <li class="active"><a
-                            href="{{ url_for('flicket_bp.tickets', page=page, **request.args) }}"> {{ page }}</a>
+                    <li class="active mdl-list__item"><a
+                            href="{{ url_for('tickets', page=page, **request.args) }}"> {{ page }}</a>
                     </li>
                 {% endif %}
             {% else %}

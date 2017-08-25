@@ -5,7 +5,7 @@
 
 import json
 
-from application.flicket_api.views.api import api_departments, api_categories, api_statuses
+from app.ticket.ticket_api.views.api import api_departments, api_categories, api_statuses
 
 
 class FlicketApi(object):
@@ -27,4 +27,3 @@ class FlicketApi(object):
     def get_statuses():
 
         return json.loads(api_statuses())
-

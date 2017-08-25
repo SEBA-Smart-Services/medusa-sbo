@@ -3,6 +3,8 @@
 #
 # Flicket - copyright Paul Bourne: evereux@gmail.com
 
+from app import app
+
 from flask import url_for
 from flask_pagedown.fields import PageDownField
 from flask_wtf import FlaskForm
@@ -12,7 +14,6 @@ from wtforms.validators import DataRequired, Length
 from wtforms.widgets import ListWidget, CheckboxInput
 
 from app.ticket.models import (FlicketCategory, FlicketDepartment, FlicketPriority, FlicketTicket, field_size)
-#from app.ticket.models.flicket_user import FlicketUser
 from app.models.users import User
 from app.ticket.scripts.upload_choice_generator import generate_choices
 
@@ -87,18 +88,17 @@ class CreateTicketForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         form = super(CreateTicketForm, self).__init__(*args, **kwargs)
         self.priority.choices = [(p.id, p.priority) for p in FlicketPriority.query.all()]
-        self.category.choices = [(c.id, "{} - {}".format(c.department.department, c.category)) for c in
-                                 FlicketCategory.query.join(FlicketDepartment).order_by(
-                                     FlicketDepartment.department).order_by(FlicketCategory.category).all() if
-                                 c.department]
+        self.category.choices = [(c.id, "{}".format(c.category)) for c in
+                                 FlicketCategory.query.order_by(FlicketCategory.category).all()]
 
-    """ Log in form. """
     title = StringField('username', validators=[DataRequired(), Length(min=field_size['title_min_length'],
                                                                        max=field_size['title_max_length'])])
     content = PageDownField('content', validators=[DataRequired(), Length(min=field_size['content_min_length'],
                                                                           max=field_size['content_max_length'])])
     priority = SelectField('priority', validators=[DataRequired()], coerce=int)
     category = SelectField('category', validators=[DataRequired()], coerce=int)
+    app.config['allowed_extensions'] = ['png', 'jpeg']
+    app.config['ticket_upload_folder'] = None
     file = FileField('Upload Documents', render_kw={'multiple': True})
     submit = SubmitField('Submit', render_kw=form_class_button, validators=[DataRequired()])
 
