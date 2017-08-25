@@ -11,15 +11,40 @@
   </h3>
 
   <br>
+  <ul class="mdl-list">
+    <li class="mdl-list__item mdl-list__item--two-line">
+      <span class="mdl-list__item-primary-content">
+        <span>{{ asset.location }}</span>
+        <span class="mdl-list__item-sub-title">Location</span>
+      </span>
+    </li>
+    <li class="mdl-list__item mdl-list__item--two-line">
+      <span class="mdl-list__item-primary-content">
+        <span>
+          {% if asset.group == "" %}
+            Not assigned
+          {% else %}
+           {{ asset.group }}
+          {% endif %}
+        </span>
+        <span class="mdl-list__item-sub-title">Group</span>
+      </span>
+    </li>
+    <li class="mdl-list__item mdl-list__item--two-line">
+      <span class="mdl-list__item-primary-content">
+        <span>{{ asset.priority }}</span>
+        <span class="mdl-list__item-sub-title">Priority</span>
+      </span>
+    </li>
+  </ul>
 
-  <h3>Results</h3>
-  <h4>Unresolved Issues</h4>
+  <h5>Anomalies</h5>
   <form action="{{ url_for('asset_issues_submit', sitename=site.name, asset_id=asset.id) }}" method=post>
     <table class="mdl-data-table mdl-js-data-table full-width">
       <thead>
         <tr>
           <th class="mdl-data-table__cell--non-numeric">First Failure</th>
-          <th class="mdl-data-table__cell--non-numeric">Algorithm</th>
+          <th class="mdl-data-table__cell--non-numeric">Description</th>
           <th>Passed</th>
           <th>Result</th>
           <th class="mdl-data-table__cell--non-numeric">Notes</th>
@@ -56,56 +81,7 @@
     </table>
     <br>
     <input type=submit value=Save class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-  <br>
-  <br>
-  <h4>Most Recent Check</h4>
-  <table class="mdl-data-table mdl-js-data-table full-width">
-    <thead>
-      <tr>
-        <th class="mdl-data-table__cell--non-numeric">Timestamp</th>
-        <th class="mdl-data-table__cell--non-numeric">Algorithm</th>
-        <th>Passed</th>
-        <th>Result</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for result in recent_results %}
-        <tr>
-          <td class="mdl-data-table__cell--non-numeric">{{result.recent_timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
-          <td class="mdl-data-table__cell--non-numeric">{{result.algorithm.descr}}</td>
-          <td>{{result.passed}}</td>
 
-          {% if result.algorithm.algorithm.format == 'bool' %}
-          <td>{{result.value != 0}}</td>
-          {% else %}
-          <td>{{result.algorithm.algorithm.format.format(result.value)}}</td>
-          {% endif %}
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <br><br><br>
-  <h3>Details</h3>
-
-  <table>
-    <tr>
-      <td style="width:250px"><h4>Name:</h4></td>
-      <td>{{asset.name}}</td>
-    </tr>
-    <tr>
-      <td><h4>Location:</h4></td>
-      <td>{{asset.location}}</td>
-    </tr>
-    <tr>
-      <td><h4>Group:</h4></td>
-      <td>{{asset.group}}</td>
-    </tr>
-    <tr>
-      <td><h4>Priority:</h4></td>
-      <td>{{asset.priority}}</td>
-    </tr>
-  </table>
 
   <h5>Functional Description</h5>
   <table class="checkbox-list" id="functional_descriptor_section">
@@ -117,15 +93,17 @@
       </tr>
     {% endfor %}
   </table>
+  {% if asset.functions == [] %}
+  <p>None configured</p>
+  {% endif %}
 
-  <br>
   <h5>Points</h5>
-  <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp mdl-data-table--selectable">
+  <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
     <thead>
       <tr>
         <th class="mdl-data-table__cell--non-numeric">Online</th>
         <th class="mdl-data-table__cell--non-numeric">Name</th>
-        <th>Data</th>
+        <th>Logs</th>
       </tr>
     </thead>
     <tbody>
@@ -135,7 +113,7 @@
           <td class="mdl-data-table__cell--non-numeric">
             <i class="material-icons mdl-list__item-icon">remove</i>
           </td>
-          <td class="mdl-data-table__cell--non-numeric">{{ point.type.name }}</td>
+          <td id="point-name" class="mdl-data-table__cell--non-numeric">{{ point.type.name }}</td>
           <td>
             <i class="material-icons mdl-list__item-icon">remove</i>
           </td>
@@ -143,7 +121,7 @@
           <td class="mdl-data-table__cell--non-numeric">
             <i class="material-icons mdl-list__item-icon" style="color:rgba(100, 221, 23, 1.0)">check_circle</i>
           </td>
-          <td class="mdl-data-table__cell--non-numeric">{{ point.type.name }}</td>
+          <td id="point-name" class="mdl-data-table__cell--non-numeric">{{ point.type.name }}</td>
           <td>
             <a href="#" id="show-dialog-{{ point.id }}">
               <i class="material-icons mdl-list__item-icon">insert_chart</i>
@@ -154,8 +132,12 @@
       {% endfor %}
     </tbody>
   </table>
-  <br>
-  <h4>Algorithms</h4>
+<br>
+  <input type="button" value="Download XML" onclick="location.href='{{ url_for('asset_xml_select', sitename=site.name) }}';"
+  class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+
+
+  <h5>Algorithms</h5>
   <table class="checkbox-list" id="algorithm_section">
     {% for algorithm in algorithms %}
       <tr>
@@ -163,31 +145,26 @@
       </tr>
     {% endfor %}
   </table>
+  {% if algorithms == [] %}
+  <p>None configured</p>
+  {% endif %}
 
-  <br>
-  <h4>Notes</h4>
+  <h5>Notes</h5>
   {{asset.notes}}
 
-  <br>
-  <br>
-    <input type="button" value="Download XML" onclick="location.href='{{ url_for('asset_xml_select', sitename=site.name) }}';"
-    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-  <br>
 
-
-  <dialog class="mdl-dialog">
-    <h4 class="mdl-dialog__title">Trend</h4>
+  <dialog class="mdl-dialog" style="width: 900px;">
+    <h4 id="modal-title" class="mdl-dialog__title">Trend</h4>
     <div class="mdl-dialog__content">
-      <div id="progress" class="mdl-spinner mdl-js-spinner is-active" style="display:none"></div>
-      <p id="show-asset-point-id">
-        There should be something here.
-      </p>
+      <div id="progress" class="mdl-spinner mdl-js-spinner is-active" style="display:none; text-align: center;"></div>
+      <div id="curve_chart" style="width: 100%; height: 100%;"></div>
     </div>
     <div class="mdl-dialog__actions">
-      <button type="button" class="mdl-button">Agree</button>
-      <button type="button" class="mdl-button close">Disagree</button>
+      <button type="button" class="mdl-button close">Close</button>
+      <!-- <button type="button" class="mdl-button download">Download</button> -->
     </div>
   </dialog>
+  <!-- <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script> -->
   <script>
   $(function() {
 
@@ -196,32 +173,66 @@
   if (! dialog.showModal) {
     dialogPolyfill.registerDialog(dialog);
   }
+
   $( '[id*="show-dialog"]' ).click(function() {
     // get asset_point_id of clicked row
     var assetPointId = this.id;
+    var pointName = $(this).parent().parent().find('#point-name').text()
     assetPointId = assetPointId.replace('show-dialog-','');
-      console.log( assetPointId );
-      $("#show-asset-point-id").text(assetPointId),
-      dialog.showModal();
 
-      // open progress bar
-      $("#progress").show();
-      // send request to server for log samples
-      $.getJSON($SCRIPT_ROOT + '/_pointdata/' + assetPointId, {
-        assetPointId: assetPointId,
-        period: 'day'
-      }, function(data) {
-        $("#testreq").text(data.testKey),
-        $("#progress").hide();
-      });
+    dialog.showModal();
 
-  });
+    // open progress bar
+    $("#progress").show();
+    $("#curve_chart").hide();
+    $("#modal-title").text('{{asset.name}} ' + pointName);
 
-    dialog.querySelector('.close').addEventListener('click', function() {
-      dialog.close();
+    // send request to server for log samples
+    $.getJSON($SCRIPT_ROOT + '/_pointdata/' + assetPointId, {
+      assetPointId: assetPointId,
+      period: 'day'
+    }, function(data) {
+      $("#progress").hide();
+      $("#curve_chart").show();
+      drawChart(data.samples)
     });
 
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    // console.log(typeof samples)
+    function drawChart(samples) {
+      var data = google.visualization.arrayToDataTable(
+        samples
+      );
+
+      var options = {
+        curveType: 'function',
+        hAxis: {
+          format: 'hh:mm'
+        },
+        legend: {position: 'none'},
+        chartArea: {
+          left: '10%',
+          top: '5%',
+          width: '80%',
+          height: '80%'
+      }
+      };
+
+      var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+
+      chart.draw(data, options);
+    }
+
   });
+
+  dialog.querySelector('.close').addEventListener('click', function() {
+    dialog.close();
+  });
+
+});
+
   </script>
 
 {% endblock %}
