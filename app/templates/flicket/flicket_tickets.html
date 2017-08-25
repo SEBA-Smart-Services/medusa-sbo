@@ -3,58 +3,66 @@
 {% block content %}
 
 
-    <div class="container">
+    <div class="mdl-layout">
+        <div class="mdl-grid" style="margin: 0 !important">
+          <h3 class="mdl-cell mdl-cell--6-col">{{ title }}</h3>
 
-                <h1>{{ title }}</h1>
-
-
-        <div class="row">
-            <!-- Flicket search form -->
-            <form action=""
-                  class="form-horizontal flicket-form"
-                  enctype="multipart/form-data"
-                  method="post"
-                  name="search_ticket">
-                {{ form.hidden_tag() }}
-
-
-                <div class="form-group">
-                    <div class="col-sm-2 flicket-form-control">
-                        {{ form.department(class="form-control", id="department") }}
-                    </div>
-                    <div class="col-sm-2 flicket-form-control">
-                        {{ form.category(class="form-control", id="category") }}
-                    </div>
-                    <div class="col-sm-2 flicket-form-control">
-                        {{ form.status(class="form-control", id="status")}}
-                    </div>
-                    <div class="col-sm-2 flicket-form-control">
-                        {{ form.email(class="form-control", placeholder="email", id="autocomplete-email") }}
-                    </div>
-                    <div class="col-sm-3 flicket-form-control">
-                        {{ form.content(class="form-control", placeholder="contents") }}
-                    </div>
-                    <div class="col-sm-1 flicket-form-control text-right">
-                        <input class="btn btn-primary" type="submit" value="search"/>
-                    </div>
-                </div>
-                {% if form.email.errors %}
-                    <div class="alert alert-warning small">
-                        {% for error in form.email.errors %}
-                            {{ error }}
-                        {% endfor %}
-                    </div>
-                {% endif %}
-                {% if form.content.errors %}
-                    <div class="alert alert-warning small">
-                        {% for error in form.content.errors %}
-                            {{ error }}
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </form>
-            <!-- / flicket search form -->
+          <div class="mdl-cell mdl-cell--6-col" style="margin-right: 0">
+              {% if current_user.has_role('admin') %}
+              <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="float: right;" href="{{ url_for('ticket_create') }}">
+                <i class="material-icons">add</i>
+              </a>
+              {% endif %}
+          </div>
         </div>
+
+        <!-- Flicket search form -->
+        <form action=""
+              class="form-horizontal flicket-form"
+              enctype="multipart/form-data"
+              method="post"
+              name="search_ticket">
+            {{ form.hidden_tag() }}
+
+
+            <div class="mdl-grid">
+                <div class="mdl-cell mdl-cell--2-col">
+                    {{ form.department(class="form-control", id="department") }}
+                </div>
+                <div class="mdl-cell mdl-cell--2-col">
+                    {{ form.category(class="form-control", id="category") }}
+                </div>
+                <div class="mdl-cell mdl-cell--2-col">
+                    {{ form.status(class="form-control", id="status")}}
+                </div>
+                <div class="mdl-cell mdl-cell--2-col">
+                    {{ form.email(class="form-control", placeholder="email", id="autocomplete-email") }}
+                </div>
+                <div class="mdl-cell mdl-cell--2-col">
+                    {{ form.content(class="form-control", placeholder="contents") }}
+                </div>
+                <div class="mdl-cell mdl-cell--1-col">
+                </div>
+                <div class="mdl-cell mdl-cell--1-col">
+                    <input class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" type="submit" value="search"/>
+                </div>
+            </div>
+            {% if form.email.errors %}
+                <div class="alert alert-warning small">
+                    {% for error in form.email.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% if form.content.errors %}
+                <div class="alert alert-warning small">
+                    {% for error in form.content.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </form>
+        <!-- / flicket search form -->
 
         <table class="mdl-data-table mdl-js-data-table">
           <thead>
@@ -122,22 +130,6 @@
             {% endfor %}
           </tbody>
         </table>
-
-        <ul class="pagination pagination-sm mdl-list">{% for page in tickets %}
-            {% if page %}
-                {% if page != tickets.page %}
-                    <li class="mdl-list__item"><a href="{{ url_for('tickets', page=page, **request.args) }}"> {{ page }}</a>
-                    </li>
-                {% else %}
-                    <li class="active mdl-list__item"><a
-                            href="{{ url_for('tickets', page=page, **request.args) }}"> {{ page }}</a>
-                    </li>
-                {% endif %}
-            {% else %}
-                <li><a href="">...</a></li>
-            {% endif %}
-        {% endfor %}
-        </ul>
 
     </div>
 {% endblock %}

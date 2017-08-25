@@ -116,8 +116,7 @@ class FlicketTicket(db.Model):
     subscribers = db.relationship('FlicketSubscription', order_by='FlicketSubscription.user_def')
 
     # finds all the actions associated with the post
-    actions = db.relationship('FlicketAction',
-                              primaryjoin="and_(FlicketTicket.id == FlicketAction.ticket_id)")
+    actions = db.relationship('FlicketAction', primaryjoin="and_(FlicketTicket.id == FlicketAction.ticket_id)")
 
     # reports
 

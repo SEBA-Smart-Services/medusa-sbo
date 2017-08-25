@@ -7,45 +7,41 @@
       name="add_reply">
     {{ form.hidden_tag() }}
 
-    <div class="row flicket-row flicket-row-reply" >
+  <div class="mdl-cell mdl-cell--12-col mdl-grid">
+      <h5 class="mdl-cell mdl-cell--12-col">{{ form.content.label }}</h5>
+      <div class="mdl-cell mdl-cell--12-col">
+          {{ form.content(class="form-control") }}
+      </div>
+  </div>
+  {% if form.content.errors %}
+      <div class="alert alert-warning small">
+          {% for error in form.content.errors %}
+              {{ error }}
+          {% endfor %}
+      </div>
+  {% endif %}
 
-        <div class="form-group">
-            <a name="reply"><label class="col-sm-2 control-label">{{ form.content.label }}</label></a>
-            <div class="col-sm-10">
-                {{ form.content(class="form-control") }}
-                <a class="small" href="http://commonmark.org/help/">MarkDown reference</a>
-            </div>
+  {% if form.uploads %}
+      {{ form.uploads }}
+  {% endif %}
+
+    <br>
+
+    <div class="form-group mdl-cell mdl-cell--12-col mdl-grid">
+        <label class="mdl-cell mdl-cell--12-col">{{ form.file.label }}</label>
+        <div class="mdl-cell mdl-cell--12-col ">
+            {{ form.file }}
         </div>
-        {% if form.content.errors %}
-            <div class="alert alert-warning small">
-                {% for error in form.content.errors %}
-                    {{ error }}
-                {% endfor %}
-            </div>
-        {% endif %}
-
-        {% if form.uploads %}
-            {{ form.uploads }}
-        {% endif %}
-
-        <div class="form-group">
-            <label class="col-sm-2 control-label">{{ form.file.label }}</label>
-            <div class="col-sm-3">
-                {{ form.file }}
-            </div>
-            <div class="col-sm-7 text-right">
-                {% if ticket %}
-                {% if current_user.is_admin or (ticket.user == current_user) %}
-                    {% if ticket.current_status.status != 'Closed' %}
-                        {{ form.submit_close }}
-                    {% endif %}
-                {% endif %}
-                {% endif %}
-                {{ form.submit }}
-            </div>
+        <div class="mdl-cell mdl-cell--12-col">
+            {% if ticket %}
+              {% if current_user.is_admin or (ticket.user == current_user) %}
+                  {% if ticket.current_status.status != 'Closed' %}
+                      {{ form.submit_close(class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent") }}
+                  {% endif %}
+              {% endif %}
+            {% endif %}
+            {{ form.submit(class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent") }}
         </div>
-
-
     </div>
 </form>
 <!-- ticket reply /end -->

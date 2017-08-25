@@ -58,6 +58,104 @@
       </div>
 
       <div class="mdl-cell mdl-cell--12-col mdl-grid">
+          <div class="mdl-cell mdl-cell--12-col">
+              <!-- <ul class="pagination pagination-sm">
+                  {% for page in replies.iter_pages() %}
+                    {% if page %}
+                      {% if page != replies.page %}
+                      <li>
+                        <a href="{{ url_for('ticket_view', ticket_id=ticket.id, page=page, **request.args) }}">
+                            {{ page }}
+                        </a>
+                      </li>
+                      {% else %}
+                      <li class="active">
+                        <a href="{{ url_for('ticket_view', ticket_id=ticket.id, page=page, **request.args) }}">
+                          {{ page }}
+                        </a>
+                      </li>
+                      {% endif %}
+                    {% else %}
+                    <li><a href="">...</a></li>
+                    {% endif %}
+                  {% endfor %}
+              </ul> -->
+          </div>
+          <div class="mdl-cell mdl-cell--12-col mdl-grid">
+            <a class="mdl-cell mdl-cell--4-col mdl-button mdl-js-button mdl-button--raised mdl-button--accent" href="{{ url_for('ticket_claim', ticket_id = ticket.id) }}">
+              claim
+            </a>
+            <a class=" mdl-cell mdl-cell--4-col mdl-button mdl-js-button mdl-button--raised mdl-button--accent" href="{{ url_for('release', ticket_id = ticket.id) }}">
+              release
+            </a>
+            <a class="mdl-cell mdl-cell--4-col mdl-button mdl-js-button mdl-button--raised mdl-button--accent" href="{{ url_for('ticket_assign', ticket_id = ticket.id) }}">
+              assign
+            </a>
+          </div>
+      </div>
+
+      <div class="mdl-cell mdl-cell--12-col mdl-grid">
+        <!-- display actions -->
+        <h5 class="mdl-cell mdl-cell--12-col">Actions</h5>
+        <br>
+        <table class="mdl-data-table mdl-js-data-table mdl-cell mdl-cell--12-col">
+          <thead>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for action in ticket.actions %}
+            <tr>
+              <td class="mdl-data-table__cell--non-numeric">
+                {{ action.output_action()|safe }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <!-- end display actions -->
+
+        <!-- flicket ticket replies -->
+        <h5 class="mdl-cell mdl-cell--12-col">Replies</h5>
+        <br>
+        <table class="mdl-data-table mdl-js-data-table mdl-cell mdl-cell--12-col">
+          <thead>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric"></th>
+              <th class="mdl-data-table__cell--non-numeric">Name</th>
+              <th class="mdl-data-table__cell--non-numeric">Post</th>
+              <th class="mdl-data-table__cell--non-numeric">Post Time</th>
+              <th class="mdl-data-table__cell--non-numeric">Modified</th>
+              <th class="mdl-data-table__cell--non-numeric"></th>
+              <th class="mdl-data-table__cell--non-numeric"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in replies.items %}
+            <tr>
+                <!-- display replies -->
+                {{ display_post_box(ticket=ticket, post=r, replies=replies, loop=loop, page=page)|safe }}
+
+                <!-- display actions -->
+                {% for action in r.actions %}
+                <td class="mdl-data-table__cell--non-numeric">
+                    {{ action.output_action()|safe }}
+                </td>
+                {% endfor %}
+                <!-- end display actions -->
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mdl-cell mdl-cell--12-col mdl-grid">
+        {% include('flicket/flicket_form_reply.html') %}
+      </div>
+
+      <div class="mdl-cell mdl-cell--12-col mdl-grid">
             <h5>Subscribers</h5>
               <table class="mdl-data-table mdl-js-data-table mdl-cell mdl-cell--12-col">
                 <thead>
@@ -92,86 +190,7 @@
             </div>
       </div>
 
-      <div class="mdl-cell mdl-cell--12-col mdl-grid">
-          <div class="">
-              <ul class="pagination pagination-sm">{% for page in replies.iter_pages() %}
-                  {% if page %}
-                  {% if page != replies.page %}
-                  <li>
-                      <a href="{{ url_for('ticket_view', ticket_id=ticket.id, page=page, **request.args) }}">
-                          {{ page }}</a>
-                  </li>
-                  {% else %}
-                  <li class="active"><a
-                          href="{{ url_for('ticket_view', ticket_id=ticket.id, page=page, **request.args) }}">
-                      {{ page }}</a>
-                  </li>
-                  {% endif %}
-                  {% else %}
-                  <li><a href="">...</a></li>
-                  {% endif %}
-                  {% endfor %}
-              </ul>
-          </div>
-          <div class="col-sm-4 text-right">
-              <ul class="list-inline flicket-ticket-details-btn-ul">
-                  <li class="flicket-ticket-details-btn-li">
-                    <a style="text-decoration: none" href="{{ url_for('ticket_claim', ticket_id = ticket.id) }}">claim</a>
-                  </li>
-                  <li class="flicket-ticket-details-btn-li">
-                    <a style="text-decoration: none" href="{{ url_for('release', ticket_id = ticket.id) }}">release</a>
-                  </li>
-                  <li class="flicket-ticket-details-btn-li"><a style="text-decoration: none"
-                                                               href="{{ url_for('ticket_assign', ticket_id = ticket.id) }}">assign</a>
-                  </li>
-              </ul>
-          </div>
-      </div>
-
-      <div class="mdl-cell mdl-cell--12-col mdl-grid">
-        <!-- display actions -->
-        <h5 class="mdl-cell mdl-cell--12-col">Actions</h5>
-        <br>
-        <table>
-          <thead>
-            <tr>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for action in ticket.actions %}
-            <tr>
-              <td>
-                {{ action.output_action()|safe }}
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-
-        <!-- end display actions -->
-
-        <!-- flicket ticket replies -->
-        {% for r in replies.items %}
-            <!-- display replies -->
-
-            <!-- display actions -->
-            {% for action in r.actions %}
-            <div class="row flicket-row flicket-row-action">
-                {{ action.output_action()|safe }}
-            </div>
-        {% endfor %}
-        <!-- end display actions -->
-
-        {% endfor %}
-      </div>
-
-      <div class="mdl-cell mdl-cell--12-col mdl-grid">
-        {% include('flicket/flicket_form_reply.html') %}
-      </div>
     </div>
-
-
 </div>
 
 {% endblock %}
