@@ -64,7 +64,14 @@ class SaltAPI():
         data2 = data[minion_id]
         return data2
 
-
+    def get_salt_minion_keys(self):
+        #nb, the external user configured in the salt master config file must have access to @wheel
+        req = requests.get(self.salt_host + "/keys", headers=self._get_headers(), verify=self.verify_ssl_cert)
+        resp = req.json()
+        data = resp["return"]
+        unaccepted_minions = data["minions_pre"]
+        accepted_minions = data["minions"]
+        return accepted_minions, unaccepted_minions
 # testing
 if __name__ == '__main__':
     api=SaltAPI()

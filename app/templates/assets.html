@@ -2,8 +2,13 @@
 {% block content %}
 <h3 class="page-title">IT Assets
   {% if current_user.is_authenticated %}
-
+    {% if current_user.has_role('admin') %}
+      <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="float: right;" href="/site/{{site.name}}/add_it_asset">
+        <i class="material-icons">add</i>
+      </a>
+    {% endif %}
   {% endif %}
+
 </h3>
 
     <table id="itasset-table" class="mdl-data-table mdl-js-data-table full-width">
@@ -35,7 +40,7 @@
               </td>
               {% endif %}
               <td class="mdl-data-table__cell--non-numeric">
-
+                <a href={{url_for('delete_itasset', minion_id=ITasset.id, sitename=site.name)}} class="confirmation">Delete</a>  
               </td>
             </tr>
 
@@ -49,6 +54,7 @@
 <br><br>
 <input type=button id="rescan" onclick="window.location.href='{{ url_for('update_minion_data', sitename=site.name) }}'" value="Rescan IT Assets" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
 <br><br>
+
 <h3 class="page-title">HVAC Assets
   {% if current_user.is_authenticated %}
     {% if current_user.has_role('admin') %}

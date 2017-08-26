@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block content %}
+<h3 class="page-title">Add IT Asset
+  {% if current_user.is_authenticated %}
+
+  {% endif %}
+</h3>
+
+  <h5>{{error}}</h5>
+  <form action="{{ url_for('add_itasset', sitename=site.name) }}" method=post>
+    {{form.csrf_token}}
+    {{ macros.show_errors(form) }}
+    <table>
+      <tr>
+        <td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          {{ form.site(class="mdl-textfield__input", type="text", pattern="[A-Z,a-z,0-9]*", autocomplete="off") }}
+    			<label class="mdl-textfield__label" for="site">Sitename</label>
+    			<span class="mdl-textfield__error">Only alphabet and no spaces, please!</span>
+        </div></td>
+      </tr>
+      <tr>
+        <td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          {{ form.device_type(class="mdl-textfield__input", type="text", pattern="[A-Z,a-z,0-9]*", autocomplete="off") }}
+    			<label class="mdl-textfield__label" for="site">Device Type</label>
+    			<span class="mdl-textfield__error">Only alphabet and no spaces, please!</span>
+        </div></td>
+      </tr>
+      <tr>
+        <td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          {{ form.device_number(class="mdl-textfield__input", type="text", pattern="[A-Z,a-z,0-9]*", autocomplete="off") }}
+          <label class="mdl-textfield__label" for="site">Device Number (optional)</label>
+          <span class="mdl-textfield__error">Only alphabet and no spaces, please!</span>
+        </div></td>
+      </tr>
+
+    </table>
+
+    <input id=submit type=submit value="Add to Site" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" >
+
+  </form>
+
+<br></br>
+  <form action="{{url_for('asset_list', sitename=site.name)}}">
+    <input type="submit" value="Back" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+    </input>
+  </form>
+
+{% endblock %}
