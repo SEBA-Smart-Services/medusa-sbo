@@ -60,9 +60,9 @@
       <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
         <div class="mdl-card__title"><h2 class="mdl-card__title-text">Alarms</h2></div>
         <div id="chart_div" style="width:92.5%; padding-left:5%"></div>
-	
+
 	<div class="mdl-card__actions mdl-card--border">
- 	<a 
+ 	<a
 	{% if site is defined %}
 		href="{{ url_for('alarm_list', sitename=site.name)  }}"
 	{% else %}
@@ -71,8 +71,8 @@
 	class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" style="color: rgb(68,138,255);">
       	View
 	</a>
-	</div>  
-	
+	</div>
+
       </div>
 
     </div>
@@ -85,21 +85,65 @@
         <table class="mdl-data-table mdl-js-data-table" style="width:100%;table-layout:fixed;white-space: normal;">
           <thead>
             <tr>
-              <th class="mdl-data-table__cell--non-numeric">Site</th>
-              <th class="mdl-data-table__cell--non-numeric">Asset</th>
-              <th class="mdl-data-table__cell--non-numeric">Algorithm</th>
-              <th class="mdl-data-table__cell--non-numeric">Notes</th>
-              <th>Priority</th>
+              <th class="mdl-data-table__cell--non-numeric">
+                  Ticket Name
+              </th>
+              <th class="mdl-data-table__cell--non-numeric">
+                  Priority
+              </th>
+              <th class="mdl-data-table__cell--non-numeric">
+                  Description
+              </th>
+              <th class="mdl-data-table__cell--non-numeric">
+                  Submitted By
+              </th>
+              <th class="mdl-data-table__cell--non-numeric">
+                  Date
+              </th>
+              <th class="mdl-data-table__cell--non-numeric">
+                  Replies
+              </th>
+              <th class="mdl-data-table__cell--non-numeric">
+                  Category
+              </th>
+              <th class="mdl-data-table__cell--non-numeric">
+                  Status
+              </th>
+              <th class="mdl-data-table__cell--non-numeric">
+                  Assigned
+              </th>
             </tr>
           </thead>
           <tbody>
-            {% for result in results %}
+            {% for ticket in tickets %}
               <tr>
-                <td class="mdl-data-table__cell--non-numeric">{{result.asset.site.name}}</td>
-                <td class="mdl-data-table__cell--non-numeric">{{result.asset.name}}</td>
-                <td class="mdl-data-table__cell--non-numeric">{{result.algorithm.descr}}</td>
-                <td class="mdl-data-table__cell--non-numeric">{{result.notes}}</td>
-                <td>{{result.asset.priority}}</td>
+                <td class="mdl-data-table__cell--non-numeric">
+                  {{ticket.ticket_name}}
+                </td>
+                <td class="mdl-data-table__cell--non-numeric">
+                  {{ticket.ticket_priority.priority}}
+                </td>
+                <td class="mdl-data-table__cell--non-numeric">
+                  {{ticket.description}}
+                </td>
+                <td class="mdl-data-table__cell--non-numeric">
+                  {{ticket.user.first_name}} {{ticket.user.last_name}}
+                </td>
+                <td class="mdl-data-table__cell--non-numeric">
+                    {{ ticket.date_added.strftime('%Y-%m-%d') }}
+                </td>
+                <td class="mdl-data-table__cell--non-numeric">
+                    {{ ticket.num_replies }}
+                </td>
+                <td class="mdl-data-table__cell--non-numeric">
+                    {{ ticket.category.category }}
+                </td>
+                <td class="mdl-data-table__cell--non-numeric">
+                    {{ ticket.current_status.status }}
+                </td>
+                <td class="mdl-data-table__cell--non-numeric">
+                    {{ ticket.assigned.first_name }} {{ ticket.assigned.last_name }}
+                </td>
               </tr>
             {% endfor %}
           </tbody>

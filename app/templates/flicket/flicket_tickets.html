@@ -69,13 +69,13 @@
           <thead>
             <tr>
                 <th class="mdl-data-table__cell--non-numeric">
-                    Ticket ID
+                    Ticket Name
                 </th>
                 <th class="mdl-data-table__cell--non-numeric">
                     Priority
                 </th>
                 <th class="mdl-data-table__cell--non-numeric">
-                    Title
+                    Description
                 </th>
                 <th class="mdl-data-table__cell--non-numeric">
                     Submitted By
@@ -107,7 +107,7 @@
                         {{ t.ticket_priority.priority }}
                     </td>
                     <td class="mdl-data-table__cell--non-numeric">
-                        {{ t.title }}
+                        {{ t.description }}
                     </td>
                     <td class="mdl-data-table__cell--non-numeric">
                         {{ t.user.first_name }} {{ t.user.last_name }}

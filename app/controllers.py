@@ -19,6 +19,7 @@ from app.models import (
 from app.models import Alarm
 from app.models.ITP import Project, ITP, Deliverable, Location, Deliverable_type, ITC, ITC_check_map, Check_generic, Deliverable_ITC_map, Deliverable_check_map
 from app.models.users import User
+from app.ticket.models import FlicketTicket, FlicketStatus
 from app.forms import SiteConfigForm, AddSiteForm
 from flask import json, request, render_template, url_for, redirect, jsonify, flash, make_response
 from flask_user import current_user
@@ -70,6 +71,8 @@ def main():
 @app.route('/site/all/dashboard')
 def dashboard_all():
     sites = current_user.sites
+
+    tickets = FlicketTicket.query.all()
     # sqlalchemy can't do relationship filtering to see if an attribute is in a list of objects (e.g. to see if asset.site is in sites)
     # instead, we do the filtering on the ids (e.g. to see if asset.site.id is in the list of site ids)
     if len(sites) > 0:
@@ -120,7 +123,7 @@ def dashboard_all():
         low_health_assets = []
         nalarms = []
     # only send results[0:5], to display the top 5 priority issues in the list
-    return render_template('dashboard.html', results=results[0:5], num_results=num_results, top_priority=top_priority, avg_health=avg_health, low_health_assets=low_health_assets, alarmcount=nalarms)
+    return render_template('dashboard.html', results=results[0:5], num_results=num_results, top_priority=top_priority, avg_health=avg_health, low_health_assets=low_health_assets, alarmcount=nalarms, tickets=tickets)
 
 # list all sites that are attached to the logged in user
 @app.route('/site/all/sites')
@@ -257,10 +260,19 @@ def homepage(sitename):
 # show site overview dashboard
 @app.route('/site/<sitename>/dashboard')
 def dashboard_site(sitename):
-    site = Site.query.filter_by(name=sitename).one()
+    site = Site.query.filter_by(name=sitename).first()
     # only show the top 5 issues by priority in the list
     results = site.get_unresolved_by_priority()[0:4]
     num_results = len(site.get_unresolved())
+    tickets = FlicketTicket.query.filter(FlicketTicket.current_status.has(FlicketStatus.status == "Open")).all()
+    all_tickets = []
+    for ticket in tickets:
+        print(ticket.facility)
+        print(site.name)
+        if ticket.facility == site.name:
+            all_tickets += ticket
+    print(tickets)
+    print(all_tickets)
 
     if not site.get_unresolved_by_priority():
         # no issues at this site
@@ -306,6 +318,7 @@ def dashboard_site(sitename):
         low_health_assets=low_health_assets,
         site=site,
         alarmcount=nalarms,
+        tickets=tickets
 
     )
 

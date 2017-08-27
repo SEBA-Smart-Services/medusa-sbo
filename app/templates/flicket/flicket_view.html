@@ -39,17 +39,19 @@
                   <th class="mdl-data-table__cell--non-numeric">Priority</th>
                   <td class="mdl-data-table__cell--non-numeric">{{ ticket.ticket_priority.priority }}</td>
               </tr>
-              {% if ticket.facility != None %}
-                <tr>
-                    <th class="mdl-data-table__cell--non-numeric">Facility</th>
-                    <td class="mdl-data-table__cell--non-numeric">{{ ticket.ticket_priority.priority }}</td>
-                </tr>
-              {% endif %}
-                {% if ticket.project != None %}
-                <tr>
-                    <th class="mdl-data-table__cell--non-numeric">Project</th>
-                    <td class="mdl-data-table__cell--non-numeric">{{ ticket.ticket_priority.priority }}</td>
-                </tr>
+              <tr>
+                  <th class="mdl-data-table__cell--non-numeric">Due Date</th>
+                  <td class="mdl-data-table__cell--non-numeric">{{ ticket.due_date }}</td>
+              </tr>
+              <tr>
+                  <th class="mdl-data-table__cell--non-numeric">Facility</th>
+                  <td class="mdl-data-table__cell--non-numeric">{{ ticket.facility.name }}</td>
+              </tr>
+              {% if ticket.project != None %}
+              <tr>
+                  <th class="mdl-data-table__cell--non-numeric">Project</th>
+                  <td class="mdl-data-table__cell--non-numeric">{{ ticket.project.name }}</td>
+              </tr>
               {% endif %}
               {% if ticket.resolution == None %}
                 <tr>

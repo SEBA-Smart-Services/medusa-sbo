@@ -43,7 +43,7 @@
       <div class="mdl-cell mdl-cell--12-col">
         <label class="">Component</label>
         <div>
-          <select value="Component" class="mdl-textfield__input">
+          <select name="Component" class="mdl-textfield__input">
             <option value="BMS">BMS</option>
             <option value="Security">Security</option>
             <option value="Mechanical">Mechanical</option>
@@ -93,9 +93,9 @@
     <div class="mdl-cell mdl-cell--12-col">
       <label class="">Site (Optional)</label>
       <div>
-        <select value="Site" class="mdl-textfield__input">
+        <select name="site" class="mdl-textfield__input">
           {% for site in sites %}
-            <option value="{{site.id}}">{{site.name}}</option>
+            <option value="{{site.name}}">{{site.name}}</option>
           {% endfor %}
         </select>
       </div>

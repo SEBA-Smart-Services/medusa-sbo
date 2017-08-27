@@ -68,13 +68,14 @@ def index():
 
 
 #creating a ticket
-@app.route('/site/all/ticket/create', methods=['GET', 'POST'])
+@app.route('/site/all/ticket/create', methods=["GET", "POST"])
 def ticket_create(sitename=None):
     form = CreateTicketForm()
 
     if sitename != None:
         sites = Site.query.filter_by(name=sitename).first()
-    sites = Site.query.all()
+    else:
+        sites = Site.query.all()
 
     if form.validate_on_submit():
 
@@ -220,18 +221,13 @@ def view_ticket_uploads(filename):
     path = os.path.join(os.getcwd(), app.config['TICKET_UPLOAD_FOLDER'])
     return send_from_directory(path, filename)
 
-@app.route('/site/<sitename>/tickets', methods=['GET'])
-def site_tickets_view(sitename):
-    site = Site.query.filter_by(name=sitename).first()
-    return redirect(url_for('tickets', sitename=site.name))
-
 @app.route('/site/all/tickets', methods=['GET', 'POST'])
+@app.route('/site/<sitename>/tickets', methods=['GET', 'POST'])
 def tickets(sitename=None, page=1):
 
-    print(sitename)
     if sitename != None:
         site = Site.query.filter_by(name=sitename).first()
-        tickets = FlicketTicket.query.filter_by(facility=site).all()
+        tickets = FlicketTicket.query.filter_by(facility=site.name)
     else:
         tickets = FlicketTicket.query
 
@@ -316,6 +312,7 @@ def tickets(sitename=None, page=1):
 @app.route('/site/all/ticket/<ticket_id>/edit', methods=['GET', 'POST'])
 def edit_ticket(ticket_id):
     form = EditTicketForm(ticket_id=ticket_id)
+    sites = Site.query.all()
 
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
 
@@ -346,6 +343,15 @@ def edit_ticket(ticket_id):
         return redirect(url_for('ticket_view', ticket_id=ticket_id))
 
     if form.validate_on_submit():
+
+        print(request.form['site'])
+
+        ticket.ticket_component = request.form['Component']
+        ticket.due_date = request.form['due_date']
+        ticket.site = Site.query.filter_by(name=request.form['site']).first()
+        print(ticket.site)
+
+        db.session.commit()
 
         # before we make any changes store the original post content in the history table if it has changed.
         if ticket.modified_id:
@@ -407,7 +413,8 @@ def edit_ticket(ticket_id):
 
     return render_template('flicket/flicket_edittopic.html',
                            title='Edit Ticket',
-                           form=form)
+                           form=form,
+                           sites=sites)
 
 
 # edit post
