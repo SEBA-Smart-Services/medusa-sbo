@@ -10,3 +10,39 @@ Version control is achieved using Git.
   3. Restart the Medusa service with `sudo service medusa start`.
   4. Test each production server thoroughly.
   
+## Pushing to production
+```
+git checkout master
+git pull origin master
+git merge sprint_X
+```
+
+First, fix any merge conflicts, then:
+
+```
+git tag -a v[version#] -m "version [version#]"
+git push origin master
+```
+
+For each production server:
+1. Disconnect from load balancer.
+2. Poweroff the server.
+3. Take a backup image.
+4. Power on the server.
+5. Stop the medusa servie and any other related services.
+6. Modify any auxiliary config and service files.
+7. Install any additional new software outside of the virtualenv.
+8. Prepare the new version of the application:
+```
+cd /var/www/medusa
+source env/bin/activate
+git pull origin master
+pip install -i requirements.txt
+```
+9. (first server only) Perform any database migrations:
+```
+python manage.py db migrate
+python manage.py db upgrade
+```
+10. Start the server, test and inspect the logs.
+11. Once satisfied, rejoin the load balncer and repeat for subsequent production servers.
