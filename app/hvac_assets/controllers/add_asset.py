@@ -85,7 +85,7 @@ def add_asset(sitename):
                 exclusions = set(Algorithm.query.all()) - set(inclusions)
                 asset.exclusions.extend(exclusions)
         except:
-            app.logger.error('add asset failed to set associated algorithms') 
+            app.logger.error('add asset failed to set associated algorithms')
 
         db.session.commit()
         # close webreports session
@@ -99,9 +99,12 @@ def add_asset(sitename):
 @app.route('/site/<sitename>/add/_function')
 def return_functions(sitename):
     # select only the descriptors for that particular type
-    asset_type = AssetType.query.filter_by(name=request.args['type']).one()
-    functions = [category.functions for category in asset_type.function_categories]
-    function_names = [function.name for function in functions]
+    try:
+        asset_type = AssetType.query.filter_by(name=request.args['type']).one()
+        functions = [category.functions for category in asset_type.function_categories]
+        function_names = [function.name for function in functions]
+    except:
+        function_names = None
     return jsonify(function_names)
 
 # return list of loggedentities through AJAX

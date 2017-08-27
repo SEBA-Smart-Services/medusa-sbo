@@ -52,14 +52,14 @@ from app import controllers
 # each component of the application should be packaged into a standalone package
 # consider refactoring as Flask Blueprints
 from app.sitedataagent import controllers, models
-from app.ict import controllers, models, forms
-from app.hvac_assets import controllers
+from app.ict import controllers
 from app.ticket import controllers, models
 from app.alarms import controllers
+from app.hvac_assets import controllers
 
 # import the remaining. in particular, all views and models must be imported, as well as anything with a decorator
 # packages
-from app import models, add, admin, cmms, weather, algorithms, reports, scheduling
+from app import models, admin, cmms, weather, algorithms, reports, scheduling
 
 from app.scheduled.tasks import register_points
 

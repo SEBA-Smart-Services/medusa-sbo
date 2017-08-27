@@ -74,8 +74,8 @@ def add_itasset(sitename):
         it_asset.site_id=site.id
         db.session.add(it_asset)
         db.session.commit()
-    #success go to it asset details
-    return redirect(url_for('itasset_details', sitename=site.name, minion_id=it_asset.id))
+        #success. load an edit asset form and go to edit it asset
+        return redirect(url_for('edit_itasset', sitename=site.name, minion_id=it_asset.id))
 
 @app.route('/site/<sitename>/delete_itasset/<minion_id>')
 def delete_itasset(sitename, minion_id):
@@ -109,6 +109,13 @@ def update_one_minion_data(sitename, minion_id):
         operatingsystem = data["osfullname"]
         itasset.ip_address=ipaddress
         itasset.operating_system=operatingsystem
+        installed_services = api.get_minion_isntalled_services(itasset.minion_name)
+        platforms=""
+        platform_list = ["Building Operation 1.9 Enterprise Server", "Building Operation 1.8 Enterprise Server", "Building Operation 1.7 Enterprise Server", "Building Operation 1.6 Enterprise Server", "INet7IoSrv"]
+        for item in platform_list:
+            if item in installed_services:
+                platforms=item+", "+platforms
+        itasset.platform=platforms
     api.logout()
     db.session.commit()
     return redirect(url_for('itasset_details', sitename=sitename, minion_id=itasset.id))
@@ -133,17 +140,13 @@ def edit_itasset(sitename, minion_id):
             return render_template('edit_it_asset.html', site=site, ITasset=itasset, form=form, error=error)
 
         minion_name=form.minion_name.data
-
-
         # set itasset attributes based on form
         form.populate_obj(itasset)
         #concatenate the data into a minion name
-
         db.session.commit()
+        #confirm that the minion's key is accepted in the salt-master
+        return redirect(url_for('acceptkey_itasset', sitename=site.name, minion_id=itasset.id))
 
-        #redirect to scan the minion with updated details
-        #end of the scan will redirect back to the minion details page
-        return redirect(url_for('update_one_minion_data', sitename=sitename, minion_id=itasset.id))
 
 @app.route('/site/<sitename>/itasset_acceptkey/<minion_id>', methods=['GET', 'POST'])
 def acceptkey_itasset(sitename, minion_id):
@@ -159,7 +162,7 @@ def acceptkey_itasset(sitename, minion_id):
         error = "IT asset is alread connected to the cloud"
         itasset.minion_key_accepted=True
         db.session.commit()
-        return redirect(url_for('itasset_details', sitename=sitename, minion_id=itasset.id))
+        return redirect(url_for('edit_itasset', sitename=site.name, minion_id=itasset.id))
     elif itasset.minion_name in unaccepted_minions:
         #if the minion key is unaccepted in the salt master, it needs to be accepted:
         ret = api.accept_salt_minion_key(itasset.minion_name)
@@ -168,16 +171,19 @@ def acceptkey_itasset(sitename, minion_id):
             error = "IT asset failed connect to the cloud"
             itasset.minion_key_accepted=False
             db.session.commit()
-            return redirect(url_for('itasset_details', sitename=sitename, minion_id=itasset.id))
+            return redirect(url_for('edit_itasset', sitename=site.name, minion_id=itasset.id))
+
         elif ret == True:
             # if minion key successfully accepts
             error = "IT asset successfully connected to the cloud"
             itasset.minion_key_accepted=True
             db.session.commit()
-            return redirect(url_for('itasset_details', sitename=sitename, minion_id=itasset.id))
+            return redirect(url_for('edit_itasset', sitename=site.name, minion_id=itasset.id))
+
     else:
     #else, if the minion key isnt in the salt master:
         error = "IT asset failed connect to the cloud"
         itasset.minion_key_accepted=False
         db.session.commit()
-        return redirect(url_for('itasset_details', sitename=sitename, minion_id=itasset.id))
+
+        return redirect(url_for('edit_itasset', sitename=site.name, minion_id=itasset.id))

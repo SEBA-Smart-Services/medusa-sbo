@@ -30,6 +30,21 @@
         </div></td>
       </tr>
       <tr>
+
+        <td><h4>Type:</h4></td>
+        <td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height shiftdown">
+          {{ form.type(class="mdl-textfield__input", autocomplete="off", readonly=True, tabIndex="-1") }}
+          <label for="type">
+            <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
+          </label>
+          <ul for="type" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+            {% for asset_type in asset_types %}
+              <li class="mdl-menu__item" data-val="{{asset_type.name}}">{{asset_type.name}}</li>
+            {% endfor %}
+          </ul>
+        </div></td>
+</tr>
+<tr>
         <td><h4>Group:</h4></td>
         <td><div class="mdl-textfield mdl-js-textfield shiftdown">
             {{ form.group(class="mdl-textfield__input", autocomplete="off") }}
@@ -52,7 +67,7 @@
       </tr>
     </table>
 
-    <h4>Functional Descriptors:</h4>
+    <h4>Functional Description:</h4>
     <table class="checkbox-list" id="functional_descriptor_section">
       {% for function in asset.functions %}
         <tr>

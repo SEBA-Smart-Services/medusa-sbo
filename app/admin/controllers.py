@@ -40,9 +40,6 @@ class PointTypeView(ProtectedView):
 # lock the algorithm models from being edited - these are automatically generated from the code
 class AlgorithmView(ProtectedView):
     form_excluded_columns = ['results']
-    can_create = False
-    can_edit = False
-    can_delete = False
     can_view_details = True
     column_details_list = ['name', 'descr', 'point_types', 'functions']
 

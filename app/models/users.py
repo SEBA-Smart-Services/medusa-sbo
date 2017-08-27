@@ -38,10 +38,8 @@ class User(db.Model, UserMixin):
 
                         primaryjoin="User.id == FlicketTicket.started_id")
     ticket_assigned_id = db.relationship('FlicketTicket',
-
-                        primaryjoin="User.id == FlicketTicket.assigned_id")
+                         primaryjoin="User.id == FlicketTicket.assigned_id")
     ticket_resolve_id = db.relationship('FlicketTicket',
-
                         primaryjoin="User.id == FlicketTicket.resolved_by_id")
     ticket_modified_id = db.relationship('FlicketTicket',
                         primaryjoin="User.id == FlicketTicket.modified_id")
@@ -49,18 +47,6 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return self.email
 
-    # def is_active(self):
-    #     return True
-    #
-    # def get_id(self):
-    #     print(self.id)
-    #     return self.email
-    #
-    # def is_authenticated(self):
-    #     return self.authenticated
-    #
-    # def is_anonymous(self):
-    #     return False
 
 # Define the Role data model
 class Role(db.Model, RoleMixin):

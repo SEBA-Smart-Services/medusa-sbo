@@ -1,5 +1,5 @@
-from app import app, db, registry
-from app.models import Site, Asset, LoggedEntity, PointType, AssetPoint, FunctionalDescriptor, Algorithm
+from app import app, db
+from app.models import Site, Asset, AssetType, LoggedEntity, PointType, AssetPoint, FunctionalDescriptor, Algorithm
 from app.forms import EditAssetForm
 from flask import request, render_template, url_for, redirect
 
@@ -9,6 +9,7 @@ def edit_asset(sitename, asset_id):
 
     site = Site.query.filter_by(name=sitename).one()
     asset = Asset.query.filter_by(id=asset_id).one()
+    asset_types = AssetType.query.all()
 
     if request.method == 'GET':
         # prepopulate form from asset attributes
@@ -25,7 +26,7 @@ def edit_asset(sitename, asset_id):
         #     logs = []
         logs = []
 
-        return render_template('edit_asset.html', site=site, asset=asset, logs=logs, form=form)
+        return render_template('edit_asset.html', site=site, asset_types=asset_types, asset=asset, logs=logs, form=form)
 
     elif request.method == 'POST':
         form = EditAssetForm()
@@ -49,7 +50,7 @@ def edit_asset(sitename, asset_id):
         form.populate_obj(asset)
 
         # get database session for this site
-        session = registry.get(asset.site.db_key)
+        session = db.session
 
         # record previous points. points that still exist will be removed from this list as we go along
         old_points = list(asset.points)
