@@ -36,6 +36,7 @@ class AddAssetForm(FlaskForm):
 # form for editing an existing asset
 # same as above, except the type cannot be changed
 class EditAssetForm(FlaskForm):
+    type = StringField('Type', validators=[DataRequired()])
     name = StringField('Name', validators=[DataRequired()])
     location = StringField('Location', validators=[])
     group = StringField('Group', validators=[])

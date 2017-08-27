@@ -8,15 +8,16 @@ class UnitRunZoneUnoccupied(Algorithm):
     description = "unit running while zones unoccupied"
 
     points_required = [
-        'Room Occupancy',
-        'Fan Enable'
+        'supply air fan run cmd',
+        'supply air fan run status',
+        'occupancy',
     ]
     format = "{:.1%}"
 
     def run(data):
         # grab last 24 hours of data
-        occupancy = data.latest_time('Room Occupancy', datetime.timedelta(hours=24))
-        enable = data.latest_time('Fan Enable', datetime.timedelta(hours=24))
+        occupancy = data.latest_time('occupancy', datetime.timedelta(hours=24))
+        enable = data.latest_time('supply air fan run cmd', datetime.timedelta(hours=24))
 
         # resample to 1s intervals
         occupancy_seconds = occupancy.resample('1S').ffill()

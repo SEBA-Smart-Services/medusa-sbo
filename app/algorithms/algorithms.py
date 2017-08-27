@@ -1,5 +1,5 @@
 from app.models import LogTimeValue, Result, Asset, AssetPoint
-from app import db, app, registry, event
+from app import db, app, event
 import datetime
 import time
 import pandas
@@ -57,8 +57,7 @@ class DataGrab():
 # apply all the algorithms against a single asset
 def check_asset(asset):
 
-    # get webreports database session for this asset
-    session = registry.get(asset.site.db_key)
+    session = db.session
 
     # skip all checks if it can't connect
     if not session is None:
