@@ -1,5 +1,21 @@
 from app import app, db, registry, user_datastore, security
-from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, PointType, Result, LoggedEntity, LogTimeValue, IssueHistory, IssueHistoryTimestamp, InbuildingsConfig, Email
+from app.models import (
+    Alarm,
+    Asset,
+    AssetPoint,
+    AssetType,
+    Algorithm,
+    Email,
+    FunctionalDescriptor,
+    IssueHistory,
+    IssueHistoryTimestamp,
+    InbuildingsConfig,
+    LoggedEntity,
+    LogTimeValue,
+    PointType,
+    Result,
+    Site
+)
 from app.models import Alarm
 from app.models.ITP import Project, ITP, Deliverable, Location, Deliverable_type, ITC, ITC_check_map, Check_generic, Deliverable_ITC_map, Deliverable_check_map
 from app.models.users import User
@@ -477,36 +493,6 @@ def get_alarms_per_week(session, nweeks=4):
     series.reverse()
     # number of alarms
     return series
-
-# return table of alarms
-@app.route('/site/<sitename>/alarms')
-def return_alarms(sitename):
-
-    site = Site.query.filter_by(name=sitename).one()
-
-    message = "squirrel"
-    alarm_names = []
-    nalarms = "FAIL"
-    # get database session for this site
-    try:
-        alarms = db.session.query(Alarm).limit(20).all()
-        alarm_names = [alarm.AlarmText for alarm in alarms]
-        nalarms = get_alarms_per_week(db.session, nweeks=8)
-
-    except Exception as e:
-        message = "Site not connected." + str(site.name) + '\n' + str(e)
-
-
-    return render_template(
-        'alarms.html',
-        site=site,
-        message=message,
-        alarms=alarm_names,
-        nalarms=nalarms,
-	    rows=nalarms,
-
-    )
-
 
 ####################### View all projects for user #############################
 

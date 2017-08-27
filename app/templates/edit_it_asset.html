@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% block content %}
+<h3 class="page-title">Edit IT Asset
+  {% if current_user.is_authenticated %}
+
+  {% endif %}
+</h3>
+
+  <h5>{{error}}</h5>
+  <form action="{{ url_for('edit_itasset', sitename=site.name, minion_id=ITasset.id) }}" method=post>
+    {{form.csrf_token}}
+    {{ macros.show_errors(form) }}
+    <table>
+      <tr>
+        <td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          {{ form.minion_name(class="mdl-textfield__input", type="text", pattern="[A-Z,a-z,0-9,\-]*", autocomplete="off") }}
+    			<label class="mdl-textfield__label" for="site">IT asset name</label>
+    			<span class="mdl-textfield__error">Only alphabet, numbers, '-' and no spaces, please!</span>
+        </div></td>
+      </tr>
+      <tr>
+        <td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          {{ form.platform(class="mdl-textfield__input", type="text", autocomplete="off") }}
+          <label class="mdl-textfield__label" for="site">Platform (optional)</label>
+        </div></td>
+      </tr>
+      <tr>
+        <td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          {{ form.ip_address(class="mdl-textfield__input", type="text", pattern="[0-9\.]*", autocomplete="off") }}
+          <label class="mdl-textfield__label" for="site">IP address (optional)</label>
+          <span class="mdl-textfield__error">Only numbers and .</span>
+        </div></td>
+      </tr>
+    </table>
+    <tr>
+      <td><div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        {{ form.operating_system(class="mdl-textfield__input", type="text", autocomplete="off") }}
+        <label class="mdl-textfield__label" for="site">Operating System (optional)</label>
+      </div></td>
+    </tr>
+    <br></br>
+    <input id=submit type=submit value="Update Asset" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" >
+
+  </form>
+
+<br></br>
+  <form action="{{url_for('itasset_details', sitename=site.name, minion_id=ITasset.id)}}">
+    <input type="submit" value="Cancel" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+    </input>
+  </form>
+
+{% endblock %}
