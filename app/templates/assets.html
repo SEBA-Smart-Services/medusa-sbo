@@ -26,7 +26,7 @@
         {% for ITasset in ict_assets %}
 
             <tr>
-              <td class="mdl-data-table__cell--non-numeric name">{{ITasset.minion_name}}</td>
+              <td class="mdl-data-table__cell--non-numeric name"><a href="itasset_details/{{ITasset.id}}">{{ITasset.minion_name}}</a></td>
               <td id="test" class="mdl-data-table__cell--non-numeric operatingsystem">{{ITasset.operating_system}}</td>
               <td class="mdl-data-table__cell--non-numeric platform">{{ITasset.platform}}</td>
               <td class="mdl-data-table__cell--non-numeric ipaddress">{{ITasset.ip_address}}</td>
@@ -40,7 +40,8 @@
               </td>
               {% endif %}
               <td class="mdl-data-table__cell--non-numeric">
-                <a href={{url_for('delete_itasset', minion_id=ITasset.id, sitename=site.name)}} class="confirmation">Delete</a>  
+                <a href={{url_for('edit_itasset', minion_id=ITasset.id, sitename=site.name)}}>Edit</a> /
+                <a href={{url_for('delete_itasset', minion_id=ITasset.id, sitename=site.name)}} class="confirmation">Delete</a>
               </td>
             </tr>
 

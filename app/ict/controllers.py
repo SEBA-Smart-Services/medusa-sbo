@@ -4,7 +4,7 @@ from app.models import Site
 from app.ict.models import ITasset
 from app.ict.salt_client import SaltAPI
 import datetime
-from app.ict.forms import AddITAssetForm
+from app.ict.forms import AddITAssetForm, EditITAssetForm
 from flask_wtf import Form
 from wtforms import TextField, PasswordField, validators
 
@@ -74,8 +74,8 @@ def add_itasset(sitename):
         it_asset.site_id=site.id
         db.session.add(it_asset)
         db.session.commit()
-
-    return redirect(url_for('asset_list', sitename=site.name))
+    #success go to it asset details
+    return redirect(url_for('itasset_details', sitename=site.name, minion_id=it_asset.id))
 
 @app.route('/site/<sitename>/delete_itasset/<minion_id>')
 def delete_itasset(sitename, minion_id):
@@ -83,3 +83,101 @@ def delete_itasset(sitename, minion_id):
     db.session.delete(itasset)
     db.session.commit()
     return redirect(url_for('asset_list', sitename=sitename))
+
+@app.route('/site/<sitename>/itasset_details/<minion_id>')
+def itasset_details(sitename, minion_id):
+    error=""
+    site = Site.query.filter_by(name=sitename).one()
+    itasset = ITasset.query.filter_by(id=minion_id).one()
+    return render_template('it_asset_details.html', ITasset=itasset, site=site)
+
+@app.route('/site/<sitename>/rescan_itasset/<minion_id>',  methods=['GET', 'POST'])
+def update_one_minion_data(sitename, minion_id):
+    itasset=ITasset.query.filter_by(id=minion_id).one()
+    api = SaltAPI()
+    api.login()
+    error=""
+    #first check if minion is online.
+    onlinestatus = api.is_minion_reachable(itasset.minion_name)
+    itasset.online = onlinestatus
+    now = datetime.datetime.now()
+    itasset.last_checked = now.strftime('%Y-%m-%d %H:%M:%S')
+    #only get grains if minion is online
+    if onlinestatus == True:
+        data = api.get_minion_grains(itasset.minion_name)
+        ipaddress = data["ipv4"][0] #  the grain returns the ip address in a list. maybe it can send multiple addresses?
+        operatingsystem = data["osfullname"]
+        itasset.ip_address=ipaddress
+        itasset.operating_system=operatingsystem
+    api.logout()
+    db.session.commit()
+    return redirect(url_for('itasset_details', sitename=sitename, minion_id=itasset.id))
+
+
+# page to edit an it asset on the site
+@app.route('/site/<sitename>/itasset_edit/<minion_id>', methods=['GET', 'POST'])
+def edit_itasset(sitename, minion_id):
+    site = Site.query.filter_by(name=sitename).one()
+    itasset = ITasset.query.filter_by(id=minion_id).one()
+    error=""
+    if request.method == 'GET':
+        # prepopulate form from asset attributes
+        form = EditITAssetForm(obj=itasset)
+        return render_template('edit_it_asset.html', site=site, ITasset=itasset, form=form, error=error)
+
+    elif request.method == 'POST':
+        form = EditITAssetForm()
+
+        # if form has errors, return the page (errors will display)
+        if not form.validate_on_submit():
+            return render_template('edit_it_asset.html', site=site, ITasset=itasset, form=form, error=error)
+
+        minion_name=form.minion_name.data
+
+
+        # set itasset attributes based on form
+        form.populate_obj(itasset)
+        #concatenate the data into a minion name
+
+        db.session.commit()
+
+        #redirect to scan the minion with updated details
+        #end of the scan will redirect back to the minion details page
+        return redirect(url_for('update_one_minion_data', sitename=sitename, minion_id=itasset.id))
+
+@app.route('/site/<sitename>/itasset_acceptkey/<minion_id>', methods=['GET', 'POST'])
+def acceptkey_itasset(sitename, minion_id):
+    site = Site.query.filter_by(name=sitename).one()
+    itasset = ITasset.query.filter_by(id=minion_id).one()
+    error=""
+    api=SaltAPI()
+    api.login()
+    accepted_minions, unaccepted_minions = api.get_salt_minion_keys()
+
+    if itasset.minion_name in accepted_minions:
+        #if the minion key has already been accepted in the salt master:
+        error = "IT asset is alread connected to the cloud"
+        itasset.minion_key_accepted=True
+        db.session.commit()
+        return redirect(url_for('itasset_details', sitename=sitename, minion_id=itasset.id))
+    elif itasset.minion_name in unaccepted_minions:
+        #if the minion key is unaccepted in the salt master, it needs to be accepted:
+        ret = api.accept_salt_minion_key(itasset.minion_name)
+        if ret == False:
+            #if minion key fails to accept
+            error = "IT asset failed connect to the cloud"
+            itasset.minion_key_accepted=False
+            db.session.commit()
+            return redirect(url_for('itasset_details', sitename=sitename, minion_id=itasset.id))
+        elif ret == True:
+            # if minion key successfully accepts
+            error = "IT asset successfully connected to the cloud"
+            itasset.minion_key_accepted=True
+            db.session.commit()
+            return redirect(url_for('itasset_details', sitename=sitename, minion_id=itasset.id))
+    else:
+    #else, if the minion key isnt in the salt master:
+        error = "IT asset failed connect to the cloud"
+        itasset.minion_key_accepted=False
+        db.session.commit()
+        return redirect(url_for('itasset_details', sitename=sitename, minion_id=itasset.id))
