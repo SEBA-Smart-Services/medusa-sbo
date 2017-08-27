@@ -8,7 +8,7 @@ from app import app, db
 from app.models import Site
 from app.sitedataagent.forms import SiteAgentConfigForm
 from app.sitedataagent.models import SiteDataUploader
-from app.sitedataagent.aws_utils import AwsIamManager
+from app.utils.aws import AwsIamManager
 
 # site config page
 @app.route('/site/<sitename>/config/sitedataagent', methods=['GET','POST'])
