@@ -9,7 +9,7 @@ from flask import url_for
 from flask_pagedown.fields import PageDownField
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SelectField, HiddenField, SubmitField, FileField
-from wtforms.fields import SelectMultipleField
+from wtforms.fields import SelectMultipleField, RadioField
 from wtforms.validators import DataRequired, Length
 from wtforms.widgets import ListWidget, CheckboxInput
 
@@ -152,6 +152,9 @@ class SearchUserForm(FlaskForm):
                                                                   max=user_field_size['username_max'])])
     submit = SubmitField('search user', render_kw=form_class_button)
 
+
+class AssignUserForm(FlaskForm):
+    users = RadioField('user')
 
 class SearchEmailForm(FlaskForm):
     """ Search email form. """

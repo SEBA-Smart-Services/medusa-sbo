@@ -620,8 +620,10 @@ def delete_department(department_id=False):
 #assigning a ticket
 @app.route('/ticket/<ticket_id>/assign', methods=['GET', 'POST'])
 def ticket_assign(ticket_id=False):
-    form = SearchEmailForm()
+    # form = SearchEmailForm()
+
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
+    users = User.query.order_by(User.last_name).all()
 
     if ticket.current_status == None:
         ticket_status = FlicketStatus.query.filter_by(status='Open').first()
@@ -632,8 +634,10 @@ def ticket_assign(ticket_id=False):
         flash("Can't assign a closed ticket.")
         return redirect(url_for('ticket_view', ticket_id=ticket_id))
 
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+    if request.method == 'POST':
+    # if form.validate_on_submit():
+        user_id = request.form['user']
+        user = User.query.filter_by(id=user_id).first()
 
         if ticket.assigned == user:
             flash('User is already assigned to ticket')
@@ -647,6 +651,9 @@ def ticket_assign(ticket_id=False):
 
         # add action record
         add_action(action='assign', ticket=ticket, recipient=user)
+        app.logger.info('user id: ' + str(user_id))
+        if user is not None:
+            app.logger.info(user.first_name)
 
         # subscribe to the ticket
         if not ticket.is_subscribed(user):
@@ -659,13 +666,13 @@ def ticket_assign(ticket_id=False):
         db.session.commit()
 
         # send email to state ticket has been assigned.
-        f_mail = FlicketMail()
-        f_mail.assign_ticket(ticket)
+        # f_mail = FlicketMail()
+        # f_mail.assign_ticket(ticket)
 
         flash('You reassigned ticket:{}'.format(ticket.id))
         return redirect(url_for('ticket_view', ticket_id=ticket.id))
 
-    return render_template("flicket/flicket_assign.html", title="Assign Ticket", form=form, ticket=ticket)
+    return render_template("flicket/flicket_assign.html", title="Assign Ticket", ticket=ticket, users=users)
 
 # view for self claim a ticket
 @app.route('/ticket/<ticket_id>/claim', methods=['GET', 'POST'])

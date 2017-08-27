@@ -14,31 +14,26 @@
               enctype="multipart/form-data"
               method="post"
               name="create_ticket">
-            {{ form.hidden_tag() }}
+
+            <ul class="demo-list-item mdl-list">
+              {% for user in users %}
+              <li class="mdl-list__item">
+                <span class="mdl-list__item-primary-content">
+                  <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="{{ user.id }}">
+                    <input type="radio" id="{{ user.id }}" class="mdl-radio__button" name="user" value="{{ user.id }}">
+                    <span class="mdl-radio__label">{{ user.first_name }} {{ user.last_name }}</span>
+                  </label>
+                </span>
+              </li>
+              <div class="">
+              </div>
+              {% endfor %}
+
+              <input type="submit">
 
 
-            <div class="form-group">
-                <label class="col-sm-2 control-label" for="autocomplete-email">{{ form.email.label }}</label>
-                <div class="col-sm-3">
-                    {{ form.email(class="form-control", id="autocomplete-email") }}
-                </div>
-            </div>
-            {% if form.email.errors %}
-                <div class="alert alert-warning small">
-                    {% for error in form.email.errors %}
-                        {{ error }}
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            <div class="form-group">
-                <div class="col-sm-6 text-center">
-                    {{ form.submit }}
-                </div>
-            </div>
 
         </form>
-
 
 
     </div>
