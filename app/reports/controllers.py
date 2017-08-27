@@ -1,6 +1,7 @@
 from app import app, event
 from app.models import Site, Asset, Result
 from app.models.ITP import Project, ITP, Deliverable, Deliverable_ITC_map, Deliverable_check_map
+from app.ticket.models import FlicketTicket
 from flask import render_template, url_for, redirect
 from flask_weasyprint import HTML, CSS, render_pdf
 
@@ -48,6 +49,14 @@ def checks_report_page(siteid, projectid, ITPid, deliverableid, ITCid):
     checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=ITP_ITC.id).all()
 
     html = render_template('check_report.html', site=site, project=project, project_ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC, checks=checks)
+    return render_pdf(HTML(string=html))
+
+# provide a url to download a report for tickets
+@app.route('/site/all/ticekts')
+def tickets_report():
+    tickets = FlicketTicket.query.all()
+
+    html = render_template('tickets_report.html', tickets=tickets)
     return render_pdf(HTML(string=html))
 
 # provide a url to force a site report to be sent out via emails
