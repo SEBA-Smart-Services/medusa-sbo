@@ -28,71 +28,72 @@ def ticket_create(sitename=None):
 
     form = CreateTicketForm()
 
-    if request.method == 'POST':
+    if form.validate_on_submit():
 
-        if form.validate_on_submit():
+        # this is a new post so ticket status is 'open'
+        ticket_status = FlicketStatus.query.filter_by(status='Open').first()
+        ticket_priority = FlicketPriority.query.filter_by(id=int(form.priority.data)).first()
+        ticket_category = FlicketCategory.query.filter_by(id=int(form.category.data)).first()
 
-            # this is a new post so ticket status is 'open'
-            ticket_status = FlicketStatus.query.filter_by(status='Open').first()
-            ticket_priority = FlicketPriority.query.filter_by(id=int(form.priority.data)).first()
-            ticket_category = FlicketCategory.query.filter_by(id=int(form.category.data)).first()
+        ticket_component = request.form['Component']
+        due_date = request.form['due_date']
+        sitename = request.form['sitename']
 
-            ticket_component = request.form['Component']
-            due_date = request.form['due_date']
-            sitename = request.form['sitename']
-
-            site = Site.query.filter_by(name=sitename).one()
-            app.logger.info('new ticket for ' + sitename)
-            app.logger.info('new ticket for ' + site.name)
-            app.logger.info('new ticket for ' + str(site.id))
+        site = Site.query.filter_by(name=sitename).one()
+        app.logger.info('new ticket for ' + sitename)
+        app.logger.info('new ticket for ' + site.name)
+        app.logger.info('new ticket for ' + str(site.id))
 
 
-            files = request.files.getlist("file")
-            upload_attachments = UploadAttachment(files)
-            if upload_attachments.are_attachements():
-                upload_attachments.upload_files()
+        files = request.files.getlist("file")
+        upload_attachments = UploadAttachment(files)
+        if upload_attachments.are_attachements():
+            upload_attachments.upload_files()
 
-            app.logger.info(str(site.name) + ' ' + str(site.id))
-            # submit ticket data to database
-            new_ticket = FlicketTicket(
-                ticket_name=form.title.data,
-                date_added=datetime.datetime.now(),
-                user=current_user,
-                current_status=ticket_status,
-                description=form.content.data,
-                ticket_priority=ticket_priority,
-                category=ticket_category,
-                component=ticket_component,
-                site_id=site.id
-            )
-            db.session.add(new_ticket)
-
-            # add attachments to the dataabase.
-            upload_attachments.populate_db(new_ticket)
-            # subscribe user to ticket
-            subscribe = FlicketSubscription(user=current_user, ticket=new_ticket)
-            db.session.add(subscribe)
-
-            # commit changes to the database
-            db.session.commit()
-
-            flash('New Ticket created.', category='success')
-
-            return redirect(url_for('ticket_view', ticket_id=new_ticket.id))
-
-    else:
-
-        if sitename != None:
-            sites = Site.query.filter_by(name=sitename).first()
-        else:
-            sites = Site.query.all()
-
-        return render_template(
-            'flicket/flicket_create.html',
-            title='Create Ticket',
-            form=form,
-            sites=sites
+        app.logger.info(str(site.name) + ' ' + str(site.id))
+        # submit ticket data to database
+        new_ticket = FlicketTicket(
+            ticket_name=form.title.data,
+            date_added=datetime.datetime.now(),
+            user=current_user,
+            current_status=ticket_status,
+            description=form.content.data,
+            ticket_priority=ticket_priority,
+            category=ticket_category,
+            component=ticket_component,
+            site_id=site.id
         )
+        db.session.add(new_ticket)
+
+        # add attachments to the dataabase.
+        upload_attachments.populate_db(new_ticket)
+        # subscribe user to ticket
+        subscribe = FlicketSubscription(user=current_user, ticket=new_ticket)
+        db.session.add(subscribe)
+
+        # commit changes to the database
+        db.session.commit()
+
+        flash('New Ticket created.', category='success')
+
+        return redirect(url_for('ticket_view', ticket_id=new_ticket.id))
+
+
+    if sitename != None:
+        site = Site.query.filter_by(name=sitename).first()
+        sites = None
+    else:
+        sites = Site.query.all()
+        site = None
+
+
+    return render_template(
+        'flicket/flicket_create.html',
+        title='Create Ticket',
+        form=form,
+        sites=sites,
+        site=site
+    )
 
 #creating a ticket
 @app.route('/site/<sitename>/ticket/create', methods=['GET'])

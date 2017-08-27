@@ -264,15 +264,10 @@ def dashboard_site(sitename):
     # only show the top 5 issues by priority in the list
     results = site.get_unresolved_by_priority()[0:4]
     num_results = len(site.get_unresolved())
-    tickets = FlicketTicket.query.filter(FlicketTicket.current_status.has(FlicketStatus.status == "Open")).all()
-    all_tickets = []
-    for ticket in tickets:
-        print(ticket.facility)
-        print(site.name)
-        if ticket.facility == site.name:
-            all_tickets += ticket
-    print(tickets)
-    print(all_tickets)
+    tickets = FlicketTicket.query.filter_by(
+        # FlicketTicket.current_status.has(FlicketStatus.status == "Open"),
+        site_id=site.id
+    ).all()
 
     if not site.get_unresolved_by_priority():
         # no issues at this site
@@ -319,7 +314,6 @@ def dashboard_site(sitename):
         site=site,
         alarmcount=nalarms,
         tickets=tickets
-
     )
 
 # list assets on the site
