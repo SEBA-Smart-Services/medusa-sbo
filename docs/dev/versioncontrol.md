@@ -44,5 +44,11 @@ pip install -i requirements.txt
 python manage.py db migrate
 python manage.py db upgrade
 ```
-10. Start the server, test and inspect the logs.
+10. Make sure the app loads the production settings, currently in `/var/www/medusa/app/__init__.py`:
+```
+# set config
+app.config.from_envvar('MEDUSA_PRODUCTION_SETTINGS')
+```
+
+10. Start the medusa service and any other related services, test and inspect the logs.
 11. Once satisfied, rejoin the load balncer and repeat for subsequent production servers.
