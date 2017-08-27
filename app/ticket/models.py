@@ -99,7 +99,10 @@ class FlicketTicket(db.Model):
     status_id = db.Column(db.Integer, db.ForeignKey(FlicketStatus.id))
     current_status = db.relationship(FlicketStatus)
 
-    facility = db.Column(db.String(field_size['title_max_length']))
+    # site_id = db.Column(db.Integer, db.ForeignKey('site.id'))
+    site_id = db.Column('site_id', db.Integer, db.ForeignKey('site.ID'), nullable=False)
+
+    # facility = db.Column(db.String(field_size['title_max_length']))
     project = db.Column(db.String(field_size['title_max_length']))
 
     date_modified = db.Column(db.DateTime())

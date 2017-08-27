@@ -142,7 +142,7 @@ class Algorithm(db.Model):
         try:
             self.algorithm = getattr(sys.modules['app.algorithms.algorithms'], self.name)
         except:
-            app.logger.error('Failed to run orm recontructor for algorithms on load') 
+            app.logger.error('Failed to run orm recontructor for algorithms on load')
 
     # call the code from the actual algorithm
     def run(self, *args, **kwargs):
@@ -216,6 +216,7 @@ points_checked = db.Table('points_checked',
 
 # list of customer sites
 class Site(db.Model):
+
     id = db.Column('ID', db.Integer, primary_key=True)
     name = db.Column('Name', db.String(512), nullable=False)
     db_key = db.Column('DB_key', db.String(512), default="")
@@ -237,6 +238,8 @@ class Site(db.Model):
     project = db.relationship('Project', backref='site', cascade='save-update, merge, delete, delete-orphan')
     site_data_uploader = db.relationship("SiteDataUploader", uselist=False, back_populates="site")
     it_assets = db.relationship('ITasset', backref='site')
+
+    tickets = db.relationship('FlicketTicket', backref='site', lazy='dynamic')
 
     def __repr__(self):
         return self.name
