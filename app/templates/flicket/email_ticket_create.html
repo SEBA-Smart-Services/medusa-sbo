@@ -1,5 +1,5 @@
 <!-- extend from base layout -->
-{% extends "email_base.html" %}
+{% extends "flicket/email_base.html" %}
 
 {% block content %}
     <h1>
@@ -8,10 +8,10 @@
     <p>
         You have successfully created a new ticket: <a href="{{ ticket_url }}">{{ number }}</a>
     </p>
-    {% include('email_include_details.html') %}
+    {% include('flicket/email_include_details.html') %}
     <h2>Content</h2>
     <p>
-        {{ ticket.content }}
+        {{ ticket.description }}
     </p>
 
 {% endblock %}

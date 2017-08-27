@@ -7,13 +7,15 @@ from app.models.users import User
 from flask_user import current_user
 from app.ticket.models import FlicketTicket, FlicketStatus, FlicketPost, FlicketSubscription, FlicketPriority, FlicketCategory, FlicketDepartment, FlicketHistory
 
-from app.ticket.forms.flicket_forms import SearchEmailForm, CreateTicketForm, ReplyForm, CategoryForm, DepartmentForm, EditTicketForm
+from app.ticket.forms.flicket_forms import SearchEmailForm, CreateTicketForm, ReplyForm, CategoryForm, DepartmentForm, EditTicketForm, EditReplyForm
 from app.ticket.forms.search import SearchTicketForm
 
 from app.ticket.scripts.flicket_functions import add_action, block_quoter
 from app.ticket.scripts.email import FlicketMail
 from app.ticket.scripts.flicket_upload import UploadAttachment
+from app.ticket.scripts.jinja2_functions import display_post_box
 
+app.jinja_env.globals.update(display_post_box=display_post_box)
 
 # view users
 @app.route('/ticket/main', methods=['GET', 'POST'])
@@ -108,7 +110,7 @@ def ticket_create():
                            title='Create Ticket',
                            form=form)
 
-@app.route('/ticket/<ticket_id>/view')
+@app.route('/ticket/<ticket_id>/view', methods=['GET', 'POST'])
 def ticket_view(ticket_id, page=1):
     # is ticket number legitimate
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
@@ -165,13 +167,14 @@ def ticket_view(ticket_id, page=1):
         mail = FlicketMail()
         mail.reply_ticket(ticket=ticket, reply=new_reply)
 
-        flash('You have replied to ticket {}: {}.'.format(ticket.id_zfill, ticket.title), category="success")
+        flash('You have replied to ticket {}: {}.'.format(ticket.id_zfill, ticket.ticket_name), category="success")
 
         # if the reply has been submitted for closure.
         if form.submit_close.data:
 
             return redirect(url_for('change_status', ticket_id=ticket.id, status='Closed'))
 
+        print(ticket.subscribers)
         return redirect(url_for('ticket_view', ticket_id=ticket_id))
 
     # get post id and populate contents for auto quoting
@@ -180,14 +183,13 @@ def ticket_view(ticket_id, page=1):
         reply_contents = "{} wrote on {}\r\n\r\n{}".format(query.user.name, query.date_added, query.content)
         form.content.data = block_quoter(reply_contents)
     if ticket_rid:
-        reply_contents = "{} wrote on {}\r\n\r\n{}".format(ticket.user.name, ticket.date_added, ticket.content)
+        reply_contents = "{} {} wrote on {}\r\n\r\n{}".format(ticket.user.first_name, ticket.user.last_name, ticket.date_added, ticket.description)
         form.content.data = block_quoter(reply_contents)
 
     app.config['posts_per_page'] = 10
     replies = replies.paginate(page, app.config['posts_per_page'])
 
-    print(ticket.ticket_name)
-    print(current_user.roles)
+    print(page)
 
     return render_template('flicket/flicket_view.html',
                            title='View Ticket',
@@ -255,8 +257,8 @@ def tickets(page=1):
         # search the titles
         form.content.data = content
 
-        f1 = FlicketTicket.title.ilike('%' + content + '%')
-        f2 = FlicketTicket.content.ilike('%' + content + '%')
+        f1 = FlicketTicket.ticket_name.ilike('%' + content + '%')
+        f2 = FlicketTicket.description.ilike('%' + content + '%')
         f3 = FlicketTicket.posts.any(FlicketPost.content.ilike('%' + content + '%'))
         tickets = tickets.filter(f1 | f2 | f3)
 
@@ -283,6 +285,11 @@ def edit_ticket(ticket_id):
     form = EditTicketForm(ticket_id=ticket_id)
 
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
+
+    if ticket.current_status == None:
+        ticket_status = FlicketStatus.query.filter_by(status='Open').first()
+        ticket.current_status = ticket_status
+        db.session.commit()
 
     if not ticket:
         flash('Could not find ticket.', category='warning')
@@ -379,7 +386,7 @@ def edit_post(post_id):
         return redirect(url_for('flicket_main'))
 
     # check to see if topic is closed. ticket can't be edited once it's closed.
-    if is_ticket_closed(post.ticket.current_status.status):
+    if post.ticket.current_status.status =="Closed":
         return redirect(url_for('ticket_view', ticket_id=post.ticket.id))
 
     # check user is authorised to edit post. Only author or admin can do this.
@@ -595,16 +602,20 @@ def ticket_assign(ticket_id=False):
     form = SearchEmailForm()
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
 
+    if ticket.current_status == None:
+        ticket_status = FlicketStatus.query.filter_by(status='Open').first()
+        ticket.current_status = ticket_status
+        db.session.commit()
+
     if ticket.current_status.status == 'Closed':
         flash("Can't assign a closed ticket.")
         return redirect(url_for('ticket_view', ticket_id=ticket_id))
 
     if form.validate_on_submit():
-
-        user = FlicketUser.query.filter_by(email=form.email.data).first()
+        user = User.query.filter_by(email=form.email.data).first()
 
         if ticket.assigned == user:
-            flash('User is already assigned to ticket silly')
+            flash('User is already assigned to ticket')
             return redirect(url_for('ticket_view', ticket_id=ticket.id ))
 
         # set status to in work

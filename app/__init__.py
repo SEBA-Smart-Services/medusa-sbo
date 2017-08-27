@@ -52,7 +52,7 @@ from app import controllers
 # each component of the application should be packaged into a standalone package
 # consider refactoring as Flask Blueprints
 from app.sitedataagent import controllers, models
-from app.ict import controllers
+from app.ict import controllers, models, forms
 from app.hvac_assets import controllers
 from app.ticket import controllers, models
 from app.alarms import controllers

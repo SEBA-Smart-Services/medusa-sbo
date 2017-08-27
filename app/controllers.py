@@ -317,7 +317,8 @@ def asset_list(sitename):
     asset_quantity = {}
     for asset_type in asset_types:
         asset_quantity[asset_type.name] = len(Asset.query.filter_by(site=site, type=asset_type).all())
-    return render_template('assets.html', assets=site.assets, asset_quantity=asset_quantity, asset_types=asset_types, site=site)
+    itassets=site.it_assets
+    return render_template('assets.html', assets=site.assets, asset_quantity=asset_quantity, asset_types=asset_types, site=site, ict_assets=itassets)
 
 # list unresolved issues on the site
 @app.route('/site/<sitename>/issues')

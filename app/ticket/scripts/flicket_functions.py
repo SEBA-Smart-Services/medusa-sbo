@@ -6,6 +6,8 @@
 import datetime
 
 from flask import flash, g
+from app.models.users import User
+from flask_user import current_user
 
 from app import db
 from app.ticket.models import FlicketPost, FlicketAction
@@ -53,7 +55,7 @@ def add_action(action=None, ticket=None, recipient=None):
         released=released,
         closed=closed,
         opened=opened,
-        user=g.user,
+        user=current_user,
         recipient=recipient,
         date=datetime.datetime.now()
     )
