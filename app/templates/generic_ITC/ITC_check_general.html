@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h3>Generic ITC - {{ITC.name}}</h3>
+
+  <div class="mdl-cell mdl-cell--12-col mdl-grid">
+      <table class="mdl-data-table mdl-js-data-table mdl-cell--12-col" >
+        <thead>
+          <tr>
+            <th class="mdl-data-table__cell--non-numeric">Name</th>
+            <th class="mdl-data-table__cell--non-numeric">Description</th>
+            <th class="mdl-data-table__cell--non-numeric"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for check in checks %}
+            <tr>
+              <td class="mdl-data-table__cell--non-numeric">{{check.ITC.name}}</td>
+              <td class="mdl-data-table__cell--non-numeric">{{check.check.check_description}}</td>
+              <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
+                <a href="/generic/ITC/{{ITC.id}}/check/{{check.id}}/edit">
+                  Edit
+                </a>/
+                <a href="/generic/ITC/{{ITC.id}}/check/{{check.id}}/delete">
+                  Delete
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <br><br>
+      <div class="mdl-cell mdl-cell--12-col">
+        <div class="mdl-cell mdl-cell--6-col">
+          <form action="/generic/ITC/{{ITC.id}}/check/new">
+            <input type="submit" value="New check" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+            </input>
+          </form>
+        </div>
+
+        <div class="mdl-cell mdl-cell--6-col">
+          <form action="/generic/ITC" method="GET">
+            <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+            </input>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

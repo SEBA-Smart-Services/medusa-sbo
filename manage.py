@@ -1,4 +1,14 @@
 #!/usr/bin/env python
+
+##################
+# python script for various management tasks
+# run as 'python manage.py <command>'
+# includes db migration commands:
+# manage.py db migrate      (generates migration files)
+# manage.py db upgrade      (applies migration files to local db)
+##################
+
+
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 
@@ -11,6 +21,15 @@ manager = Manager(app)
 
 manager.add_command('db', MigrateCommand)
 
+#need to keep passwords secure
+import configparser
+
+#read in config file
+config = configparser.ConfigParser()
+config.read('/var/lib/medusa/medusa-development.ini')
+
+# initial data for regenerating database
+# note: this hasn't been updated for a long time, is probably out of date
 # some asset types
 asset_types =  [
     'AHU-CV',
@@ -50,12 +69,8 @@ roles = [
 ]
 
 test_asset_name = 'Test AHU'
-admin_user = 'sebb'
-admin_pw = 'Schn3!d3r1'
-test_user = 'user'
-test_pw = 'Schn3!d3r1'
 
-
+# drop all data and tables in database and regenerate it from scratch
 @manager.command
 def regenerate():
 
@@ -111,6 +126,8 @@ def regenerate():
     db.session.commit()
     db.session.close()
 
+# reset the details of the admin user. useful if you accidentally removed admin permissions from it
+# and can't get back into the admin interface
 @manager.command
 def reset_admin():
     admin = User.query.filter_by(username=admin_user)
@@ -121,6 +138,7 @@ def reset_admin():
     db.session.close()
 
 # find all defined algorithms and add them to the database
+# this will need to be run whenever an algorithm is modified or added
 def generate_algorithms():
     # algorithms are subclasses of AlgorithmClass
     for algorithm in AlgorithmClass.__subclasses__():
@@ -135,11 +153,13 @@ def generate_algorithms():
         else:
             algorithm_db.descr = algorithm.name
 
+        # map it against all the assets
         algorithm_db.map()
 
     db.session.commit()
 
 # generate the entire mapping tables for algorithms-points and algorithms-assets
+# this will need to be run whenever the points/functional descriptors required by an algorithm are modified
 def map_algorithms():
     for algorithm in Algorithm.query.all():
         algorithm.map()

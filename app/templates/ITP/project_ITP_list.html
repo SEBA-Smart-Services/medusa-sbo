@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+{% block title %}- {{project.name}}{% endblock %}
+{% block content %}
+  <h3>Project {{ project.name }} at {{ site.name }}</h3>
+
+  <div>
+    <h4> Current ITP's </h4>
+    <table class="mdl-data-table mdel-js-data-table" style="width: 100%">
+      <thead>
+        <tr>
+          <th class="mdl-data-table__cell--non-numeric">Name</th>
+          <th class="mdl-data-table__cell--non-numeric">Description</th>
+          <th class="mdl-data-table__cell--non-numeric">status</th>
+          <th class="mdl-data-table__cell--non-numeric">completed?</th>
+          <th class="mdl-data-table__cell--non-numeric"></th>
+        </tr>
+      </thead>
+      {% for ITP in ITPs %}
+        <tr>
+          <td class="mdl-data-table__cell--non-numeric">
+            <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}">
+              {{ITP.name}}
+            </a>
+          </td>
+          <td class="mdl-data-table__cell--non-numeric">{{ITP.name}}</td>
+          <td class="mdl-data-table__cell--non-numeric">{{ITP.name}}</td>
+          <td class="mdl-data-table__cell--non-numeric">{{ITP.name}}</td>
+          <td class="mdl-data-table__cell--non-numeric" style="width:5%">
+            <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/edit">
+              Edit
+            </a>
+            <p>/</p>
+            <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/delete">
+              Delete
+            </a>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <br>
+
+  <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/new">
+    <input type="submit" value="New ITP" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+    </input>
+  </form>
+
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h3>New Check</h3>
+
+  <br>
+
+  <div>
+    <form action="/generic/ITC/{{ITC.id}}/check/new" method="POST">
+      <select name="check_generic" class="mdl-textfield__input" required>
+        {% for check in checks %}
+          <option value="{{check.id}}">{{check.check_description}}</option>
+        {% endfor %}
+      </select>
+      <br>
+      <input type="submit" value="Create Check" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+    </form>
+
+    <div class="mdl-cell mdl-cell--6-col">
+      <form action="/generic/ITC/{{ITC.id}}" method="GET">
+        <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        </input>
+      </form>
+    </div>
+
+  </div>
+
+{% endblock %}

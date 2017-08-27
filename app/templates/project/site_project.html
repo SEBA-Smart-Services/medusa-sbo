@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+{% block title %}- {{project.name}}{% endblock %}
+{% block content %}
+  <h3>Project</h3>
+
+  <div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--6-col">
+      <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Details</h2>
+        </div>
+        <table class="mdl-data-table mdl-js-data-table" style="width:100%;table-layout:fixed;white-space: normal;">
+          <tbody>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">Job number</th>
+              <td class="mdl-data-table__cell--non-numeric">#{{project.job_number}}</td>
+            </tr>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">Start Date</th>
+              <td class="mdl-data-table__cell--non-numeric">{{project.start_date.strftime('%d-%m-%Y')}}</td>
+            </tr>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">Completion Date</th>
+              {% if project.completion_date != none %}
+                <td class="mdl-data-table__cell--non-numeric">{{project.completion_date}}</td>
+              {% endif %}
+            </tr>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">Assigned To</th>
+              <td class="mdl-data-table__cell--non-numeric">{{project.assigned_to}}</td>
+            </tr>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">ITP</th>
+              <td class="mdl-data-table__cell--non-numeric">
+                {% if ITP == None %}
+                  <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/new">
+                    Create a new Inspection and Test Plan
+                  </a>
+                {% else %}
+                  <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}">
+                    Inspection and Test Plan
+                  </a>
+                {% endif %}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="mdl-cell mdl-cell--6-col">
+
+      <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Commision and Testing</h2>
+        </div>
+        <div id="donutchart" style="width:95%"></div>
+        <script type="text/javascript">
+          google.charts.load("current", {packages:["corechart"]});
+          google.charts.setOnLoadCallback(drawChart);
+          function drawChart(){
+            var data = google.visualization.arrayToDataTable([
+              ['Completion', 'Percentage'],
+              ['Completed', {{totals[1]}}],
+              ['In Progress', {{totals[2]}}],
+              ['Not Applicable', {{totals[3]}}],
+              ['Not Started', {{totals[4]}}]
+            ]);
+
+            var options = {
+              pieHole: 0.4,
+              colors: ['green', 'orange', 'lightBlue', 'red'],
+              pieSliceTextStyle: {
+                color: 'black',
+              },
+              legend: 'none'
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('donutchart'));
+            chart.draw(data, options);
+          }
+
+          $(window).resize(function(){
+            drawChart();
+          });
+        </script>
+        <br><br>
+      </div>
+    </div>
+
+    <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+      <div class="mdl-card__title"><h2 class="mdl-card__title-text">Alarms</h2></div>
+      <div id="chart_div" style="width:92.5%; padding-left:5%"></div>
+    </div>
+  </div>
+
+  <div class="mdl-cell mdl-cell--6-col">
+    <form action="/site/{{site.name}}/projects">
+      <input type="submit" value="Back" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+      </input>
+    </form>
+  </div>
+
+
+{% endblock %}

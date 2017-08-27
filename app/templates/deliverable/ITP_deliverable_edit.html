@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+{% block title %}- {{project.name}}{% endblock %}
+{% block content %}
+  <h3>Edit {{deliverable.name}} for {{ITP.name}}</h3>
+
+  <br>
+
+  <div>
+    <form action="/site/{{ site.name }}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/edit" method="POST">
+      <input type="text" name="deliverable_name" placeholder="Deliverable Name" class="mdl-textfield__input">
+      <br>
+      <input type="text" name="deliverable_number" placeholder="Deliverable Number" class="mdl-textfield__input">
+      <br>
+      <!-- <input type="text" name="deliverable_description" placeholder="Give a description of the deliverable" class="mdl-textfield__input">
+      <br> -->
+      <input type="date" name="start_date" class="mdl-textfield__input">
+      <br>
+      <select name="assigned_to" class="mdl-textfield__input" required>
+        <option value=""></option>
+        {% for user in users %}
+          <option value="{{user}}">{{user}}</option>
+        {% endfor %}
+      </select>
+      <br>
+      <select name="deliverable_status" class="mdl-textfield__input">
+        <option value="Not Started">Not Started</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Completed">Completed</option>
+        <option value="Not Applicable">Not Applicable</option>
+      </select>
+      <br>
+      <input type="submit" value="Save Changes" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+    </form>
+
+    <br>
+
+    <div>
+      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable" method="GET">
+        <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        </input>
+      </form>
+    </div>
+  </div>
+
+{% endblock %}

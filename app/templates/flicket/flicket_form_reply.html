@@ -1,0 +1,40 @@
+<!-- ticket reply -->
+
+<form action=""
+      class="form-horizontal"
+      enctype="multipart/form-data"
+      method="post"
+      name="add_reply">
+    {{ form.hidden_tag() }}
+
+  <div class="mdl-cell mdl-cell--12-col">
+      <h5 class="mdl-cell mdl-cell--12-col">{{ form.content.label }}</h5>
+      <div class="mdl-cell mdl-cell--12-col">
+          {{ form.content(class="form-control") }}
+      </div>
+  </div>
+  {% if form.content.errors %}
+      <div class="alert alert-warning small">
+          {% for error in form.content.errors %}
+              {{ error }}
+          {% endfor %}
+      </div>
+  {% endif %}
+
+  {% if form.uploads %}
+      {{ form.uploads }}
+  {% endif %}
+
+    <br>
+
+    <div class="form-group mdl-cell mdl-cell--12-col">
+        <label class="mdl-cell mdl-cell--12-col">{{ form.file.label }}</label>
+        <div class="mdl-cell mdl-cell--12-col ">
+            {{ form.file }}
+        </div>
+        <div class="mdl-cell mdl-cell--12-col">
+          {{ form.submit(class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent") }}
+        </div>
+    </div>
+</form>
+<!-- ticket reply /end -->

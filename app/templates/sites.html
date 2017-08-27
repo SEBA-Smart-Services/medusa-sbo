@@ -1,6 +1,14 @@
 {% extends "layout.html" %}
 {% block content %}
-  <h3>Sites</h3>
+  <h3 class="page-title">Sites
+    {% if current_user.is_authenticated %}
+      {% if current_user.has_role('admin') %}
+        <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="float: right;" href="/site/all/add_site">
+          <i class="material-icons">add</i>
+        </a>
+      {% endif %}
+    {% endif %}
+  </h3>
   <table class="mdl-data-table mdl-js-data-table full-width">
     <thead>
       <tr>
@@ -13,7 +21,8 @@
     <tbody>
       {% for site in sites %}
         <tr>
-          <td class="mdl-data-table__cell--non-numeric"><a href="/site/{{site.name}}">{{site.name}}</a></th>
+          <td class="mdl-data-table__cell--non-numeric">
+            <a href="/site/{{site.name}}">{{site.name}}</a></th>
           <td>{{site.assets|length}}</td>
           <td>{{issues[site.name]}}</td>
           <td>{{priority[site.name]}}</td>

@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block title %}- {{project.name}}{% endblock %}
+{% block content %}
+  <h3>Edit {{ITC.name}} for {{deliverable.name}}</h3>
+
+  <br>
+
+  <div>
+    <form action="/site/{{ site.name }}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.name}}/edit" method="POST">
+      <input type="text" name="ITC_name" placeholder="ITC Name" class="mdl-textfield__input">
+      <br>
+      <input type="text" name="ITC_comment" placeholder="Give a description of the ITC" class="mdl-textfield__input">
+      <br>
+      <select name="ITC_status" class="mdl-textfield__input">
+        <option value="Not Started">Not Started</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Completed">Completed</option>
+        <option value="Not Applicable">Not Applicable</option>
+      </select>
+      <br>
+      <input type="submit" value="Save Changes" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+    </form>
+
+    <br>
+
+    <div>
+      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC" method="GET">
+        <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        </input>
+      </form>
+    </div>
+  </div>
+
+{% endblock %}

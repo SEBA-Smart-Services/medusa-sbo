@@ -59,6 +59,7 @@ target/
 
 # Config file
 config.py
+config.txt
 
 # web server socket
 *.sock

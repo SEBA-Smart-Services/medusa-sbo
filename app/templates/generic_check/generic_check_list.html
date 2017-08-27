@@ -1,0 +1,51 @@
+{% extends "layout-empty.html" %}
+{% block content %}
+  <div style="width: 80%; margin: auto">
+    <h3>Generic check list</h3>
+
+    <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+      <thead>
+        <tr>
+          <th class="mdl-data-table__cell--non-numeric">id</th>
+          <th class="mdl-data-table__cell--non-numeric">Description</th>
+          <th class="mdl-data-table__cell--non-numeric"></th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for check in checks %}
+        <tr>
+          <td class="mdl-data-table__cell--non-numeric">{{check.id}}</th>
+          <td class="mdl-data-table__cell--non-numeric">{{check.check_description}}</td>
+          <td class="mdl-data-table__cell--non-numeric">
+            <a href="/generic/check/{{check.id}}/edit">
+              Edit
+            </a>/
+            <a href="/generic/check/{{check.id}}/delete">
+              Delete
+            </a>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+
+    <br>
+    <br>
+
+    <form action="/generic/check/new">
+      <input type="submit" value="New check" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+      </input>
+    </form>
+
+    <br>
+
+    <div>
+      <form action="/generic" method="GET">
+        <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        </input>
+      </form>
+    </div>
+  </div>
+
+
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block title %}- {{project.name}}{% endblock %}
+{% block content %}
+  <h3>Edit {{ITP.name}} for {{project.name}}</h3>
+
+  <br>
+
+  <div>
+    <form action="/site/{{ site.name }}/projects/{{project.name}}/ITP/{{ITP.name}}/edit" method="POST">
+      <input type="text" name="ITP_name" placeholder="Project Name" class="mdl-textfield__input">
+      <br>
+      <input type="text" name="ITP_description" placeholder="Give a description of the project" class="mdl-textfield__input">
+      <br>
+
+      <br>
+      <input type="submit" value="Save Changes" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+    </form>
+  </div>
+
+{% endblock %}

@@ -1,5 +1,5 @@
 from app.models import LogTimeValue, Result, Asset, AssetPoint
-from app import db, app, registry, event
+from app import db, app, event
 import datetime
 import time
 import pandas
@@ -8,7 +8,10 @@ import random
 from scipy.fftpack import fft
 
 
-# class used to select data
+# class used to select data from a webreports server and present it in a useful format for algorithms
+# instances are specific to each asset
+# functions require you to specify the name of the point type as a string - this can be improved, and will not work
+# if there are multiple of the same type of point
 class DataGrab():
 
     def __init__(self, session, asset):
@@ -54,9 +57,9 @@ class DataGrab():
 # apply all the algorithms against a single asset
 def check_asset(asset):
 
-    # get database session for this asset
-    session = registry.get(asset.site.db_key)
+    session = db.session
 
+    # skip all checks if it can't connect
     if not session is None:
         datagrab = DataGrab(session, asset)
 
@@ -64,7 +67,7 @@ def check_asset(asset):
         for result in Result.query.filter_by(asset=asset, recent=True):
             result.recent = False
 
-        # get list of previously active results. result that are still active will be removed from this list
+        # get list of previously active results. result that are still active will be removed from this list as we go
         # the remainder will be set to inactive
         previously_active = set(Result.query.filter_by(asset=asset, active=True).all())
 
@@ -72,6 +75,7 @@ def check_asset(asset):
         algorithms_passed = 0
         t = time.time()
 
+        # run all algorithms that have not been excluded
         for algorithm in set(asset.algorithms) - set(asset.exclusions):
 
             point_list = []
@@ -124,6 +128,7 @@ def check_asset(asset):
 
             print('Asset Health: {}'.format(asset.health))
 
+        # if no algorithms are being run, mark as unhealthy
         else:
             asset.health = 0
         db.session.commit()
@@ -145,187 +150,19 @@ def check_all():
 # dummy class used to access all the algorithm checks
 # 'points_required' specifies which points each algorithm will request data for
 # 'functions_required' specifies the functional descriptors that the algorithm requires to operate
+# these are used when mapping the algorithms to the assets
 class AlgorithmClass():
     points_required = []
     functions_required = []
 
+class Algorithm():
+    points_required = []
+    functions_required = []
 
-# check if room air temp is higher than setpoint while heating is on
-class airtemp_heating_check(AlgorithmClass):
-    points_required = ['Room Air Temp', 'Heater Enable', 'Room Air Temp Setpoint']
-    name = "Air temp higher than setpoint while heating on"
-    format = "{:.1%}"
-
-    def run(data):
-        # grab last 24 hours of data
-        heating = data.latest_time('Heater Enable', datetime.timedelta(hours=24))
-        room_temp = data.latest_time('Room Air Temp', datetime.timedelta(hours=24))
-        room_setpoint = data.latest_time('Room Air Temp Setpoint', datetime.timedelta(hours=24))
-
-        # resample to 1s intervals
-        heating_seconds = heating.resample('1S').ffill()
-        room_temp_seconds = room_temp.resample('1S').ffill()
-        room_setpoint_seconds = room_setpoint.resample('1S').ffill()
-
-        # put all the data into a single dataseries, so that timestamps are shared
-        all_data = pandas.concat([heating_seconds,room_temp_seconds,room_setpoint_seconds], axis=1)
-        # count the seconds where room temp > setpoint and heating is on
-        seconds_in_error = len(numpy.where((all_data[1] < all_data[2]) & (all_data[0] == 1))[0])
-
-        result = seconds_in_error/86400
-        passed = result < 0.05
-        return [result, passed]
-
-
-# check if heating and cooling are simultaneously on
-class simult_heatcool_check(AlgorithmClass):
-    points_required = ['Heater Enable', 'Chilled Water Valve Enable']
-    name = "Simultaneous heating and cooling"
-    format = "{:.1%}"
-
-    def run(data):
-        # grab last 24 hours of data
-        heating = data.latest_time('Heater Enable', datetime.timedelta(hours=24))
-        cooling = data.latest_time('Chilled Water Valve Enable', datetime.timedelta(hours=24))
-
-        # resample to 1s intervals
-        heating_seconds = heating.resample('1S').ffill()
-        cooling_seconds = cooling.resample('1S').ffill()
-
-        # combine the dataseries. in the new one, 0 = no heating/cooling
-        # 1 = heating or cooling, and 2 = both heating and cooling
-        status = heating_seconds + cooling_seconds
-
-        # grab only the entries where heating and cooling is occuring
-        heating_and_cooling = status[status == 2]
-        seconds_heating_and_cooling = len(heating_and_cooling)
-        result = seconds_heating_and_cooling/86400
-        passed = result == 0
-        return [result, passed]
-
-
-# check if zone fan is on while zone is unoccupied
-class fan_unoccupied_check(AlgorithmClass):
-    points_required = ['Room Occupancy', 'Fan Enable']
-    name = "Zone fan on while unoccupied"
-    format = "{:.1%}"
-
-    def run(data):
-        # grab last 24 hours of data
-        occupancy = data.latest_time('Room Occupancy', datetime.timedelta(hours=24))
-        enable = data.latest_time('Fan Enable', datetime.timedelta(hours=24))
-
-        # resample to 1s intervals
-        occupancy_seconds = occupancy.resample('1S').ffill()
-        enable_seconds = enable.resample('1S').ffill()
-
-        # combine into new dataseries, where -1 = occupied but not enabled
-        # 0 = occupied and enabled, and 1 = enabled but not occupied
-        status = enable_seconds - occupancy_seconds
-
-        # grab only the entries with value 1
-        occupied_while_off = status[status == 1]
-        seconds_occupied_while_off = len(occupied_while_off)
-        result = seconds_occupied_while_off/86400
-        passed = result < 0.05
-        return [result, passed]
-
-
-# check if zone is occupied and AHU is off
-class ahu_occupied_check(AlgorithmClass):
-    points_required = ['Room Occupancy', 'Fan Enable']
-    name = "Zone occupied, AHU off"
-    format = "{:.1%}"
-
-    def run(data):
-        # grab last 24 hours of data
-        occupancy = data.latest_time('Room Occupancy', datetime.timedelta(hours=24))
-        enable = data.latest_time('Fan Enable', datetime.timedelta(hours=24))
-
-        # resample to 1s intervals
-        occupancy_seconds = occupancy.resample('1S').ffill()
-        enable_seconds = enable.resample('1S').ffill()
-
-        # combine into new dataseries, where -1 = occupied but not enabled
-        # 0 = occupied and enabled, and 1 = enabled but not occupied
-        status = enable_seconds - occupancy_seconds
-
-        # grab only the entries with value -1
-        occupied_while_off = status[status == -1]
-        seconds_occupied_while_off = len(occupied_while_off)
-        result = seconds_occupied_while_off/86400
-        passed = result < 0.05
-        return [result, passed]
-
-
-# check if chilled water valve actuator is hunting.
-# in this algorithm, we are checking the fourier transform for signs of an oscillating signal.
-# the idea is that an unstable pid loop will show up as a magnitude in the high frequency range (e.g more than 1 oscillation per hour).
-# we transform the data to the right format (i.e. interval data), perform a fft, ignore all the low frequency oscillations, then add up what's left.
-# if the sum of the high frequencies is large, then there's some oscillation going on. use a tuning parameter to decide how large is 'too large'
-class chw_hunting_check(AlgorithmClass):
-    points_required = ['Chilled Water Valve 100%']
-    name = "Chilled water valve actuator hunting"
-    format = "bool"
-
-    def run(data):
-        # using units of minutes in this algorithm
-        # only check for oscilations with a period of less than 60 minutes
-        min_period = 1/60.0
-        freq_sums = {}
-
-        for hours in range(24, 1, -1):
-            # grab an hour of data
-            valve = data.time_range('Chilled Water Valve 100%', datetime.timedelta(hours=hours), datetime.timedelta(hours=hours-1))
-            # FFT needs evenly spaced samples to work. Resample to 1 minute rather than 1 second because computationally expensive - gives max resolution of 1 oscillation per 2 minutes
-            # up (interpolate) and downsample (first) since the sample rate is unknown and variable. assuming a COV trend here
-            valve_mins = valve.resample('1Min').first().interpolate(method='quadratic')
-
-            N = len(valve_mins)
-            if N > 0:
-                # perform fft
-                x_fft = numpy.linspace(0, 1, N)
-                valve_fft = fft(valve_mins)
-
-                i = numpy.argmax(x_fft > min_period)
-                # we only care about oscillations faster than our min period. Also only take half the range since the FFT is mirrored, avoid doubling up
-                sum_range = valve_fft[i:int(N/2)]
-
-                # metric to judge overall instability, sum of high frequencies
-                freq_sums[hours] = sum(numpy.abs(sum_range))
-            else:
-                freq_sums[hours] = 0
-
-        # this is the tuning parameter
-        freq_cutoff = 100
-
-        result = max(freq_sums) > freq_cutoff
-        passed = not result
-
-        return [result, passed]
-
-
-# check the run hours
-class run_hours_check(AlgorithmClass):
-    points_required = ['Fan Enable', 'Run Hours Maintenance Setpoint']
-    name = "Run hours exceeded limit"
-    format = "{:.1f}h"
-
-    def run(data):
-        # grab last 24 hours of data
-        enable = data.latest_time('Fan Enable', datetime.timedelta(hours=24),)
-        setpoint = data.latest_qty('Run Hours Maintenance Setpoint', 1)
-
-        # resample to 1s intervals
-        seconds_active = enable.resample('1S').ffill().sum()
-
-        result = seconds_active / 3600
-        passed = seconds_active < setpoint[0]
-        return [result, passed]
 
 
 # dummy test fuction
-class testfunc(AlgorithmClass):
+class testfunc(Algorithm):
     points_required = []
     name = "Test"
     format = "{:.1%}"
@@ -336,7 +173,7 @@ class testfunc(AlgorithmClass):
         return [result, passed]
 
 # test functions for demo purposes
-class testfunc2(AlgorithmClass):
+class testfunc2(Algorithm):
     points_required = ['filter sp']
     name = "Chilled water valve actuator hunting temperature."
     format = "{:.1%}"
@@ -346,7 +183,7 @@ class testfunc2(AlgorithmClass):
         passed = random.random() > 0.25
         return [result, passed]
 
-class testfunc3(AlgorithmClass):
+class testfunc3(Algorithm):
     points_required = ['filter sp']
     name = "Slow room air temp response to conditioning."
     format = "{:.1%}"
@@ -356,7 +193,7 @@ class testfunc3(AlgorithmClass):
         passed = random.random() > 0.25
         return [result, passed]
 
-class testfunc4(AlgorithmClass):
+class testfunc4(Algorithm):
     points_required = ['filter sp']
     name = "Malfunctioning heating coil."
     format = "{:.1%}"
@@ -366,7 +203,7 @@ class testfunc4(AlgorithmClass):
         passed = random.random() > 0.25
         return [result, passed]
 
-class testfunc5(AlgorithmClass):
+class testfunc5(Algorithm):
     points_required = ['filter sp']
     name = "Simultaneous heating and cooling."
     format = "{:.1%}"
@@ -377,9 +214,9 @@ class testfunc5(AlgorithmClass):
         return [result, passed]
 
 
-# save the check results
+# save the algorithm results
 def save_result(asset, algorithm, value, passed, point_list):
-    # find existing results that are active
+    # find existing results that are active, or were active and are still unacknowledged
     result = Result.query.filter(Result.asset_id==asset.id, Result.algorithm_id==algorithm.id, (Result.active==True) | (Result.acknowledged==False)).first()
     # note: do not change the acknowledged state, if the result already exists
 
@@ -389,6 +226,7 @@ def save_result(asset, algorithm, value, passed, point_list):
         result.acknowledged = passed
         db.session.add(result)
 
+    # update with details of the algorithm check
     result.recent_timestamp = datetime.datetime.now()
     result.value = value
     result.passed = passed

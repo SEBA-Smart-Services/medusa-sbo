@@ -1,7 +1,20 @@
-{% extends "frame.html" %}
+{% extends "base.html" %}
+{% block head %}
+{% endblock %}
+{% block title %}
+{% endblock %}
 {% block layout %}
 	<div class="mdl-grid centered">
 	    <div class="mdl-cell mdl-cell--8-col">
+				{% with messages = get_flashed_messages() %}
+				  {% if messages %}
+				    <ul class=flashes>
+				    {% for message in messages %}
+				      <li>{{ message }}</li>
+				    {% endfor %}
+				    </ul>
+				  {% endif %}
+				{% endwith %}
 	    	{% block content %}{% endblock %}
 	    </div>
 	</div>

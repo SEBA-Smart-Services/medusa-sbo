@@ -54,6 +54,7 @@ def weather_page():
 	outside_r = weather.humidity
 
 	# calculate savings from setpoint offset
+	# estimates taken from 'typical' system in summer. Should be improved upon later / in winter
 	setpoint = 24
 	min_offset = -1
 	min_temp = 19
@@ -70,7 +71,7 @@ def weather_page():
 
 
 	# calculate savings from economy cycle
-	# estimates taken from 'typical' system. Should be improved upon later / in winter
+	# estimates taken from 'typical' system in summer. Should be improved upon later / in winter
 	setpoint = setpoint + offset
 	supply_t = setpoint - 6
 	supply_r = 0.5

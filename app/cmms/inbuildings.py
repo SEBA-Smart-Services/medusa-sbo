@@ -6,7 +6,8 @@ import requests
 ##  inbuildings functions
 ###################################
 
-# generic inbuildings request
+# format a generic inbuildings request
+# all other requests make use of this
 def inbuildings_request(data):
     # setup request parameters
     url = 'https://inbuildings.info/ingenius/rest/sbo.php'
@@ -22,7 +23,7 @@ def inbuildings_comms_test():
     key = Site.query.first().inbuildings_config.key
     message = 'Comms Test'
     mode = 'raisenewjob'
-    test = 'yes'
+    test = 'yes'    # important, this marks it as a test and prevents a job from being raised
     equip_id = '0'
     priority_id = '7'
     data = {'key': key, 'mode': mode, 'test': test, 'eid': equip_id, 'pid': priority_id, 'body': message}
@@ -30,12 +31,13 @@ def inbuildings_comms_test():
     # send request
     try:
         inbuildings_request(data)
+    # comms is down if the request times out
     except requests.exceptions.ConnectionError:
         return False
     else:
         return True
 
-# inbuildings asset request
+# request list of assets registered to a site in inbuildings
 def inbuildings_asset_request(site):
     # setup request parameters
     key = site.inbuildings_config.key
@@ -55,6 +57,7 @@ def inbuildings_asset_request(site):
     # either update existing record or create new record
     for asset in resp:
         db_asset = InbuildingsAsset.query.filter_by(id=asset['eid']).first()
+        # no existing record, so create a new one
         if db_asset is None:
             db_asset = InbuildingsAsset(id=asset['eid'], site=site)
             db.session.add(db_asset)
@@ -68,7 +71,7 @@ def inbuildings_asset_request(site):
         if db_asset.asset is None and not medusa_asset is None:
             db_asset.asset = medusa_asset
 
-    # delete non-existent assets
+    # delete assets that no longer exist
     for db_asset in set(previous_assets)-set(current_assets):
         db.session.delete(db_asset)
 

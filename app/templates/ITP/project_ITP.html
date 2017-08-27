@@ -1,0 +1,144 @@
+{% extends "layout.html" %}
+{% block title %}- {{project.name}}{% endblock %}
+{% block content %}
+  <h3>Inspection and Test Plan</h3>
+
+  <div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--6-col">
+      <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Details</h2>
+        </div>
+        <table class="mdl-data-table mdl-js-data-table" style="width:100%;table-layout:fixed;white-space: normal;">
+          <tbody>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">Job number</th>
+              <td class="mdl-data-table__cell--non-numeric">#{{project.job_number}}</td>
+            </tr>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">Start Date</th>
+              <td class="mdl-data-table__cell--non-numeric">{{project.start_date.strftime('%d-%m-%Y')}}</td>
+            </tr>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">Completion Date</th>
+              {% if project.completion_datetime != none %}
+                <td class="mdl-data-table__cell--non-numeric">{{project.completion_datetime}}</td>
+              {% endif %}
+            </tr>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">Assigned To</th>
+              <td class="mdl-data-table__cell--non-numeric">{{project.assigned_to}}</td>
+            </tr>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">Inspection and Test Checks Completed</th>
+              <td class="mdl-data-table__cell--non-numeric">{{totals[1]}}/{{totals[0]}}</td>
+            </tr>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">Deliverables</th>
+              <td class="mdl-data-table__cell--non-numeric">
+                {% if ITP == None %}
+                  <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/new">
+                    Create a new Deliverable
+                  </a>
+                {% else %}
+                  <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable">
+                    Deliverables
+                  </a>
+                {% endif %}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="mdl-cell mdl-cell--6-col">
+      <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Deliverable List</h2>
+        </div>
+        <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+          <thead>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">Name</th>
+              <th class="mdl-data-table__cell--non-numeric">Type</th>
+              <th class="mdl-data-table__cell--non-numeric">Status</th>
+              <th class="mdl-data-table__cell--non-numeric">Complete</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for deliverable in deliverables %}
+            <tr>
+              <td class="mdl-data-table__cell--non-numeric">
+                <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}">
+                  {{deliverable.name}}
+                </a>
+              </td>
+              <td class="mdl-data-table__cell--non-numeric">{{deliverable.type}}</th>
+              <td class="mdl-data-table__cell--non-numeric">{{deliverable.status}}</td>
+              <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %deliverable.percentage_complete}}%</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="mdl-cell mdl-cell--12-col">
+      <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Checks</h2>
+        </div>
+        <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+          <thead>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">ID</th>
+              <th class="mdl-data-table__cell--non-numeric">Name</th>
+              <th class="mdl-data-table__cell--non-numeric">Deliverable Name</th>
+              <th class="mdl-data-table__cell--non-numeric">Type</th>
+              <th class="mdl-data-table__cell--non-numeric">Status</th>
+              <th class="mdl-data-table__cell--non-numeric">Complete</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for ITC in ITCs %}
+            <tr>
+              <td class="mdl-data-table__cell--non-numeric">{{ITC.id}}</td>
+              <td class="mdl-data-table__cell--non-numeric">
+                <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{ITC.deliverable.name}}/ITC/{{ITC.id}}/checks">
+                  {{ITC.ITC.name}}
+                </a>
+              </td>
+              <td class="mdl-data-table__cell--non-numeric">{{ITC.deliverable.name}}</td>
+              <td class="mdl-data-table__cell--non-numeric">{{ITC.ITC.deliverable_type.name}}</td>
+              <td class="mdl-data-table__cell--non-numeric">{{ITC.status}}</td>
+              <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %ITC.percentage_complete}}%</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <br>
+  <div>
+    <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/edit">
+      Edit
+    </a>/
+    <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/delete">
+      Delete
+    </a>
+  </div>
+
+  <div class="mdl-cell mdl-cell--6-col">
+    <form action="/site/{{site.name}}/projects/{{project.name}}">
+      <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+      </input>
+    </form>
+  </div>
+
+  <br>
+
+  <input type=button onclick="window.location.href='{{ url_for('ITC_report_page', siteid=site.id, projectid=project.id, ITPid=ITP.id) }}'" value="Download Report" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+
+{% endblock %}

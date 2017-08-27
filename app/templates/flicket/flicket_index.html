@@ -1,0 +1,31 @@
+<!-- extend from base layout -->
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+        <h3>Stats</h3>
+        <h4>Overall</h4>
+        <p>
+            <mark>{{ total }}</mark>
+            tickets have been raised.
+        </p>
+        <p>
+            <mark>{{ total_days }}</mark>
+            ticket{% if total_days > 1 %}s have{% else %} has{% endif %} been raised over the last {{ days }} days.
+        </p>
+        {% for s in statuses %}
+            <p>There are currently <mark>{{ s[1]['ticket_num'] }}</mark> tickets <mark>{{ s[0]['status'] }}</mark>.</p>
+        {% endfor  %}
+        <h3>Departments</h3>
+    <div class="row">
+        {% for d in departments %}
+        <div class="col-sm-3">
+            <h4>{{ d[0]['department'] }}</h4>
+            {% for s in d[1] %}
+            <div><mark>{{ s[1]['total_num'] }}</mark> tickets <mark>{{ s[0]['status'] }}</mark></div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    </div>
+
+{% endblock %}

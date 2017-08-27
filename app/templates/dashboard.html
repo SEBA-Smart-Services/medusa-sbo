@@ -1,4 +1,8 @@
 {% extends "layout-empty.html" %}
+{% block head %}
+{% endblock %}
+{% block title %}
+{% endblock %}
 {% block content %}
   <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
     {% if allsites == True %}
@@ -9,60 +13,128 @@
   </div>
   <div class="mdl-grid">
 
-    <div class="mdl-cell mdl-cell--4-col mdl-cell--1-offset mdl-grid">
+    <div class="mdl-cell mdl-cell--6-col mdl-grid mdl-cell--4-col-phone mdl-cell--8-col-tablet">
 
-      <div class="mdl-cell mdl-cell--6-col mdl-shadow--4dp mdl-typography--text-center">
-        <div class="mdl-card__title"><h2 class="mdl-card__title-text">Total Issues</h2></div>
+      <div class="mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet mdl-cell--4-col-phone mdl-shadow--4dp mdl-typography--text-center">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Open tickets</h2>
+        </div>
         <h1 style="font-size: 700%">{{ num_results }}</h1>
       </div>
 
-      <div class="mdl-cell mdl-cell--6-col mdl-shadow--4dp mdl-typography--text-center">
-        <div class="mdl-card__title"><h2 class="mdl-card__title-text">Average asset health</h2></div>
-        <svg width="200px" height="200px" viewBox="0 0 1 1">
-          <g id="piechart">
-            <circle cx=0.5 cy=0.5 r=0.44 stroke="blue" stroke-width="0.09" stroke-dasharray="2.5" stroke-dashoffset="{{2.5-avg_health*2.5}}" fill="none" transform='rotate(-90 0.5 0.5)'/>
-            <circle class="circle_animation" cx=0.5 cy=0.5 r=0.44 stroke="white" stroke-width="0.1" fill="none" transform='rotate(-90 0.5 0.5)'/>
-          </g>
-          <text x="0.5" y="0.5" font-family="Roboto" font-size="0.2" fill="#888" text-anchor="middle" dy="0.1">{{(avg_health*100)|round(1)}}%</text>
-        </svg>
-        <br><br>
+      <div class="mdl-cell mdl-cell--6-col mdl-shadow--4dp mdl-typography--text-center mdl-cell--8-col-tablet mdl-cell--4-col-phone">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Asset health</h2>
+        </div>
+        <div id="donutchart" style="width: 80%;"></div>
+        <script type="text/javascript">
+          google.charts.load("current", {packages:["corechart"]});
+          google.charts.setOnLoadCallback(drawChart);
+          function drawChart(){
+            var data = google.visualization.arrayToDataTable([
+              ['State', 'Percentage'],
+              ['Healthy', 80],
+              ['Unhealthy', 15],
+              ['Unknown', 5]
+            ]);
+
+            var options = {
+              pieHole: 0.4,
+              colors: ['green', 'red', 'orange'],
+              pieSliceTextStyle: {
+                color: 'black',
+              },
+              legend: 'none'
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('donutchart'));
+            chart.draw(data, options);
+          }
+
+          $(window).resize(function(){
+            drawChart();
+          });
+        </script>
       </div>
 
       <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
         <div class="mdl-card__title"><h2 class="mdl-card__title-text">Alarms</h2></div>
         <div id="chart_div" style="width:92.5%; padding-left:5%"></div>
+
+	<div class="mdl-card__actions mdl-card--border">
+ 	<a
+	{% if site is defined %}
+		href="{{ url_for('alarm_list', sitename=site.name)  }}"
+	{% else %}
+		href="{{ url_for('alarm_list', sitename="all")  }}"
+	{% endif %}
+	class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" style="color: rgb(68,138,255);">
+      	View
+	</a>
+	</div>
+
       </div>
 
     </div>
 
-    <div class="mdl-cell mdl-cell--6-col">
+    <div class="mdl-cell mdl-cell--6-col mdl-grid mdl-cell--8-col-tablet">
       <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
-        <div class="mdl-card__title"><h2 class="mdl-card__title-text">Top issues</h2></div>
-        <table class="mdl-data-table mdl-js-data-table" style="width:100%;table-layout:fixed;white-space: normal">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Support tickets</h2>
+        </div>
+        <table class="mdl-data-table mdl-js-data-table" style="width:100%;table-layout:fixed;white-space: normal;">
           <thead>
             <tr>
-              {% if allsites == True %}
-              <th class="mdl-data-table__cell--non-numeric"">Site</th>
-              {% endif %}
-              <th class="mdl-data-table__cell--non-numeric"">Asset</th>
-              <th class="mdl-data-table__cell--non-numeric" style="width:45%">Algorithm</th>
-              <th class="mdl-data-table__cell--non-numeric"">Notes</th>
-              <th>Priority</th>
+              <th class="mdl-data-table__cell--non-numeric">
+                Due date
+              </th>
+              <th class="mdl-data-table__cell--non-numeric">
+                  Name
+              </th>
+              <th class="mdl-data-table__cell--non-numeric">
+                  Priority
+              </th>
+              <th class="mdl-data-table__cell--non-numeric">
+                  Category
+              </th>
+              <th class="mdl-data-table__cell--non-numeric">
+                  Status
+              </th>
+              <th class="mdl-data-table__cell--non-numeric">
+                Submitted by
+              </th>
+              <th class="mdl-data-table__cell--non-numeric">
+                  Assigned to
+              </th>
             </tr>
           </thead>
           <tbody>
-            {% for result in results %}
-            {% if allsites == True or result.asset.site.name == site.name %}
-            <tr>
-              {% if allsites == True %}
-              <td class="mdl-data-table__cell--non-numeric"">{{result.asset.site.name}}</td>
-              {% endif %}
-              <td class="mdl-data-table__cell--non-numeric">{{result.asset.name}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{result.algorithm.descr}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{result.notes}}</td>
-              <td>{{result.asset.priority}}</td>
-            </tr>
-            {% endif %}
+            {% for ticket in tickets %}
+              <tr>
+                <td class="mdl-data-table__cell--non-numeric">
+                  {% if ticket.date_due != None %}
+                    {{ ticket.date_due.strftime('%Y-%m-%d') }}
+                  {% endif %}
+                </td>
+                <td class="mdl-data-table__cell--non-numeric">
+                  {{ticket.ticket_name}}
+                </td>
+                <td class="mdl-data-table__cell--non-numeric">
+                  {{ticket.ticket_priority.priority}}
+                </td>
+                <td class="mdl-data-table__cell--non-numeric">
+                  {{ ticket.category.category }}
+                </td>
+                <td class="mdl-data-table__cell--non-numeric">
+                  {{ ticket.current_status.status }}
+                </td>
+                <td class="mdl-data-table__cell--non-numeric">
+                  {{ticket.user.first_name}} {{ticket.user.last_name}}
+                </td>
+                <td class="mdl-data-table__cell--non-numeric">
+                    {{ ticket.assigned.first_name }} {{ ticket.assigned.last_name }}
+                </td>
+              </tr>
             {% endfor %}
           </tbody>
         </table>
@@ -73,8 +145,6 @@
   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" style="position: fixed; left: -1000px; height: -1000px;">
   </svg>
 
-
-  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script type="text/javascript">
   google.charts.load('current', {packages: ['corechart', 'bar']});
   google.charts.setOnLoadCallback(drawAnnotations);
@@ -92,7 +162,8 @@
 
         var options = {
           colors: ['red'],
-
+          width: '100%',
+          height: '100%',
           hAxis: {
             title: 'Week',
           },
@@ -105,5 +176,9 @@
         var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
         chart.draw(data, options);
       }
+
+      $(window).resize(function(){
+         drawAnnotations();
+      });
   </script>
 {% endblock %}

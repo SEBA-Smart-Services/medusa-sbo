@@ -4,61 +4,89 @@
   <p>
     {{ message }}
   </p>
+
+  <div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--4-col" style="text-align: left;">
+      {% if page_number > 1 %}
+        {% if site == None %}
+          <a href="{{ url_for('alarm_list_paged', sitename='all', page_number=page_number-1) }}" >
+        {% else %}
+          <a href="{{ url_for('alarm_list_paged', sitename=site.name, page_number=page_number-1) }}" >
+        {% endif %}
+        <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_left</i>
+      </a>
+      {% endif %}
+    </div>
+    <div class="mdl-cell mdl-cell--4-col" style="text-align: center;">
+      <span >{{ page_number }}</span>
+    </div>
+    <div class="mdl-cell mdl-cell--4-col" style="text-align: right;">
+      {% if site == None %}
+        <a href="{{ url_for('alarm_list_paged', sitename='all', page_number=page_number+1) }}" >
+      {% else %}
+        <a href="{{ url_for('alarm_list_paged', sitename=site.name, page_number=page_number+1) }}" >
+      {% endif %}
+        <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_right</i>
+      </a>
+    </div>
+  </div>
+
   <div class="">
-    <ul>
-      <table>
-        <thead>
-          <th>week</th>
-          <th># alarms</th>
-        </thead>
-        {% for alarm in nalarms %}
-          <tr>
-            <td>{{ alarm[0] }}</td>
-            <td>{{ alarm[1] }}</td>
-          </tr>
+    <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp full-width">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Priority</th>
+          <th class="mdl-data-table__cell--non-numeric">Description</th>
+          <th class="mdl-data-table__cell--non-numeric">State</th>
+          <th class="mdl-data-table__cell--non-numeric">Ticket</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for alarm in alarms %}
+        <tr>
+            <td>{{ alarm.timestamp }}</td>
+            <td>{{ alarm.priority }}</td>
+            <td class="mdl-data-table__cell--non-numeric">{{ alarm.description }}</td>
+            <td class="mdl-data-table__cell--non-numeric">{{ alarm.state }}</td>
+            <td class="mdl-data-table__cell--non-numeric">
+              <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored mdl-button--mini-fab" href="/site/{{site.name}}/ticket/create" >
+                <i class="material-icons">add</i>
+              </a>
+              <!-- <a href="#">poo</a> -->
+            </td>
+        </tr>
         {% endfor %}
+      </tbody>
     </table>
-    </ul>
 
   </div>
-<div id="chart_div"></div>
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript">
-google.charts.load('current', {packages: ['corechart', 'bar']});
-google.charts.setOnLoadCallback(drawAnnotations);
 
-function drawAnnotations() {
-      var data = new google.visualization.DataTable();
-      data.addColumn('string', 'Week');
-      data.addColumn('number', 'Number of Alarms');
+  <div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--4-col" style="text-align: left;">
+      {% if page_number > 1 %}
+        {% if site == None %}
+          <a href="{{ url_for('alarm_list_paged', sitename='all', page_number=page_number-1) }}" >
+        {% else %}
+          <a href="{{ url_for('alarm_list_paged', sitename=site.name, page_number=page_number-1) }}" >
+        {% endif %}
+        <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_left</i>
+      </a>
+      {% endif %}
+    </div>
+    <div class="mdl-cell mdl-cell--4-col" style="text-align: center;">
+      <span >{{ page_number }}</span>
+    </div>
+    <div class="mdl-cell mdl-cell--4-col" style="text-align: right;">
+      {% if site == None %}
+        <a href="{{ url_for('alarm_list_paged', sitename='all', page_number=page_number+1) }}" >
+      {% else %}
+        <a href="{{ url_for('alarm_list_paged', sitename=site.name, page_number=page_number+1) }}" >
+      {% endif %}
+        <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_right</i>
+      </a>
+    </div>
+  </div>
 
-	data.addRows([
-	{% for row in rows %}
-  		['{{ row[0] }}', {{ row[1] }}],
-	{% endfor %}
-	]);
 
-      var options = {
-        title: 'Alarms',
-        annotations: {
-          alwaysOutside: true,
-          textStyle: {
-            fontSize: 14,
-            color: '#000',
-            auraColor: 'none'
-          }
-        },
-        hAxis: {
-          title: 'Week',
-        },
-        vAxis: {
-          title: 'Number of Alarms'
-        },
-        legend: {position: 'none'}
-      };
-
-      var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
-      chart.draw(data, options);
-    }
-</script>
 {% endblock %}

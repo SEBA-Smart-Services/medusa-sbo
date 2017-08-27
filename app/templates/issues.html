@@ -1,71 +1,73 @@
 {% extends "layout.html" %}
 {% block content %}
   <h3>All Unresolved Issues</h3>
-  {% if allsites == True %}
-  <form action="{{ url_for('unresolved_issues_submit_all') }}" method=post>
-  {% else %}
-  <form action="{{ url_for('unresolved_issues_submit', sitename=site.name) }}" method=post>
-  {% endif %}
-    <table id="unresolved-table" class="mdl-data-table mdl-js-data-table wrap-text full-width">
-      <thead>
-        <tr>
-          <th class="sort mdl-data-table__cell--non-numeric" data-sort="timestamp">First Failure</th>
-          <th class="sort mdl-data-table__cell--non-numeric" data-sort="asset">Asset</th>
-          {% if allsites == True %}
-            <th class="sort mdl-data-table__cell--non-numeric" data-sort="site">Site</th>
-          {% endif %}
-          <th class="sort mdl-data-table__cell--non-numeric" data-sort="algorithm">Algorithm</th>
-          <th class="sort mdl-data-table__cell--non-numeric" data-sort="passed">Currently Passed</th>
-          <th class="sort" data-sort="result">Current Result</th>
-          <th class="sort mdl-data-table__cell--non-numeric" data-sort="notes">Notes</th>
-          <th class="sort" data-sort="priority">Priority</th>
-          <th>Acknowledged</th>
-        </tr>
-      </thead>
-      <tbody class="list">
-        {% for result in results %}
-          {% if allsites == True or result.asset.site.name == site.name %}
-            <tr>
-              <td class="timestamp mdl-data-table__cell--non-numeric">{{result.first_timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
-              <td class="asset mdl-data-table__cell--non-numeric">{{result.asset.name}}</td>
-              {% if allsites == True %}
-                <td class="site mdl-data-table__cell--non-numeric">{{result.asset.site.name}}</td>
-              {% endif %}
-              <td class="algorithm mdl-data-table__cell--non-numeric">{{result.algorithm.descr}}</td>
-              <td class="passed mdl-data-table__cell--non-numeric">{{result.passed}}</td>
-              <td class="result">
-                {% if result.algorithm.algorithm.format == 'bool' %}
-                  {{result.value != 0}}
-                {% else %}
-                  {{result.algorithm.algorithm.format.format(result.value)}}
-                {% endif %}
-              </td>
-              <td class="notes mdl-data-table__cell--non-numeric">
-                <div class="mdl-textfield mdl-js-textfield">
-                  <textarea class="mdl-textfield__input" type="text" rows="1" name="notes-{{result.id}}" id="notes-{{result.id}}" style="font-size:80%">{{result.notes}}</textarea>
-                  <label class="mdl-textfield__label" for="notes-{{result.id}}">Notes...</label>
-                </div>
-              </td>
-              <td class="priority">{{result.asset.priority}}</td>
-              <td>
-                <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-data-table__select" for="acknowledge-{{result.id}}">
-                  <input type="checkbox" name="acknowledge" id="acknowledge-{{result.id}}" value="{{result.id}}" class="mdl-checkbox__input" {% if result.acknowledged %}checked{% endif %}/>
-                </label>
-              </td>
-            </tr>
-          {% endif %}
-        {% endfor %}
-      </tbody>
-    </table>
-
-    <br><br>
-    <input type=submit value=Save class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-    {% if not allsites == True %}
-    <input type=button onclick="window.location.href='{{ url_for('report_page', sitename=site.name) }}'" value="Download Report" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-    <input type=button onclick="window.location.href='{{ url_for('send_report_trigger', sitename=site.name) }}'" value="Send Report" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+  <div>
+    {% if site is defined %}
+      <form action="{{ url_for('unresolved_issues_submit', sitename=site.name) }}" method=post>
+    {% else %}
+      <form action="{{ url_for('unresolved_issues_submit_all') }}" method=post>
     {% endif %}
+      <table id="unresolved-table" class="mdl-data-table mdl-js-data-table wrap-text full-width">
+        <thead>
+          <tr>
+            <th class="sort mdl-data-table__cell--non-numeric" data-sort="timestamp">First Failure</th>
+            <th class="sort mdl-data-table__cell--non-numeric" data-sort="asset">Asset</th>
+            {% if allsites == True %}
+              <th class="sort mdl-data-table__cell--non-numeric" data-sort="site">Site</th>
+            {% endif %}
+            <th class="sort mdl-data-table__cell--non-numeric" data-sort="algorithm">Algorithm</th>
+            <th class="sort mdl-data-table__cell--non-numeric" data-sort="passed">Currently Passed</th>
+            <th class="sort" data-sort="result">Current Result</th>
+            <th class="sort mdl-data-table__cell--non-numeric" data-sort="notes">Notes</th>
+            <th class="sort" data-sort="priority">Priority</th>
+            <th>Acknowledged</th>
+          </tr>
+        </thead>
+        <tbody class="list">
+          {% for result in results %}
+            {% if site is defined %}
+              <tr>
+                <td class="timestamp mdl-data-table__cell--non-numeric">{{result.first_timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+                <td class="asset mdl-data-table__cell--non-numeric">{{result.asset.name}}</td>
+                {% if allsites == True %}
+                  <td class="site mdl-data-table__cell--non-numeric">{{result.asset.site.name}}</td>
+                {% endif %}
+                <td class="algorithm mdl-data-table__cell--non-numeric">{{result.algorithm.descr}}</td>
+                <td class="passed mdl-data-table__cell--non-numeric">{{result.passed}}</td>
+                <td class="result">
+                  {% if result.algorithm.algorithm.format == 'bool' %}
+                    {{result.value != 0}}
+                  {% else %}
+                    {{result.algorithm.algorithm.format.format(result.value)}}
+                  {% endif %}
+                </td>
+                <td class="notes mdl-data-table__cell--non-numeric">
+                  <div class="mdl-textfield mdl-js-textfield">
+                    <textarea class="mdl-textfield__input" type="text" rows="1" name="notes-{{result.id}}" id="notes-{{result.id}}" style="font-size:80%">{{result.notes}}</textarea>
+                    <label class="mdl-textfield__label" for="notes-{{result.id}}">Notes...</label>
+                  </div>
+                </td>
+                <td class="priority">{{result.asset.priority}}</td>
+                <td>
+                  <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-data-table__select" for="acknowledge-{{result.id}}">
+                    <input type="checkbox" name="acknowledge" id="acknowledge-{{result.id}}" value="{{result.id}}" class="mdl-checkbox__input" {% if result.acknowledged %}checked{% endif %}/>
+                  </label>
+                </td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
 
-  </form>
+      <br><br>
+      <input type=submit value=Save class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+      {% if site is defined %}
+      <input type=button onclick="window.location.href='{{ url_for('report_page', sitename=site.name) }}'" value="Download Report" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+      <input type=button onclick="window.location.href='{{ url_for('send_report_trigger', sitename=site.name) }}'" value="Send Report" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+      {% endif %}
+
+    </form>
+  </div>
 
   <script type="text/javascript">
     var options = {

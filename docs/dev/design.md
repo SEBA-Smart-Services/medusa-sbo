@@ -1,4 +1,4 @@
-## services
+## Services
 
 Medusa uses two systemd services, the code for which is stored in ec2conf/
 

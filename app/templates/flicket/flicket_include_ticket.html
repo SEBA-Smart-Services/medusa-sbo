@@ -1,0 +1,150 @@
+<form action=""
+      class="form-horizontal"
+      enctype="multipart/form-data"
+      method="post"
+      name="create_ticket">
+    {{ form.hidden_tag() }}
+
+    <div class="mdl-grid">
+      <div class="mdl-cell mdl-cell--12-col">
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            {{ form.title(class="form-control mdl-textfield__input", pattern="[A-Z,a-z,0-9, ]*", autocomplete="off") }}
+          <label class="mdl-textfield__label">Ticket Title</label>
+          <span class="mdl-textfield__error">Only alphanumeric input, please!</span>
+        </div>
+      </div>
+      {% if form.title.errors %}
+        <div class="mdl-cell mdl-cell--12-col">
+          <div class="alert alert-warning small" style="color: red;">
+              {% for error in form.title.errors %}
+                  {{ error }}
+              {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="mdl-cell mdl-cell--12-col">
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              {{ form.content(class="form-control mdl-textfield__input") }}
+            <label class="mdl-textfield__label">Description</label>
+          </div>
+      </div>
+      <br>
+      <div class="mdl-cell mdl-cell--12-col">
+        {% if form.content.errors %}
+            <div class="alert alert-warning small" style="color: red;">
+                {% for error in form.content.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+      </div>
+
+      <div class="mdl-cell mdl-cell--12-col">
+        <label class="">Component</label>
+        <div>
+          <select name="Component" class="mdl-textfield__input">
+            <option value="BMS">BMS</option>
+            <option value="Security">Security</option>
+            <option value="Mechanical">Mechanical</option>
+            <option value="Electrical">Electrical</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mdl-cell mdl-cell--12-col">
+          <label class="">Priority Level</label>
+          <div>
+              {{ form.priority(class="form-control mdl-textfield__input") }}
+          </div>
+          <div class="mdl-cell mdl-cell--12-col">
+            {% if form.priority.errors %}
+                <div class="alert alert-warning small" style="color: red;">
+                    {% for error in form.priority.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+          </div>
+
+          <br>
+          <label class="">Category</label>
+          <div class="">
+              {{ form.category(class="form-control mdl-textfield__input") }}
+          </div>
+          <div class="mdl-cell mdl-cell--12-col">
+            {% if form.category.errors %}
+                <div class="alert alert-warning small" style="color: red;">
+                    {% for error in form.category.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+          </div>
+      </div>
+
+      {% if form.priority.errors %}
+          <div class="alert alert-warning small">
+              {% for error in form.priority.errors %}
+                  {{ error }}
+              {% endfor %}
+          </div>
+      {% endif %}
+
+
+      {% if form.category.errors %}
+          <div class="alert alert-warning small">
+              {% for error in form.category.errors %}
+                  {{ error }}
+              {% endfor %}
+          </div>
+      {% endif %}
+      <br>
+      {% if form.uploads %}
+          {{ form.uploads }}
+      {% endif %}
+
+    <div class="mdl-cell mdl-cell--12-col">
+      <label class="">Due Date (Optional)</label>
+      <input type="date" name="due_date" class="mdl-textfield__input">
+    </div>
+
+    <div class="mdl-cell mdl-cell--12-col">
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <select name="sitename" class="mdl-textfield__input">
+          {% if site != None %}
+            <option value="{{ site.name }}">{{site.name}}</option>
+          {% else %}
+            {% for site in sites %}
+              <option value="{{ site.name }}">{{site.name}}</option>
+            {% endfor %}
+          {% endif %}
+        </select>
+        <label class="mdl-textfield__label">Facility</label>
+        <span class="mdl-textfield__error">Only alphanumeric input, please!</span>
+      </div>
+    </div>
+
+
+
+    <div class="form-group mdl-cell mdl-cell--12-col">
+        <label class="control-label">{{ form.file.label }}</label>
+        <div class="">
+            {{ form.file }}
+        </div>
+        <br>
+        <div class="">
+            {{ form.submit(class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent") }}
+        </div>
+    </div>
+  </div>
+</form>
+
+<div class="mdl-grid">
+  <div class="form-group mdl-cell mdl-cell--12-col">
+    <form action="/site/all/tickets" method="GET">
+      <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+      </input>
+    </form>
+  </div>
+</div>

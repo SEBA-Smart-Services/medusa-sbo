@@ -1,32 +1,25 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import os, ast, configparser
+from flask_mail import Mail
 
 # set up Flask
 app = Flask(__name__)
 
-# choose which part of the config file to load
-config_file = os.getenv('MEDUSA_CONFIG', '/var/lib/medusa/medusa-development.ini')
+# set config
+app.config.from_envvar('MEDUSA_DEVELOPMENT_SETTINGS')
 
-# configparser handles everything as strings so some additional conversion work is needed
-config = configparser.ConfigParser()
-# prevent configparser from converting to lowercase
-config.optionxform = str
-# read in config from ini
-config.read(config_file)
-
-# convert the job list to a python dictionary object and load. this is special because it contains \n characters that need removing
-app.config['JOBS'] = ast.literal_eval(config['flask']['JOBS'].replace('\n',''))
-config['flask'].pop('JOBS')
-
-# load remaining values
-# convert the strings to python objects
-for key in config['flask']:
-    app.config[key] = ast.literal_eval(config['flask'][key])
-
-
-# set up database
+# initialise database models
 db = SQLAlchemy(app)
+
+# initialise Flask-Mail
+mail = Mail(app)
+
+from flask_security import Security, SQLAlchemyUserDatastore
+from app.models.users import User, Role
+
+user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+security = Security(app, user_datastore)
 
 # set up database connection registry
 from app.models import SessionRegistry
@@ -53,7 +46,22 @@ bugsnag.configure(
 )
 handle_exceptions(app)
 
-# packages
-from app import models, add, admin, cmms, weather, algorithms, reports, scheduling
-# modules
+
 from app import controllers
+
+# each component of the application should be packaged into a standalone package
+# consider refactoring as Flask Blueprints
+from app.sitedataagent import controllers, models
+from app.ict import controllers
+from app.ticket import controllers, models
+from app.alarms import controllers
+from app.hvac_assets import controllers
+
+# import the remaining. in particular, all views and models must be imported, as well as anything with a decorator
+# packages
+from app import models, admin, cmms, weather, algorithms, reports, scheduling
+
+from app.scheduled.tasks import register_points
+
+app.logger.info('registering points...')
+register_points()

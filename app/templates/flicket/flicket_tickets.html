@@ -1,0 +1,139 @@
+<!-- extend from base layout -->
+{% extends "layout.html" %}
+{% block content %}
+
+
+    <div class="mdl-layout">
+        <div class="mdl-grid" style="margin: 0 !important">
+          <h3 class="mdl-cell mdl-cell--6-col">{{ title }}</h3>
+
+          <div class="mdl-cell mdl-cell--6-col" style="margin-right: 0">
+              <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="float: right;" href="{{ url_for('ticket_create', sitename=sitename) }}">
+                <i class="material-icons">add</i>
+              </a>
+          </div>
+        </div>
+
+        <!-- Flicket search form -->
+        <form action=""
+              class="form-horizontal flicket-form"
+              enctype="multipart/form-data"
+              method="post"
+              name="search_ticket">
+            {{ form.hidden_tag() }}
+
+
+            <!-- <div class="mdl-grid">
+                <div class="mdl-cell mdl-cell--2-col">
+                    {{ form.category(class="form-control", id="category") }}
+                </div>
+                <div class="mdl-cell mdl-cell--1-col">
+                </div>
+                <div class="mdl-cell mdl-cell--2-col">
+                    {{ form.status(class="form-control", id="status")}}
+                </div>
+                <div class="mdl-cell mdl-cell--2-col">
+                    {{ form.email(class="form-control", placeholder="email", id="autocomplete-email") }}
+                </div>
+                <div class="mdl-cell mdl-cell--1-col">
+                </div>
+                <div class="mdl-cell mdl-cell--2-col">
+                    {{ form.content(class="form-control", placeholder="contents") }}
+                </div>
+                <div class="mdl-cell mdl-cell--1-col">
+                </div>
+                <div class="mdl-cell mdl-cell--1-col">
+                    <input class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" type="submit" value="search"/>
+                </div>
+            </div> -->
+            {% if form.email.errors %}
+                <div class="alert alert-warning small">
+                    {% for error in form.email.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% if form.content.errors %}
+                <div class="alert alert-warning small">
+                    {% for error in form.content.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </form>
+        <!-- / flicket search form -->
+
+        <table class="mdl-data-table mdl-js-data-table">
+          <thead>
+            <tr>
+                <th class="mdl-data-table__cell--non-numeric">
+                    Ticket Name
+                </th>
+                <th class="mdl-data-table__cell--non-numeric">
+                    Priority
+                </th>
+                <th class="mdl-data-table__cell--non-numeric">
+                    Description
+                </th>
+                <th class="mdl-data-table__cell--non-numeric">
+                    Submitted By
+                </th>
+                <th class="mdl-data-table__cell--non-numeric">
+                    Date
+                </th>
+                <th class="mdl-data-table__cell--non-numeric">
+                    Replies
+                </th>
+                <th class="mdl-data-table__cell--non-numeric">
+                    Category
+                </th>
+                <th class="mdl-data-table__cell--non-numeric">
+                    Status
+                </th>
+                <th class="mdl-data-table__cell--non-numeric">
+                    Assigned
+                </th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in tickets %}
+                <tr {%- if t.current_status.status == 'Closed' %} class="success"{% endif %}>
+                    <td class="mdl-data-table__cell--non-numeric">
+                        <a href="{{ url_for('ticket_view', ticket_id = t.id) }}">{{ t.ticket_name }}</a>
+                    </td>
+                    <td class="mdl-data-table__cell--non-numeric">
+                        {{ t.ticket_priority.priority }}
+                    </td>
+                    <td class="mdl-data-table__cell--non-numeric">
+                        {{ t.description }}
+                    </td>
+                    <td class="mdl-data-table__cell--non-numeric">
+                        {{ t.user.first_name }} {{ t.user.last_name }}
+                    </td>
+                    <td class="mdl-data-table__cell--non-numeric">
+                        {{ t.date_added.strftime('%Y-%m-%d') }}
+                    </td>
+                    <td class="mdl-data-table__cell--non-numeric">
+                        {{ t.num_replies }}
+                    </td>
+                    <td class="mdl-data-table__cell--non-numeric">
+                        {{ t.category.category }}
+                    </td>
+                    <td class="mdl-data-table__cell--non-numeric">
+                        {{ t.current_status.status }}
+                    </td>
+                    <td class="mdl-data-table__cell--non-numeric">
+                        {{ t.assigned.first_name }} {{ t.assigned.last_name }}
+                    </td>
+                </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+
+    <div class="mdl-cell mdl-cell--12-col">
+      <input type=button onclick="window.location.href='{{ url_for('tickets_report') }}'" value="Download Report" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"></input>
+    </div>
+
+
+{% endblock %}

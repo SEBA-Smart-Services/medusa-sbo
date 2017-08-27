@@ -1,0 +1,28 @@
+<td class="mdl-data-table__cell--non-numeric">
+  <a class="anchor" id="{{ content.id }}" href="#{{ content.id }}">
+    Reply #{{ (replies.page - 1) * replies.per_page + loop.index }}
+  </a>
+</td>
+<td class="mdl-data-table__cell--non-numeric">
+  {% if content.user.avatar %}
+    <img class="center-block"
+         src="{{ url_for('static', filename='flicket_avatars/') }}{{ content.user.avatar }}"
+         style="width: 30%">
+  {% endif %}
+  {{ content.user.first_name }} {{ content.user.last_name }}
+</td>
+<td class="mdl-data-table__cell--non-numeric">
+  {{ content.content }}
+<td class="mdl-data-table__cell--non-numeric">
+  {{ content.date_added.strftime('%d-%m-%Y %H:%M') }}
+</td>
+<td class="mdl-data-table__cell--non-numeric">
+  {%- if content.uploads -%}
+  {%- for upload in content.uploads %}
+  <a href="{{ url_for('view_ticket_uploads', filename=upload.filename) }}"
+     title="{{ upload.original_filename }}"
+     target="_blank">{{ upload.original_filename }}<span
+          class="glyphicon glyphicon-file" aria-hidden="true"></span></a>
+  {%- endfor -%}
+  {% endif %}
+</td>

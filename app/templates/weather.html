@@ -10,32 +10,32 @@
   <div class="mdl-cell mdl-cell--5-col mdl-grid">
   	<div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-grid">
   		<div class="mdl-cell mdl-cell--6-col centered">
-	  		<h2>Economy Mode</h2>
+	  		<h4>Economy Mode</h4>
 	  	</div>
 	  	<div class="mdl-cell mdl-cell--6-col centered">
-	  		<h1>
+	  		<h4>
 	  		{% if economy == True %}
 	  			<span style="color:green">Available</span>
 	  		{% else %}
 	  			<span style="color:red">Not Available</span>
 	  		{% endif%}
-	  		</h1>
+				</h4>
   		</div>
   	</div>
   	<div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-grid">
   		<div class="mdl-cell mdl-cell--6-col centered">
-	  		<h2>Global<br>Setpoint Offset</h2>
+	  		<h4>Global<br>Setpoint Offset</h4>
 	  	</div>
 	  	<div class="mdl-cell mdl-cell--6-col centered">
-	  		<h1 style="color:green; font-size:500%">{{offset|round(1)}}&degC</h1>
+	  		<h4 style="color:green;">{{offset|round(1)}}&degC</h4>
   		</div>
   	</div>
   	<div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-grid">
   		<div class="mdl-cell mdl-cell--6-col centered">
-	  		<h2>Energy Savings</h2>
+	  		<h4>Energy Savings</h4>
 	  	</div>
 	  	<div class="mdl-cell mdl-cell--6-col centered">
-	  		<h1 style="color:green; font-size:700%">{{savings|round(0)|int}}%</h1>
+	  		<h4 style="color:green;">{{savings|round(0)|int}}%</h4>
   		</div>
   	</div>
 	</div>

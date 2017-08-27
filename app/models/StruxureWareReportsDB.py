@@ -111,6 +111,19 @@ class Alarm(db.Model):
     OriginatedGUID = db.Column('OriginatedGUID', db.String(50))
     DateTimeStamp = db.Column('DateTimeStamp', db.DateTime)
 
+    def alarm_state_text(self):
+        """
+        return a human-friendly representation of the AlarmState field
+        """
+        alarm_state_text_dict = {
+            0: 'Normal',
+            1: 'Alarm',
+            2: 'Checked',
+            3: 'Reset',
+            4: 'Disabled'
+        }
+        return alarm_state_text_dict[self.AlarmState]
+
 
 class LogTimeValue(db.Model):
     """

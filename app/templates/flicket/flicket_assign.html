@@ -1,0 +1,40 @@
+<!-- extend from base layout -->
+{% extends "layout.html" %}
+
+{% block content %}
+
+{% include('flicket/flicket_restjson_users.html') %}
+
+    <div class="container">
+        <h3>{{ title }}</h3>
+        <h4 class="flicket-title">#{{ ticket.id_zfill }} - {{ ticket.ticket_name }}</h4>
+
+        <form action=""
+              class="form-horizontal"
+              enctype="multipart/form-data"
+              method="post"
+              name="create_ticket">
+
+            <ul class="demo-list-item mdl-list">
+              {% for user in users %}
+              <li class="mdl-list__item">
+                <span class="mdl-list__item-primary-content">
+                  <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="{{ user.id }}">
+                    <input type="radio" id="{{ user.id }}" class="mdl-radio__button" name="user" value="{{ user.id }}">
+                    <span class="mdl-radio__label">{{ user.first_name }} {{ user.last_name }}</span>
+                  </label>
+                </span>
+              </li>
+              <div class="">
+              </div>
+              {% endfor %}
+
+              <input type="submit">
+
+
+
+        </form>
+
+
+    </div>
+{% endblock %}

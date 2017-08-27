@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h3>New ITC</h3>
+
+  <br>
+
+  <div>
+    <form action="/generic/ITC/new" method="POST">
+      <input type="text" name="ITC_name" placeholder="ITC Name" required class="mdl-textfield__input">
+      <br>
+      <select name="deliverable_type" class="mdl-textfield__input">
+        {% for deliverable in deliverables %}
+          <option value={{deliverable}}>{{deliverable.name}}</option>
+        {% endfor %}
+      </select>
+      <br>
+      <input type="submit" value="Create ITC" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+    </form>
+
+    <div>
+      <form action="/generic/ITC" method="GET">
+        <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        </input>
+      </form>
+    </div>
+  </div>
+
+{% endblock %}

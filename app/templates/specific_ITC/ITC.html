@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+{% block title %}- {{project.name}}{% endblock %}
+{% block head %}
+  <script>
+
+  </script>
+{% endblock %}
+{% block content %}
+  <h3>Checks for {{ITC.ITC.name}}</h3>
+
+  <h5>{{'%0.0f' %percentage_complete}}% completed</h5>
+
+  <br>
+
+  <div>
+    <form method="POST" action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITCid}}/check/change">
+      <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+        <thead>
+          <tr>
+            <th class="mdl-data-table__cell--non-numeric">Description</th>
+            <th class="mdl-data-table__cell--non-numeric">Comments</th>
+            <th class="mdl-data-table__cell--non-numeric">Status</th>
+            <th class="mdl-data-table__cell--non-numeric">Completed?</th>
+            <th class="mdl-data-table__cell--non-numeric">Completion Date</th>
+            <th class="mdl-data-table__cell--non-numeric">Completed by</th>
+            <th class="mdl-data-table__cell--non-numeric"></th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for check in checks %}
+          <tr>
+            <td class="mdl-data-table__cell--non-numeric">{{check.ITC_check.check.check_description}}</th>
+            <td class="mdl-data-table__cell--non-numeric">{{check.comments}}</th>
+            <td class="mdl-data-table__cell--non-numeric">{{check.status}}</td>
+            <td class="mdl-data-table__cell--non-numeric">
+              {% if check.is_done == True %}
+                <label class="mdl-checkbox mdl-js-checkbox">
+                  <input name="check_box" class="mdl-checkbox__input check" type="checkbox" value="{{check.id}}" checked/>
+                </label>
+              {% else %}
+                <label class="mdl-checkbox mdl-js-checkbox">
+                  <input name="check_box" class="mdl-checkbox__input check" type="checkbox" value="{{check.id}}"/>
+                </label>
+              {% endif %}
+            </td>
+            <td class="mdl-data-table__cell--non-numeric">{{check.completion_datetime}}</td>
+            <td class="mdl-data-table__cell--non-numeric">{{check.user}}</td>
+            <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
+              <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.id}}/checks/{{check.id}}/edit">
+                Edit
+              </a>/
+              <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.id}}/checks/{{check.id}}/delete">
+                Delete
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      <br>
+      <input type="submit" value="save changes" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+      </input>
+    </form>
+  </div>
+
+  <br>
+  <div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--4-col">
+      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC">
+        <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        </input>
+      </form>
+    </div>
+
+    <div class="mdl-cell mdl-cell--4-col">
+      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.id}}/check/new">
+        <input type="submit" value="New Check" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        </input>
+      </form>
+    </div>
+
+    <div class="mdl-cell mdl-cell--4-col" style="right:0; position:fixed;">
+      <input type=button onclick="window.location.href='{{ url_for('checks_report_page', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id) }}'" value="Download Report" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+    </div>
+  </div>
+
+
+{% endblock %}

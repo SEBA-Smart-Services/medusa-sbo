@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block title %}- {{project.name}}{% endblock %}
+{% block content %}
+  <h3>New ITP for {{ project.name }} at {{site.name}}</h3>
+
+  <br>
+
+  <div>
+    <form action="/site/{{ site.name }}/projects/{{ project.name }}/ITP/new" method="POST">
+      <input type="text" name="ITP_name" placeholder="ITP Name" required class="mdl-textfield__input">
+      <br>
+      <input type="text" name="ITP_description" placeholder="Give a description of the ITP" required class="mdl-textfield__input">
+      <br>
+      <select name="ITP_status" class="mdl-textfield__input">
+        <option value="Not Started">Not Started</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Completed">Completed</option>
+        <option value="Not Applicable">Not Applicable</option>
+      </select>
+      <br>
+      <input type="submit" value="Create ITP" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+    </form>
+  </div>
+
+{% endblock %}
