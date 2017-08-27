@@ -1,14 +1,18 @@
-from flask import request, render_template, url_for, redirect, jsonify, flash, g
+from flask import request, render_template, url_for, redirect, jsonify, flash, g, send_from_directory
 from app import app, db
 import datetime
+import os
 
 from app.models import Site
 from app.models.users import User
 from flask_user import current_user
-from app.ticket.models import FlicketTicket, FlicketStatus, FlicketPost, FlicketSubscription, FlicketPriority, FlicketCategory, FlicketDepartment, FlicketHistory
+from app.ticket.models import FlicketTicket, FlicketStatus, FlicketPost, FlicketSubscription, FlicketPriority, FlicketCategory, FlicketDepartment, FlicketHistory, FlicketUploads
+
+from app.models.ITP import Project
 
 from app.ticket.forms.flicket_forms import SearchEmailForm, CreateTicketForm, ReplyForm, CategoryForm, DepartmentForm, EditTicketForm, EditReplyForm
 from app.ticket.forms.search import SearchTicketForm
+from app.ticket.forms.forms_main import ConfirmPassword
 
 from app.ticket.scripts.flicket_functions import add_action, block_quoter
 from app.ticket.scripts.email import FlicketMail
@@ -18,7 +22,7 @@ from app.ticket.scripts.jinja2_functions import display_post_box
 app.jinja_env.globals.update(display_post_box=display_post_box)
 
 # view users
-@app.route('/ticket/main', methods=['GET', 'POST'])
+@app.route('/site/all/ticket/main', methods=['GET', 'POST'])
 def index():
 
     """ View showing flicket main page. We use this to display some statistics."""
@@ -64,9 +68,13 @@ def index():
 
 
 #creating a ticket
-@app.route('/ticket/create', methods=['GET', 'POST'])
-def ticket_create():
+@app.route('/site/all/ticket/create', methods=['GET', 'POST'])
+def ticket_create(sitename=None):
     form = CreateTicketForm()
+
+    if sitename != None:
+        sites = Site.query.filter_by(name=sitename).first()
+    sites = Site.query.all()
 
     if form.validate_on_submit():
 
@@ -74,6 +82,10 @@ def ticket_create():
         ticket_status = FlicketStatus.query.filter_by(status='Open').first()
         ticket_priority = FlicketPriority.query.filter_by(id=int(form.priority.data)).first()
         ticket_category = FlicketCategory.query.filter_by(id=int(form.category.data)).first()
+
+        ticket_component = request.form['Component']
+        due_date = request.form['due_date']
+        site = request.form['site']
 
         files = request.files.getlist("file")
         upload_attachments = UploadAttachment(files)
@@ -88,7 +100,9 @@ def ticket_create():
                                    current_status=ticket_status,
                                    description=form.content.data,
                                    ticket_priority=ticket_priority,
-                                   category=ticket_category
+                                   category=ticket_category,
+                                   component=ticket_component,
+                                   facility=site
                                    )
         db.session.add(new_ticket)
 
@@ -108,10 +122,16 @@ def ticket_create():
 
     return render_template('flicket/flicket_create.html',
                            title='Create Ticket',
-                           form=form)
+                           form=form,
+                           sites=sites)
 
-@app.route('/ticket/<ticket_id>/view', methods=['GET', 'POST'])
-def ticket_view(ticket_id, page=1):
+#creating a ticket
+@app.route('/site/<sitename>/ticket/create', methods=['GET'])
+def site_ticket_create(sitename):
+    return redirect(url_for('ticket_create', sitename=sitename))
+
+@app.route('/site/all/ticket/<ticket_id>/view', methods=['GET', 'POST'])
+def ticket_view(ticket_id, sitename=None, page=1):
     # is ticket number legitimate
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
 
@@ -148,11 +168,6 @@ def ticket_view(ticket_id, page=1):
         # add files to database.
         upload_attachments.populate_db(new_reply)
 
-        # change ticket status to open if closed.
-        if ticket.current_status.status.lower() == 'closed':
-            ticket_open = FlicketStatus.query.filter_by(status='Open').first()
-            ticket.current_status = ticket_open
-
         # subscribe to the ticket
         if not ticket.is_subscribed(current_user):
             subscribe = FlicketSubscription(
@@ -174,8 +189,13 @@ def ticket_view(ticket_id, page=1):
 
             return redirect(url_for('change_status', ticket_id=ticket.id, status='Closed'))
 
-        print(ticket.subscribers)
         return redirect(url_for('ticket_view', ticket_id=ticket_id))
+
+    # if reply is blank but has been submitted for closure.
+    if form.submit_close.data:
+
+        return redirect(url_for('change_status', ticket_id=ticket.id, status='Closed'))
+
 
     # get post id and populate contents for auto quoting
     if post_rid:
@@ -186,10 +206,7 @@ def ticket_view(ticket_id, page=1):
         reply_contents = "{} {} wrote on {}\r\n\r\n{}".format(ticket.user.first_name, ticket.user.last_name, ticket.date_added, ticket.description)
         form.content.data = block_quoter(reply_contents)
 
-    app.config['posts_per_page'] = 10
-    replies = replies.paginate(page, app.config['posts_per_page'])
-
-    print(page)
+    replies = replies.paginate(page, app.config['POSTS_PER_PAGE'])
 
     return render_template('flicket/flicket_view.html',
                            title='View Ticket',
@@ -198,8 +215,25 @@ def ticket_view(ticket_id, page=1):
                            replies=replies,
                            page=page)
 
-@app.route('/tickets', methods=['GET', 'POST'])
-def tickets(page=1):
+@app.route('/site/all/ticket/uploads/<filename>')
+def view_ticket_uploads(filename):
+    path = os.path.join(os.getcwd(), app.config['TICKET_UPLOAD_FOLDER'])
+    return send_from_directory(path, filename)
+
+@app.route('/site/<sitename>/tickets', methods=['GET'])
+def site_tickets_view(sitename):
+    site = Site.query.filter_by(name=sitename).first()
+    return redirect(url_for('tickets', sitename=site.name))
+
+@app.route('/site/all/tickets', methods=['GET', 'POST'])
+def tickets(sitename=None, page=1):
+
+    print(sitename)
+    if sitename != None:
+        site = Site.query.filter_by(name=sitename).first()
+        tickets = FlicketTicket.query.filter_by(facility=site).all()
+    else:
+        tickets = FlicketTicket.query
 
     form = SearchTicketForm()
 
@@ -239,7 +273,6 @@ def tickets(page=1):
 
     # todo: get data from api
 
-    tickets = FlicketTicket.query
     if status:
         tickets = tickets.filter(FlicketTicket.current_status.has(FlicketStatus.status == status))
         form.status.data = FlicketStatus.query.filter_by(status=status).first().id
@@ -280,11 +313,15 @@ def tickets(page=1):
                            )
 
 # edit ticket
-@app.route('/ticket/<ticket_id>/edit', methods=['GET', 'POST'])
+@app.route('/site/all/ticket/<ticket_id>/edit', methods=['GET', 'POST'])
 def edit_ticket(ticket_id):
     form = EditTicketForm(ticket_id=ticket_id)
 
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
+
+    if ticket.current_status.status == 'Closed':
+        flash('Cannot edit closed ticket.', category='warning')
+        return redirect(url_for('ticket_view', ticket_id=ticket.id))
 
     if ticket.current_status == None:
         ticket_status = FlicketStatus.query.filter_by(status='Open').first()
@@ -374,7 +411,7 @@ def edit_ticket(ticket_id):
 
 
 # edit post
-@app.route('/post/<post_id>/edit', methods=['GET', 'POST'])
+@app.route('/site/all/post/<post_id>/edit', methods=['GET', 'POST'])
 def edit_post(post_id):
 
     form = EditReplyForm(post_id=post_id)
@@ -452,18 +489,16 @@ def edit_post(post_id):
                            form=form)
 
 # delete ticket
-@app.route('/ticket/<ticket_id>/delete', methods=['GET', 'POST'])
+@app.route('/site/all/ticket/<ticket_id>/delete', methods=['GET', 'POST'])
 def delete_ticket(ticket_id):
     # check is user is authorised to delete tickets. Currently, only admins can delete tickets.
     if not current_user.has_role('admin'):
         flash('You are not authorised to delete tickets.', category='warning')
         return redirect(url_for('ticket_view', ticket_id=ticket_id))
 
-    form = ConfirmPassword()
-
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
 
-    if form.validate_on_submit():
+    if request.method == "POST":
 
         # delete images from database and folder
         images = FlicketUploads.query.filter_by(topic_id=ticket_id)
@@ -486,17 +521,16 @@ def delete_ticket(ticket_id):
 
 
 # delete post
-@app.route('/post/<post_id>/delete', methods=['GET', 'POST'])
-def delete_post(post_id):
+@app.route('/site/all/ticket/<ticket_id>/post/<post_id>/delete', methods=['GET', 'POST'])
+def delete_post(ticket_id, post_id):
     # check user is authorised to delete posts. Only admin can do this.
-    if not current_user.is_admin:
+    if not current_user.has_role('admin'):
         flash('You are not authorised to delete posts', category='warning')
 
-    form = ConfirmPassword()
-
+    ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
     post = FlicketPost.query.filter_by(id=post_id).first()
 
-    if form.validate_on_submit():
+    if request.method == "POST":
 
         # delete images from database and folder
         images = FlicketUploads.query.filter_by(posts_id=post_id)
@@ -509,17 +543,16 @@ def delete_post(post_id):
         db.session.delete(post)
         # commit changes
         db.session.commit()
-        flash('ticket deleted', category='success')
-        return redirect(url_for('tickets'))
+        flash('post deleted', category='success')
+        return redirect(url_for('ticket_view', ticket_id=ticket.id))
 
     return render_template('flicket/flicket_deletepost.html',
-                           form=form,
                            post=post,
                            title='Flicket - Delete post')
 
 
 # delete category
-@app.route('/category/<category_id>/delete', methods=['GET', 'POST'])
+@app.route('/site/all/category/<category_id>/delete', methods=['GET', 'POST'])
 def delete_category(category_id=False):
     if category_id:
 
@@ -649,9 +682,14 @@ def ticket_assign(ticket_id=False):
 # view for self claim a ticket
 @app.route('/ticket/<ticket_id>/claim', methods=['GET', 'POST'])
 def ticket_claim(ticket_id=False):
+
     if ticket_id:
         # claim ticket
         ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
+
+        if ticket.current_status.status == 'Closed':
+            flash('Ticket is closed.', category='warning')
+            return redirect(url_for('ticket_view', ticket_id=ticket.id))
 
         # set status to in work
         status = FlicketStatus.query.filter_by(status='In Work').first()
@@ -674,9 +712,14 @@ def ticket_claim(ticket_id=False):
 # view to release a ticket user has been assigned.
 @app.route('/ticket/<ticket_id>/release', methods=['GET', 'POST'])
 def release(ticket_id=False):
+
     if ticket_id:
 
         ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
+
+        if ticket.current_status.status == 'Closed':
+            flash('Ticket is closed.', category='warning')
+            return redirect(url_for('ticket_view', ticket_id=ticket.id))
 
         # is ticket assigned.
         if not ticket.assigned:
@@ -752,11 +795,11 @@ def unsubscribe_ticket(ticket_id=None):
         return redirect(url_for('ticket_view', ticket_id=ticket_id))
 
 # close ticket
-@app.route('/ticket/<ticket_id>/<status>/update', methods=['GET', 'POST'])
-def change_status(ticket_id, status):
+@app.route('/ticket/<ticket_id>/Close/update', methods=['GET', 'POST'])
+def close_status(ticket_id):
 
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
-    closed = FlicketStatus.query.filter_by(status=status).first()
+    new_status = FlicketStatus.query.filter_by(status="Closed").first()
 
     # Check to see if user is authorised to close ticket.
     edit = False
@@ -764,13 +807,13 @@ def change_status(ticket_id, status):
         edit = True
     if ticket.assigned == current_user:
         edit = True
-    if current_user.is_admin:
+    if current_user.has_role('admin'):
         edit = True
 
     if not edit:
         flash('Only the person to which the ticket has been assigned, creator or Admin can close this ticket.',
               category='warning')
-        return redirect(url_for('ticket_view', ticket_id=ticket_id))
+        return redirect(url_for('ticket_view', ticket_id=ticket.id))
 
     # Check to see if the ticket is already closed.
     if ticket.current_status.status == 'Closed':
@@ -783,14 +826,51 @@ def change_status(ticket_id, status):
     # add action record
     add_action(action='close', ticket=ticket)
 
-    ticket.current_status = closed
-    ticket.assigned_id = None
+    ticket.current_status = new_status
+    ticket.resolution = request.form['status']
+    ticket.resolved_by = current_user
+    ticket.date_resolved = datetime.datetime.now()
     db.session.commit()
-
 
     flash('Ticket {} closed.'.format(str(ticket_id).zfill(5)), category='success')
 
-    return redirect(url_for('tickets'))
+    return redirect(url_for('ticket_view', ticket_id=ticket.id))
+
+@app.route('/ticket/<ticket_id>/Open/update', methods=['GET', 'POST'])
+def open_status(ticket_id):
+
+    ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
+    new_status = FlicketStatus.query.filter_by(status="Open").first()
+
+    # Check to see if user is authorised to close ticket.
+    edit = False
+    if ticket.user == current_user:
+        edit = True
+    if ticket.assigned == current_user:
+        edit = True
+    if current_user.has_role('admin'):
+        edit = True
+
+    if not edit:
+        flash('Only the person to which the ticket has been assigned, creator or Admin can open this ticket.',
+              category='warning')
+        return redirect(url_for('ticket_view', ticket_id=ticket.id))
+
+    f_mail = FlicketMail()
+    f_mail.reopen_ticket(ticket)
+
+    # add action record
+    add_action(action='reopen', ticket=ticket)
+
+    ticket.current_status = new_status
+    ticket.resolution = None
+    ticket.resolved_by = None
+    ticket.date_resolved = None
+    db.session.commit()
+
+    flash('Ticket {} reopened.'.format(str(ticket_id).zfill(5)), category='success')
+
+    return redirect(url_for('ticket_view', ticket_id=ticket.id))
 
 #
 @app.route('/categories/<department_id>', methods=['GET', 'POST'])

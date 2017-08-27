@@ -34,10 +34,6 @@ class User(db.Model, UserMixin):
                             backref=db.backref('users', lazy='dynamic'))
     Deliverable_ITC = db.relationship('Deliverable_check_map', backref='user')
 
-    ######################
-    # commented out until issue #8 resolved_by_id
-    # https://github.com/SEBA-Smart-Services/medusa-sbo/issues/8
-
     ticket_start_id = db.relationship('FlicketTicket',
 
                         primaryjoin="User.id == FlicketTicket.started_id")
@@ -47,8 +43,7 @@ class User(db.Model, UserMixin):
 
                         primaryjoin="User.id == FlicketTicket.resolved_by_id")
     ticket_modified_id = db.relationship('FlicketTicket',
-                        primaryjoin="User.id == FlicketTicket.modified_id")
-
+    
     def __repr__(self):
         return self.email
 

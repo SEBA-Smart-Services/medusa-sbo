@@ -87,8 +87,6 @@ class UserView(ProtectedView):
             password = pw_gen()
             model.password = password
             confirmation_link, token = generate_confirmation_link(model)
-            print(confirmation_link)
-            print(token)
             from app.templates.security import email
             msg = Message("Medusa Temp Password",
                         recipients=[model.email])

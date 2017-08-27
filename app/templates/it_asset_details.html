@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h3>{{ITasset.minion_name}}
+    {% if current_user.is_authenticated %}
+      {% if current_user.has_role('admin') %}
+        <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="float: right;" href="{{ url_for('edit_itasset', sitename=site.name, minion_id=ITasset.id) }}">
+          <i class="material-icons">edit</i>
+        </a>
+      {% endif %}
+    {% endif %}
+  </h3>
+
+  <br>
+
+  <ul class="mdl-list">
+    <li class="mdl-list__item mdl-list__item--two-line">
+      <span class="mdl-list__item-primary-content">
+        {% if ITasset.minion_key_accepted == True %}
+        <i class="material-icons mdl-list__item-icon" style="color:rgba(100, 221, 23, 1.0)">check_circle</i>
+        <span>Configuration Complete</span>
+        {% else %}
+        <i class="material-icons mdl-list__item-icon" style="color:rgba(255, 0, 0, 1.0)">remove_circle</i>
+        <span>Configuration Incomplete. Check salt-minion installation on IT Asset and press "Check Configuration"</span>
+        {% endif %}
+
+        <span class="mdl-list__item-sub-title">Configuration Status</span>
+      </span>
+    </li>
+    <li class="mdl-list__item mdl-list__item--two-line">
+      <span class="mdl-list__item-primary-content">
+        {% if ITasset.online == True %}
+        <i class="material-icons mdl-list__item-icon" style="color:rgba(100, 221, 23, 1.0)">check_circle</i>
+        <span>Online</span>
+        {% else %}
+        <i class="material-icons mdl-list__item-icon" style="color:rgba(255, 0, 0, 1.0)">remove_circle</i>
+        <span>Offline</span>
+        {% endif %}
+
+        <span class="mdl-list__item-sub-title">Asset Status</span>
+      </span>
+    </li>
+    <li class="mdl-list__item mdl-list__item--two-line">
+      <span class="mdl-list__item-primary-content">
+        <span>{{ ITasset.last_checked }}</span>
+        <span class="mdl-list__item-sub-title">Time Last Checked</span>
+      </span>
+    </li>
+    <li class="mdl-list__item mdl-list__item--two-line">
+      <span class="mdl-list__item-primary-content">
+        <span>{{ ITasset.platform }}</span>
+        <span class="mdl-list__item-sub-title">Platform</span>
+      </span>
+    </li>
+    <li class="mdl-list__item mdl-list__item--two-line">
+      <span class="mdl-list__item-primary-content">
+        <span>{{ ITasset.operating_system }}</span>
+        <span class="mdl-list__item-sub-title">Operating System</span>
+      </span>
+    </li>
+    <li class="mdl-list__item mdl-list__item--two-line">
+      <span class="mdl-list__item-primary-content">
+        <span>{{ ITasset.ip_address }}</span>
+        <span class="mdl-list__item-sub-title">IP Address</span>
+      </span>
+    </li>
+  </ul>
+
+
+  <div id="progress" class="mdl-progress mdl-js-progress mdl-progress__indeterminate" style="display:none">Rescanning Asset</div>
+  <br><br>
+  <input type=button id="rescan" onclick="window.location.href='{{ url_for('update_one_minion_data', minion_id=ITasset.id, sitename=site.name) }}'" value="Rescan IT Asset" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+  <br><br>
+
+  <form action="{{url_for('asset_list', sitename=site.name)}}">
+    <input type="submit" value="Back" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+    </input>
+  </form>
+
+  <script type=text/javascript>
+
+  $(function() {
+    $('input#rescan').bind('click', function() {
+      $("#progress").show();
+      return false;
+    });
+  });
+  </script>
+{% endblock %}

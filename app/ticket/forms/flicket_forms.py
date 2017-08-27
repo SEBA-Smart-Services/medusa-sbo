@@ -97,8 +97,8 @@ class CreateTicketForm(FlaskForm):
                                                                           max=field_size['content_max_length'])])
     priority = SelectField('priority', validators=[DataRequired()], coerce=int)
     category = SelectField('category', validators=[DataRequired()], coerce=int)
-    app.config['allowed_extensions'] = ['png', 'jpeg']
-    app.config['ticket_upload_folder'] = None
+    app.config['allowed_extensions'] = app.config['ALLOWED_EXTENSIONS']
+    app.config['ticket_upload_folder'] = app.config['TICKET_UPLOAD_FOLDER']
     file = FileField('Upload Documents', render_kw={'multiple': True})
     submit = SubmitField('Submit', render_kw=form_class_button, validators=[DataRequired()])
 

@@ -7,7 +7,7 @@
       name="add_reply">
     {{ form.hidden_tag() }}
 
-  <div class="mdl-cell mdl-cell--12-col mdl-grid">
+  <div class="mdl-cell mdl-cell--12-col">
       <h5 class="mdl-cell mdl-cell--12-col">{{ form.content.label }}</h5>
       <div class="mdl-cell mdl-cell--12-col">
           {{ form.content(class="form-control") }}
@@ -27,20 +27,13 @@
 
     <br>
 
-    <div class="form-group mdl-cell mdl-cell--12-col mdl-grid">
+    <div class="form-group mdl-cell mdl-cell--12-col">
         <label class="mdl-cell mdl-cell--12-col">{{ form.file.label }}</label>
         <div class="mdl-cell mdl-cell--12-col ">
             {{ form.file }}
         </div>
         <div class="mdl-cell mdl-cell--12-col">
-            {% if ticket %}
-              {% if current_user.is_admin or (ticket.user == current_user) %}
-                  {% if ticket.current_status.status != 'Closed' %}
-                      {{ form.submit_close(class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent") }}
-                  {% endif %}
-              {% endif %}
-            {% endif %}
-            {{ form.submit(class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent") }}
+          {{ form.submit(class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent") }}
         </div>
     </div>
 </form>

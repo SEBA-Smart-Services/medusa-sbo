@@ -1,35 +1,17 @@
 <!-- extend from base layout -->
-{% extends "flicket_base.html" %}
+{% extends "layout.html" %}
 {% block content %}
     <div class="container">
         <form class="form-horizontal" action="" method="post" name="create_ticket">
-            {{ form.hidden_tag() }}
 
-            <h1>{{ title }}</h1>
+            <h3>{{ title }}</h3>
 
-            <p>{{ post.id }}</p>
-            <p>{{ post.content }}</p>
+            <p>Post id: {{ post.id }}</p>
+            <p>Post: {{ post.content }}</p>
 
-            <div class="col-sm-6">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">Password</label>
-                    <div class="col-sm-9">
-                        {{ form.password(class="form-control") }}
-                    </div>
-                </div>
-                {% if form.password.errors %}
-                    <div class="alert alert-warning small">
-                        {% for error in form.password.errors %}
-                            {{ error }}
-                        {% endfor %}
-                    </div>
-                {% endif %}
-                <div class="form-group text-center">
-                    <input class="btn btn-danger" type="submit" name="delete" value="delete ticket"/>
-                </div>
+            <div class="form-group text-center">
+                <input class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" type="submit" name="delete" value="delete post"/>
+            </div>
         </form>
-    </div>
-
-
     </div>
 {% endblock %}

@@ -72,12 +72,31 @@ class SaltAPI():
         unaccepted_minions = data["minions_pre"]
         accepted_minions = data["minions"]
         return accepted_minions, unaccepted_minions
-# testing
-if __name__ == '__main__':
-    api=SaltAPI()
-    api.login()
-    minion = "rtc-es"
-    print(api.is_minion_reachable(minion))
-    api.logout()
-    print(api.is_minion_reachable(minion))
-    print(api.get_minion_grains(minion))
+
+        keyname = "perfcentre-chris-01"
+        payload = {'fun': 'key.accept','client':'wheel','tgt':'*','match':keyname}
+        req = requests.post(api.salt_host, headers=api._get_headers(),data=payload,verify=api.verify_ssl_cert)
+
+    def accept_salt_minion_key(self, minion_name):
+        keyname = minion_name
+        payload = {'fun': 'key.accept','client':'wheel','tgt':'*','match':keyname}
+        req = requests.post(self.salt_host, headers=self._get_headers(),data=payload,verify=self.verify_ssl_cert)
+        if req.status_code!=200:
+            return False
+        resp=req.json()
+        data=resp['return'][0]['data']
+        if data['success']==1 and data['return']['minions'][0]==minion_name:
+            return True
+        else:
+            return False
+
+    def get_minion_isntalled_services(self, minion_name):
+        keyname = minion_name
+        payload = {'client':'local','tgt':keyname, 'fun': 'service.get_all'}
+        req = requests.post(self.salt_host, headers=self._get_headers(),data=payload,verify=self.verify_ssl_cert)
+        if req.status_code != 200:
+            return [""]
+        elif req.status_code == 200:
+            resp=req.json()
+            data=resp["return"][0][keyname]
+            return data
