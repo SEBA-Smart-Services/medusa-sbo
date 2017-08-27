@@ -8,7 +8,11 @@
   <div class="mdl-grid">
     <div class="mdl-cell mdl-cell--4-col" style="text-align: left;">
       {% if page_number > 1 %}
-      <a href="{{ url_for('alarm_list_paged', sitename=site.name, page_number=page_number-1) }}" >
+        {% if site == None %}
+          <a href="{{ url_for('alarm_list_paged', sitename='all', page_number=page_number-1) }}" >
+        {% else %}
+          <a href="{{ url_for('alarm_list_paged', sitename=site.name, page_number=page_number-1) }}" >
+        {% endif %}
         <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_left</i>
       </a>
       {% endif %}
@@ -17,7 +21,11 @@
       <span >{{ page_number }}</span>
     </div>
     <div class="mdl-cell mdl-cell--4-col" style="text-align: right;">
-      <a href="{{ url_for('alarm_list_paged', sitename=site.name, page_number=page_number+1) }}">
+      {% if site == None %}
+        <a href="{{ url_for('alarm_list_paged', sitename='all', page_number=page_number+1) }}" >
+      {% else %}
+        <a href="{{ url_for('alarm_list_paged', sitename=site.name, page_number=page_number+1) }}" >
+      {% endif %}
         <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_right</i>
       </a>
     </div>
@@ -54,23 +62,31 @@
 
   </div>
 
-<div class="mdl-grid">
-  <div class="mdl-cell mdl-cell--4-col" style="text-align: left;">
-    {% if page_number > 1 %}
-    <a href="{{ url_for('alarm_list_paged', sitename=site.name, page_number=page_number-1) }}" >
-      <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_left</i>
-    </a>
-    {% endif %}
+  <div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--4-col" style="text-align: left;">
+      {% if page_number > 1 %}
+        {% if site == None %}
+          <a href="{{ url_for('alarm_list_paged', sitename='all', page_number=page_number-1) }}" >
+        {% else %}
+          <a href="{{ url_for('alarm_list_paged', sitename=site.name, page_number=page_number-1) }}" >
+        {% endif %}
+        <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_left</i>
+      </a>
+      {% endif %}
+    </div>
+    <div class="mdl-cell mdl-cell--4-col" style="text-align: center;">
+      <span >{{ page_number }}</span>
+    </div>
+    <div class="mdl-cell mdl-cell--4-col" style="text-align: right;">
+      {% if site == None %}
+        <a href="{{ url_for('alarm_list_paged', sitename='all', page_number=page_number+1) }}" >
+      {% else %}
+        <a href="{{ url_for('alarm_list_paged', sitename=site.name, page_number=page_number+1) }}" >
+      {% endif %}
+        <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_right</i>
+      </a>
+    </div>
   </div>
-  <div class="mdl-cell mdl-cell--4-col" style="text-align: center;">
-    <span >{{ page_number }}</span>
-  </div>
-  <div class="mdl-cell mdl-cell--4-col" style="text-align: right;">
-    <a href="{{ url_for('alarm_list_paged', sitename=site.name, page_number=page_number+1) }}">
-      <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_right</i>
-    </a>
-  </div>
-</div>
 
 
 {% endblock %}

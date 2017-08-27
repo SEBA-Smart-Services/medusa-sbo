@@ -25,7 +25,7 @@ def alarm_list_paged(sitename, page_number):
         return alarm_resp
 
     if sitename == "all":
-        site = None
+        site = None #{"name": "all"}
         alarms = Alarm.query.order_by(
             Alarm.TriggeredTimestamp.desc()
         ).paginate(
