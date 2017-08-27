@@ -46,6 +46,11 @@ def add_action(action=None, ticket=None, recipient=None):
 
     if action == 'close':
         closed = True
+        ticket_id = ticket.id
+
+    if action == 'reopen':
+        opened = True
+        ticket_id = ticket.id
 
     new_action = FlicketAction(
         ticket_id=ticket_id,

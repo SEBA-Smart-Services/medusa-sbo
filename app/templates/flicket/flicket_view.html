@@ -28,10 +28,6 @@
                   <td class="mdl-data-table__cell--non-numeric">{{ ticket.description }}</td>
               </tr>
               <tr>
-                <th class="mdl-data-table__cell--non-numeric" style="width:20%">Department</th>
-                <td class="mdl-data-table__cell--non-numeric">{{ ticket.category.department.department }}</td>
-              </tr>
-              <tr>
                   <th class="mdl-data-table__cell--non-numeric">Category</th>
                   <td class="mdl-data-table__cell--non-numeric">{{ ticket.category.category }}</td>
               </tr>
@@ -43,67 +39,112 @@
                   <th class="mdl-data-table__cell--non-numeric">Priority</th>
                   <td class="mdl-data-table__cell--non-numeric">{{ ticket.ticket_priority.priority }}</td>
               </tr>
-              <tr>
-                  <th class="mdl-data-table__cell--non-numeric">Assigned</th>
-                  <td class="mdl-data-table__cell--non-numeric">
-                      {% if ticket.assigned.email %}
-                        {{ ticket.assigned.email }}
-                      {% else %}
-                        ticket not assigned
-                      {% endif %}
-                  </td>
-              </tr>
+              {% if ticket.facility != None %}
+                <tr>
+                    <th class="mdl-data-table__cell--non-numeric">Facility</th>
+                    <td class="mdl-data-table__cell--non-numeric">{{ ticket.ticket_priority.priority }}</td>
+                </tr>
+              {% endif %}
+                {% if ticket.project != None %}
+                <tr>
+                    <th class="mdl-data-table__cell--non-numeric">Project</th>
+                    <td class="mdl-data-table__cell--non-numeric">{{ ticket.ticket_priority.priority }}</td>
+                </tr>
+              {% endif %}
+              {% if ticket.resolution == None %}
+                <tr>
+                    <th class="mdl-data-table__cell--non-numeric">Assigned</th>
+                    <td class="mdl-data-table__cell--non-numeric">
+                        {% if ticket.assigned.email %}
+                          {{ ticket.assigned.email }}
+                        {% else %}
+                          ticket not assigned
+                        {% endif %}
+                    </td>
+                </tr>
+              {% else %}
+                <tr>
+                    <th class="mdl-data-table__cell--non-numeric">Resolution</th>
+                    <td class="mdl-data-table__cell--non-numeric">{{ ticket.resolution }}</td>
+                </tr>
+                <tr>
+                    <th class="mdl-data-table__cell--non-numeric">Resolved by</th>
+                    <td class="mdl-data-table__cell--non-numeric">{{ ticket.resolved_by }}</td>
+                </tr>
+                <tr>
+                    <th class="mdl-data-table__cell--non-numeric">Resolution date</th>
+                    <td class="mdl-data-table__cell--non-numeric">{{ ticket.date_resolved }}</td>
+                </tr>
+              {% endif %}
           </tbody>
         </table>
       </div>
 
-      <div class="mdl-cell mdl-cell--12-col mdl-grid">
-          <div class="mdl-cell mdl-cell--12-col">
-              <!-- <ul class="pagination pagination-sm">
-                  {% for page in replies.iter_pages() %}
-                    {% if page %}
-                      {% if page != replies.page %}
-                      <li>
-                        <a href="{{ url_for('ticket_view', ticket_id=ticket.id, page=page, **request.args) }}">
+      {% if ticket.current_status.status != 'Closed' %}
+        <div class="mdl-cell mdl-cell--12-col mdl-grid">
+            <div class="mdl-cell mdl-cell--12-col">
+                <!-- <ul class="pagination pagination-sm">
+                    {% for page in replies.iter_pages() %}
+                      {% if page %}
+                        {% if page != replies.page %}
+                        <li>
+                          <a href="{{ url_for('ticket_view', ticket_id=ticket.id, page=page, **request.args) }}">
+                              {{ page }}
+                          </a>
+                        </li>
+                        {% else %}
+                        <li class="active">
+                          <a href="{{ url_for('ticket_view', ticket_id=ticket.id, page=page, **request.args) }}">
                             {{ page }}
-                        </a>
-                      </li>
+                          </a>
+                        </li>
+                        {% endif %}
                       {% else %}
-                      <li class="active">
-                        <a href="{{ url_for('ticket_view', ticket_id=ticket.id, page=page, **request.args) }}">
-                          {{ page }}
-                        </a>
-                      </li>
+                      <li><a href="">...</a></li>
                       {% endif %}
-                    {% else %}
-                    <li><a href="">...</a></li>
-                    {% endif %}
-                  {% endfor %}
-              </ul> -->
-          </div>
-          <div class="mdl-cell mdl-cell--12-col mdl-grid">
-            <a class="mdl-cell mdl-cell--4-col mdl-button mdl-js-button mdl-button--raised mdl-button--accent" href="{{ url_for('ticket_claim', ticket_id = ticket.id) }}">
-              claim
-            </a>
-            <a class=" mdl-cell mdl-cell--4-col mdl-button mdl-js-button mdl-button--raised mdl-button--accent" href="{{ url_for('release', ticket_id = ticket.id) }}">
-              release
-            </a>
-            <a class="mdl-cell mdl-cell--4-col mdl-button mdl-js-button mdl-button--raised mdl-button--accent" href="{{ url_for('ticket_assign', ticket_id = ticket.id) }}">
-              assign
-            </a>
-          </div>
-      </div>
+                    {% endfor %}
+                </ul> -->
+            </div>
+            <div class="mdl-cell mdl-cell--12-col mdl-grid">
+              <a class="mdl-cell mdl-cell--4-col mdl-button mdl-js-button mdl-button--raised mdl-button--accent" href="{{ url_for('ticket_claim', ticket_id = ticket.id) }}">
+                claim
+              </a>
+              <a class=" mdl-cell mdl-cell--4-col mdl-button mdl-js-button mdl-button--raised mdl-button--accent" href="{{ url_for('release', ticket_id = ticket.id) }}">
+                release
+              </a>
+              <a class="mdl-cell mdl-cell--4-col mdl-button mdl-js-button mdl-button--raised mdl-button--accent" href="{{ url_for('ticket_assign', ticket_id = ticket.id) }}">
+                assign
+              </a>
+            </div>
+        </div>
+      {% endif %}
 
       <div class="mdl-cell mdl-cell--12-col mdl-grid">
         <!-- display actions -->
         <h5 class="mdl-cell mdl-cell--12-col">Actions</h5>
         <br>
+        <div class="mdl-cell mdl-cell--12-col mdl-grid">
+          {% if current_user.has_role('admin') or (ticket.user == current_user) %}
+              {% if ticket.current_status.status != 'Closed' %}
+              <form class="mdl-cell mdl-cell--12-col" action="/ticket/{{ticket.id}}/Close/update", method="POST">
+                <select name="status" class="mdl-textfield__input mdl-cell mdl-cell--4-col" style="display: inline-block; margin-right:40px">
+                  <option value="Fixed">Fixed</option>
+                  <option value="Invalid">Invalid</option>
+                  <option value="Wont Fix">Wont Fix</option>
+                  <option value="Duplicate">Fixed</option>
+                  <option value="Works for me">Works for me</option>
+                </select>
+                <input name="Close" type="submit" value="Close" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-cell mdl-cell--2-col"></option>
+              </form>
+              {% else %}
+              <form class="mdl-cell mdl-cell--12-col" action="/ticket/{{ticket.id}}/Open/update", method="POST">
+                <input name="Reopen" type="submit" value="Reopen" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"></option>
+              </form>
+              {% endif %}
+          {% endif %}
+        </div>
+        <br>
         <table class="mdl-data-table mdl-js-data-table mdl-cell mdl-cell--12-col">
-          <thead>
-            <tr>
-              <th class="mdl-data-table__cell--non-numeric"></th>
-            </tr>
-          </thead>
           <tbody>
             {% for action in ticket.actions %}
             <tr>
@@ -127,9 +168,7 @@
               <th class="mdl-data-table__cell--non-numeric">Name</th>
               <th class="mdl-data-table__cell--non-numeric">Post</th>
               <th class="mdl-data-table__cell--non-numeric">Post Time</th>
-              <th class="mdl-data-table__cell--non-numeric">Modified</th>
-              <th class="mdl-data-table__cell--non-numeric"></th>
-              <th class="mdl-data-table__cell--non-numeric"></th>
+              <th class="mdl-data-table__cell--non-numeric">uploads</th>
             </tr>
           </thead>
           <tbody>
@@ -137,57 +176,57 @@
             <tr>
                 <!-- display replies -->
                 {{ display_post_box(ticket=ticket, post=r, replies=replies, loop=loop, page=page)|safe }}
-
-                <!-- display actions -->
-                {% for action in r.actions %}
-                <td class="mdl-data-table__cell--non-numeric">
-                    {{ action.output_action()|safe }}
-                </td>
-                {% endfor %}
-                <!-- end display actions -->
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
 
-      <div class="mdl-cell mdl-cell--12-col mdl-grid">
-        {% include('flicket/flicket_form_reply.html') %}
+      {% if ticket.current_status.status != 'Closed' %}
+        <div class="mdl-cell mdl-cell--12-col mdl-grid">
+          {% include('flicket/flicket_form_reply.html') %}
+        </div>
+      {% endif %}
+
+        <div class="mdl-cell mdl-cell--12-col mdl-grid">
+          <h5 class="mdl-cell mdl-cell--12-col mdl-grid">Subscribers</h5>
+            <table class="mdl-data-table mdl-js-data-table mdl-cell mdl-cell--12-col">
+              <thead>
+                <tr>
+                  <th class="mdl-data-table__cell--non-numeric">email</th>
+                  <th class="mdl-data-table__cell--non-numeric">Name</th>
+                  <th class="mdl-data-table__cell--non-numeric">Last available</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for s in ticket.subscribers %}
+                <tr>
+                  <td class="mdl-data-table__cell--non-numeric">
+                    <a href="mailto:{{ s.user.email }}">{{ s.user.email }}</a>
+                  </td>
+                  <td class="mdl-data-table__cell--non-numeric">{{s.user.first_name}} {{s.user.last_name}}</td>
+                  <td class="mdl-data-table__cell--non-numeric">{{s.user.last_login_at}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          <div class="mdl-cell mdl-cell--12-col"></div>
+          <div>
+              {% if ticket.is_subscribed(current_user) %}
+                <a class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
+                 href="{{ url_for('unsubscribe_ticket', ticket_id = ticket.id) }}">unsubscribe</a>
+              {% else %}
+                <a class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
+                 href="{{ url_for('subscribe_ticket', ticket_id = ticket.id) }}">subscribe</a>
+              {% endif %}
+          </div>
       </div>
 
       <div class="mdl-cell mdl-cell--12-col mdl-grid">
-            <h5>Subscribers</h5>
-              <table class="mdl-data-table mdl-js-data-table mdl-cell mdl-cell--12-col">
-                <thead>
-                  <tr>
-                    <th class="mdl-data-table__cell--non-numeric">email</th>
-                    <th class="mdl-data-table__cell--non-numeric">Name</th>
-                    <th class="mdl-data-table__cell--non-numeric">Last available</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for s in ticket.subscribers %}
-                  <tr>
-                    <td class="mdl-data-table__cell--non-numeric">
-                      <a href="mailto:{{ s.user.email }}">{{ s.user.email }}</a>
-                    </td>
-                    <td class="mdl-data-table__cell--non-numeric">{{s.user.first_name}} {{s.user.last_name}}</td>
-                    <td class="mdl-data-table__cell--non-numeric">{{s.user.last_login_at}}</td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            <br>
-            <br>
-            <div>
-                {% if ticket.is_subscribed(current_user) %}
-                  <a class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
-                   href="{{ url_for('unsubscribe_ticket', ticket_id = ticket.id) }}">unsubscribe</a>
-                {% else %}
-                  <a class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"
-                   href="{{ url_for('subscribe_ticket', ticket_id = ticket.id) }}">subscribe</a>
-                {% endif %}
-            </div>
+        <form action="/tickets" method="GET">
+          <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+          </input>
+        </form>
       </div>
 
     </div>

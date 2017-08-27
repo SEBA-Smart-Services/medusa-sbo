@@ -278,6 +278,9 @@ class FlicketAction(db.Model):
         if self.closed:
             return 'Ticked closed by <a href="mailto:{}">{}</a> | {}'.format(self.user.email, self.user.first_name, _date)
 
+        if self.opened:
+            return 'Ticked opened by <a href="mailto:{}">{}</a> | {}'.format(self.user.email, self.user.first_name, _date)
+
     def __repr__(self):
 
         return ('<Class FlicketAction: ticket_id={}, post_id={}, assigned={}, unassigned={}, claimed={},'

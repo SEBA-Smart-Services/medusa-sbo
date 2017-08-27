@@ -7,44 +7,47 @@
 
     <div class="mdl-grid">
       <div class="mdl-cell mdl-cell--12-col">
-          <label class="">Ticket Title</label>
-          <div class="">
-              {{ form.title(class="form-control mdl-textfield__input") }}
-          </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            {{ form.title(class="form-control mdl-textfield__input", pattern="[A-Z,a-z,0-9, ]*", autocomplete="off") }}
+          <label class="mdl-textfield__label">Ticket Title</label>
+          <span class="mdl-textfield__error">Only alphanumeric input, please!</span>
+        </div>
       </div>
       {% if form.title.errors %}
+        <div class="mdl-cell mdl-cell--12-col">
           <div class="alert alert-warning small">
               {% for error in form.title.errors %}
                   {{ error }}
               {% endfor %}
           </div>
+        </div>
       {% endif %}
 
-      <br>
-
-      <div class="form-group mdl-cell mdl-cell--12-col">
-          <label class="">Content</label>
-          <div class="mdl-textfield__input">
+      <div class="mdl-cell mdl-cell--12-col">
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
               {{ form.content(class="form-control mdl-textfield__input") }}
+            <label class="mdl-textfield__label">Description</label>
           </div>
       </div>
       <br>
-      {% if form.content.errors %}
-          <div class="alert alert-warning small">
-              {% for error in form.content.errors %}
-                  {{ error }}
-              {% endfor %}
-          </div>
-      {% endif %}
+      <div class="mdl-cell mdl-cell--12-col">
+        {% if form.content.errors %}
+            <div class="alert alert-warning small">
+                {% for error in form.content.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+      </div>
 
-      <div class="form-group mdl-cell mdl-cell--12-col">
-          <label class="col-sm-3 control-label">Priority Level</label>
-          <div class="col-sm-3">
+      <div class="mdl-cell mdl-cell--12-col">
+          <label class="">Priority Level</label>
+          <div>
               {{ form.priority(class="form-control") }}
           </div>
           <br>
-          <label class="col-sm-3 control-label">Category</label>
-          <div class="col-sm-3">
+          <label class="">Category</label>
+          <div class="">
               {{ form.category(class="form-control") }}
           </div>
       </div>
@@ -82,5 +85,13 @@
           </div>
       </div>
     </div>
-
 </form>
+
+<div class="mdl-grid">
+  <div class="form-group mdl-cell mdl-cell--12-col">
+    <form action="/tickets" method="GET">
+      <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+      </input>
+    </form>
+  </div>
+</div>

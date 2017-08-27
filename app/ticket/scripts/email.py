@@ -106,6 +106,19 @@ class FlicketMail:
 
         self.send_email(title, self.sender, recipients, html_body)
 
+    def reopen_ticket(self, ticket):
+        """
+        :param ticket: ticket object
+        :return:
+        """
+
+        recipients = ticket.get_subscriber_emails()
+        title = 'Ticket #{} - {} has been reopened.'.format(ticket.id_zfill, ticket.ticket_name)
+        ticket_url = url_for('ticket_view', ticket_id=ticket.id)
+        html_body = render_template('flicket/email_ticket_reopen.html', ticket=ticket, ticket_url=ticket_url)
+
+        self.send_email(title, self.sender, recipients, html_body)
+
 
     @async
     def send_email(self, subject, sender, recipients, html_body):

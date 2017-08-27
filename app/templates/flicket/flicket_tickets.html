@@ -25,18 +25,19 @@
             {{ form.hidden_tag() }}
 
 
-            <div class="mdl-grid">
-                <div class="mdl-cell mdl-cell--2-col">
-                    {{ form.department(class="form-control", id="department") }}
-                </div>
+            <!-- <div class="mdl-grid">
                 <div class="mdl-cell mdl-cell--2-col">
                     {{ form.category(class="form-control", id="category") }}
+                </div>
+                <div class="mdl-cell mdl-cell--1-col">
                 </div>
                 <div class="mdl-cell mdl-cell--2-col">
                     {{ form.status(class="form-control", id="status")}}
                 </div>
                 <div class="mdl-cell mdl-cell--2-col">
                     {{ form.email(class="form-control", placeholder="email", id="autocomplete-email") }}
+                </div>
+                <div class="mdl-cell mdl-cell--1-col">
                 </div>
                 <div class="mdl-cell mdl-cell--2-col">
                     {{ form.content(class="form-control", placeholder="contents") }}
@@ -46,7 +47,7 @@
                 <div class="mdl-cell mdl-cell--1-col">
                     <input class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" type="submit" value="search"/>
                 </div>
-            </div>
+            </div> -->
             {% if form.email.errors %}
                 <div class="alert alert-warning small">
                     {% for error in form.email.errors %}

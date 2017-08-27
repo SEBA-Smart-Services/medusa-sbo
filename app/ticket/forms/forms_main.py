@@ -13,25 +13,10 @@ from wtforms.validators import (DataRequired,
                                 Length,
                                 EqualTo)
 
-from application.flicket.models.flicket_user import (FlicketUser,
-                                                     user_field_size)
+#from app.ticket.models import (FlicketUser, user_field_size)
+from app.models.users import User
 
-from application.flicket.scripts.functions_login import check_email_format
-
-
-def does_username_exist(form, field):
-    """
-    Username must be unique so we check against the database to ensure it doesn't
-    :param form:
-    :param field:
-    :return True / False:
-    """
-    result = FlicketUser.query.filter_by(username=form.username.data).count()
-    if result > 0:
-        field.errors.append('A user with this username has already registered.')
-        return False
-
-    return True
+from flask_user import current_user
 
 
 def check_password_formatting(form, field):
@@ -60,38 +45,11 @@ def check_password(form, field):
     :return True / False:
     """
     ok = True
-    result = FlicketUser.query.filter_by(username=g.user.username).first()
+    result = User.query.filter_by(email=current_user.email).first()
     if bcrypt.hashpw(form.password.data.encode('utf-8'), result.password) != result.password:
         field.errors.append('Entered password is incorrect.')
         return False
     return ok
-
-
-def check_email(form, field):
-    ok = True
-    if not check_email_format(field.data):
-        field.errors.append('Please enter a valid email address.')
-        ok = False
-    result = FlicketUser.query.filter_by(email=form.email.data).count()
-    if result > 0:
-        field.errors.append('A user with this email address has already registered.')
-        ok = False
-
-    return ok
-
-
-def change_email(form, field):
-    """
-    Ensure the form email matches the users email.
-    :param form:
-    :param field:
-    :return:
-    """
-
-    if form.email.data == g.user.email:
-        return True
-    else:
-        return False
 
 
 class CheckPasswordCorrect:
@@ -103,31 +61,13 @@ class CheckPasswordCorrect:
         self.password = form.password.data
         self.password = self.password.encode('utf-8')
         ok = True
-        user = FlicketUser.query.filter_by(username=form.username.data).first()
+        user = User.query.filter_by(email=form.username.data).first()
         # hashed = user.password
         if user and not bcrypt.hashpw(self.password, user.password) == user.password:
             field.errors.append('Your username and password do not match those in the database.')
             ok = False
 
         return ok
-
-
-class EditUserForm(FlaskForm):
-    username = StringField('username')
-    name = StringField('name', validators=[Length(min=user_field_size['name_min'], max=user_field_size['name_max'])])
-    email = StringField('email', validators=[Length(min=user_field_size['email_min'], max=user_field_size['email_max']), change_email])
-    avatar = FileField('avatar')
-    password = PasswordField('password',
-                             validators=[DataRequired(),
-                                         CheckPasswordCorrect(),
-                                         Length(min=user_field_size['password_min'], max=user_field_size['password_max'])])
-    new_password = PasswordField('new_password',
-                                 validators=[EqualTo('confirm',
-                                                     message='Passwords must match'),
-                                             ])
-    confirm = PasswordField('Repeat Password')
-    job_title = StringField('job_title', validators=[Length(max=user_field_size['job_title'])])
-
 
 class ConfirmPassword(FlaskForm):
     password = PasswordField('password',

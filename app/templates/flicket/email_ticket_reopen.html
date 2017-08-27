@@ -1,0 +1,12 @@
+<!-- extend from base layout -->
+{% extends "flicket/email_base.html" %}
+
+{% block content %}
+    <h1>
+        {{ title }}
+    </h1>
+    <p>
+        Ticket has been reopened: <a href="{{ ticket_url }}">{{ ticket.id_zfill }}</a>
+    </p>
+    {% include('flicket/email_include_details.html') %}
+{% endblock %}
