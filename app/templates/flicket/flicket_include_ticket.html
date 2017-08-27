@@ -91,15 +91,15 @@
     </div>
 
     <div class="mdl-cell mdl-cell--12-col">
-      <label class="">Site (Optional)</label>
-      <div>
-        <select name="site" class="mdl-textfield__input">
-          {% for site in sites %}
-            <option value="{{site.name}}">{{site.name}}</option>
-          {% endfor %}
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <select name="sitename" class="mdl-textfield__input">
+          <option value="{{ site.name }}">{{site.name}}</option>
         </select>
+        <label class="mdl-textfield__label">Facility</label>
+        <span class="mdl-textfield__error">Only alphanumeric input, please!</span>
       </div>
     </div>
+
 
 
     <div class="form-group mdl-cell mdl-cell--12-col">

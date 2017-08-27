@@ -80,28 +80,19 @@
     <div class="mdl-cell mdl-cell--6-col mdl-grid mdl-cell--8-col-tablet">
       <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
         <div class="mdl-card__title">
-          <h2 class="mdl-card__title-text">Top issues</h2>
+          <h2 class="mdl-card__title-text">Support tickets</h2>
         </div>
         <table class="mdl-data-table mdl-js-data-table" style="width:100%;table-layout:fixed;white-space: normal;">
           <thead>
             <tr>
               <th class="mdl-data-table__cell--non-numeric">
-                  Ticket Name
+                Due date
+              </th>
+              <th class="mdl-data-table__cell--non-numeric">
+                  Name
               </th>
               <th class="mdl-data-table__cell--non-numeric">
                   Priority
-              </th>
-              <th class="mdl-data-table__cell--non-numeric">
-                  Description
-              </th>
-              <th class="mdl-data-table__cell--non-numeric">
-                  Submitted By
-              </th>
-              <th class="mdl-data-table__cell--non-numeric">
-                  Date
-              </th>
-              <th class="mdl-data-table__cell--non-numeric">
-                  Replies
               </th>
               <th class="mdl-data-table__cell--non-numeric">
                   Category
@@ -110,7 +101,10 @@
                   Status
               </th>
               <th class="mdl-data-table__cell--non-numeric">
-                  Assigned
+                Submitted by
+              </th>
+              <th class="mdl-data-table__cell--non-numeric">
+                  Assigned to
               </th>
             </tr>
           </thead>
@@ -118,28 +112,24 @@
             {% for ticket in tickets %}
               <tr>
                 <td class="mdl-data-table__cell--non-numeric">
+                  {% if ticket.date_due != None %}
+                    {{ ticket.date_due.strftime('%Y-%m-%d') }}
+                  {% endif %}
+                </td>
+                <td class="mdl-data-table__cell--non-numeric">
                   {{ticket.ticket_name}}
                 </td>
                 <td class="mdl-data-table__cell--non-numeric">
                   {{ticket.ticket_priority.priority}}
                 </td>
                 <td class="mdl-data-table__cell--non-numeric">
-                  {{ticket.description}}
+                  {{ ticket.category.category }}
+                </td>
+                <td class="mdl-data-table__cell--non-numeric">
+                  {{ ticket.current_status.status }}
                 </td>
                 <td class="mdl-data-table__cell--non-numeric">
                   {{ticket.user.first_name}} {{ticket.user.last_name}}
-                </td>
-                <td class="mdl-data-table__cell--non-numeric">
-                    {{ ticket.date_added.strftime('%Y-%m-%d') }}
-                </td>
-                <td class="mdl-data-table__cell--non-numeric">
-                    {{ ticket.num_replies }}
-                </td>
-                <td class="mdl-data-table__cell--non-numeric">
-                    {{ ticket.category.category }}
-                </td>
-                <td class="mdl-data-table__cell--non-numeric">
-                    {{ ticket.current_status.status }}
                 </td>
                 <td class="mdl-data-table__cell--non-numeric">
                     {{ ticket.assigned.first_name }} {{ ticket.assigned.last_name }}

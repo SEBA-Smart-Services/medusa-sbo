@@ -21,110 +21,78 @@ from app.ticket.scripts.jinja2_functions import display_post_box
 
 app.jinja_env.globals.update(display_post_box=display_post_box)
 
-# view users
-@app.route('/site/all/ticket/main', methods=['GET', 'POST'])
-def index():
-
-    """ View showing flicket main page. We use this to display some statistics."""
-    s_closed = 'Closed'
-    s_open = 'Open'
-    s_wip = 'In Work'
-
-    days = 7
-    # converts days into datetime object
-    days_obj = datetime.datetime.now() - datetime.timedelta(days=days)
-
-    # initialise base query
-    query = FlicketTicket.query
-    total = FlicketTicket.query.count()
-    total_days = query.filter(FlicketTicket.date_added > days_obj).count()
-
-    # get list of statuses
-    statuses = [({'id': s.id, 'status': s.status}, {}) for s in FlicketStatus.query.order_by(FlicketStatus.status).all()]
-    # find number of tickets for each status
-    for s in statuses:
-        ticket_num = query.filter(FlicketTicket.current_status.has(FlicketStatus.id == s[0]['id'])).count()
-        s[1]['ticket_num'] = ticket_num
-
-    # get list of departments
-    departments = [({'id': d.id, 'department': d.department}, []) for d in FlicketDepartment.query.all()]
-
-    # department_filter = FlicketDepartment.query.filter_by(department=department).first()
-    # tickets = tickets.filter(FlicketTicket.category.has(FlicketCategory.department == department_filter))
-
-    # find number of tickets for each department based on status
-    for d in departments:
-        for s in statuses:
-            department_filter = query.filter(FlicketTicket.category.has(FlicketCategory.department_id == d[0]['id']))
-            ticket_num = department_filter.filter(FlicketTicket.current_status.has(FlicketStatus.id == s[0]['id'])).count()
-            d[1].append(({'status': s[0]['status']}, {'total_num': ticket_num}))
-
-    return render_template('flicket/flicket_index.html',
-                           total=total,
-                           total_days=total_days,
-                           days=days,
-                           statuses=statuses,
-                           departments=departments)
-
 
 #creating a ticket
 @app.route('/site/all/ticket/create', methods=["GET", "POST"])
 def ticket_create(sitename=None):
+
     form = CreateTicketForm()
 
-    if sitename != None:
-        sites = Site.query.filter_by(name=sitename).first()
+    if request.method == 'POST':
+
+        if form.validate_on_submit():
+
+            # this is a new post so ticket status is 'open'
+            ticket_status = FlicketStatus.query.filter_by(status='Open').first()
+            ticket_priority = FlicketPriority.query.filter_by(id=int(form.priority.data)).first()
+            ticket_category = FlicketCategory.query.filter_by(id=int(form.category.data)).first()
+
+            ticket_component = request.form['Component']
+            due_date = request.form['due_date']
+            sitename = request.form['sitename']
+
+            site = Site.query.filter_by(name=sitename).one()
+            app.logger.info('new ticket for ' + sitename)
+            app.logger.info('new ticket for ' + site.name)
+            app.logger.info('new ticket for ' + str(site.id))
+
+
+            files = request.files.getlist("file")
+            upload_attachments = UploadAttachment(files)
+            if upload_attachments.are_attachements():
+                upload_attachments.upload_files()
+
+            app.logger.info(str(site.name) + ' ' + str(site.id))
+            # submit ticket data to database
+            new_ticket = FlicketTicket(
+                ticket_name=form.title.data,
+                date_added=datetime.datetime.now(),
+                user=current_user,
+                current_status=ticket_status,
+                description=form.content.data,
+                ticket_priority=ticket_priority,
+                category=ticket_category,
+                component=ticket_component,
+                site_id=site.id
+            )
+            db.session.add(new_ticket)
+
+            # add attachments to the dataabase.
+            upload_attachments.populate_db(new_ticket)
+            # subscribe user to ticket
+            subscribe = FlicketSubscription(user=current_user, ticket=new_ticket)
+            db.session.add(subscribe)
+
+            # commit changes to the database
+            db.session.commit()
+
+            flash('New Ticket created.', category='success')
+
+            return redirect(url_for('ticket_view', ticket_id=new_ticket.id))
+
     else:
-        sites = Site.query.all()
 
-    if form.validate_on_submit():
+        if sitename != None:
+            sites = Site.query.filter_by(name=sitename).first()
+        else:
+            sites = Site.query.all()
 
-        # this is a new post so ticket status is 'open'
-        ticket_status = FlicketStatus.query.filter_by(status='Open').first()
-        ticket_priority = FlicketPriority.query.filter_by(id=int(form.priority.data)).first()
-        ticket_category = FlicketCategory.query.filter_by(id=int(form.category.data)).first()
-
-        ticket_component = request.form['Component']
-        due_date = request.form['due_date']
-        site = request.form['site']
-
-        files = request.files.getlist("file")
-        upload_attachments = UploadAttachment(files)
-        if upload_attachments.are_attachements():
-            upload_attachments.upload_files()
-
-
-        # submit ticket data to database
-        new_ticket = FlicketTicket(ticket_name=form.title.data,
-                                   date_added=datetime.datetime.now(),
-                                   user=current_user,
-                                   current_status=ticket_status,
-                                   description=form.content.data,
-                                   ticket_priority=ticket_priority,
-                                   category=ticket_category,
-                                   component=ticket_component,
-                                   facility=site
-                                   )
-        db.session.add(new_ticket)
-
-        # add attachments to the dataabase.
-        upload_attachments.populate_db(new_ticket)
-        # subscribe user to ticket
-        subscribe = FlicketSubscription(user=current_user, ticket=new_ticket)
-        db.session.add(subscribe)
-
-        # commit changes to the database
-        db.session.commit()
-
-        flash('New Ticket created.', category='success')
-
-        return redirect(url_for('ticket_view', ticket_id=new_ticket.id))
-
-
-    return render_template('flicket/flicket_create.html',
-                           title='Create Ticket',
-                           form=form,
-                           sites=sites)
+        return render_template(
+            'flicket/flicket_create.html',
+            title='Create Ticket',
+            form=form,
+            sites=sites
+        )
 
 #creating a ticket
 @app.route('/site/<sitename>/ticket/create', methods=['GET'])
@@ -135,6 +103,8 @@ def site_ticket_create(sitename):
 def ticket_view(ticket_id, sitename=None, page=1):
     # is ticket number legitimate
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
+    site =  Site.query.filter_by(id=ticket.site_id).one()
+
 
     if not ticket:
         flash('Cannot find ticket: "{}"'.format(ticket_id), category='warning')
@@ -209,12 +179,15 @@ def ticket_view(ticket_id, sitename=None, page=1):
 
     replies = replies.paginate(page, app.config['POSTS_PER_PAGE'])
 
-    return render_template('flicket/flicket_view.html',
-                           title='View Ticket',
-                           ticket=ticket,
-                           form=form,
-                           replies=replies,
-                           page=page)
+    return render_template(
+        'flicket/flicket_view.html',
+        title='View Ticket',
+        ticket=ticket,
+        form=form,
+        site=site.name,
+        replies=replies,
+        page=page
+    )
 
 @app.route('/site/all/ticket/uploads/<filename>')
 def view_ticket_uploads(filename):
@@ -227,7 +200,7 @@ def tickets(sitename=None, page=1):
 
     if sitename != None:
         site = Site.query.filter_by(name=sitename).first()
-        tickets = FlicketTicket.query.filter_by(facility=site.name)
+        tickets = FlicketTicket.query.filter_by(site_id=site.id)
     else:
         tickets = FlicketTicket.query
 
@@ -312,9 +285,11 @@ def tickets(sitename=None, page=1):
 @app.route('/site/all/ticket/<ticket_id>/edit', methods=['GET', 'POST'])
 def edit_ticket(ticket_id):
     form = EditTicketForm(ticket_id=ticket_id)
-    sites = Site.query.all()
 
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
+    site =  Site.query.filter_by(id=ticket.site_id).one()
+    app.logger.info(site.name)
+    site_list = Site.query.all()
 
     if ticket.current_status.status == 'Closed':
         flash('Cannot edit closed ticket.', category='warning')
@@ -344,12 +319,13 @@ def edit_ticket(ticket_id):
 
     if form.validate_on_submit():
 
-        print(request.form['site'])
+        print(request.form['sitename'])
 
         ticket.ticket_component = request.form['Component']
         ticket.due_date = request.form['due_date']
-        ticket.site = Site.query.filter_by(name=request.form['site']).first()
-        print(ticket.site)
+        site = Site.query.filter_by(name=request.form['sitename']).one()
+        ticket.site_id = site.id
+        print(ticket.site_id)
 
         db.session.commit()
 
@@ -411,10 +387,14 @@ def edit_ticket(ticket_id):
     form.title.data = ticket.ticket_name
     form.category.data = ticket.category_id
 
-    return render_template('flicket/flicket_edittopic.html',
-                           title='Edit Ticket',
-                           form=form,
-                           sites=sites)
+    app.logger.info('edit ticket for site ' + site.name)
+    return render_template(
+        'flicket/flicket_edittopic.html',
+        title='Edit Ticket',
+        form=form,
+        site=site,
+        sites=site_list
+    )
 
 
 # edit post
