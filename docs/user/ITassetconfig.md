@@ -4,9 +4,9 @@
 Medusa currently supports the addition of Windows, Ubuntu and macOS based IT Assets. These assets must be configured with the Salt Minion software in order to complete configuration and connect to the cloud.
 
 ## Software links
-  +[Windows](https://repo.saltstack.com/windows/Salt-Minion-2016.11.7-x86-Setup.exe)
-  +[Ubuntu](https://repo.saltstack.com/2016.11.html#ubuntu)
-  -[macOS](https://repo.saltstack.com/osx/salt-2016.11.7-x86_64.pkg)
+  * [Windows](https://repo.saltstack.com/windows/Salt-Minion-2016.11.7-x86-Setup.exe)
+  * [Ubuntu](https://repo.saltstack.com/2016.11.html#ubuntu)
+  * [macOS](https://repo.saltstack.com/osx/salt-2016.11.7-x86_64.pkg)
 
 ## Installation procedure
 To add a new IT Asset begin in Medusa:
