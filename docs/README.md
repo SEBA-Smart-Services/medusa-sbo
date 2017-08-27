@@ -3,6 +3,7 @@
 ### User guide
 - [Quickstart](user/README.md)
 - [Setup a site project with ITP](user/project.md)
+- [Connect an IT Asset](user/ITassetconfig.md)
 
 ### Developer docs
 - [New developer getting started](dev/onboarding.md)
