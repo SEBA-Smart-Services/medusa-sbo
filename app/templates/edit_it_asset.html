@@ -5,6 +5,26 @@
 
   {% endif %}
 </h3>
+<ul class="mdl-list">
+  <li class="mdl-list__item mdl-list__item--two-line">
+      <span class="mdl-list__item-primary-content">
+        {% if ITasset.minion_key_accepted == True %}
+        <i class="material-icons mdl-list__item-icon" style="color:rgba(100, 221, 23, 1.0)">check_circle</i>
+        <span>Configuration Complete</span>
+        {% else %}
+        <i class="material-icons mdl-list__item-icon" style="color:rgba(255, 0, 0, 1.0)">remove_circle</i>
+        <span>Configuration Incomplete. Check salt-minion installation on IT Asset and press "Check Configuration"</span>
+        {% endif %}
+        <span class="mdl-list__item-sub-title">Configuration Status</span>
+  </span>
+  </li>
+</ul>
+
+
+<a href=http://medusa-docs.sebbqld.com/user/ITassetconfig.html target="_blank"> To complete the configuration of the IT asset, please follow these instructions</a>
+
+
+<br></br>
 
   <h5>{{error}}</h5>
   <form action="{{ url_for('edit_itasset', sitename=site.name, minion_id=ITasset.id) }}" method=post>
@@ -39,13 +59,15 @@
       </div></td>
     </tr>
     <br></br>
-    <input id=submit type=submit value="Update Asset" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" >
 
+
+
+    <input id=submit type=submit value="Save Asset and Check Configuration" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" >
   </form>
 
 <br></br>
-  <form action="{{url_for('itasset_details', sitename=site.name, minion_id=ITasset.id)}}">
-    <input type="submit" value="Cancel" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+  <form action="{{url_for('update_one_minion_data', sitename=site.name, minion_id=ITasset.id)}}">
+    <input type="submit" value="Close" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
     </input>
   </form>
 

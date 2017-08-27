@@ -90,12 +90,13 @@ class SaltAPI():
         else:
             return False
 
-# testing
-if __name__ == '__main__':
-    api=SaltAPI()
-    api.login()
-    minion = "rtc-es"
-    print(api.is_minion_reachable(minion))
-    api.logout()
-    print(api.is_minion_reachable(minion))
-    print(api.get_minion_grains(minion))
+    def get_minion_isntalled_services(self, minion_name):
+        keyname = minion_name
+        payload = {'client':'local','tgt':keyname, 'fun': 'service.get_all'}
+        req = requests.post(self.salt_host, headers=self._get_headers(),data=payload,verify=self.verify_ssl_cert)
+        if req.status_code != 200:
+            return [""]
+        elif req.status_code == 200:
+            resp=req.json()
+            data=resp["return"][0][keyname]
+            return data
