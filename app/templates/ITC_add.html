@@ -1,16 +1,14 @@
 {% extends "layout.html" %}
 {% block content %}
-  <h3>New ITC</h3>
+  <h3>Add ITC</h3>
 
   <br>
 
   <div>
-    <form action="/generic/ITC/new" method="POST">
-      <input type="text" name="ITC_name" placeholder="ITC Name" required class="mdl-textfield__input">
-      <br>
-      <select name="deliverable_type" class="mdl-textfield__input">
-        {% for deliverable in deliverables %}
-          <option value={{deliverable}}>{{deliverable.name}}</option>
+    <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/add" method="POST">
+      <select name="ITC" class="mdl-textfield__input">
+        {% for ITC in ITCs %}
+          <option value={{ITC}}>{{ITC.name}}</option>
         {% endfor %}
       </select>
       <br>

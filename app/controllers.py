@@ -698,19 +698,19 @@ def site_project_ITP(sitename, projectname, ITPname):
                     not_applicable += 1
                 else:
                     not_started += 1
+
+        if deliverable.percentage_complete > 0 and deliverable.percentage_complete < 100:
+            deliverable.status = "In Progress"
+        elif deliverable.percentage_complete == 100:
+            delvierable.status = "Completed"
+        else:
+            deliverable.status = "Not Started"
     if total != 0:
         percents = [(completed/total)*100,(in_progress/total)*100,(not_applicable/total)*100,(not_started/total)*100]
         totals = [total_ITC, ITC_complete, ITC_in_progress, ITC_not_applicable, ITC_not_started]
     else:
         percents = [0,0,0,0]
         totals = [0,0,0,0]
-
-    if deliverable.percentage_complete > 0 and deliverable.percentage_complete < 100:
-        deliverable.status = "In Progress"
-    elif deliverable.percentage_complete == 100:
-        delvierable.status = "Completed"
-    else:
-        deliverable.status = "Not Started"
 
     completion_date = "-"
     if percents[0] == 100:
@@ -858,8 +858,6 @@ def site_project_ITP_deliverable(sitename, projectname, ITPname, deliverablename
         percents = [0,0,0,0]
         totals = [0,0,0,0]
     deliverable_current.percentage_complete = percents[0]
-    print(deliverable_current.percentage_complete)
-    print(deliverable_current.completion_date)
     if (deliverable_current.percentage_complete == 100 and deliverable_current.completion_date == None):
         print("now complete")
         deliverable_current.completion_date = datetime.datetime.now()
@@ -887,6 +885,7 @@ def site_project_ITP_deliverable_new(sitename, projectname, ITPname):
         db.session.commit()
         deliverable = Deliverable.query.filter_by(name=request.form['deliverable_name']).first()
         ITCs = ITC.query.filter_by(deliverable_type_id=deliverable_type.id).all()
+        deliverable.start_date = datetime.datetime.now()
         for itc in ITCs:
             deliver_itc = Deliverable_ITC_map(deliverable.id, itc.id)
             db.session.add(deliver_itc)
@@ -951,31 +950,6 @@ def site_project_ITP_deliverable_delete(sitename, projectname, ITPname, delivera
     else:
         return render_template('deliverable/ITP_deliverable_delete.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable)
 
-
-#Route for adding a check
-# @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/ITC/add', methods=['POST','GET'])
-# def site_project_ITP_deliverable_ITC_check_new(sitename, projectname, ITPname, deliverablename, ITCname, checkid):
-#     site = Site.query.filter_by(name=sitename).first()
-#     project = Project.query.filter_by(name=projectname).first()
-#     project_ITP = ITP.query.filter_by(name=ITPname).first()
-#     deliverable = Deliverable.query.filter_by(name=deliverablename).first()
-#     ITP_ITC = ITC.query.filter_by(name=ITCname).first()
-#     check = ITC_check_map.query.filter_by(ITC_id=ITP_ITC.id).first()
-#
-#     if request.method == 'POST':
-#         comments = request.form['check_comment']
-#         if (comments != "" and comments == check.comments):
-#             check.comments = comments
-#         check_generic = request.form['check_generic']
-#         if (check_generic != "" and check_generic != check.check_generic):
-#             check.check_generic = check_generic
-#         check_status = request.form['check_status']
-#         if (check_status != "" and check_status != check.status and check.is_done != True):
-#             check.status = check_status
-#         db.session.commit()
-#         return redirect(url_for('ITC_testing', sitename=site, projectname=project.name, deliverablename=deliverable.name, ITPname=project_ITP.name, ITCid=ITP_ITC.id))
-#     else:
-#         return render_template('ITC_check_edit.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC, check=check)
 
 ############################ ITC navigation controllers ########################
 
@@ -1051,6 +1025,24 @@ def site_project_ITP_deliverable_ITC_delete(sitename, projectname, ITPname, deli
         return redirect(url_for('site_project_ITP_deliverable_ITC_list', sitename=site, projectname=project.name, ITPname=project_ITP.name, deliverablename=deliverable.name))
     else:
         return render_template('specific_ITC/ITC_delete.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=ITP_ITC)
+
+#Route for adding a check
+@app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/ITC/add', methods=['POST','GET'])
+def site_project_ITP_deliverable_ITC_add(sitename, projectname, ITPname, deliverablename):
+    site = Site.query.filter_by(name=sitename).first()
+    project = Project.query.filter_by(name=projectname).first()
+    project_ITP = ITP.query.filter_by(name=ITPname).first()
+    deliverable = Deliverable.query.filter_by(name=deliverablename).first()
+    ITCs = ITC.query.all()
+
+    if request.method == 'POST':
+        itc = request.form['ITC']
+        deliver_itc = Deliverable_ITC_map(deliverable.id, itc.id)
+        db.session.add(deliver_itc)
+        db.session.commit()
+        return redirect(url_for('site_project_ITP_deliverable_ITC_list', sitename=site, projectname=project.name, deliverablename=deliverable.name, ITPname=project_ITP.name))
+    else:
+        return render_template('ITC_add.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITCs=ITCs)
 
 #Route for updating check completion
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/ITC/<ITCid>/check/change', methods=['POST'])

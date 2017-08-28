@@ -47,21 +47,21 @@
 
   <br>
   <div class="mdl-grid">
-    <div class="mdl-cell mdl-cell--4-col">
+    <div class="mdl-cell mdl-cell--5-col">
       <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}">
         <input type="submit" value="Back" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
         </input>
       </form>
     </div>
 
-    <div class="mdl-cell mdl-cell--4-col">
-      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/new">
+    <div class="mdl-cell mdl-cell--6-col">
+      <form action="/generic/ITC/new">
         <input type="submit" value="Create a New ITC" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
         </input>
       </form>
     </div>
 
-    <div class="mdl-cell mdl-cell--4-col" style="right:0; position:fixed;">
+    <div class="mdl-cell mdl-cell--1-col" style="float:right;">
       <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/add">
         <input type="submit" value="Add ITC" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
         </input>
