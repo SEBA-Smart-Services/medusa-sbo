@@ -8,9 +8,15 @@
           <h3 class="mdl-cell mdl-cell--6-col">{{ title }}</h3>
 
           <div class="mdl-cell mdl-cell--6-col" style="margin-right: 0">
-              <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="float: right;" href="{{ url_for('ticket_create', sitename=sitename) }}">
+            {%if site is defined and site != None %}
+              <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="float: right;" href="{{ url_for('ticket_create', sitename=site.name) }}">
                 <i class="material-icons">add</i>
               </a>
+            {% else %}
+              <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="float: right;" href="{{ url_for('ticket_create') }}">
+                <i class="material-icons">add</i>
+              </a>
+            {% endif %}
           </div>
         </div>
 
