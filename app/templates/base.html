@@ -92,7 +92,7 @@
             </nav>
           </div>
         </div>
-        {% if site is defined %}
+        {% if site is defined and site != None %}
           <div class="mdl-layout__header-row">
             <span class="mdl-layout-title" >
               <h4>{{site.name}} {% block title %}{% endblock %}</h4>

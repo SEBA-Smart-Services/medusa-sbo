@@ -23,8 +23,11 @@ app.jinja_env.globals.update(display_post_box=display_post_box)
 
 
 #creating a ticket
-@app.route('/site/all/ticket/create', methods=["GET", "POST"])
+@app.route('/site/<sitename>/ticket/create', methods=['GET', 'POST'])
+@app.route('/site/all/ticket/create', methods=['GET', 'POST'])
 def ticket_create(sitename=None):
+
+    print(sitename)
 
     form = CreateTicketForm()
 
@@ -94,11 +97,6 @@ def ticket_create(sitename=None):
         sites=sites,
         site=site
     )
-
-#creating a ticket
-@app.route('/site/<sitename>/ticket/create', methods=['GET'])
-def site_ticket_create(sitename):
-    return redirect(url_for('ticket_create', sitename=sitename))
 
 @app.route('/site/all/ticket/<ticket_id>/view', methods=['GET', 'POST'])
 def ticket_view(ticket_id, sitename=None, page=1):
@@ -204,6 +202,7 @@ def tickets(sitename=None, page=1):
         tickets = FlicketTicket.query.filter_by(site_id=site.id)
     else:
         tickets = FlicketTicket.query
+        site = None
 
     form = SearchTicketForm()
 
@@ -279,7 +278,8 @@ def tickets(sitename=None, page=1):
                            status=status,
                            department=department,
                            category=category,
-                           user_id=user_id
+                           user_id=user_id,
+                           site=site
                            )
 
 # edit ticket
@@ -311,7 +311,7 @@ def edit_ticket(ticket_id):
 
     # check user is authorised to edit ticket. Currently, only admin or author can do this.
     not_authorised = True
-    if ticket.user == current_user or current_user.is_admin:
+    if ticket.user == current_user or current_user.has_role('admin'):
         not_authorised = False
 
     if not_authorised:
