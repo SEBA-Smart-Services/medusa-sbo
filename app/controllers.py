@@ -122,8 +122,11 @@ def dashboard_all():
         avg_health = 0
         low_health_assets = []
         nalarms = []
+
+    open_tickets = FlicketTicket.query.filter(FlicketTicket.current_status.has(FlicketStatus.status == "Open")).all()
+    ticket_num = len(open_tickets)
     # only send results[0:5], to display the top 5 priority issues in the list
-    return render_template('dashboard.html', results=results[0:5], num_results=num_results, top_priority=top_priority, avg_health=avg_health, low_health_assets=low_health_assets, alarmcount=nalarms, tickets=tickets)
+    return render_template('dashboard.html', results=results[0:5], num_results=num_results, top_priority=top_priority, avg_health=avg_health, low_health_assets=low_health_assets, alarmcount=nalarms, tickets=tickets, ticket_num=ticket_num)
 
 # list all sites that are attached to the logged in user
 @app.route('/site/all/sites')
@@ -265,8 +268,7 @@ def dashboard_site(sitename):
     results = site.get_unresolved_by_priority()[0:4]
     num_results = len(site.get_unresolved())
     tickets = FlicketTicket.query.filter_by(
-        # FlicketTicket.current_status.has(FlicketStatus.status == "Open"),
-        site_id=site.id
+        site_id = site.id
     ).all()
 
     if not site.get_unresolved_by_priority():
@@ -304,6 +306,12 @@ def dashboard_site(sitename):
     except Exception as e:
         message = "Site not connected." + str(site.name) + '\n' + str(e)
 
+    open_tickets = FlicketTicket.query.filter(
+        (FlicketTicket.current_status.has(FlicketStatus.status == "Open")) &
+        (FlicketTicket.site_id == site.id)
+    ).all()
+    ticket_num = len(open_tickets)
+
     return render_template(
         'dashboard.html',
         results=results,
@@ -313,7 +321,8 @@ def dashboard_site(sitename):
         low_health_assets=low_health_assets,
         site=site,
         alarmcount=nalarms,
-        tickets=tickets
+        tickets=tickets,
+        ticket_num=ticket_num
     )
 
 # list assets on the site
