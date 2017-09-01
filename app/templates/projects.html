@@ -1,10 +1,10 @@
-{% extends "layout-empty.html" %}
+{% extends "layout.html" %}
 {% block content %}
   <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center">
       <h3>Projects</h3>
   </div>
 
-  <div class="mdl-grid">
+  <div class="mdl-cell mdl-cell--12-col mdl-grid">
     <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
       <div class="mdl-card__title">
         <h2 class="mdl-card__title-text">Projects</h2>
@@ -25,22 +25,21 @@
               <td class="mdl-data-table__cell--non-numeric"><a href="/site/{{project.site}}/projects/{{project.name}}">{{ project.name }}</a></td>
               <td class="mdl-data-table__cell--non-numeric">#{{project.job_number}}</td>
               <td class="mdl-data-table__cell--non-numeric">{{ project.site }}</td>
-              <td class="mdl-data-table__cell--non-numeric">0%</td>
-              <td class="mdl-data-table__cell--non-numeric">{{project.assigned_to}}<td>
+              <td class="mdl-data-table__cell--non-numeric">{{project.percentage_complete}}%</td>
+              <td class="mdl-data-table__cell--non-numeric">{{project.user.first_name}} {{project.user.last_name}}<td>
             </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
+  </div>
 
-    <div>
-      <form action="/generic" method="GET">
-        <input type="submit" value="Create Generic Templates" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
-        </input>
-      </form>
-    </div>
+  <br>
 
-
-
+  <div class="mdl-cell mdl-cell--12-col">
+    <form action="/generic" method="GET">
+      <input type="submit" value="Create Generic Templates" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+      </input>
+    </form>
   </div>
 {% endblock %}

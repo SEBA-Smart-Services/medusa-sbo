@@ -6,30 +6,32 @@
     <thead>
       <tr>
         <th class="mdl-data-table__cell--non-numeric">Name</th>
-        <th class="mdl-data-table__cell--non-numeric">Description</th>
-        <th class="mdl-data-table__cell--non-numeric">Status</th>
-        <th class="mdl-data-table__cell--non-numeric">Completed?</th>
-        <th class="mdl-data-table__cell--non-numeric"></th>
+        <th class="mdl-data-table__cell--non-numeric">Project Number</th>
+        <th class="mdl-data-table__cell--non-numeric">Site</th>
+        <th class="mdl-data-table__cell--non-numeric">percentage complete</th>
+        <th class="mdl-data-table__cell--non-numeric">Assigned to</th>
+        <th class="mdl-data-table__cell--non-numeric"> </th>
+        <th class="mdl-data-table__cell--non-numeric"> </th>
       </tr>
     </thead>
     <tbody>
-    {% for project in projects %}
-      <tr>
-        <td class="mdl-data-table__cell--non-numeric">
-          <a href="/site/{{site.name}}/projects/{{project.name}}">{{project.name}}</a></th>
-        <td class="mdl-data-table__cell--non-numeric">{{project.description}}</td>
-        <td class="mdl-data-table__cell--non-numeric">{{project.site}}</td>
-        <td class="mdl-data-table__cell--non-numeric"></td>
-        <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
-          <a href="/site/{{site.name}}/projects/{{project.name}}/edit">
-            Edit
-          </a>/
-          <a href="/site/{{site.name}}/projects/{{project.name}}/delete">
-            Delete
-          </a>
-        </td>
-      </tr>
-    {% endfor %}
+      {% for project in projects %}
+        <tr>
+          <td class="mdl-data-table__cell--non-numeric"><a href="/site/{{project.site}}/projects/{{project.name}}">{{ project.name }}</a></td>
+          <td class="mdl-data-table__cell--non-numeric">#{{project.job_number}}</td>
+          <td class="mdl-data-table__cell--non-numeric">{{ project.site }}</td>
+          <td class="mdl-data-table__cell--non-numeric">{{project.percentage_complete}}%</td>
+          <td class="mdl-data-table__cell--non-numeric">{{project.user.first_name}} {{project.user.last_name}}<td>
+          <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
+            <a href="/site/{{site.name}}/projects/{{project.name}}/edit">
+              Edit
+            </a>/
+            <a href="/site/{{site.name}}/projects/{{project.name}}/delete">
+              Delete
+            </a>
+          </td>
+        </tr>
+      {% endfor %}
     </tbody>
   </table>
 

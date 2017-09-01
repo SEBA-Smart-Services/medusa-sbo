@@ -520,8 +520,6 @@ def all_projects():
         projects = Project.query.filter_by(site_id=site.id).all()
         all_projects = all_projects + projects
 
-    print(all_projects)
-
     return render_template('projects.html', projects=all_projects)
 
 
@@ -611,7 +609,7 @@ def site_project_new(sitename):
 
     if request.method == 'POST':
         new_site = Project(request.form['project_name'], request.form['job_number'], request.form['project_description'], site.id)
-        new_site.assigned_to = request.form['assigned_to']
+        new_site.assigned_to_id = User.query.filter_by(id=request.form['assigned_to']).first()
         db.session.add(new_site)
         db.session.commit()
         return redirect(url_for('site_projects_list', sitename=site))
@@ -639,8 +637,8 @@ def site_project_edit(sitename, projectname):
         if (start_date != "" and request.form['start_date'] != project.start_date):
             project.start_date = request.form['start_date']
         assigned_to = request.form['assigned_to']
-        if (assigned_to != "" and request.form['assigned_to'] != project.assigned_to):
-            project.assigned_to = request.form['assigned_to']
+        if (assigned_to != "" and assigned_to != project.assigned_to_id):
+            project.assigned_to_id = assigned_to
         db.session.commit()
         return redirect(url_for('site_projects_list', sitename=site))
     else:

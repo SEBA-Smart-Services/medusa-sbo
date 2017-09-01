@@ -177,5 +177,12 @@
 
   </form>
 
+  <br>
+
+  <form action="{{request.referrer}}">
+    <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+    </input>
+  </form>
+
   <script type="text/javascript" src="{{ url_for('static', filename='js/asset.js') }}"></script>
 {% endblock %}

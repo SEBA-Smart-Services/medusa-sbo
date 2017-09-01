@@ -153,4 +153,11 @@
   {% endif %}
 
   <script type="text/javascript" src="{{ url_for('static', filename='js/asset.js') }}"></script>
+
+  <div>
+    <form action="/site/{{site.name}}/assets">
+      <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+      </input>
+    </form>
+  </div>
 {% endblock %}

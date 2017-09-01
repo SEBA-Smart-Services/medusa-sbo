@@ -18,7 +18,7 @@
       <select name="assigned_to" class="mdl-textfield__input">
         <option value=""></option>
         {% for user in users %}
-          <option value="{{user}}">{{user}}</option>
+          <option value="{{user.id}}">{{user.first_name}} {{user.last_name}}</option>
         {% endfor %}
       </select>
 

@@ -1,28 +1,31 @@
 {% extends 'layout.html' %}
 
   {% block content %}
-    {% from "flask_user/_macros.html" import render_field, render_checkbox_field, render_submit_field %}
-    <h3>{%trans%}User profile{%endtrans%}</h3>
+  <div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--12-col">
+      {% from "flask_user/_macros.html" import render_field, render_checkbox_field, render_submit_field %}
+      <h3>{%trans%}User profile{%endtrans%}</h3>
 
-    <p>First Name: {{current_user.first_name}}</p>
-    <p>Last Name: {{current_user.last_name}}</p>
-    <p>Sites:
-      {% for site in current_user.sites %}
-        {{ site }}
-      {% endfor %}
-    </p>
-    <p>Roles:
-      {% for role in current_user.roles %}
-        {{ role }}
-      {% endfor %}
-    </p>
+      <p><b>First Name:</b> {{current_user.first_name}}</p>
+      <p><b>Last Name:</b> {{current_user.last_name}}</p>
+      <p><b>Sites:</b>
+        {% for site in current_user.sites %}
+          {{ site }}
+        {% endfor %}
+      </p>
+      <p><b>Roles:</b>
+        {% for role in current_user.roles %}
+          {{ role }}
+        {% endfor %}
+      </p>
 
-    {% if user_manager.enable_change_username %}
-    <p><a href="{{ url_for('user.change_username') }}">{%trans%}Change username{%endtrans%}</a></p>
-    {% endif %}
-    {% if user_manager.enable_change_password %}
-    <p><a href="{{ url_for('user.change_password') }}">{%trans%}Change password{%endtrans%}</a></p>
-    {% endif %}
+      {% if user_manager.enable_change_username %}
+      <p><a class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" href="{{ url_for('user.change_username') }}">{%trans%}Change username{%endtrans%}</a></p>
+      {% endif %}
+      {% if user_manager.enable_change_password %}
+      <p><a class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" href="{{ url_for('user.change_password') }}">{%trans%}Change password{%endtrans%}</a></p>
+      {% endif %}
+    </div>
+  </div>
 
   {% endblock %}
-</div>

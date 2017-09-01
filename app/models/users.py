@@ -1,5 +1,5 @@
 from app import db
-from app.models.ITP import ITC_check_map, Deliverable_ITC_map
+from app.models.ITP import Project, ITC_check_map, Deliverable_ITC_map
 # from app.ticket.models import FlicketTicket
 from flask_security import UserMixin, RoleMixin
 
@@ -35,7 +35,6 @@ class User(db.Model, UserMixin):
     Deliverable_ITC = db.relationship('Deliverable_check_map', backref='user')
 
     ticket_start_id = db.relationship('FlicketTicket',
-
                         primaryjoin="User.id == FlicketTicket.started_id")
     ticket_assigned_id = db.relationship('FlicketTicket',
                          primaryjoin="User.id == FlicketTicket.assigned_id")
@@ -43,6 +42,8 @@ class User(db.Model, UserMixin):
                         primaryjoin="User.id == FlicketTicket.resolved_by_id")
     ticket_modified_id = db.relationship('FlicketTicket',
                         primaryjoin="User.id == FlicketTicket.modified_id")
+    projects = db.relationship('Project', backref='user',
+                        primaryjoin="User.id == Project.assigned_to_id")
 
     def __repr__(self):
         return self.email
