@@ -66,7 +66,7 @@
           </div>
 
           <!-- Large navigation bar -->
-          <div class="mdl-layout">
+          <div class="mdl-layout__header-row">
             <nav class="largeNav mdl-navigation">
               {% if current_user.is_authenticated %}
                 {% if site is defined and site != None %}
@@ -99,25 +99,19 @@
             </span>
 
             <!-- Large navigation bar -->
-            <div class="mdl-layout">
-              <nav class="largeNav mdl-navigation">
-                {% if current_user.is_authenticated %}
-                {% if site is defined and site != None %}
-                <a class="mdl-navigation__link" href="/site/{{site.name}}/dashboard">Dashboard</a>
-                <a class="mdl-navigation__link" href="/site/{{site.name}}/tickets">Tickets</a>
-                <a class="mdl-navigation__link" href="/site/{{site.name}}/assets">Assets</a>
-                <a class="mdl-navigation__link" href="/site/{{site.name}}/issues">Analytics</a>
-                <a class="mdl-navigation__link" href="/site/{{site.name}}/projects">Projects</a>
-                <a class="mdl-navigation__link" href="/site/{{site.name}}/config">Settings</a>
-                {% endif %}
-                {% endif %}
-              </nav>
-            </div>
-
-
+            {% if current_user.is_authenticated %}
+              {% if site is defined and site != None %}
+                <nav class="largeNav mdl-navigation">
+                  <a class="mdl-navigation__link" href="/site/{{site.name}}/dashboard">Dashboard</a>
+                  <a class="mdl-navigation__link" href="/site/{{site.name}}/tickets">Tickets</a>
+                  <a class="mdl-navigation__link" href="/site/{{site.name}}/assets">Assets</a>
+                  <a class="mdl-navigation__link" href="/site/{{site.name}}/issues">Analytics</a>
+                  <a class="mdl-navigation__link" href="/site/{{site.name}}/projects">Projects</a>
+                  <a class="mdl-navigation__link" href="/site/{{site.name}}/config">Settings</a>
+                </nav>
+              {% endif %}
+            {% endif %}
           </div>
-
-
         {% endif %}
       </header>
 
