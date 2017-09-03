@@ -32,7 +32,7 @@ class TicketComponent(db.Model):
     __tablename__ = 'ticket_component'
 
     id = db.Column(db.Integer, primary_key=True)
-    status = db.Column(db.String(field_size['status_max_length']))
+    name = db.Column(db.String(field_size['status_max_length']))
 
 
 class FlicketDepartment(db.Model):

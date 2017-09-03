@@ -6,7 +6,7 @@ import os
 from app.models import Site
 from app.models.users import User
 from flask_user import current_user
-from app.ticket.models import FlicketTicket, FlicketStatus, FlicketPost, FlicketSubscription, FlicketPriority, FlicketCategory, FlicketDepartment, FlicketHistory, FlicketUploads
+from app.ticket.models import FlicketTicket, FlicketStatus, FlicketPost, FlicketSubscription, FlicketPriority, FlicketCategory, FlicketDepartment, FlicketHistory, FlicketUploads, TicketComponent
 
 from app.models.ITP import Project
 
@@ -37,8 +37,8 @@ def ticket_create(sitename=None):
         ticket_status = FlicketStatus.query.filter_by(status='Open').first()
         ticket_priority = FlicketPriority.query.filter_by(id=int(form.priority.data)).first()
         ticket_category = FlicketCategory.query.filter_by(id=int(form.category.data)).first()
+        ticket_component = TicketComponent.query.filter_by(id=request.form['Component']).first()
 
-        ticket_component = request.form['Component']
         due_date = request.form['due_date']
         sitename = request.form['sitename']
 
@@ -89,13 +89,15 @@ def ticket_create(sitename=None):
         sites = Site.query.all()
         site = None
 
+    components = TicketComponent.query.all()
 
     return render_template(
         'flicket/flicket_create.html',
         title='Create Ticket',
         form=form,
         sites=sites,
-        site=site
+        site=site,
+        components=components
     )
 
 @app.route('/site/all/ticket/<ticket_id>/view', methods=['GET', 'POST'])
@@ -322,7 +324,7 @@ def edit_ticket(ticket_id):
 
         print(request.form['sitename'])
 
-        ticket.ticket_component = request.form['Component']
+        ticket.component = TicketComponent.query.filter_by(id=request.form['Component']).first()
         ticket.due_date = request.form['due_date']
         site = Site.query.filter_by(name=request.form['sitename']).one()
         ticket.site_id = site.id
@@ -388,13 +390,16 @@ def edit_ticket(ticket_id):
     form.title.data = ticket.ticket_name
     form.category.data = ticket.category_id
 
+    components = TicketComponent.query.all()
+
     app.logger.info('edit ticket for site ' + site.name)
     return render_template(
         'flicket/flicket_edittopic.html',
         title='Edit Ticket',
         form=form,
         site=site,
-        sites=site_list
+        sites=site_list,
+        components=components
     )
 
 

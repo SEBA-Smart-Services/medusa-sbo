@@ -44,10 +44,9 @@
         <label class="">Component</label>
         <div>
           <select name="Component" class="mdl-textfield__input">
-            <option value="BMS">BMS</option>
-            <option value="Security">Security</option>
-            <option value="Mechanical">Mechanical</option>
-            <option value="Electrical">Electrical</option>
+            {% for component in components %}
+              <option value="{{component.id}}">{{component.name}}</option>
+            {% endfor %}
           </select>
         </div>
       </div>
