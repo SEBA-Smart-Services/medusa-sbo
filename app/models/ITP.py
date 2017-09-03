@@ -13,8 +13,8 @@ class Project(db.Model):
     start_date = db.Column(db.DateTime())
     completion_date = db.Column(db.DateTime())
     site_id = db.Column(db.Integer(), db.ForeignKey('site.ID', ondelete='CASCADE'))
-    ITP = db.relationship('ITP',
-        backref = 'project')
+    ITP = db.relationship('ITP', backref = 'project')
+    tickets = db.relationship('FlicketTicket', backref='project', lazy='dynamic')
 
     def __init__(self, name, job_number, description, site_id):
         self.name = name

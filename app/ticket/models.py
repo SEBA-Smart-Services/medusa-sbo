@@ -28,6 +28,12 @@ class FlicketStatus(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.String(field_size['status_max_length']))
 
+class TicketComponent(db.Model):
+    __tablename__ = 'ticket_component'
+
+    id = db.Column(db.Integer, primary_key=True)
+    status = db.Column(db.String(field_size['status_max_length']))
+
 
 class FlicketDepartment(db.Model):
     __tablename__ = 'flicket_department'
@@ -81,7 +87,8 @@ class FlicketTicket(db.Model):
     category_id = db.Column(db.Integer, db.ForeignKey(FlicketCategory.id))
     category = db.relationship(FlicketCategory)
 
-    component = db.Column(db.String(field_size['title_max_length']))
+    component_id = db.Column(db.Integer, db.ForeignKey(TicketComponent.id))
+    component = db.relationship(TicketComponent)
 
     ticket_priority_id = db.Column(db.Integer, db.ForeignKey(FlicketPriority.id))
     ticket_priority = db.relationship(FlicketPriority)
@@ -103,7 +110,7 @@ class FlicketTicket(db.Model):
     site_id = db.Column('site_id', db.Integer, db.ForeignKey('site.ID'), nullable=False)
 
     # facility = db.Column(db.String(field_size['title_max_length']))
-    project = db.Column(db.String(field_size['title_max_length']))
+    project_id = db.Column('project_id', db.Integer, db.ForeignKey('project.id'), nullable=False)
 
     date_modified = db.Column(db.DateTime())
     modified_id = db.Column(db.Integer, db.ForeignKey('user.id'))

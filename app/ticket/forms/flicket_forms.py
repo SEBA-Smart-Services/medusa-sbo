@@ -17,7 +17,7 @@ from app.ticket.models import (FlicketCategory, FlicketDepartment, FlicketPriori
 from app.models.users import User
 from app.ticket.scripts.upload_choice_generator import generate_choices
 
-form_class_button = {'class': 'btn btn-primary'}
+form_class_button = {'class': 'mdl-button mdl-js-button mdl-button--raised mdl-button--accent'}
 form_danger_button = {'class': 'btn btn-danger'}
 
 user_field_size = {

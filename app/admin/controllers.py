@@ -4,7 +4,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_user import current_user
 from app.models import Asset, Site, AssetPoint, AssetType, Algorithm, FunctionalDescriptor, FunctionalDescriptorCategory, PointType, InbuildingsAsset, Result, EmailTemplate, Email, User, Role, Alarm, LoggedEntity, LogTimeValue
 from app.ict.models import ITasset
-from app.ticket.models import FlicketPriority, FlicketCategory, FlicketStatus
+from app.ticket.models import FlicketPriority, FlicketCategory, FlicketStatus, TicketComponent
 from app.models.ITP import Deliverable_type, Location
 from flask_mail import Message
 from flask import render_template, url_for
@@ -126,6 +126,9 @@ class TicketCategoryView(ProtectedView):
 class TicketStatusView(ProtectedView):
     pass
 
+class TicketComponentView(ProtectedView):
+    pass
+
 # attach the model views to the admin page
 admin.add_view(SiteView(Site, db.session))
 admin.add_view(AssetTypeView(AssetType, db.session))
@@ -150,3 +153,4 @@ admin.add_view(ITassetView(ITasset, db.session))
 admin.add_view(TicketPriorityView(FlicketPriority, db.session))
 admin.add_view(TicketCategoryView(FlicketCategory, db.session))
 admin.add_view(TicketStatusView(FlicketStatus, db.session))
+admin.add_view(TicketComponentView(TicketComponent, db.session))

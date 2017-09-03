@@ -4,13 +4,14 @@
       class="form-horizontal"
       enctype="multipart/form-data"
       method="post"
-      name="add_reply">
+      name="add_reply"
+      style="width:100%">
     {{ form.hidden_tag() }}
 
   <div class="mdl-cell mdl-cell--12-col">
       <h5 class="mdl-cell mdl-cell--12-col">{{ form.content.label }}</h5>
       <div class="mdl-cell mdl-cell--12-col">
-          {{ form.content(class="form-control") }}
+          {{ form.content(class="mdl-textfield__input mdl-js-textfield", style="width: 100%") }}
       </div>
   </div>
   {% if form.content.errors %}
