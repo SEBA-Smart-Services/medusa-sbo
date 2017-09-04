@@ -6,12 +6,10 @@
     {{ form.hidden_tag() }}
 
     <div class="mdl-grid">
-      <div class="mdl-cell mdl-cell--12-col">
-        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--12-col">
             {{ form.title(class="form-control mdl-textfield__input", pattern="[A-Z,a-z,0-9, ]*", autocomplete="off") }}
           <label class="mdl-textfield__label">Ticket Title</label>
           <span class="mdl-textfield__error">Only alphanumeric input, please!</span>
-        </div>
       </div>
       {% if form.title.errors %}
         <div class="mdl-cell mdl-cell--12-col">
@@ -23,11 +21,9 @@
         </div>
       {% endif %}
 
-      <div class="mdl-cell mdl-cell--12-col">
-          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              {{ form.content(class="form-control mdl-textfield__input") }}
-            <label class="mdl-textfield__label">Description</label>
-          </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--12-col">
+          {{ form.content(class="form-control mdl-textfield__input") }}
+        <label class="mdl-textfield__label">Description</label>
       </div>
       <br>
       <div class="mdl-cell mdl-cell--12-col">
@@ -105,7 +101,7 @@
 
     <div class="mdl-cell mdl-cell--12-col">
       <label class="">Due Date (Optional)</label>
-      <input type="date" name="due_date" placeholder="" class="mdl-textfield__input">
+      <input type="date" name="date_due" placeholder="" class="mdl-textfield__input">
     </div>
 
     <div class="mdl-cell mdl-cell--12-col">
@@ -124,13 +120,29 @@
       </div>
     </div>
 
-
+    <div class="mdl-cell mdl-cell--12-col">
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <select name="project" class="mdl-textfield__input">
+          {% if project != None %}
+            <option value="{{ project.id }}">{{project.name}}</option>
+          {% else %}
+            {% for project in projects %}
+              <option value="{{ project.id }}">{{project.name}}</option>
+            {% endfor %}
+          {% endif %}
+        </select>
+        <label class="mdl-textfield__label">Project</label>
+        <span class="mdl-textfield__error">Only alphanumeric input, please!</span>
+      </div>
+    </div>
 
     <div class="form-group mdl-cell mdl-cell--12-col">
         <label class="control-label">{{ form.file.label }}</label>
-        <div class="">
+        <div class="mdl-button mdl-button--primary mdl-button--icon mdl-button--file">
+          <i class="material-icons" style="color:rgb(68,138,255);">attach_file</i>
             {{ form.file }}
         </div>
+        <input class="mdl-textfield__input" placeholder="File" type="text" id="uploadFile" readonly/>
         <br>
         <div class="">
             {{ form.submit(class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent") }}
@@ -147,3 +159,9 @@
     </form>
   </div>
 </div>
+
+<script>
+  document.getElementById("uploadBtn").onchange = function () {
+      document.getElementById("uploadFile").value = this.files[0].name;
+  };
+</script>

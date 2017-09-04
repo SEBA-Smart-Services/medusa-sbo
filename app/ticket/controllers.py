@@ -25,7 +25,7 @@ app.jinja_env.globals.update(display_post_box=display_post_box)
 #creating a ticket
 @app.route('/site/<sitename>/ticket/create', methods=['GET', 'POST'])
 @app.route('/site/all/ticket/create', methods=['GET', 'POST'])
-def ticket_create(sitename=None):
+def ticket_create(sitename=None, projectname=None):
 
     print(sitename)
 
@@ -39,7 +39,7 @@ def ticket_create(sitename=None):
         ticket_category = FlicketCategory.query.filter_by(id=int(form.category.data)).first()
         ticket_component = TicketComponent.query.filter_by(id=request.form['Component']).first()
 
-        due_date = request.form['due_date']
+        date_due = request.form['date_due']
         sitename = request.form['sitename']
 
         site = Site.query.filter_by(name=sitename).one()
@@ -47,6 +47,7 @@ def ticket_create(sitename=None):
         app.logger.info('new ticket for ' + site.name)
         app.logger.info('new ticket for ' + str(site.id))
 
+        project = Project.query.filter_by(id=request.form['project']).first()
 
         files = request.files.getlist("file")
         upload_attachments = UploadAttachment(files)
@@ -64,7 +65,9 @@ def ticket_create(sitename=None):
             ticket_priority=ticket_priority,
             category=ticket_category,
             component=ticket_component,
-            site_id=site.id
+            site_id=site.id,
+            project_id=project.id,
+            date_due=date_due
         )
         db.session.add(new_ticket)
 
@@ -85,9 +88,18 @@ def ticket_create(sitename=None):
     if sitename != None:
         site = Site.query.filter_by(name=sitename).first()
         sites = None
+        if projectname != None:
+            project = Project.query.filter_by(name=projectname).first()
+            projects = None
+        else:
+            projects = Project.query.filter_by(site_id=site.id).all()
+            project = None
     else:
         sites = Site.query.all()
         site = None
+        project = None
+        projects = []
+
 
     components = TicketComponent.query.all()
 
@@ -97,6 +109,8 @@ def ticket_create(sitename=None):
         form=form,
         sites=sites,
         site=site,
+        project=project,
+        projects=projects,
         components=components
     )
 
@@ -105,7 +119,6 @@ def ticket_view(ticket_id, sitename=None, page=1):
     # is ticket number legitimate
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
     site =  Site.query.filter_by(id=ticket.site_id).one()
-
 
     if not ticket:
         flash('Cannot find ticket: "{}"'.format(ticket_id), category='warning')
@@ -185,7 +198,7 @@ def ticket_view(ticket_id, sitename=None, page=1):
         title='View Ticket',
         ticket=ticket,
         form=form,
-        site=site.name,
+        site=site,
         replies=replies,
         page=page
     )
@@ -291,6 +304,12 @@ def edit_ticket(ticket_id):
 
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
     site =  Site.query.filter_by(id=ticket.site_id).one()
+    if ticket.project_id != None:
+        project = Project.query.filter_by(id=ticket.project_id).first()
+        projects=None
+    else:
+        projects = Project.query.filter_by(site_id=site.id).all()
+        project=None
     app.logger.info(site.name)
     site_list = Site.query.all()
 
@@ -325,10 +344,12 @@ def edit_ticket(ticket_id):
         print(request.form['sitename'])
 
         ticket.component = TicketComponent.query.filter_by(id=request.form['Component']).first()
-        ticket.due_date = request.form['due_date']
+        ticket.date_due = request.form['date_due']
         site = Site.query.filter_by(name=request.form['sitename']).one()
         ticket.site_id = site.id
         print(ticket.site_id)
+        project = Project.query.filter_by(id=request.form['project']).first()
+        ticket.project_id = project.id
 
         db.session.commit()
 
@@ -399,6 +420,8 @@ def edit_ticket(ticket_id):
         form=form,
         site=site,
         sites=site_list,
+        project=project,
+        projects=projects,
         components=components
     )
 

@@ -66,9 +66,10 @@ class UserView(ProtectedView):
     column_exclude_list = ('password', 'last_login_ip', 'last_login_at', 'current_login_ip', 'current_login_at', 'login_count')
     form_create_rules = ('first_name', 'last_name','email', 'company', 'roles', 'sites', 'active', 'authenticated')
     #create_template='create_user.html'
-    column_filters = ('first_name', 'last_name', 'roles.name', 'sites.name')
+    column_filters = ('first_name', 'last_name', 'roles.name', 'sites.name', 'projects')
     column_editable_list = ['first_name', 'last_name']
-    form_excluded_columns = ['Deliverable_ITC', 'password', 'last_login_ip', 'last_login_at', 'current_login_ip', 'current_login_at', 'login_count', 'confirmed_at']
+    form_excluded_columns = ['Deliverable_ITC', 'password', 'last_login_ip', 'last_login_at', 'current_login_ip', 'current_login_at', 'login_count',
+        'confirmed_at', 'ticket_modified_id', 'ticket_assigned_id', 'ticket_resolve_id', 'ticket_start_id', 'password_change_date', 'password_active', 'projects']
     can_view_details = True
 
     def after_model_change(self, form, model, is_created):

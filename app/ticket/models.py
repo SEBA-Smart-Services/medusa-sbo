@@ -110,7 +110,7 @@ class FlicketTicket(db.Model):
     site_id = db.Column('site_id', db.Integer, db.ForeignKey('site.ID'), nullable=False)
 
     # facility = db.Column(db.String(field_size['title_max_length']))
-    project_id = db.Column('project_id', db.Integer, db.ForeignKey('project.id'), nullable=False)
+    project_id = db.Column('project_id', db.Integer, db.ForeignKey('project.id'))
 
     date_modified = db.Column(db.DateTime())
     modified_id = db.Column(db.Integer, db.ForeignKey('user.id'))

@@ -1,5 +1,10 @@
 <!-- extend from base layout -->
 {% extends "layout.html" %}
+{% block title %}
+  {% if ticket.project is defined and ticket.project != none %}
+    - {{ticket.project.name}}
+  {% endif %}
+{% endblock %}
 {% block content %}
 <div class="mdl-layout">
 
@@ -39,11 +44,11 @@
               </tr>
               <tr>
                   <th class="mdl-data-table__cell--non-numeric">Due Date</th>
-                  <td class="mdl-data-table__cell--non-numeric">{{ ticket.due_date }}</td>
+                  <td class="mdl-data-table__cell--non-numeric">{{ ticket.date_due }}</td>
               </tr>
               <tr>
                   <th class="mdl-data-table__cell--non-numeric">Facility</th>
-                  <td class="mdl-data-table__cell--non-numeric">{{ site }}</td>
+                  <td class="mdl-data-table__cell--non-numeric">{{ ticket.site.name }}</td>
               </tr>
               {% if ticket.project != None %}
               <tr>
@@ -127,7 +132,7 @@
           {% if current_user.has_role('admin') or (ticket.user == current_user) %}
               {% if ticket.current_status.status != 'Closed' %}
               <form class="mdl-cell mdl-cell--12-col" action="/ticket/{{ticket.id}}/Close/update", method="POST">
-                <select name="status" class="mdl-textfield__input mdl-cell mdl-cell--4-col" style="display: inline-block; margin-right:40px">
+                <select name="resolution" class="mdl-textfield__input mdl-cell mdl-cell--4-col" style="display: inline-block; margin-right:40px">
                   <option value="Fixed">Fixed</option>
                   <option value="Invalid">Invalid</option>
                   <option value="Wont Fix">Wont Fix</option>

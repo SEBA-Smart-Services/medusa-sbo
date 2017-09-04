@@ -99,7 +99,7 @@ class CreateTicketForm(FlaskForm):
     category = SelectField('category', validators=[DataRequired()], coerce=int)
     app.config['allowed_extensions'] = app.config['ALLOWED_EXTENSIONS']
     app.config['ticket_upload_folder'] = app.config['TICKET_UPLOAD_FOLDER']
-    file = FileField('Upload Documents', render_kw={'multiple': True})
+    file = FileField('Upload Documents', render_kw={'multiple': True, 'id': 'uploadBtn' ,'style': 'opacity: 0'})
     submit = SubmitField('Submit', render_kw=form_class_button, validators=[DataRequired()])
 
 
