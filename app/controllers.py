@@ -609,7 +609,8 @@ def site_project_new(sitename):
 
     if request.method == 'POST':
         new_site = Project(request.form['project_name'], request.form['job_number'], request.form['project_description'], site.id)
-        new_site.assigned_to_id = User.query.filter_by(id=request.form['assigned_to']).first()
+        assigned_to = User.query.filter_by(id=request.form['assigned_to']).first()
+        new_site.assigned_to_id = assigned_to.id
         db.session.add(new_site)
         db.session.commit()
         return redirect(url_for('site_projects_list', sitename=site))
@@ -999,7 +1000,7 @@ def site_project_ITP_deliverable_ITC_edit(sitename, projectname, ITPname, delive
     project = Project.query.filter_by(name=projectname).first()
     project_ITP = ITP.query.filter_by(project_id=project.id, name=ITPname).first()
     deliverable = Deliverable.query.filter_by(ITP_id=project_ITP.id, name=deliverablename).first()
-    ITP_ITC = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).first()
+    ITP_ITC = Deliverable_ITC_map.query.filter_by(id=ITCid).first()
     deliverable_types = Deliverable_type.query.all()
 
     if request.method == 'POST':
@@ -1024,7 +1025,7 @@ def site_project_ITP_deliverable_ITC_delete(sitename, projectname, ITPname, deli
     project = Project.query.filter_by(name=projectname).first()
     project_ITP = ITP.query.filter_by(project_id=project.id, name=ITPname).first()
     deliverable = Deliverable.query.filter_by(ITP_id=project_ITP.id, name=deliverablename).first()
-    ITP_ITC = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).first()
+    ITP_ITC = Deliverable_ITC_map.query.filter_by(id=ITCid).first()
 
     if request.method == 'POST':
         db.session.delete(ITP_ITC)
@@ -1043,7 +1044,7 @@ def site_project_ITP_deliverable_ITC_add(sitename, projectname, ITPname, deliver
     ITCs = ITC.query.all()
 
     if request.method == 'POST':
-        itc = request.form['ITC']
+        itc = ITC.query.filter_by(id=request.form['ITC']).first()
         deliver_itc = Deliverable_ITC_map(deliverable.id, itc.id)
         db.session.add(deliver_itc)
         db.session.commit()
@@ -1151,15 +1152,15 @@ def site_project_ITP_deliverable_ITC_check_edit(sitename, projectname, ITPname, 
     project_ITP = ITP.query.filter_by(name=ITPname).first()
     deliverable = Deliverable.query.filter_by(name=deliverablename).first()
     ITP_ITC = Deliverable_ITC_map.query.filter_by(id=ITCid).first()
-    check = ITC_check_map.query.filter_by(ITC_id=ITP_ITC.id).first()
+    check = Deliverable_check_map.query.filter_by(id=checkid).first()
 
     if request.method == 'POST':
         comments = request.form['check_comment']
         if (comments != "" and comments == check.comments):
             check.comments = comments
-        check_generic = request.form['check_generic']
-        if (check_generic != "" and check_generic != check.check_generic):
-            check.check_generic = check_generic
+        # check_generic = request.form['check_generic']
+        # if (check_generic != "" and check_generic != check.check_generic):
+        #     check.check_generic = check_generic
         check_status = request.form['check_status']
         if (check_status != "" and check_status != check.status and check.is_done != True):
             check.status = check_status

@@ -122,7 +122,7 @@
 
     <div class="mdl-cell mdl-cell--12-col">
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <select name="project" class="mdl-textfield__input">
+        <select name="project" class="mdl-textfield__input" required>
           {% if project != None %}
             <option value="{{ project.id }}">{{project.name}}</option>
           {% else %}
@@ -132,7 +132,7 @@
           {% endif %}
         </select>
         <label class="mdl-textfield__label">Project</label>
-        <span class="mdl-textfield__error">Only alphanumeric input, please!</span>
+        <span class="mdl-textfield__error">No Projects available</span>
       </div>
     </div>
 

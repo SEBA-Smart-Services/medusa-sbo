@@ -47,7 +47,14 @@ def ticket_create(sitename=None, projectname=None):
         app.logger.info('new ticket for ' + site.name)
         app.logger.info('new ticket for ' + str(site.id))
 
-        project = Project.query.filter_by(id=request.form['project']).first()
+        project_id = request.form['project']
+        print(project_id)
+        if project_id != "":
+            project = Project.query.filter_by(id=project_id).first()
+            project_id = project.id
+        else:
+            project_id = 1
+        print(project_id)
 
         files = request.files.getlist("file")
         upload_attachments = UploadAttachment(files)
@@ -66,7 +73,7 @@ def ticket_create(sitename=None, projectname=None):
             category=ticket_category,
             component=ticket_component,
             site_id=site.id,
-            project_id=project.id,
+            project_id=project_id,
             date_due=date_due
         )
         db.session.add(new_ticket)
@@ -98,7 +105,8 @@ def ticket_create(sitename=None, projectname=None):
         sites = Site.query.all()
         site = None
         project = None
-        projects = []
+        #Needs to be removed once ticket model has been updated
+        projects = Project.query.all()
 
 
     components = TicketComponent.query.all()
@@ -850,7 +858,7 @@ def close_status(ticket_id):
     add_action(action='close', ticket=ticket)
 
     ticket.current_status = new_status
-    ticket.resolution = request.form['status']
+    ticket.resolution = request.form['resolution']
     ticket.resolved_by = current_user
     ticket.date_resolved = datetime.datetime.now()
     db.session.commit()
