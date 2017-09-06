@@ -29,7 +29,10 @@
     <br>
     <h4>Location:</h4> {{deliverable.location.name}}
     <br>
-    <h4>Deliverable Start Date:</h4> {{deliverable.start_date.strftime('%d-%m-%Y')}}
+    <h4>Deliverable Start Date:</h4>
+    {% if deliverable.start_date != none %}
+      {{deliverable.start_date.strftime('%d-%m-%Y')}}
+    {% endif %}
     <br>
     <h4>Deliverable Completion Date:</h4>
     {% if deliverable.completion_date != none %}

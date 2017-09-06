@@ -8,7 +8,7 @@
     <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/add" method="POST">
       <select name="ITC" class="mdl-textfield__input">
         {% for ITC in ITCs %}
-          <option value={{ITC}}>{{ITC.name}}</option>
+          <option value={{ITC.id}}>{{ITC.name}}</option>
         {% endfor %}
       </select>
       <br>
