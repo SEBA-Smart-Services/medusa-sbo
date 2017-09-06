@@ -850,7 +850,7 @@ def close_status(ticket_id):
     add_action(action='close', ticket=ticket)
 
     ticket.current_status = new_status
-    ticket.resolution = request.form['status']
+    ticket.resolution = request.form['resolution']
     ticket.resolved_by = current_user
     ticket.date_resolved = datetime.datetime.now()
     db.session.commit()
