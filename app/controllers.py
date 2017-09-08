@@ -1125,6 +1125,8 @@ def ITC_testing(sitename, projectname, ITPname, deliverablename, ITCid):
     deliver_ITC = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id, id=ITCid).first()
     deliverable_checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=deliver_ITC.id).all()
 
+    print(request.referrer.split('/')[-1].strip('?'))
+
     total = 0
     completed = 0
     for check in deliverable_checks:

@@ -28,6 +28,7 @@ app.jinja_env.globals.update(display_post_box=display_post_box)
 def ticket_create(sitename=None, projectname=None):
 
     print(sitename)
+    print(request.referrer)
 
     form = CreateTicketForm()
 
@@ -127,6 +128,8 @@ def ticket_view(ticket_id, sitename=None, page=1):
     # is ticket number legitimate
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
     site =  Site.query.filter_by(id=ticket.site_id).one()
+
+    print(request.referrer)
 
     if not ticket:
         flash('Cannot find ticket: "{}"'.format(ticket_id), category='warning')
@@ -312,6 +315,8 @@ def edit_ticket(ticket_id):
 
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
     site =  Site.query.filter_by(id=ticket.site_id).one()
+
+    print(ticket.date_due)
     if ticket.project_id != None:
         project = Project.query.filter_by(id=ticket.project_id).first()
         projects=None
@@ -349,13 +354,10 @@ def edit_ticket(ticket_id):
 
     if form.validate_on_submit():
 
-        print(request.form['sitename'])
-
         ticket.component = TicketComponent.query.filter_by(id=request.form['Component']).first()
         ticket.date_due = request.form['date_due']
         site = Site.query.filter_by(name=request.form['sitename']).one()
         ticket.site_id = site.id
-        print(ticket.site_id)
         project = Project.query.filter_by(id=request.form['project']).first()
         ticket.project_id = project.id
 

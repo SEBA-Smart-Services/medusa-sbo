@@ -66,10 +66,17 @@
   <br>
   <div class="mdl-grid">
     <div class="mdl-cell mdl-cell--10-col">
-      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC">
-        <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
-        </input>
-      </form>
+      {% if request.referrer.split('/')[-1].strip('?') == 'delete' or request.referrer.split('/')[-1].strip('?') == 'edit'  %}
+        <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC">
+          <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+          </input>
+        </form>
+      {% else %}
+        <form action="{{request.referrer}}">
+          <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+          </input>
+        </form>
+      {% endif %}
     </div>
 
     <!-- <div class="mdl-cell mdl-cell--4-col">
