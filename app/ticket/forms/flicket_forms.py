@@ -132,7 +132,7 @@ class ReplyForm(FlaskForm):
     """ Content form. Displayed when replying too end editing tickets """
     content = PageDownField('Reply', validators=[DataRequired(), Length(min=field_size['content_min_length'],
                                                                         max=field_size['content_max_length'])])
-    file = FileField('Upload Documents', render_kw={'multiple': True})
+    file = FileField('Upload Documents', render_kw={'multiple': True, 'id': 'uploadBtn' ,'style': 'opacity: 0'})
     submit = SubmitField('submit reply', render_kw=form_class_button)
     submit_close = SubmitField('reply and close', render_kw=form_danger_button)
 

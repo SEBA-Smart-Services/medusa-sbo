@@ -6,7 +6,7 @@ import os
 from app.models import Site
 from app.models.users import User
 from flask_user import current_user
-from app.ticket.models import FlicketTicket, FlicketStatus, FlicketPost, FlicketSubscription, FlicketPriority, FlicketCategory, FlicketDepartment, FlicketHistory, FlicketUploads, TicketComponent
+from app.ticket.models import FlicketTicket, FlicketStatus, FlicketPost, FlicketSubscription, FlicketPriority, FlicketCategory, FlicketDepartment, FlicketHistory, FlicketUploads, TicketComponent, TicketResolution
 
 from app.models.ITP import Project
 
@@ -54,7 +54,7 @@ def ticket_create(sitename=None, projectname=None):
             project = Project.query.filter_by(id=project_id).first()
             project_id = project.id
         else:
-            project_id = 1
+            project_id = None
         print(project_id)
 
         files = request.files.getlist("file")
@@ -98,10 +98,9 @@ def ticket_create(sitename=None, projectname=None):
         sites = None
         if projectname != None:
             project = Project.query.filter_by(name=projectname).first()
-            projects = None
         else:
-            projects = Project.query.filter_by(site_id=site.id).all()
             project = None
+        projects = Project.query.filter_by(site_id=site.id).all()
     else:
         sites = Site.query.all()
         site = None
@@ -128,6 +127,7 @@ def ticket_view(ticket_id, sitename=None, page=1):
     # is ticket number legitimate
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
     site =  Site.query.filter_by(id=ticket.site_id).one()
+    resolutions = TicketResolution.query.all()
 
     print(request.referrer)
 
@@ -211,7 +211,8 @@ def ticket_view(ticket_id, sitename=None, page=1):
         form=form,
         site=site,
         replies=replies,
-        page=page
+        page=page,
+        resolutions=resolutions
     )
 
 @app.route('/site/all/ticket/uploads/<filename>')
@@ -316,13 +317,15 @@ def edit_ticket(ticket_id):
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
     site =  Site.query.filter_by(id=ticket.site_id).one()
 
-    print(ticket.date_due)
     if ticket.project_id != None:
         project = Project.query.filter_by(id=ticket.project_id).first()
-        projects=None
     else:
-        projects = Project.query.filter_by(site_id=site.id).all()
         project=None
+
+    if site != None:
+        projects = Project.query.filter_by(site_id=site.id).all()
+    else:
+        projects=None
     app.logger.info(site.name)
     site_list = Site.query.all()
 
@@ -338,10 +341,6 @@ def edit_ticket(ticket_id):
     if not ticket:
         flash('Could not find ticket.', category='warning')
         return redirect(url_for('flicket_main'))
-
-    # check to see if topic is closed. ticket can't be edited once it's closed.
-    if ticket.current_status.status == "Closed":
-        return redirect(url_for('ticket_view', ticket_id=ticket.id))
 
     # check user is authorised to edit ticket. Currently, only admin or author can do this.
     not_authorised = True
@@ -830,7 +829,6 @@ def unsubscribe_ticket(ticket_id=None):
 # close ticket
 @app.route('/ticket/<ticket_id>/Close/update', methods=['GET', 'POST'])
 def close_status(ticket_id):
-
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
     new_status = FlicketStatus.query.filter_by(status="Closed").first()
 
@@ -859,8 +857,10 @@ def close_status(ticket_id):
     # add action record
     add_action(action='close', ticket=ticket)
 
+    resolution = TicketResolution.query.filter_by(id=request.form['resolution']).first()
+
     ticket.current_status = new_status
-    ticket.resolution = request.form['resolution']
+    ticket.resolution = resolution
     ticket.resolved_by = current_user
     ticket.date_resolved = datetime.datetime.now()
     db.session.commit()

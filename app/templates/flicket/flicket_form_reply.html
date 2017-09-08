@@ -29,13 +29,22 @@
     <br>
 
     <div class="form-group mdl-cell mdl-cell--12-col">
-        <label class="mdl-cell mdl-cell--12-col">{{ form.file.label }}</label>
-        <div class="mdl-cell mdl-cell--12-col ">
-            {{ form.file }}
-        </div>
-        <div class="mdl-cell mdl-cell--12-col">
+      <label class="control-label">{{ form.file.label }}</label>
+      <div class="mdl-button mdl-button--primary mdl-button--icon mdl-button--file">
+        <i class="material-icons" style="color:rgb(68,138,255);">attach_file</i>
+          {{ form.file }}
+      </div>
+      <input class="mdl-textfield__input" placeholder="File" type="text" id="uploadFile" readonly/>
+      <br>
+      <div class="">
           {{ form.submit(class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent") }}
-        </div>
+      </div>
     </div>
 </form>
 <!-- ticket reply /end -->
+
+<script>
+  document.getElementById("uploadBtn").onchange = function () {
+      document.getElementById("uploadFile").value = this.files[0].name;
+  };
+</script>

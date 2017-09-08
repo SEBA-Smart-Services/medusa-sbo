@@ -70,6 +70,12 @@ class FlicketPriority(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     priority = db.Column(db.String(field_size['priority_max_length']))
 
+class TicketResolution(db.Model):
+    __tablename__ = 'ticket_resolution'
+
+    id = db.Column(db.Integer, primary_key=True)
+    resolution = db.Column(db.String(field_size['status_max_length']))
+
 
 class FlicketTicket(db.Model):
     __tablename__ = 'flicket_topic'
@@ -101,7 +107,8 @@ class FlicketTicket(db.Model):
     date_resolved = db.Column(db.DateTime())
     resolved_by_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     resolved_by = db.relationship(User, foreign_keys='FlicketTicket.resolved_by_id')
-    resolution = db.Column(db.String(field_size['title_max_length']))
+    resolution_id = db.Column(db.Integer, db.ForeignKey(TicketResolution.id), nullable=True)
+    resolution = db.relationship(TicketResolution)
 
     status_id = db.Column(db.Integer, db.ForeignKey(FlicketStatus.id))
     current_status = db.relationship(FlicketStatus)
@@ -110,7 +117,7 @@ class FlicketTicket(db.Model):
     site_id = db.Column('site_id', db.Integer, db.ForeignKey('site.ID'), nullable=False)
 
     # facility = db.Column(db.String(field_size['title_max_length']))
-    project_id = db.Column('project_id', db.Integer, db.ForeignKey('project.id'))
+    project_id = db.Column('project_id', db.Integer, db.ForeignKey('project.id'), nullable=True)
 
     date_modified = db.Column(db.DateTime())
     modified_id = db.Column(db.Integer, db.ForeignKey('user.id'))
