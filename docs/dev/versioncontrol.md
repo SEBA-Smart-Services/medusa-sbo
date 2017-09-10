@@ -9,6 +9,7 @@ Version control is achieved using Git.
   2. Pull the latest master to the server with `git pull`.
   3. Restart the Medusa service with `sudo service medusa start`.
   4. Test each production server thoroughly.
+ - All support changes can be done on production servers unless a migration is needed. **Any migrations** for the application need to be completed and tested on a development instance before being pushed to production.
   
 ## Pushing to production
 ```
