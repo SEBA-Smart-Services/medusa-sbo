@@ -19,6 +19,8 @@ from app.ticket.scripts.email import FlicketMail
 from app.ticket.scripts.flicket_upload import UploadAttachment
 from app.ticket.scripts.jinja2_functions import display_post_box
 
+from app.controllers import check_valid_site
+
 app.jinja_env.globals.update(display_post_box=display_post_box)
 
 
@@ -26,9 +28,6 @@ app.jinja_env.globals.update(display_post_box=display_post_box)
 @app.route('/site/<sitename>/ticket/create', methods=['GET', 'POST'])
 @app.route('/site/all/ticket/create', methods=['GET', 'POST'])
 def ticket_create(sitename=None, projectname=None):
-
-    print(sitename)
-    print(request.referrer)
 
     form = CreateTicketForm()
 
@@ -91,7 +90,6 @@ def ticket_create(sitename=None, projectname=None):
         flash('New Ticket created.', category='success')
 
         return redirect(url_for('ticket_view', ticket_id=new_ticket.id))
-
 
     if sitename != None:
         site = Site.query.filter_by(name=sitename).first()
@@ -224,12 +222,22 @@ def view_ticket_uploads(filename):
 @app.route('/site/<sitename>/tickets', methods=['GET', 'POST'])
 def tickets(sitename=None, page=1):
 
-    if sitename != None:
+    access_allowed = check_valid_site(sitename)
+
+    if sitename != None and access_allowed:
         site = Site.query.filter_by(name=sitename).first()
-        tickets = FlicketTicket.query.filter_by(site_id=site.id)
-    else:
-        tickets = FlicketTicket.query
+        tickets = FlicketTicket.query.filter_by(site_id=site.id).all()
+    elif current_user.has_role('admin'):
         site = None
+        tickets = FlicketTicket.query.all()
+    else:
+        tickets = []
+        #get all the tickets for a particular user
+        for user_site in current_user.sites:
+            tickets += FlicketTicket.query.filter_by(site_id=user_site.id).all()
+        site = None
+
+    print(tickets)
 
     form = SearchTicketForm()
 
@@ -269,30 +277,29 @@ def tickets(sitename=None, page=1):
 
     # todo: get data from api
 
-    if status:
-        tickets = tickets.filter(FlicketTicket.current_status.has(FlicketStatus.status == status))
-        form.status.data = FlicketStatus.query.filter_by(status=status).first().id
-    if category:
-        tickets = tickets.filter(FlicketTicket.category.has(FlicketCategory.category == category))
-        form.category.data = FlicketCategory.query.filter_by(category=category).first().id
-    if department:
-        department_filter = FlicketDepartment.query.filter_by(department=department).first()
-        tickets = tickets.filter(FlicketTicket.category.has(FlicketCategory.department == department_filter))
-        form.department.data = department_filter.id
-    if user_id:
-        tickets = tickets.filter_by(assigned_id=int(user_id))
+    # if status:
+    #     tickets = tickets.filter(FlicketTicket.current_status.has(FlicketStatus.status == status))
+    #     form.status.data = FlicketStatus.query.filter_by(status=status).first().id
+    # if category:
+    #     tickets = tickets.filter(FlicketTicket.category.has(FlicketCategory.category == category))
+    #     form.category.data = FlicketCategory.query.filter_by(category=category).first().id
+    # if department:
+    #     department_filter = FlicketDepartment.query.filter_by(department=department).first()
+    #     tickets = tickets.filter(FlicketTicket.category.has(FlicketCategory.department == department_filter))
+    #     form.department.data = department_filter.id
+    # if user_id:
+    #     tickets = tickets.filter_by(assigned_id=int(user_id))
+    #
+    # if content:
+    #     # search the titles
+    #     form.content.data = content
+    #
+    #     f1 = FlicketTicket.ticket_name.ilike('%' + content + '%')
+    #     f2 = FlicketTicket.description.ilike('%' + content + '%')
+    #     f3 = FlicketTicket.posts.any(FlicketPost.content.ilike('%' + content + '%'))
+    #     tickets = tickets.filter(f1 | f2 | f3)
 
-    if content:
-        # search the titles
-        form.content.data = content
-
-        f1 = FlicketTicket.ticket_name.ilike('%' + content + '%')
-        f2 = FlicketTicket.description.ilike('%' + content + '%')
-        f3 = FlicketTicket.posts.any(FlicketPost.content.ilike('%' + content + '%'))
-        tickets = tickets.filter(f1 | f2 | f3)
-
-    tickets = tickets.order_by(FlicketTicket.id.desc())
-    number_results = tickets.count()
+    number_results = len(tickets)
 
     # tickets = tickets.paginate(page, app.config['posts_per_page'])
 

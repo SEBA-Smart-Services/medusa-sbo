@@ -53,6 +53,16 @@ def check_valid_login():
         # redirect to login page if they are not authenticated
         return redirect(url_for('security.login'))
 
+def check_valid_site(sitename=None):
+    site = Site.query.filter_by(name=sitename).first()
+    print('checking valid site')
+    if site != None:
+        if site not in current_user.sites:
+            print('No access to this site')
+            return False
+        else:
+            return True
+
 # decorator to make pages not require login
 def public_endpoint(function):
     function.is_public = True

@@ -6,7 +6,7 @@
 {% block layout %}
 	<div class="mdl-grid centered">
 	    <div class="mdl-cell mdl-cell--8-col">
-				{% with messages = get_flashed_messages() %}
+				<!-- {% with messages = get_flashed_messages() %}
 				  {% if messages %}
 				    <ul class=flashes>
 				    {% for message in messages %}
@@ -14,7 +14,7 @@
 				    {% endfor %}
 				    </ul>
 				  {% endif %}
-				{% endwith %}
+				{% endwith %} -->
 	    	{% block content %}{% endblock %}
 	    </div>
 	</div>

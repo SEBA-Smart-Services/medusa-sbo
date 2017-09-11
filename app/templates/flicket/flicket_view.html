@@ -1,5 +1,8 @@
 <!-- extend from base layout -->
 {% extends "layout.html" %}
+{% block head %}
+
+{% endblock %}
 {% block title %}
   {% if ticket.project is defined and ticket.project != none %}
     - {{ticket.project.name}}
@@ -68,11 +71,11 @@
 
                       <div style="float: right">
                         <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="height: 30px; min-width: 10px; width: 30px;" href="{{ url_for('ticket_assign', ticket_id = ticket.id) }}">
-                          <i class="material-icons" style="height: 10px; width: 10px;">person</i>
+                          <i  class="material-icons" style="height: 10px; width: 10px;">person</i>
                         </a>
                         {% if ticket.assigned %}
                           <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="height: 30px; min-width: 10px; width: 30px;" href="{{ url_for('release', ticket_id = ticket.id) }}">
-                            <i class="material-icons" style="height: 10px; width: 10px;">person_outline</i>
+                            <i id="release_ticket" class="material-icons" style="height: 10px; width: 10px;">person_outline</i>
                           </a>
                         {% endif %}
                       </div>
