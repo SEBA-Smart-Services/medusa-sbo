@@ -21,7 +21,7 @@ from app.models.ITP import Project, ITP, Deliverable, Location, Deliverable_type
 from app.models.users import User
 from app.ticket.models import FlicketTicket, FlicketStatus
 from app.forms import SiteConfigForm, AddSiteForm
-from flask import json, request, render_template, url_for, redirect, jsonify, flash, make_response
+from flask import json, request, render_template, url_for, redirect, jsonify, flash, make_response, g
 from flask_user import current_user
 from statistics import mean
 import datetime, time
@@ -57,8 +57,10 @@ def check_valid_site(sitename=None):
     site = Site.query.filter_by(name=sitename).first()
     print('checking valid site')
     if site != None:
+        if current_user.has_role('admin'):
+            return True
         if site not in current_user.sites:
-            print('No access to this site')
+            flash('Not authorised to access this site')
             return False
         else:
             return True
@@ -525,8 +527,11 @@ def get_alarms_per_week(session, nweeks=4):
 @app.route('/projects')
 def all_projects():
     all_projects = []
-    for site in current_user.sites:
-        print(site.id)
+    if current_user.has_role('admin'):
+        sites = Site.query.all()
+    else:
+        sites = current_user.sites
+    for site in sites:
         projects = Project.query.filter_by(site_id=site.id).all()
         all_projects = all_projects + projects
 
@@ -542,6 +547,9 @@ def all_projects():
 #Route for all Projects for a given site
 @app.route('/site/<sitename>/projects')
 def site_projects_list(sitename):
+    if not check_valid_site(sitename):
+        return redirect(url_for('dashboard_all'))
+
     site = Site.query.filter_by(name=sitename).first()
     site_projects = Project.query.filter_by(site_id = site.id).all()
 
