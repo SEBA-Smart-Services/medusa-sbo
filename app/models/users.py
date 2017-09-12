@@ -6,6 +6,7 @@ from flask_security import UserMixin, RoleMixin
 
 # Define the User data model. Make sure to add the flask_user.UserMixin !!
 class User(db.Model, UserMixin):
+    __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
 
     # User authentication information (required for Flask-User)
