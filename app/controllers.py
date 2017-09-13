@@ -82,7 +82,10 @@ def main():
 # show overview dashboard. has aggregated info for all the sites that are attached to the currently logged in user
 @app.route('/site/all/dashboard')
 def dashboard_all():
-    sites = current_user.sites
+    if current_user.has_role('admin'):
+        sites = Site.query.all()
+    else:
+        sites = current_user.sites
 
     tickets = FlicketTicket.query.all()
     # sqlalchemy can't do relationship filtering to see if an attribute is in a list of objects (e.g. to see if asset.site is in sites)

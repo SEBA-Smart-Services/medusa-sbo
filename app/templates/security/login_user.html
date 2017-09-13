@@ -12,9 +12,27 @@
       <div class="mdl-card__actions">
         <form action="{{ url_for_security('login') }}" method="POST" name="login_user_form">
           {{ login_user_form.hidden_tag() }}
-          {{ render_field_with_errors(login_user_form.email) }}
-          {{ render_field_with_errors(login_user_form.password) }}
-          {{ render_field_with_errors(login_user_form.remember) }}
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--12-col">
+            {{ login_user_form.email(class="form-control mdl-textfield__input", autocomplete="on") }}
+            <label class="mdl-textfield__label">Email</label>
+          </div>
+          {% if login_user_form.email.errors %}
+            {% for error in login_user_form.email.errors %}
+                <span>{{ error }}</span>
+            {% endfor %}
+          {% endif %}
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--12-col">
+            {{ login_user_form.password(class="form-control mdl-textfield__input", autocomplete="on") }}
+            <label class="mdl-textfield__label">Password</label>
+          </div>
+          {% if login_user_form.password.errors %}
+            {% for error in login_user_form.password.errors %}
+                <span>{{ error }}</span>
+            {% endfor %}
+          {% endif %}
+          <label class="mdl-checkbox mdl-js-checkbox">
+            {{ render_field_with_errors(login_user_form.remember) }}
+          </label>
           {{ render_field(login_user_form.next) }}
           {{ render_field(login_user_form.submit) }}
         </form>
@@ -24,8 +42,6 @@
   </div>
 
 <script>
-    document.getElementById("email").setAttribute("class", "mdl-textfield__input")
-    document.getElementById("password").setAttribute("class", "mdl-textfield__input")
     document.getElementById("remember").setAttribute("class", "mdl-checkbox__input check")
     document.getElementById("submit").setAttribute("class", "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent")
 </script>

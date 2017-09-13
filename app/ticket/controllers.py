@@ -27,9 +27,13 @@ app.jinja_env.globals.update(display_post_box=display_post_box)
 #creating a ticket
 @app.route('/site/<sitename>/ticket/create', methods=['GET', 'POST'])
 @app.route('/site/all/ticket/create', methods=['GET', 'POST'])
-def ticket_create(sitename=None, projectname=None):
+def ticket_create(sitename=None, projectname=None, component=None, tickettitle=None, ticketdescription=None, priority=None, category=None):
 
     form = CreateTicketForm()
+
+    print(request.args.get('ticketdescription'))
+    print(request.args.get('tickettitle'))
+
 
     if form.validate_on_submit():
 
