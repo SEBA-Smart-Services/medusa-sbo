@@ -104,7 +104,10 @@ def ticket_create(sitename=None, projectname=None, component=None, tickettitle=N
             project = None
         projects = Project.query.filter_by(site_id=site.id).all()
     else:
-        sites = Site.query.all()
+        if current_user.has_role('admin'):
+            sites = Site.query.all()
+        else:
+            sites = current_user.sites
         site = None
         project = None
         #Needs to be removed once ticket model has been updated
@@ -355,7 +358,7 @@ def edit_ticket(ticket_id):
 
     # check user is authorised to edit ticket. Currently, only admin or author can do this.
     not_authorised = True
-    if ticket.user == current_user or current_user.has_role('admin'):
+    if ticket.user == current_user or current_user.has_role('admin') or ticket.assigned == current_user:
         not_authorised = False
 
     if not_authorised:
@@ -464,10 +467,10 @@ def edit_post(post_id):
 
     # check user is authorised to edit post. Only author or admin can do this.
     not_authorised = True
-    if post.user == current_user or current_user.is_admin:
+    if post.user == current_user or current_user.has_role('admin'):
         not_authorised = False
     if not_authorised:
-        flash('You are not authorised to edit this ticket.', category='warning')
+        flash('You are not authorised to edit this post.', category='warning')
         return redirect(url_for('ticket_view', ticket_id=post.ticket_id))
 
     if form.validate_on_submit():
@@ -593,7 +596,7 @@ def delete_category(category_id=False):
     if category_id:
 
         # check user is authorised to delete categories. Only admin can do this.
-        if not current_user.is_admin:
+        if not current_user.has_role('admin'):
             flash('You are not authorised to delete categories.', category='warning')
 
         form = ConfirmPassword()
@@ -631,7 +634,7 @@ def delete_department(department_id=False):
     if department_id:
 
         # check user is authorised to delete departments. Only admin can do this.
-        if not current_user.is_admin:
+        if not current_user.has_role('admin'):
             flash('You are not authorised to delete departments.', category='warning')
 
         form = ConfirmPassword()
@@ -770,7 +773,7 @@ def release(ticket_id=False):
             return redirect(url_for('ticket_view', ticket_id=ticket_id))
 
         # check ticket is owned by user or user is admin
-        if (ticket.assigned.id != current_user.id) and (not current_user.is_admin):
+        if (ticket.assigned.id != current_user.id) and (not current_user.has_role('admin')):
             flash('You can not release a ticket you are not working on.')
             return redirect(url_for('ticket_view', ticket_id=ticket_id))
 

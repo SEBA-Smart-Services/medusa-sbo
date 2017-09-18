@@ -141,7 +141,7 @@ def dashboard_all():
     open_tickets = FlicketTicket.query.filter(FlicketTicket.current_status.has(FlicketStatus.status == "Open")).all()
     ticket_num = len(open_tickets)
     # only send results[0:5], to display the top 5 priority issues in the list
-    return render_template('dashboard.html', results=results[0:5], num_results=num_results, top_priority=top_priority, avg_health=avg_health, low_health_assets=low_health_assets, alarmcount=nalarms, tickets=tickets, ticket_num=ticket_num)
+    return render_template('dashboard.html', results=results[0:5], num_results=num_results, top_priority=top_priority, avg_health=avg_health, low_health_assets=low_health_assets, alarmcount=nalarms, tickets=open_tickets, ticket_num=ticket_num)
 
 # list all sites that are attached to the logged in user
 @app.route('/site/all/sites')
