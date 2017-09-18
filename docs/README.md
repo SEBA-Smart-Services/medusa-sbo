@@ -4,6 +4,7 @@
 - [Quickstart](user/README.md)
 - [Setup a site project with ITP](user/project.md)
 - [Connect an IT Asset](user/ITassetconfig.md)
+- [Ticket Creation and Viewing](user/Tickets.md)
 
 ### Developer docs
 - [New developer getting started](dev/onboarding.md)
