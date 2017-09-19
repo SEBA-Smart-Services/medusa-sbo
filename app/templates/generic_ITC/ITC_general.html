@@ -1,6 +1,15 @@
 {% extends "layout.html" %}
 {% block content %}
-  <h3>Generic ITC list</h3>
+<div class="mdl-grid">
+    <h3 class="mdl-cell mdl-cell--11-col">Generic ITC list</h3>
+
+    <div class="mdl-cell mdl-cell--1-col">
+      <a id="tooltip1" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" href="/generic/ITC/new">
+        <div class="material-icons" style="height: 10px; width: 10px;">add</div>
+        <div class = "mdl-tooltip" for = "tooltip1">New ITC Template</div>
+      </a>
+    </div>
+  </div>
 
   <div class="mdl-cell mdl-cell--12-col mdl-grid">
       <table class="mdl-data-table mdl-js-data-table mdl-cell--12-col" >
@@ -32,13 +41,6 @@
           {% endfor %}
         </tbody>
       </table>
-
-      <div style="margin-top: 2%">
-        <form action="/generic/ITC/new">
-          <input type="submit" value="New ITC" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
-          </input>
-        </form>
-      </div>
 
   </div>
 

@@ -51,11 +51,11 @@
             <td class="mdl-data-table__cell--non-numeric">{{ alarm.state }}</td>
             <td class="mdl-data-table__cell--non-numeric">
               {% if site is defined and site != None %}
-                <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored mdl-button--mini-fab" href="{{url_for('ticket_create', sitename=site.name, ticketdescription=alarm.description)}}" >
+                <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored mdl-button--mini-fab" href="{{url_for('ticket_create', sitename=site.name, ticketdescription=alarm.description, priority=alarm.priority )}}" >
                   <i class="material-icons">add</i>
                 </a>
               {% else %}
-                <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored mdl-button--mini-fab" href="{{url_for('ticket_create', ticketdescription=alarm.description)}}" >
+                <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored mdl-button--mini-fab" href="{{url_for('ticket_create', ticketdescription=alarm.description, priority=alarm.priority )}}" >
                   <i class="material-icons">add</i>
                 </a>
               {% endif %}

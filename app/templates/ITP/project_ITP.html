@@ -2,7 +2,7 @@
 {% block title %}- {{project.name}}{% endblock %}
 {% block content %}
   <div class="mdl-grid">
-    <h3 class="mdl-cell mdl-cell--10-col">Inspection and Test Plan</h3>
+    <h3 class="mdl-cell mdl-cell--9-col">Inspection and Test Plan</h3>
 
     <div class="mdl-cell mdl-cell--1-col">
       <a id="tooltip1" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/edit">
@@ -12,9 +12,16 @@
     </div>
 
     <div class="mdl-cell mdl-cell--1-col">
-      <a id="tooltip2" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" href="{{ url_for('ITC_report_page', siteid=site.id, projectid=project.id, ITPid=ITP.id) }}" class="material-icons">
+      <a id="tooltip2" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/delete">
+        <div class="material-icons" style="height: 10px; width: 10px;">delete</div>
+        <div class = "mdl-tooltip" for = "tooltip2">Delete</div>
+      </a>
+    </div>
+
+    <div class="mdl-cell mdl-cell--1-col">
+      <a id="tooltip3" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" href="{{ url_for('ITC_report_page', siteid=site.id, projectid=project.id, ITPid=ITP.id) }}" class="material-icons">
         <div class="material-icons" style="height: 10px; width: 10px;">picture_as_pdf</div>
-        <div class = "mdl-tooltip" for = "tooltip2">Download Report</div>
+        <div class = "mdl-tooltip" for = "tooltip3">Download Report</div>
       </a>
     </div>
   </div>
@@ -30,6 +37,10 @@
             <tr>
               <th class="mdl-data-table__cell--non-numeric">Job number</th>
               <td class="mdl-data-table__cell--non-numeric">#{{project.job_number}}</td>
+            </tr>
+            <tr>
+              <th class="mdl-data-table__cell--non-numeric">ITP name</th>
+              <td class="mdl-data-table__cell--non-numeric">{{ITP.name}}</td>
             </tr>
             <tr>
               <th class="mdl-data-table__cell--non-numeric">Start Date</th>
@@ -139,12 +150,6 @@
         </table>
       </div>
     </div>
-  </div>
-  <br>
-  <div>
-    <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/delete">
-      Delete
-    </a>
   </div>
 
   <div class="mdl-cell mdl-cell--6-col">

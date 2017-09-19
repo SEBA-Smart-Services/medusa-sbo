@@ -95,6 +95,8 @@ def ticket_create(sitename=None, projectname=None, component=None, tickettitle=N
 
         return redirect(url_for('ticket_view', ticket_id=new_ticket.id))
 
+    print(sitename)
+
     if sitename != None:
         site = Site.query.filter_by(name=sitename).first()
         sites = None
@@ -133,8 +135,6 @@ def ticket_view(ticket_id, sitename=None, page=1):
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
     site =  Site.query.filter_by(id=ticket.site_id).one()
     resolutions = TicketResolution.query.all()
-
-    print(request.referrer)
 
     if not ticket:
         flash('Cannot find ticket: "{}"'.format(ticket_id), category='warning')
@@ -196,7 +196,6 @@ def ticket_view(ticket_id, sitename=None, page=1):
     if form.submit_close.data:
 
         return redirect(url_for('change_status', ticket_id=ticket.id, status='Closed'))
-
 
     # get post id and populate contents for auto quoting
     if post_rid:
@@ -329,6 +328,11 @@ def edit_ticket(ticket_id):
     form = EditTicketForm(ticket_id=ticket_id)
 
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
+
+    if not ticket:
+        flash('Could not find ticket.', category='warning')
+        return redirect(url_for('flicket_main'))
+    
     site =  Site.query.filter_by(id=ticket.site_id).one()
 
     if ticket.project_id != None:
@@ -351,10 +355,6 @@ def edit_ticket(ticket_id):
         ticket_status = FlicketStatus.query.filter_by(status='Open').first()
         ticket.current_status = ticket_status
         db.session.commit()
-
-    if not ticket:
-        flash('Could not find ticket.', category='warning')
-        return redirect(url_for('flicket_main'))
 
     # check user is authorised to edit ticket. Currently, only admin or author can do this.
     not_authorised = True

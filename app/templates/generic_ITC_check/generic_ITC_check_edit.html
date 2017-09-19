@@ -7,7 +7,10 @@
 
     <div>
       <form action="/generic/ITC/{{ITC.id}}/check/{{check.id}}/edit" method="POST">
-        <input type="text" name="check_description" placeholder="Check Description" class="mdl-textfield__input">
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--12-col">
+          <input type="text" name="check_description" value="{{check.check.check_description}}" class="form-control mdl-textfield__input", autocomplete="on">
+          <label class="mdl-textfield__label">Check Description</label>
+        </div>
         <br>
         <input type="submit" value="Save Changes" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
       </form>

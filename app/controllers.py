@@ -1139,14 +1139,16 @@ def start_ITC_testing(sitename, projectname, ITPname, deliverablename, ITCid):
 #Route for looking at all current checks for an ITC
 @app.route('/site/<sitename>/projects/<projectname>/ITP/<ITPname>/deliverable/<deliverablename>/ITC/<ITCid>/checks')
 def ITC_testing(sitename, projectname, ITPname, deliverablename, ITCid):
-    site = Site.query.filter_by(name=sitename).first()
-    project = Project.query.filter_by(name=projectname).first()
-    project_ITP = ITP.query.filter_by(name=ITPname).first()
-    deliverable = Deliverable.query.filter_by(name=deliverablename).first()
-    deliver_ITC = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id, id=ITCid).first()
-    deliverable_checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=deliver_ITC.id).all()
-
-    print(request.referrer.split('/')[-1].strip('?'))
+    #When a generic_ITC is deleted the link will remain until the page is refreshed therefore we add this in to "refresh" the page
+    try:
+        site = Site.query.filter_by(name=sitename).first()
+        project = Project.query.filter_by(name=projectname).first()
+        project_ITP = ITP.query.filter_by(name=ITPname).first()
+        deliverable = Deliverable.query.filter_by(name=deliverablename).first()
+        deliver_ITC = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id, id=ITCid).first()
+        deliverable_checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=deliver_ITC.id).all()
+    except AttributeError:
+        return redirect(url_for('site_project_ITP_deliverable_ITC_list', sitename=site.name, projectname=project.name, ITPname=project_ITP.name, deliverablename=deliverable.name))
 
     total = 0
     completed = 0
@@ -1252,9 +1254,11 @@ def ITC_general_list():
 @app.route('/generic/ITC/<ITCid>/delete', methods=['POST','GET'])
 def ITC_general_delete(ITCid):
     ITC_generic = ITC.query.filter_by(id=ITCid).first()
+    ITC_specific = Deliverable_ITC_map.query.filter_by(ITC_id=ITC_generic.id).first()
 
     if request.method == 'POST':
         db.session.delete(ITC_generic)
+        db.session.delete(ITC_specific)
         db.session.commit()
         return redirect(url_for('ITC_general_list'))
     else:
@@ -1307,6 +1311,7 @@ def ITC_check_general_edit(ITCid, checkid):
     if request.method == 'POST':
         description = request.form['check_description']
         if (description != "" and description != check.check.check_description):
+            #see if the check already exists
             old_check = Check_generic.query.filter_by(check_description=description).first()
             if old_check == None:
                 new_check = Check_generic(description)
@@ -1321,14 +1326,18 @@ def ITC_check_general_edit(ITCid, checkid):
     else:
         return render_template('generic_ITC_check/generic_ITC_check_edit.html', ITC=ITP_ITC, check=check)
 
-#Route for deleting a generic check
+#Route for deleting a generic check for an ITC template
 @app.route('/generic/ITC/<ITCid>/check/<checkid>/delete', methods=['POST', 'GET'])
 def ITC_check_general_delete(ITCid, checkid):
     ITP_ITC = ITC.query.filter_by(id=ITCid).first()
     check = ITC_check_map.query.filter_by(id=checkid).first()
+    specific_checks = Deliverable_check_map.query.filter_by(ITC_check_id=check.id).all()
+    print(specific_checks)
 
     if request.method == 'POST':
         db.session.delete(check)
+        for specific_check in specific_checks:
+            db.session.delete(specific_check)
         db.session.commit()
         return redirect(url_for('ITC_general', ITCid=ITP_ITC.id))
     else:
@@ -1361,9 +1370,16 @@ def generic_check_edit(checkid):
 
     if request.method == "POST":
         check_description = request.form['check_description']
+        print(check_description)
         if (check_description != "" and check_description != check.check_description):
-            check.check_description = check_description
-        db.session.commit()
+            #see if check already exists, if not create a new check
+            old_check = Check_generic.query.filter_by(check_description=check_description).first()
+            if old_check == None:
+                new_check = Check_generic(check_description)
+                db.session.add(new_check)
+                db.session.commit()
+            else:
+                flash('Check already exists')
         return redirect(url_for('generic_check_list'))
     else:
         return render_template('generic_check/generic_check_edit.html', check=check)
@@ -1372,9 +1388,13 @@ def generic_check_edit(checkid):
 @app.route('/generic/check/<checkid>/delete', methods=['POST', 'GET'])
 def generic_check_delete(checkid):
     check = Check_generic.query.filter_by(id=checkid).first()
+    ITC_checks = ITC_check_map.query.filter_by(check_generic=check.id).all()
+    print(ITC_checks)
 
     if request.method == "POST":
         db.session.delete(check)
+        for ITC_check in ITC_checks:
+            db.session.delete(ITC_check)
         db.session.commit()
         return redirect(url_for('generic_check_list'))
     else:

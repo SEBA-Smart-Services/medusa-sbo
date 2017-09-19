@@ -15,7 +15,7 @@
       <br> -->
       <input type="date" name="start_date" class="mdl-textfield__input">
       <br>
-      <select name="assigned_to" class="mdl-textfield__input" required>
+      <select name="assigned_to" class="mdl-textfield__input">
         <option value=""></option>
         {% for user in users %}
           <option value="{{user}}">{{user}}</option>

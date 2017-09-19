@@ -6,9 +6,19 @@
   </script>
 {% endblock %}
 {% block content %}
-  <h3>Checks for {{ITC.ITC.name}}</h3>
+<div class="mdl-grid">
+  <h3 class="mdl-cell mdl-cell--11-col">Checks for {{ITC.ITC.name}}</h3>
 
-  <h5>{{'%0.0f' %percentage_complete}}% completed</h5>
+  <div class="mdl-cell mdl-cell--1-col">
+    <a id="tooltip3" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" href="{{ url_for('checks_report_page', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id) }}" class="material-icons">
+      <div class="material-icons" style="height: 10px; width: 10px;">picture_as_pdf</div>
+      <div class = "mdl-tooltip" for = "tooltip3">Download Report</div>
+    </a>
+  </div>
+
+  <h5 class="mdl-cell mdl-cell--12-col">{{'%0.0f' %percentage_complete}}% completed</h5>
+</div>
+
 
   <br>
 
@@ -66,13 +76,20 @@
   <br>
   <div class="mdl-grid">
     <div class="mdl-cell mdl-cell--10-col">
-      {% if request.referrer.split('/')[-1].strip('?') == 'delete' or request.referrer.split('/')[-1].strip('?') == 'edit'  %}
-        <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC">
-          <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
-          </input>
-        </form>
+      {% if request.referrer != none %}
+        {% if request.referrer.split('/')[-1].strip('?') == 'delete' or request.referrer.split('/')[-1].strip('?') == 'edit'  %}
+          <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC">
+            <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+            </input>
+          </form>
+        {% else %}
+          <form action="{{request.referrer}}">
+            <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+            </input>
+          </form>
+        {% endif %}
       {% else %}
-        <form action="{{request.referrer}}">
+        <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC">
           <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
           </input>
         </form>
@@ -85,10 +102,6 @@
         </input>
       </form>
     </div> -->
-
-    <div class="mdl-cell mdl-cell--2-col" style="float: right;">
-      <input type=button onclick="window.location.href='{{ url_for('checks_report_page', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id) }}'" value="Download Report" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-    </div>
   </div>
 
 

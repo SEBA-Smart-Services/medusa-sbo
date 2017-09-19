@@ -71,6 +71,7 @@ class UserView(ProtectedView):
     form_excluded_columns = ['Deliverable_ITC', 'password', 'last_login_ip', 'last_login_at', 'current_login_ip', 'current_login_at', 'login_count',
         'confirmed_at', 'ticket_modified_id', 'ticket_assigned_id', 'ticket_resolve_id', 'ticket_start_id', 'password_change_date', 'password_active', 'projects']
     can_view_details = True
+    can_delete = False
 
     def after_model_change(self, form, model, is_created):
         if model.active == 1:
