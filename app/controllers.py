@@ -932,7 +932,16 @@ def site_project_ITP_deliverable_new(sitename, projectname, ITPname):
     locations = Location.query.all()
 
     if request.method == 'POST':
-        if Deliverable.query.filter_by(name=request.form['deliverable_name'], ITP_id=project_ITP.id).first() == None:
+        if request.form['deliverable_name'] == None or request.form['deliverable_name'] == "":
+            error = "Deliverable name is missing!"
+            return render_template('deliverable/ITP_deliverable_new.html', site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations, error=error)
+        elif request.form['deliverable_type'] == None or request.form['deliverable_type'] == "":
+            error = "Deliverable type is missing!"
+            return render_template('deliverable/ITP_deliverable_new.html', site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations, error=error)
+        elif request.form['deliverable_location'] == None or request.form['deliverable_location'] == "":
+            error = "Deliverable location is missing!"
+            return render_template('deliverable/ITP_deliverable_new.html', site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations, error=error)
+        elif Deliverable.query.filter_by(name=request.form['deliverable_name'], ITP_id=project_ITP.id).first() == None:
             location_id = Location.query.filter_by(name=request.form['deliverable_location']).first()
             deliverable_type = Deliverable_type.query.filter_by(name=request.form['deliverable_type']).first()
             deliverable = Deliverable(request.form['deliverable_name'], request.form['deliverable_description'], deliverable_type.id, location_id.id, project_ITP.id)
@@ -973,23 +982,27 @@ def site_project_ITP_deliverable_edit(sitename, projectname, ITPname, deliverabl
     users = User.query.all()
 
     if request.method == 'POST':
-        deliverable_name = request.form['deliverable_name']
-        if (deliverable_name != "" and deliverable_name != deliverable.name):
-            deliverable.name = deliverable_name
-        deliverable_number = request.form['deliverable_number']
-        if (deliverable_number != "" and deliverable_number != deliverable.component_number):
-            deliverable.component_number = deliverable_number
-        description = request.form['deliverable_description']
-        if (description != "" and description != deliverable.description):
-            deliverable.description = description
-        start_date = request.form['start_date']
-        if (start_date != "" and start_date != deliverable.start_date):
-            deliverable.start_date = start_date
-        assigned_to = request.form['assigned_to']
-        if (assigned_to != "" and assigned_to != deliverable.assigned_to):
-            deliverable.assigned_to = assigned_to
-        db.session.commit()
-        return redirect(url_for('site_project_ITP_deliverable_list', sitename=site, projectname=project.name, ITPname=project_ITP.name))
+        if Deliverable.query.filter_by(name=request.form['deliverable_name'], ITP_id=project_ITP.id).first() == None or Deliverable.query.filter_by(name=request.form['deliverable_name'], ITP_id=project_ITP.id).first().id == deliverable.id:
+            deliverable_name = request.form['deliverable_name']
+            if (deliverable_name != "" and deliverable_name != deliverable.name):
+                deliverable.name = deliverable_name
+            deliverable_number = request.form['deliverable_number']
+            if (deliverable_number != "" and deliverable_number != deliverable.component_number):
+                deliverable.component_number = deliverable_number
+            description = request.form['deliverable_description']
+            if (description != "" and description != deliverable.description):
+                deliverable.description = description
+            start_date = request.form['start_date']
+            if (start_date != "" and start_date != deliverable.start_date):
+                deliverable.start_date = start_date
+            assigned_to = request.form['assigned_to']
+            if (assigned_to != "" and assigned_to != deliverable.assigned_to):
+                deliverable.assigned_to = assigned_to
+            db.session.commit()
+            return redirect(url_for('site_project_ITP_deliverable_list', sitename=site, projectname=project.name, ITPname=project_ITP.name))
+        else:
+            error = "Deliverable " + request.form['deliverable_name'] + " already exists!"
+            return render_template('deliverable/ITP_deliverable_edit.html', site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations, deliverable=deliverable, users=users, error=error)
     else:
         return render_template('deliverable/ITP_deliverable_edit.html', site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations, deliverable=deliverable, users=users)
 
@@ -1264,6 +1277,9 @@ def ITC_general_new():
     deliverable_types = Deliverable_type.query.all()
 
     if request.method == 'POST':
+        if request.form['ITC_name'] == "" or request.form['ITC_name'] == None:
+            error = "ITC name missing!"
+            return render_template('generic_ITC/ITC_new.html', deliverables=deliverable_types, error=error)
         if ITC.query.filter_by(name=request.form['ITC_name']).first() == None:
             deliverable_type = Deliverable_type.query.filter_by(name=request.form['deliverable_type']).first()
             new_ITC = ITC(request.form['ITC_name'], deliverable_type.id)
@@ -1305,12 +1321,11 @@ def ITC_general_edit(ITCid):
 
     if request.method == 'POST':
         name = request.form['ITC_general_name']
-        if (name != "" and name == ITC_generic.name):
+        if (name != "" and name != ITC_generic.name):
             ITC_generic.name = name
-        deliverable_type_id = Deliverable_type.query.filter_by(name=request.form['ITC_general_deliverable_type']).first()
-        if (deliverable_type_id != ITC_generic.delvierable_type_id):
-            ITC_generic.delvierable_type_id = deliverable_type_id
-        db.session.delete(ITC_generic)
+        # deliverable_type_id = Deliverable_type.query.filter_by(name=request.form['ITC_general_deliverable_type']).first()
+        # if (deliverable_type_id != ITC_generic.deliverable_type_id):
+        #     ITC_generic.deliverable_type_id = deliverable_type_id
         db.session.commit()
         return redirect(url_for('ITC_general_list'))
     else:
@@ -1383,6 +1398,9 @@ def ITC_check_general_delete(ITCid, checkid):
 @app.route('/generic/check/new', methods=['POST', 'GET'])
 def generic_check_new():
     if request.method == "POST":
+        if request.form['check_description'] == "" or request.form['check_description'] == None:
+            error = "Check description missing"
+            return render_template('generic_check/generic_check_new.html', error=error)
         if Check_generic.query.filter_by(check_description=request.form['check_description']).first() == None:
             check = Check_generic(request.form['check_description'])
             db.session.add(check)

@@ -15,7 +15,6 @@
       <table class="mdl-data-table mdl-js-data-table mdl-cell--12-col" >
         <thead>
           <tr>
-            <th class="mdl-data-table__cell--non-numeric">Name</th>
             <th class="mdl-data-table__cell--non-numeric">Description</th>
             <th class="mdl-data-table__cell--non-numeric"></th>
           </tr>
@@ -23,7 +22,6 @@
         <tbody>
           {% for check in checks %}
             <tr>
-              <td class="mdl-data-table__cell--non-numeric">{{check.ITC.name}}</td>
               <td class="mdl-data-table__cell--non-numeric">{{check.check.check_description}}</td>
               <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
                 <a href="/generic/ITC/{{ITC.id}}/check/{{check.id}}/edit">

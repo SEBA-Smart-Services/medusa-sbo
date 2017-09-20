@@ -5,7 +5,7 @@
 
     <div class="mdl-layout">
         <div class="mdl-grid" style="margin: 0 !important">
-          <h3 class="mdl-cell mdl-cell--10-col">{{ title }}</h3>
+          <h3 class="mdl-cell mdl-cell--11-col">{{ title }}</h3>
 
           <div class="mdl-cell mdl-cell--1-col">
             {%if site is defined and site != None %}
@@ -22,8 +22,8 @@
           </div>
 
           <div class="mdl-cell mdl-cell--1-col">
-            <a id="tooltip2" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" href="{{ url_for('tickets_report') }}" class="material-icons">
-              <div class="material-icons" style="height: 10px; width: 10px;">picture_as_pdf</div>
+            <a id="tooltip2" href="{{ url_for('tickets_report') }}">
+              <div class="material-icons" style="height: 10px; width: 10px;">file_download</div>
               <div class = "mdl-tooltip" for = "tooltip2">Download Report</div>
             </a>
           </div>

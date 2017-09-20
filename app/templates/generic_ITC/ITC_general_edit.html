@@ -1,23 +1,27 @@
 {% extends "layout-empty.html" %}
 {% block content %}
   <div style="width: 80%; margin: auto">
-    <h3>Edit {{ITC.name}}</h3>
+    <h3>Edit ITC Template</h3>
 
     <br>
 
     <div>
       <form action="/generic/ITC/{{ITC.id}}/edit" method="POST">
-        <input type="text" name="ITC_general_name" placeholder="Deliverable Type Name" class="mdl-textfield__input">
-        <br>
-        <select name="ITC_general_deliverable_type" class="mdl-textfield__input">
-          {% for deliverable in deliverables %}
-            <option value={{deliverable.name}}>{{deliverable.name}}</option>
-          {% endfor %}
-        </select>
-        <br>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+          <input type="text" name="ITC_general_name" value="{{ITC.name}}" class="mdl-textfield__input">
+          <label class="mdl-textfield__label">ITC Name</label>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+          <select name="ITC_general_deliverable_type" class="mdl-textfield__input">
+            <option value={{ITC.deliverable_type}}>{{ITC.deliverable_type}}</option>
+          </select>
+          <label class="mdl-textfield__label">Deliverable Type</label>
+        </div>
         <input type="submit" value="Save Changes" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
       </form>
     </div>
+
+    <br>
 
     <div>
       <form action="/generic/ITC" method="GET">

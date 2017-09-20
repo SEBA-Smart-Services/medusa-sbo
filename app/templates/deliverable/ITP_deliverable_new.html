@@ -11,30 +11,45 @@
 
   <div>
     <form action="/site/{{ site.name }}/projects/{{ project.name }}/ITP/{{ ITP.name }}/deliverable/new" method="POST">
-      <input type="text" name="deliverable_name" placeholder="Deliverable Name" required class="mdl-textfield__input">
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        <input type="text" name="deliverable_name" class="mdl-textfield__input">
+        <label class="mdl-textfield__label">Deliverable Name</label>
+      </div>
       <br>
-      <input type="text" name="deliverable_description" placeholder="Give a description of the deliverable" required class="mdl-textfield__input">
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        <input type="text" name="deliverable_description" class="mdl-textfield__input">
+        <label class="mdl-textfield__label">Deliverable Description</label>
+      </div>
       <br>
-      <select name="deliverable_type" class="mdl-textfield__input" required>
-        <option value=""></option>
-        {% for type in types %}
-          <option value="{{type.name}}">{{type.name}}</option>
-        {% endfor %}
-      </select>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        <select name="deliverable_type" class="mdl-textfield__input">
+          <option value=""></option>
+          {% for type in types %}
+            <option value="{{type.name}}">{{type.name}}</option>
+          {% endfor %}
+        </select>
+        <label class="mdl-textfield__label">Deliverable Type</label>
+      </div>
       <br>
-      <select name="deliverable_location" class="mdl-textfield__input" required>
-        <option value=""></option>
-        {% for location in locations %}
-          <option value="{{location.name}}">{{location.name}}</option>
-        {% endfor %}
-      </select>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        <select name="deliverable_location" class="mdl-textfield__input">
+          <option value=""></option>
+          {% for location in locations %}
+            <option value="{{location.name}}">{{location.name}}</option>
+          {% endfor %}
+        </select>
+        <label class="mdl-textfield__label">Deliverable Location</label>
+      </div>
       <br>
-      <select name="deliverable_status" class="mdl-textfield__input" required>
-        <option value="Not Started">Not Started</option>
-        <option value="In Progress">In Progress</option>
-        <option value="Completed">Completed</option>
-        <option value="Not Applicable">Not Applicable</option>
-      </select>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        <select name="deliverable_status" class="mdl-textfield__input">
+          <option value="Not Started">Not Started</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
+          <option value="Not Applicable">Not Applicable</option>
+        </select>
+        <label class="mdl-textfield__label">Deliverable Status</label>
+      </div>
       <br>
       <input type="submit" value="Create Deliverable" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     </form>
