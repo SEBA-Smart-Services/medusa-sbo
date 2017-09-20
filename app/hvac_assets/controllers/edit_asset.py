@@ -47,7 +47,18 @@ def edit_asset(sitename, asset_id):
             return render_template('edit_asset.html', site=site, asset=asset, logs=logs, form=form)
 
         # set asset attributes based on form
-        form.populate_obj(asset)
+        #    form.populate_obj(asset)
+        #form.populate_obj doesnt work because asset type is an object, not a string (the form passes a string)
+        # create asset with 0 health based on form data
+        asset_type = AssetType.query.filter_by(name=form.type.data).one()
+        asset.type = asset_type
+        asset.name=form.name.data
+        asset.location=form.location.data
+        asset.group=form.group.data
+        asset.priority=form.priority.data
+        asset.notes=form.notes.data
+
+        db.session.commit()
 
         # get database session for this site
         session = db.session
