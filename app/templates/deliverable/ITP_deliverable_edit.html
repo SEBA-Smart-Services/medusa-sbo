@@ -1,34 +1,50 @@
 {% extends "layout.html" %}
 {% block title %}- {{project.name}}{% endblock %}
 {% block content %}
-  <h3>Edit {{deliverable.name}} for {{ITP.name}}</h3>
+  <h3>Edit Deliverable</h3>
+
+  {% if error %}
+    <p class="error" style="color: firebrick;"><strong>Error:</strong> {{ error }}</p>
+  {% endif %}
 
   <br>
 
   <div>
     <form action="/site/{{ site.name }}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/edit" method="POST">
-      <input type="text" name="deliverable_name" value="{{deliverable.name}}" placeholder="Deliverable Name" class="mdl-textfield__input">
-      <br>
-      <input type="text" name="deliverable_number" value="{% if deliverable.component_number != none %}{{deliverable.component_number}}{% endif %}" placeholder="Deliverable Number" class="mdl-textfield__input">
-      <br>
-      <input type="text" name="deliverable_description" value="{% if deliverable.description != none %}{{deliverable.description}}{% endif %}" placeholder="Give a description of the deliverable" class="mdl-textfield__input">
-      <br>
-      <input type="date" name="start_date" class="mdl-textfield__input">
-      <br>
-      <select name="assigned_to" class="mdl-textfield__input">
-        <option value=""></option>
-        {% for user in users %}
-          <option value="{{user}}">{{user}}</option>
-        {% endfor %}
-      </select>
-      <br>
-      <select name="deliverable_status" class="mdl-textfield__input">
-        <option value="Not Started">Not Started</option>
-        <option value="In Progress">In Progress</option>
-        <option value="Completed">Completed</option>
-        <option value="Not Applicable">Not Applicable</option>
-      </select>
-      <br>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        <input type="text" name="deliverable_name" value="{{deliverable.name}}" class="mdl-textfield__input">
+        <label class="mdl-textfield__label">Deliverable Name</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        <input type="text" name="deliverable_number" value="{% if deliverable.component_number != none %}{{deliverable.component_number}}{% endif %}" class="mdl-textfield__input">
+        <label class="mdl-textfield__label">Deliverable Component Number</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        <input type="text" name="deliverable_description" value="{% if deliverable.description != none %}{{deliverable.description}}{% endif %}" class="mdl-textfield__input">
+        <label class="mdl-textfield__label">Deliverable Description</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        <input type="date" name="start_date" placeholder="" value="{{deliverable.start_date}}" class="mdl-textfield__input">
+        <label class="mdl-textfield__label">Deliverable Start Date</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        <select name="assigned_to" class="mdl-textfield__input">
+          <option value=""></option>
+          {% for user in users %}
+            <option value="{{user}}">{{user}}</option>
+          {% endfor %}
+        </select>
+        <label class="mdl-textfield__label">Assigned To</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        <select name="deliverable_status" class="mdl-textfield__input">
+          <option value="Not Started">Not Started</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
+          <option value="Not Applicable">Not Applicable</option>
+        </select>
+        <label class="mdl-textfield__label">Deliverable Status</label>
+      </div>
       <input type="submit" value="Save Changes" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     </form>
 
