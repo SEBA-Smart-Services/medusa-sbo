@@ -31,8 +31,6 @@ def add_asset(sitename):
             form.type.data = ""
             return render_template('add_asset.html', site=site, asset_types=asset_types, form=form)
 
-        # get database session for this site
-        session = registry.get(site.db_key)
 
         # create asset with 0 health based on form data
         asset_type = AssetType.query.filter_by(name=form.type.data).one()
@@ -59,7 +57,7 @@ def add_asset(sitename):
 
                 # find the corresponding log path for that value of i
                 log_path = request.form.get('log' + str(i))
-                if not log_path == '' and not session is None:
+                if not log_path == '': # and not session is None:
                     # pull the id of that log from the remote webreports database and assign it to the point
                     log = session.query(LoggedEntity).filter_by(path=log_path).one()
                     point.loggedentity_id = log.id
@@ -88,9 +86,7 @@ def add_asset(sitename):
             app.logger.error('add asset failed to set associated algorithms')
 
         db.session.commit()
-        # close webreports session
-        if not session is None:
-            session.close()
+
 
         return redirect(url_for('asset_list', sitename=sitename))
 
@@ -113,16 +109,8 @@ def return_functions(sitename):
 def return_loggedentities(sitename):
     site = Site.query.filter_by(name=sitename).one()
 
-    # get webreports database session for this site
-    session = registry.get(site.db_key)
-
-    # grab all the trend log paths from the remote database
-    if not session is None:
-        logs = session.query(LoggedEntity).filter_by(type='trend.ETLog').all()
-        log_paths = [log.path for log in logs]
-        session.close()
-    else:
-        log_paths = []
+    logs = session.query(LoggedEntity).filter_by(type='trend.ETLog').all()
+    log_paths = [log.path for log in logs]
 
     return jsonify(log_paths)
 
