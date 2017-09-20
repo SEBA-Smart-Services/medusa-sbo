@@ -51,7 +51,7 @@ class ResultView(ProtectedView):
 
 class SiteView(ProtectedView):
     form_excluded_columns = ['issue_history']
-
+    can_view_details = True
 
 class AssetTypeView(ProtectedView):
     pass

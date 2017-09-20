@@ -631,7 +631,7 @@ def site_project_new(sitename):
         if request.form['project_name'] == None or request.form['project_name'] == "":
             error = "Project name missing!"
             return render_template('project/site_project_new.html', site=site, users=users, error=error)
-        elif request.form['job_numer'] == None or request.form['job_number'] == "":
+        elif request.form['job_number'] == None or request.form['job_number'] == "":
             error = "Job Number is missing!"
             return render_template('project/site_project_new.html', site=site, users=users, error=error)
         elif Project.query.filter_by(site_id=site.id, name=request.form['project_name']).first() == None:

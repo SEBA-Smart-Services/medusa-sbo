@@ -81,6 +81,7 @@
     </table>
     <br>
     <input type=submit value=Save class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+  </form>
 
 
   <h5>Functional Description</h5>
@@ -236,10 +237,11 @@
   </script>
 
   <div class="mdl-cell mdl-cell--6-col">
-    <form action="/site/{{site.name}}/projects">
+    <form action="/site/{{site.name}}/projects" method="GET">
       <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
       </input>
     </form>
   </div>
+
 
 {% endblock %}
