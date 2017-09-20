@@ -3,24 +3,39 @@
 {% block content %}
   <h3>Edit {{project.name}} for {{site.name}}</h3>
 
+  {% if error %}
+    <p class="error" style="color: firebrick;"><strong>Error:</strong> {{ error }}</p>
+  {% endif %}
+
   <br>
 
   <div>
     <form action="/site/{{ site.name }}/projects/{{project.name}}/edit" method="POST">
-      <input type="text" name="project_name" placeholder="Project Name" class="mdl-textfield__input">
-      <br>
-      <input type="text" name="project_description" placeholder="Give a description of the project" class="mdl-textfield__input">
-      <br>
-      <input type="text" name="job_number" placeholder="5368" class="mdl-textfield__input">
-      <br>
-      <input type="date" name="start_date" class="mdl-textfield__input">
-      <br>
-      <select name="assigned_to" class="mdl-textfield__input">
-        <option value=""></option>
-        {% for user in users %}
-          <option value="{{user.id}}">{{user.first_name}} {{user.last_name}}</option>
-        {% endfor %}
-      </select>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        <input type="text" name="project_name" value="{{project.name}}" class="mdl-textfield__input">
+        <label class="mdl-textfield__label">Project Name</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        <input type="text" name="project_description" value="{{project.description}}" class="mdl-textfield__input">
+        <label class="mdl-textfield__label">Project Description</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        <input type="text" name="job_number" value="{{project.job_number}}" class="mdl-textfield__input">
+        <label class="mdl-textfield__label">Project Description</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        <input type="date" name="start_date" placeholder="{{project.start_date}}" class="mdl-textfield__input">
+        <label class="mdl-textfield__label">Project Start Date</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        <select name="assigned_to" class="mdl-textfield__input">
+          <option value=""></option>
+          {% for user in users %}
+            <option value="{{user.id}}">{{user.first_name}} {{user.last_name}}</option>
+          {% endfor %}
+        </select>
+        <label class="mdl-textfield__label">Assigned To</label>
+      </div>
 
       <br>
       <input type="submit" value="Save Changes" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">

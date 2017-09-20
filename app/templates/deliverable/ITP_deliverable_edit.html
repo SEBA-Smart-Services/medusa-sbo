@@ -7,12 +7,12 @@
 
   <div>
     <form action="/site/{{ site.name }}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/edit" method="POST">
-      <input type="text" name="deliverable_name" placeholder="Deliverable Name" class="mdl-textfield__input">
+      <input type="text" name="deliverable_name" value="{{deliverable.name}}" placeholder="Deliverable Name" class="mdl-textfield__input">
       <br>
-      <input type="text" name="deliverable_number" placeholder="Deliverable Number" class="mdl-textfield__input">
+      <input type="text" name="deliverable_number" value="{% if deliverable.component_number != none %}{{deliverable.component_number}}{% endif %}" placeholder="Deliverable Number" class="mdl-textfield__input">
       <br>
-      <!-- <input type="text" name="deliverable_description" placeholder="Give a description of the deliverable" class="mdl-textfield__input">
-      <br> -->
+      <input type="text" name="deliverable_description" value="{% if deliverable.description != none %}{{deliverable.description}}{% endif %}" placeholder="Give a description of the deliverable" class="mdl-textfield__input">
+      <br>
       <input type="date" name="start_date" class="mdl-textfield__input">
       <br>
       <select name="assigned_to" class="mdl-textfield__input">

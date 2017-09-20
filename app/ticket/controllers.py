@@ -43,7 +43,10 @@ def ticket_create(sitename=None, projectname=None, component=None, tickettitle=N
         ticket_category = FlicketCategory.query.filter_by(id=int(form.category.data)).first()
         ticket_component = TicketComponent.query.filter_by(id=request.form['Component']).first()
 
-        date_due = request.form['date_due']
+        if request.form['date_due'] != " " and request.form['date_due'] != None:
+            date_due = request.form['date_due']
+        else:
+            date_due=None
         sitename = request.form['sitename']
 
         site = Site.query.filter_by(name=sitename).one()
@@ -332,7 +335,7 @@ def edit_ticket(ticket_id):
     if not ticket:
         flash('Could not find ticket.', category='warning')
         return redirect(url_for('flicket_main'))
-    
+
     site =  Site.query.filter_by(id=ticket.site_id).one()
 
     if ticket.project_id != None:
@@ -368,7 +371,8 @@ def edit_ticket(ticket_id):
     if form.validate_on_submit():
 
         ticket.component = TicketComponent.query.filter_by(id=request.form['Component']).first()
-        ticket.date_due = request.form['date_due']
+        if request.form['date_due'] != " " and request.form['date_due'] != None:
+            ticket.date_due = request.form['date_due']
         site = Site.query.filter_by(name=request.form['sitename']).one()
         ticket.site_id = site.id
         project = Project.query.filter_by(id=request.form['project']).first()
