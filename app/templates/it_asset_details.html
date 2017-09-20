@@ -71,7 +71,7 @@
   <input type=button id="rescan" onclick="window.location.href='{{ url_for('update_one_minion_data', minion_id=ITasset.id, sitename=site.name) }}'" value="Rescan IT Asset" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
   <br><br>
 
-  <form action="{{request.referrer}}">
+  <form action="/site/{{site.name}}/assets">
     <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
     </input>
   </form>

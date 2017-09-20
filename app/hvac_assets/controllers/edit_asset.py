@@ -109,8 +109,9 @@ def edit_asset(sitename, asset_id):
         asset.functions.clear()
         function_list = request.form.getlist('function')
         for function_name in function_list:
-            function = FunctionalDescriptor.query.filter_by(name=function_name).one()
-            asset.functions.append(function)
+            if function_name != None and function_name != "":
+                function = FunctionalDescriptor.query.filter_by(name=function_name).one()
+                asset.functions.append(function)
 
         # set excluded algorithms
         # the database operates via excluding algorithms

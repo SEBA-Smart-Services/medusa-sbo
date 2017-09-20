@@ -68,8 +68,10 @@ def add_asset(sitename):
         function_list = request.form.getlist('function')
         for function_name in function_list:
             # create the descriptor
-            function = FunctionalDescriptor.query.filter_by(name=function_name).one()
-            asset.functions.append(function)
+            print(function_name)
+            if function_name != None and function_name != "":
+                function = FunctionalDescriptor.query.filter_by(name=function_name).one()
+                asset.functions.append(function)
 
         # set excluded algorithms
         # the database operates via excluding algorithms
