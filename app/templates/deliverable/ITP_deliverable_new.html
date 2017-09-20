@@ -3,6 +3,10 @@
 {% block content %}
   <h3>New Deliverable for {{ITP.name}}</h3>
 
+  {% if error %}
+    <p class="error" style="color: firebrick;"><strong>Error:</strong> {{ error }}</p>
+  {% endif %}
+
   <br>
 
   <div>

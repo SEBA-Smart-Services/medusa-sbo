@@ -2,6 +2,9 @@
 {% block content %}
   <h3>New ITC</h3>
 
+  {% if error %}
+    <p class="error" style="color: firebrick;"><strong>Error:</strong> {{ error }}</p>
+  {% endif %}
   <br>
 
   <div>
@@ -20,7 +23,7 @@
     <br>
 
     <div>
-      <form action="{{request.referrer}}" method="GET">
+      <form action="{{url_for('ITC_general_list')}}" method="GET">
         <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
         </input>
       </form>

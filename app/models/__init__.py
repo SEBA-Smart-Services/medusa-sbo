@@ -218,7 +218,7 @@ points_checked = db.Table('points_checked',
 class Site(db.Model):
 
     id = db.Column('ID', db.Integer, primary_key=True)
-    name = db.Column('Name', db.String(512), nullable=False)
+    name = db.Column('Name', db.String(512), nullable=False, unique=True)
     db_key = db.Column('DB_key', db.String(512), default="")
     db_username = db.Column('DB_username', db.String(512), default="")
     db_password = db.Column('DB_password', db.String(512), default="")
