@@ -2,6 +2,7 @@
 
 ### User guide
 - [Quickstart](user/README.md)
+- [User Management](user/UserManagement.md)
 - [Setup a site project with ITP](user/project.md)
 - [Connect an IT Asset](user/ITassetconfig.md)
 - [Ticket Creation and Viewing](user/Tickets.md)
