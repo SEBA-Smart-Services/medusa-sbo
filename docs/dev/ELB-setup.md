@@ -1,4 +1,4 @@
-#Setting up an Elastic Load Balancer
+# Setting up an Elastic Load Balancer
 
 ## Creation
 
