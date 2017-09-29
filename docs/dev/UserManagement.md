@@ -7,6 +7,7 @@ User management is an important part of the application, keeping information sec
 * It was decided that users could only be created by an admin in Flask admin (see below). This allows the admin team to manage the number of accounts and the roles easily.
 * Users can not be deleted, this was to stop any model deletion errors that may occur from referencing a deleted user which would crash the page.
 * If a user has the role 'admin' then they should have access to all sites so when creating controllers a seperate admin check may be needed. In addition admin should not populate the users sites with all sites as their admin privilege may be removed and they would still have access to all the sites.
+* An 'password active' section has already been added to the user model for later use when forcing users to change their password.
 
 ## Setup
 
@@ -23,6 +24,10 @@ The great thing about Flask User and Security is that html templates found with 
 ### Models
 
 The User model can be found under `app/models/users.py`. As users are an integral part of the application any changes to this file should be carefully considered in case it breaks the app.
+
+## Future Developments
+
+* Force users to change their password after a predefined expiry time
 
 ## Other
 
