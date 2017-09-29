@@ -31,6 +31,10 @@ The templates for ITP components are collectively found within the *template* fo
 
 The controllers for each section of the ITP (following similar breakdown to the URLs) are found in the main `app/controller.py` file. Most are broken into the save 4 to 5 controllers: new, edit, delete, list and item pages. In order to avoid name clashes there is code in place to check for the same name in both edit and new pages. When deleting objects we need to ensure that any other object that may rely on that one gets deleted or updated. For example if a template ITC is deleted then the corresponding specific ITCs will be deleted. Therefore where possible avoid deleting templates, in the future it would be best to possibly save the state of the deleted object so that you dont need to remove it from specific ITC records.
 
+## Future Developments
+
+* Possibly add in forms to reduce the number of templates in ITP, especially for new, edit and delete pages which for the most part are the same thing.
+
 ## Other
 
 ### Flask Admin with Models
