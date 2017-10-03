@@ -325,6 +325,27 @@ def tickets(sitename=None, page=1):
                            site=site
                            )
 
+@app.route('/_filter_tickets', methods=['GET', 'POST'])
+def filter_tickets():
+    print("testing jquery filtering")
+    name = request.args.get('name', None)
+    if name == "":
+        tickets = FlicketTicket.query
+    else:
+        tickets = FlicketTicket.query.filter(FlicketTicket.ticket_name.contains(name))
+    print(tickets)
+    status = request.args.get('status', None)
+    print(status == "")
+    if status == "":
+        status = FlicketStatus.query.all()
+    else:
+        status = FlicketStatus.query.filter(FlicketStatus.status.ilike(status)).first()
+        tickets = tickets.filter_by(status_id=status.id)
+    print(tickets)
+    tickets = tickets.all()
+    print(tickets)
+    return jsonify({"results":render_template('flicket/ticket_table_template.html', tickets=tickets)})
+
 # edit ticket
 @app.route('/site/all/ticket/<ticket_id>/edit', methods=['GET', 'POST'])
 def edit_ticket(ticket_id):
