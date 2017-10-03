@@ -106,7 +106,7 @@
             </tr>
           </thead>
           <tbody id="tbody">
-            {% for t in tickets %}
+            {% for t in tickets.items %}
                 <tr {%- if t.current_status.status == 'Closed' %} class="success"{% endif %}>
                     <td class="mdl-data-table__cell--non-numeric">
                         <a href="{{ url_for('ticket_view', ticket_id = t.id) }}">{{ t.ticket_name }}</a>
@@ -139,6 +139,16 @@
             {% endfor %}
           </tbody>
         </table>
+
+        <div class="mdl-cell mdl-cell--12-col">
+          {% if tickets.has_prev %}<a class="mdl-cell mdl-cell--4-col" href="{{ url_for('tickets', page=tickets.prev_num) }}">&lt;</a>
+          {% else %}<p class="mdl-cell mdl-cell--4-col">&lt;</p>
+          {% endif %}
+          <p class="mdl-cell mdl-cell--4-col">{{tickets.page}}</p>
+          {% if tickets.has_next %}<a class="mdl-cell mdl-cell--4-col" href="{{ url_for('tickets', page=tickets.next_num) }}">&gt;</a>
+          {% else %}<p class="mdl-cell mdl-cell--4-col">&gt;</p>
+          {% endif %}
+        </div>
     </div>
 
     <script>

@@ -229,21 +229,26 @@ def view_ticket_uploads(filename):
 
 @app.route('/site/all/tickets', methods=['GET', 'POST'])
 @app.route('/site/<sitename>/tickets', methods=['GET', 'POST'])
-def tickets(sitename=None, page=1):
+def tickets(sitename=None):
 
     access_allowed = check_valid_site(sitename)
+    PER_PAGE = 5
+    if request.args.get('page') == None:
+        page = 1
+    else:
+        page = int(request.args.get('page'))
 
     if sitename != None and access_allowed:
         site = Site.query.filter_by(name=sitename).first()
-        tickets = FlicketTicket.query.filter_by(site_id=site.id).all()
+        tickets = FlicketTicket.query.filter_by(site_id=site.id).order_by(FlicketTicket.date_added.desc()).paginate(page, PER_PAGE, False)
     elif current_user.has_role('admin'):
         site = None
-        tickets = FlicketTicket.query.all()
+        tickets = FlicketTicket.query.order_by(FlicketTicket.date_added.desc()).paginate(page, PER_PAGE, False)
     else:
         tickets = []
         #get all the tickets for a particular user
         for user_site in current_user.sites:
-            tickets += FlicketTicket.query.filter_by(site_id=user_site.id).all()
+            tickets += FlicketTicket.query.filter_by(site_id=user_site.id).order_by(FlicketTicket.date_added.desc()).paginate(page, PER_PAGE, False)
         site = None
 
     print(tickets)
@@ -308,7 +313,7 @@ def tickets(sitename=None, page=1):
     #     f3 = FlicketTicket.posts.any(FlicketPost.content.ilike('%' + content + '%'))
     #     tickets = tickets.filter(f1 | f2 | f3)
 
-    number_results = len(tickets)
+    number_results = len(tickets.items)
     all_status = FlicketStatus.query.all()
     all_priority = FlicketPriority.query.all()
     all_category = FlicketCategory.query.all()
