@@ -28,58 +28,50 @@
           </div>
         </div>
 
-        <!-- Flicket search form -->
-        <!-- <form action=""
-              class="form-horizontal flicket-form"
-              enctype="multipart/form-data"
-              method="post"
-              name="search_ticket">
-            {{ form.hidden_tag() }}
+        <div class="mdl-grid mdl-cell mdl-cell--12-col">
+          <div class="mdl-cell--1-col"></div>
 
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col">
+            <input type="text" id="namefil" class="form-control mdl-textfield__input">
+            <label class="mdl-textfield__label">Ticket Title</label>
+          </div>
 
-            <div class="mdl-grid">
-                <div class="mdl-cell mdl-cell--2-col">
-                    {{ form.category(class="form-control", id="category") }}
-                </div>
-                <div class="mdl-cell mdl-cell--1-col">
-                </div>
-                <div class="mdl-cell mdl-cell--2-col">
-                    {{ form.status(class="form-control", id="status")}}
-                </div>
-                <div class="mdl-cell mdl-cell--2-col">
-                    {{ form.email(class="form-control", placeholder="email", id="autocomplete-email") }}
-                </div>
-                <div class="mdl-cell mdl-cell--1-col">
-                </div>
-                <div class="mdl-cell mdl-cell--2-col">
-                    {{ form.content(class="form-control", placeholder="contents") }}
-                </div>
-                <div class="mdl-cell mdl-cell--1-col">
-                </div>
-                <div class="mdl-cell mdl-cell--1-col">
-                    <input class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" type="submit" value="search"/>
-                </div>
-            </div>
-            {% if form.email.errors %}
-                <div class="alert alert-warning small">
-                    {% for error in form.email.errors %}
-                        {{ error }}
-                    {% endfor %}
-                </div>
-            {% endif %}
-            {% if form.content.errors %}
-                <div class="alert alert-warning small">
-                    {% for error in form.content.errors %}
-                        {{ error }}
-                    {% endfor %}
-                </div>
-            {% endif %}
-        </form> -->
-        <!-- / flicket search form -->
+          <div class="mdl-cell--1-col"></div>
 
-        <input type="text" id="myInput" placeholder="Search for ticket" class="mdl-cell mdl-cell--3-col">
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--2-col">
+            <label class="mdl-textfield__label">Search by Priority</label>
+            <select id="priorityfil" class="form-control mdl-textfield__input">
+              <option value="all">All</option>
+              {% for priority in all_priority %}
+                <option value="{{priority.priority}}">{{priority.priority}}</option>
+              {% endfor %}
+            </select>
+          </div>
 
-        <input type="text" id="myInput1" placeholder="Search by status" class="mdl-cell mdl-cell--3-col">
+          <div class="mdl-cell--1-col"></div>
+
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--2-col">
+            <label class="mdl-textfield__label">Search by category</label>
+            <select id="categoryfil" class="form-control mdl-textfield__input">
+              <option value="all">All</option>
+              {% for category in all_category %}
+                <option value="{{category.category}}">{{category.category}}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mdl-cell--1-col"></div>
+
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--2-col">
+            <label class="mdl-textfield__label">Search by Status</label>
+            <select id="statusfil" class="form-control mdl-textfield__input">
+              <option value="all">All</option>
+              {% for status in all_status %}
+                <option value="{{status.status}}">{{status.status}}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
 
         <table id="myTable" class="mdl-data-table mdl-js-data-table mdl-cell mdl-cell--12-col">
           <thead>
@@ -151,8 +143,12 @@
 
     <script>
     $(document).ready(function(){
-      $("#myInput, #myInput1").change(function(){
-        $.get("/_filter_tickets", {name: $('#myInput').val(), status: $('#myInput1').val()}, function(data){
+      $("#namefil, #priorityfil, #categoryfil, #statusfil").change(function(){
+        $.get("/_filter_tickets", {name: $('#namefil').val(),
+                                  priority: $('#priorityfil option:selected').val(),
+                                  category: $('#categoryfil option:selected').val(),
+                                  status: $('#statusfil option:selected').val()},
+        function(data){
           $("#tbody").html(data['results'])
         });
       });

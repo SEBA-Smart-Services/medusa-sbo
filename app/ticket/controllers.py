@@ -309,6 +309,9 @@ def tickets(sitename=None, page=1):
     #     tickets = tickets.filter(f1 | f2 | f3)
 
     number_results = len(tickets)
+    all_status = FlicketStatus.query.all()
+    all_priority = FlicketPriority.query.all()
+    all_category = FlicketCategory.query.all()
 
     # tickets = tickets.paginate(page, app.config['posts_per_page'])
 
@@ -322,7 +325,10 @@ def tickets(sitename=None, page=1):
                            department=department,
                            category=category,
                            user_id=user_id,
-                           site=site
+                           site=site,
+                           all_status=all_status,
+                           all_priority=all_priority,
+                           all_category=all_category
                            )
 
 @app.route('/_filter_tickets', methods=['GET', 'POST'])
@@ -333,17 +339,25 @@ def filter_tickets():
         tickets = FlicketTicket.query
     else:
         tickets = FlicketTicket.query.filter(FlicketTicket.ticket_name.contains(name))
-    print(tickets)
-    status = request.args.get('status', None)
-    print(status == "")
-    if status == "":
-        status = FlicketStatus.query.all()
+    priority = request.args.get('priority', None)
+    if priority == "all":
+        tickets = tickets
     else:
-        status = FlicketStatus.query.filter(FlicketStatus.status.ilike(status)).first()
+        priority = FlicketPriority.query.filter_by(priority=priority).first()
+        tickets = tickets.filter_by(ticket_priority_id=priority.id)
+    category = request.args.get('category', None)
+    if category == "all":
+        tickets = tickets
+    else:
+        category = FlicketCategory.query.filter_by(category=category).first()
+        tickets = tickets.filter_by(category_id=category.id)
+    status = request.args.get('status', None)
+    if status == "all":
+        tickets = tickets
+    else:
+        status = FlicketStatus.query.filter_by(status=status).first()
         tickets = tickets.filter_by(status_id=status.id)
-    print(tickets)
     tickets = tickets.all()
-    print(tickets)
     return jsonify({"results":render_template('flicket/ticket_table_template.html', tickets=tickets)})
 
 # edit ticket
