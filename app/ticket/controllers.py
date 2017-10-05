@@ -311,7 +311,7 @@ def tickets(sitename=None):
                            )
 
 @app.route('/_filter_tickets', methods=['GET', 'POST'])
-def filter_tickets(sitename=None):
+def filter_tickets():
 
     PER_PAGE = 5
     if request.args.get('page') == None:
@@ -319,6 +319,8 @@ def filter_tickets(sitename=None):
     else:
         page = int(request.args.get('page'))
 
+    sitename = request.args.get('site')
+    print(sitename)
     access_allowed = check_valid_site(sitename)
 
     if sitename != None and access_allowed:

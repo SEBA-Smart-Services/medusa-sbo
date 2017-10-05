@@ -142,8 +142,9 @@
 
         <div id="pagination" class="mdl-cell mdl-cell--12-col">
           <a id="previous" class="mdl-cell mdl-cell--4-col" href="#" style="display: none">&lt;</a>
-          <p id="page" class="mdl-cell mdl-cell--4-col">{{tickets.page}}</p>
+          {% if tickets.next_num %}<p id="page" class="mdl-cell mdl-cell--4-col">{{tickets.page}}</p>
           <a id="next" class="mdl-cell mdl-cell--4-col" href="#">&gt;</a>
+          {% endif%}
         </div>
     </div>
 
@@ -153,7 +154,8 @@
           $.get("/_filter_tickets", {name: $('#namefil').val(),
                                     priority: $('#priorityfil option:selected').val(),
                                     category: $('#categoryfil option:selected').val(),
-                                    status: $('#statusfil option:selected').val()},
+                                    status: $('#statusfil option:selected').val(),
+                                    site: "{{site}}"},
           function(data){
             $("#tbody").html(data['results']);
             $("#page").html(data['page']);
@@ -177,7 +179,8 @@
                                     priority: $('#priorityfil option:selected').val(),
                                     category: $('#categoryfil option:selected').val(),
                                     status: $('#statusfil option:selected').val(),
-                                    page: (parseInt($("#page").html()) - 1)},
+                                    page: (parseInt($("#page").html()) - 1),
+                                    site: "{{site}}"},
           function(data){
             $("#tbody").html(data['results']);
             $("#page").html(data['page']);
@@ -199,7 +202,8 @@
                                     priority: $('#priorityfil option:selected').val(),
                                     category: $('#categoryfil option:selected').val(),
                                     status: $('#statusfil option:selected').val(),
-                                    page: (parseInt($("#page").html()) + 1)},
+                                    page: (parseInt($("#page").html()) + 1),
+                                    site: "{{site}}"},
           function(data){
             $("#tbody").html(data['results']);
             $("#page").html(data['page']);
