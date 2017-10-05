@@ -140,29 +140,78 @@
           </tbody>
         </table>
 
-        <div class="mdl-cell mdl-cell--12-col">
-          {% if tickets.has_prev %}<a class="mdl-cell mdl-cell--4-col" href="{{ url_for('tickets', page=tickets.prev_num) }}">&lt;</a>
-          {% else %}<p class="mdl-cell mdl-cell--4-col">&lt;</p>
-          {% endif %}
-          <p class="mdl-cell mdl-cell--4-col">{{tickets.page}}</p>
-          {% if tickets.has_next %}<a class="mdl-cell mdl-cell--4-col" href="{{ url_for('tickets', page=tickets.next_num) }}">&gt;</a>
-          {% else %}<p class="mdl-cell mdl-cell--4-col">&gt;</p>
-          {% endif %}
+        <div id="pagination" class="mdl-cell mdl-cell--12-col">
+          <a id="previous" class="mdl-cell mdl-cell--4-col" href="#" style="display: none">&lt;</a>
+          <p id="page" class="mdl-cell mdl-cell--4-col">{{tickets.page}}</p>
+          <a id="next" class="mdl-cell mdl-cell--4-col" href="#">&gt;</a>
         </div>
     </div>
 
     <script>
-    $(document).ready(function(){
-      $("#namefil, #priorityfil, #categoryfil, #statusfil").change(function(){
-        $.get("/_filter_tickets", {name: $('#namefil').val(),
-                                  priority: $('#priorityfil option:selected').val(),
-                                  category: $('#categoryfil option:selected').val(),
-                                  status: $('#statusfil option:selected').val()},
-        function(data){
-          $("#tbody").html(data['results'])
+      $(document).ready(function(){
+        $("#namefil, #priorityfil, #categoryfil, #statusfil").change(function(){
+          $.get("/_filter_tickets", {name: $('#namefil').val(),
+                                    priority: $('#priorityfil option:selected').val(),
+                                    category: $('#categoryfil option:selected').val(),
+                                    status: $('#statusfil option:selected').val()},
+          function(data){
+            $("#tbody").html(data['results']);
+            $("#page").html(data['page']);
+            if (data['page'] == 1){
+              $('#previous').hide()
+            }
+            if (data['page'] == data['pages']){
+              $('#next').hide()
+            }
+            if (data['page'] != data['pages']){
+              $('#next').show()
+            }
+          });
         });
       });
-    });
+
+      $(document).ready(function(){
+        $("a#previous").click(function(e){
+          e.preventDefault();
+          $.get("/_filter_tickets", {name: $('#namefil').val(),
+                                    priority: $('#priorityfil option:selected').val(),
+                                    category: $('#categoryfil option:selected').val(),
+                                    status: $('#statusfil option:selected').val(),
+                                    page: (parseInt($("#page").html()) - 1)},
+          function(data){
+            $("#tbody").html(data['results']);
+            $("#page").html(data['page']);
+            var page_number = $('page_number').data()
+            if (data['page'] == 1){
+              $('#previous').hide()
+            }
+            if (data['page'] != data['pages']){
+              $('#next').show()
+            }
+          });
+        });
+      });
+
+      $(document).ready(function(){
+        $("a#next").click(function(e){
+          e.preventDefault();
+          $.get("/_filter_tickets", {name: $('#namefil').val(),
+                                    priority: $('#priorityfil option:selected').val(),
+                                    category: $('#categoryfil option:selected').val(),
+                                    status: $('#statusfil option:selected').val(),
+                                    page: (parseInt($("#page").html()) + 1)},
+          function(data){
+            $("#tbody").html(data['results']);
+            $("#page").html(data['page']);
+            if (data['page'] == data['pages']){
+              $('#next').hide()
+            }
+            if (data['page'] != 1) {
+              $('#previous').show()
+            }
+          });
+        });
+      });
     </script>
 
 

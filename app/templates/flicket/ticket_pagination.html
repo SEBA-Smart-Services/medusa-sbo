@@ -1,0 +1,7 @@
+{% if tickets.has_prev %}<a id="previous" class="mdl-cell mdl-cell--4-col" href="#">&lt;</a>
+{% else %}<p class="mdl-cell mdl-cell--4-col">&lt;</p>
+{% endif %}
+<p id="page" class="mdl-cell mdl-cell--4-col">{{tickets.page}}</p>
+{% if tickets.has_next %}<a id="next" class="mdl-cell mdl-cell--4-col" href="#">&gt;</a>
+{% else %}<p class="mdl-cell mdl-cell--4-col">&gt;</p>
+{% endif %}

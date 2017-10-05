@@ -289,36 +289,10 @@ def tickets(sitename=None):
                                 user_id=user_id,
                                 ))
 
-    # todo: get data from api
-
-    # if status:
-    #     tickets = tickets.filter(FlicketTicket.current_status.has(FlicketStatus.status == status))
-    #     form.status.data = FlicketStatus.query.filter_by(status=status).first().id
-    # if category:
-    #     tickets = tickets.filter(FlicketTicket.category.has(FlicketCategory.category == category))
-    #     form.category.data = FlicketCategory.query.filter_by(category=category).first().id
-    # if department:
-    #     department_filter = FlicketDepartment.query.filter_by(department=department).first()
-    #     tickets = tickets.filter(FlicketTicket.category.has(FlicketCategory.department == department_filter))
-    #     form.department.data = department_filter.id
-    # if user_id:
-    #     tickets = tickets.filter_by(assigned_id=int(user_id))
-    #
-    # if content:
-    #     # search the titles
-    #     form.content.data = content
-    #
-    #     f1 = FlicketTicket.ticket_name.ilike('%' + content + '%')
-    #     f2 = FlicketTicket.description.ilike('%' + content + '%')
-    #     f3 = FlicketTicket.posts.any(FlicketPost.content.ilike('%' + content + '%'))
-    #     tickets = tickets.filter(f1 | f2 | f3)
-
     number_results = len(tickets.items)
     all_status = FlicketStatus.query.all()
     all_priority = FlicketPriority.query.all()
     all_category = FlicketCategory.query.all()
-
-    # tickets = tickets.paginate(page, app.config['posts_per_page'])
 
     return render_template('flicket/flicket_tickets.html',
                            title='Tickets',
@@ -337,13 +311,40 @@ def tickets(sitename=None):
                            )
 
 @app.route('/_filter_tickets', methods=['GET', 'POST'])
-def filter_tickets():
+def filter_tickets(sitename=None):
+
+    print(request.args.get('priority', None))
+    print(request.args.get('category', None))
+    print(request.args.get('status', None))
+    print(request.args.get('page', None))
+
+    PER_PAGE = 5
+    if request.args.get('page') == None:
+        page = 1
+    else:
+        print(request.args.get('page'))
+        page = int(request.args.get('page'))
+
+    access_allowed = check_valid_site(sitename)
+
+    if sitename != None and access_allowed:
+        site = Site.query.filter_by(name=sitename).first()
+        tickets = FlicketTicket.query.filter_by(site_id=site.id)
+    elif current_user.has_role('admin'):
+        tickets = FlicketTicket.query
+    else:
+        tickets = []
+        #get all the tickets for a particular user
+        for user_site in current_user.sites:
+            tickets += FlicketTicket.query.filter_by(site_id=user_site.id)
+        site = None
+
     print("testing jquery filtering")
     name = request.args.get('name', None)
     if name == "":
-        tickets = FlicketTicket.query
+        tickets = tickets
     else:
-        tickets = FlicketTicket.query.filter(FlicketTicket.ticket_name.contains(name))
+        tickets = tickets.filter(FlicketTicket.ticket_name.contains(name))
     priority = request.args.get('priority', None)
     if priority == "all":
         tickets = tickets
@@ -362,8 +363,18 @@ def filter_tickets():
     else:
         status = FlicketStatus.query.filter_by(status=status).first()
         tickets = tickets.filter_by(status_id=status.id)
-    tickets = tickets.all()
-    return jsonify({"results":render_template('flicket/ticket_table_template.html', tickets=tickets)})
+    tickets = tickets.order_by(FlicketTicket.date_added.desc()).paginate(page, PER_PAGE, False)
+    previous_page = tickets.has_prev
+    next_page = tickets.has_next
+    pages = tickets.pages
+    print(page)
+    print(pages)
+    return jsonify({"results":render_template('flicket/ticket_table_template.html', tickets=tickets),
+                    "pagination": render_template('flicket/ticket_pagination.html', tickets=tickets),
+                    "page": page,
+                    "next": next_page,
+                    "previous": previous_page,
+                    "pages": pages})
 
 # edit ticket
 @app.route('/site/all/ticket/<ticket_id>/edit', methods=['GET', 'POST'])
