@@ -13,7 +13,12 @@
 
     </div>
 
-    <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col">
+      <input type="text" id="descripfil" class="form-control mdl-textfield__input">
+      <label class="mdl-textfield__label">Check Description</label>
+    </div>
+
+    <table class="mdl-data-table mdl-js-data-table  mdl-cell mdl-cell--12-col">
       <thead>
         <tr>
           <th class="mdl-data-table__cell--non-numeric">id</th>
@@ -21,8 +26,8 @@
           <th class="mdl-data-table__cell--non-numeric"></th>
         </tr>
       </thead>
-      <tbody>
-      {% for check in checks %}
+      <tbody id="tbody">
+      {% for check in checks.items %}
         <tr>
           <td class="mdl-data-table__cell--non-numeric">{{check.id}}</th>
           <td class="mdl-data-table__cell--non-numeric">{{check.check_description}}</td>
@@ -38,6 +43,70 @@
       {% endfor %}
       </tbody>
     </table>
+
+    <div id="pagination" class="mdl-cell mdl-cell--12-col">
+      <a id="previous" class="mdl-cell mdl-cell--4-col" href="#" style="display: none">&lt;</a>
+      <p id="page" class="mdl-cell mdl-cell--4-col">{{checks.page}}</p>
+      <a id="next" class="mdl-cell mdl-cell--4-col" href="#">&gt;</a>
+    </div>
+
+    <script>
+      $(document).ready(function(){
+        $("#descripfil").change(function(){
+          $.get("/_filter_checks", {description: $('#descripfil').val()},
+          function(data){
+            $("#tbody").html(data['results']);
+            $("#page").html(data['page']);
+            if (data['page'] == 1){
+              $('#previous').hide()
+            }
+            if (data['page'] == data['pages']){
+              $('#next').hide()
+            }
+            if (data['page'] != data['pages']){
+              $('#next').show()
+            }
+          });
+        });
+      });
+
+      $(document).ready(function(){
+        $("a#previous").click(function(e){
+          e.preventDefault();
+          $.get("/_filter_checks", {description: $('#descripfil').val(),
+                                    page: (parseInt($("#page").html()) - 1)},
+          function(data){
+            $("#tbody").html(data['results']);
+            $("#page").html(data['page']);
+            var page_number = $('page_number').data()
+            if (data['page'] == 1){
+              $('#previous').hide()
+            }
+            if (data['page'] != data['pages']){
+              $('#next').show()
+            }
+          });
+        });
+      });
+
+      $(document).ready(function(){
+        $("a#next").click(function(e){
+          e.preventDefault();
+          $.get("/_filter_checks", {description: $('#descripfil').val(),
+                                    page: (parseInt($("#page").html()) + 1)},
+          function(data){
+            $("#tbody").html(data['results']);
+            $("#page").html(data['page']);
+            if (data['page'] == data['pages']){
+              $('#next').hide()
+            }
+            if (data['page'] != 1) {
+              $('#previous').show()
+            }
+          });
+        });
+      });
+    </script>
 
     <br>
 

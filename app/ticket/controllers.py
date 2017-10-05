@@ -313,16 +313,10 @@ def tickets(sitename=None):
 @app.route('/_filter_tickets', methods=['GET', 'POST'])
 def filter_tickets(sitename=None):
 
-    print(request.args.get('priority', None))
-    print(request.args.get('category', None))
-    print(request.args.get('status', None))
-    print(request.args.get('page', None))
-
     PER_PAGE = 5
     if request.args.get('page') == None:
         page = 1
     else:
-        print(request.args.get('page'))
         page = int(request.args.get('page'))
 
     access_allowed = check_valid_site(sitename)
@@ -339,7 +333,6 @@ def filter_tickets(sitename=None):
             tickets += FlicketTicket.query.filter_by(site_id=user_site.id)
         site = None
 
-    print("testing jquery filtering")
     name = request.args.get('name', None)
     if name == "":
         tickets = tickets

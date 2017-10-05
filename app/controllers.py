@@ -1392,7 +1392,7 @@ def ITC_check_general_delete(ITCid, checkid):
     else:
         return render_template('generic_ITC_check/generic_ITC_check_delete.html', ITC=ITP_ITC, check=check)
 
-################ Check creation and editing for generic ITC ####################
+##################### Generic check creation and editing #######################
 
 #Route for new generic check
 @app.route('/generic/check/new', methods=['POST', 'GET'])
@@ -1415,9 +1415,47 @@ def generic_check_new():
 #Route for viewing all generic checks
 @app.route('/generic/check')
 def generic_check_list():
-    checks = Check_generic.query.all()
+
+    PER_PAGE = 5
+    if request.args.get('page') == None:
+        page = 1
+    else:
+        print(request.args.get('page'))
+        page = int(request.args.get('page'))
+
+    checks = Check_generic.query.order_by(Check_generic.id.asc()).paginate(page, PER_PAGE, False)
 
     return render_template('generic_check/generic_check_list.html', checks=checks)
+
+#Route for paginating checks
+@app.route('/_filter_checks', methods=['GET', 'POST'])
+def filter_checks():
+    print(request.args.get('description', None))
+    print(request.args.get('page', None))
+
+    PER_PAGE = 5
+    if request.args.get('page') == None:
+        page = 1
+    else:
+        page = int(request.args.get('page'))
+
+    description = request.args.get('description', None)
+    if description == None:
+        checks = Check_generic.query
+    else:
+        checks = Check_generic.query.filter(Check_generic.check_description.contains(description))
+
+    checks = checks.order_by(Check_generic.id.asc()).paginate(page, PER_PAGE, False)
+    previous_page = checks.has_prev
+    next_page = checks.has_next
+    pages = checks.pages
+
+    return jsonify({"results":render_template('generic_check/generic_check_table_template.html', checks=checks),
+                    "page": page,
+                    "next": next_page,
+                    "previous": previous_page,
+                    "pages": pages})
+
 
 #Route for editing generic checks
 @app.route('/generic/check/<checkid>/edit', methods=['POST', 'GET'])
