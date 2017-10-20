@@ -24,6 +24,7 @@ Flask-Login==0.4.0
 Flask-Mail==0.9.1
 Flask-Migrate==2.0.3
 Flask-PageDown==0.2.2
+FLASK-Paginate==0.5.1
 Flask-RESTful==0.3.5
 Flask-Script==2.0.5
 Flask-Security==3.0.0

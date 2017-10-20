@@ -29,6 +29,7 @@ from flask_wtf import Form
 from wtforms import TextField, PasswordField, validators
 from werkzeug.security import check_password_hash
 from flask_security.utils import encrypt_password
+from flask_paginate import Pagination
 
 # enforce login required for all pages
 @app.before_request
@@ -529,17 +530,46 @@ def get_alarms_per_week(session, nweeks=4):
 
 @app.route('/projects')
 def all_projects():
-    all_projects = []
+
+    PER_PAGE = 5
+    if request.args.get('page') == None:
+        page = 1
+    else:
+        page = int(request.args.get('page'))
+
     if current_user.has_role('admin'):
         sites = Site.query.all()
     else:
         sites = current_user.sites
-    for site in sites:
-        projects = Project.query.filter_by(site_id=site.id).all()
-        all_projects = all_projects + projects
 
-    return render_template('projects.html', projects=all_projects)
+    projects = Project.query.filter(Project.site_id.in_([site.id for site in sites]))
+    projects = projects.order_by(Project.name.asc()).paginate(page, PER_PAGE, False)
+    print(all_projects)
 
+    return render_template('projects.html', projects=projects)
+
+@app.route('/_filter_projects', methods=['GET', 'POST'])
+def filter_project():
+
+    PER_PAGE = 5
+    if request.args.get('page') == None:
+        page = 1
+    else:
+        page = int(request.args.get('page'))
+
+    if current_user.has_role('admin'):
+        sites = Site.query.all()
+    else:
+        sites = current_user.sites
+
+    projects = Project.query.filter(Project.site_id.in_([site.id for site in sites]))
+    projects = projects.order_by(Project.name.asc()).paginate(page, PER_PAGE, False)
+
+    pages = projects.pages
+
+    return jsonify({"results":render_template('project_table_template.html', projects=projects),
+                    "page": page,
+                    "pages": pages})
 
 ################################################################################
 ########################## controllers for ITP routes###########################

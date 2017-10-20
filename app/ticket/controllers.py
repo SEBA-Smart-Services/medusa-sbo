@@ -365,7 +365,6 @@ def filter_tickets():
     print(page)
     print(pages)
     return jsonify({"results":render_template('flicket/ticket_table_template.html', tickets=tickets),
-                    "pagination": render_template('flicket/ticket_pagination.html', tickets=tickets),
                     "page": page,
                     "next": next_page,
                     "previous": previous_page,

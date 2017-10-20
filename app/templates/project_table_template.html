@@ -1,0 +1,9 @@
+{% for project in projects.items %}
+  <tr>
+    <td class="mdl-data-table__cell--non-numeric"><a href="/site/{{project.site}}/projects/{{project.name}}">{{ project.name }}</a></td>
+    <td class="mdl-data-table__cell--non-numeric">#{{project.job_number}}</td>
+    <td class="mdl-data-table__cell--non-numeric">{{ project.site }}</td>
+    <td class="mdl-data-table__cell--non-numeric">{{project.percentage_complete}}%</td>
+    <td class="mdl-data-table__cell--non-numeric">{{project.user.first_name}} {{project.user.last_name}}<td>
+  </tr>
+{% endfor %}
