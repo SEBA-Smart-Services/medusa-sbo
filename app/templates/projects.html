@@ -4,11 +4,48 @@
       <h3>Projects</h3>
   </div>
 
-  <div class="mdl-cell mdl-cell--12-col mdl-grid">
+  <div class="mdl-grid mdl-cell mdl-cell--12-col">
+    <div class="mdl-cell--1-col"></div>
+
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col">
+      <input type="text" id="namefil" class="form-control mdl-textfield__input">
+      <label class="mdl-textfield__label">Project Name</label>
+    </div>
+
+    <div class="mdl-cell--1-col"></div>
+
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col">
+      <input type="text" id="projectnumfil" class="form-control mdl-textfield__input">
+      <label class="mdl-textfield__label">Project Number</label>
+    </div>
+
+    <div class="mdl-cell--1-col"></div>
+
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col">
+      <label class="mdl-textfield__label">Search by Site</label>
+      <select id="sitefil" class="form-control mdl-textfield__input">
+        <option value="all">All</option>
+        {% for site in sites %}
+          <option value="{{site.name}}">{{site.name}}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mdl-cell--1-col"></div>
+
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col">
+      <label class="mdl-textfield__label">Search by First Name</label>
+      <select id="assignfil" class="form-control mdl-textfield__input">
+        <option value="all">All</option>
+        {% for user in users %}
+          <option value="{{user.id}}">{{user.first_name}} {{user.last_name}}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
     <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
-      <div class="mdl-card__title">
-        <h2 class="mdl-card__title-text">Projects</h2>
-      </div>
+
       <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
         <thead>
           <tr>
@@ -19,7 +56,7 @@
             <th class="mdl-data-table__cell--non-numeric">Assigned to</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="tbody">
           {% for project in projects.items %}
             <tr>
               <td class="mdl-data-table__cell--non-numeric"><a href="/site/{{project.site}}/projects/{{project.name}}">{{ project.name }}</a></td>
@@ -35,14 +72,14 @@
 
     <div id="pagination" class="mdl-cell mdl-cell--12-col">
       <a id="previous" class="mdl-cell mdl-cell--4-col" href="#" style="display: none">&lt;</a>
-      {% if projects.next_num %}<p id="page" class="mdl-cell mdl-cell--4-col">{{projects.page}}</p>
-      <a id="next" class="mdl-cell mdl-cell--4-col" href="#">&gt;</a>
+      {% if projects.next_num %}
+        <p id="page" class="mdl-cell mdl-cell--4-col">
+          {{projects.page}}
+        </p>
+        <a id="next" class="mdl-cell mdl-cell--4-col" href="#">&gt;</a>
       {% endif%}
     </div>
 
-  </div>
-
-  <br>
 
   <div class="mdl-cell mdl-cell--12-col">
     <form action="/generic" method="GET">
@@ -54,7 +91,7 @@
   <script>
     //Filters
     $(document).ready(function(){
-      $("#namefil, #priorityfil, #categoryfil, #statusfil").change(function(){
+      $("#namefil, #projectnumfil, #sitefil, #assignfil").change(function(){
         $.get("/_filter_projects", {name: $('#namefil').val(),
                                   project_number: $('#projectnumfil').val(),
                                   site: $('#sitefil option:selected').val(),

@@ -544,9 +544,10 @@ def all_projects():
 
     projects = Project.query.filter(Project.site_id.in_([site.id for site in sites]))
     projects = projects.order_by(Project.name.asc()).paginate(page, PER_PAGE, False)
-    print(all_projects)
 
-    return render_template('projects.html', projects=projects)
+    users = User.query.all()
+
+    return render_template('projects.html', projects=projects, users=users, sites=sites)
 
 @app.route('/_filter_projects', methods=['GET', 'POST'])
 def filter_project():
@@ -563,6 +564,33 @@ def filter_project():
         sites = current_user.sites
 
     projects = Project.query.filter(Project.site_id.in_([site.id for site in sites]))
+
+    name = request.args.get('name', None)
+    if name == "":
+        projects = projects
+    else:
+        projects = projects.filter(Project.name.contains(name))
+
+    project_number = request.args.get('project_number', None)
+    if project_number == "":
+        projects = projects
+    else:
+        projects = projects.filter(Project.job_number.contains(project_number))
+
+    site = request.args.get('site', None)
+    if site == "all":
+        projects = projects
+    else:
+        site = Site.query.filter_by(name=site).first()
+        projects = projects.filter_by(site_id=site.id)
+
+    assigned = request.args.get('assigned', None)
+    if assigned == "all":
+        projects = projects
+    else:
+        assigned = User.query.filter_by(id=assigned).first()
+        projects = projects.filter_by(assigned_to_id=assigned.id)
+
     projects = projects.order_by(Project.name.asc()).paginate(page, PER_PAGE, False)
 
     pages = projects.pages
