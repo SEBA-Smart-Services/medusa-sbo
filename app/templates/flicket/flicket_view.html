@@ -24,6 +24,15 @@
                 <i class="material-icons">edit</i>
               </a>
           </div>
+
+          {% if current_user.has_role('admin') %}
+            <div class="mdl-cell mdl-cell--1-col">
+              <a id="tooltip3" href="{{ url_for('delete_ticket', ticket_id=ticket.id) }}">
+                <div class="material-icons" >delete</div>
+                <div class = "mdl-tooltip" for = "tooltip3">Delete</div>
+              </a>
+            </div>
+          {% endif %}
       </div>
 
       <div class="mdl-cell mdl-cell--12-col mdl-grid">

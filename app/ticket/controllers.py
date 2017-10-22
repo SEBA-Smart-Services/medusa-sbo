@@ -27,13 +27,10 @@ app.jinja_env.globals.update(display_post_box=display_post_box)
 #creating a ticket
 @app.route('/site/<sitename>/ticket/create', methods=['GET', 'POST'])
 @app.route('/site/all/ticket/create', methods=['GET', 'POST'])
-def ticket_create(sitename=None, projectname=None, component=None, tickettitle=None, ticketdescription=None, priority=None, category=None):
+def ticket_create(sitename=None, projectname=None, component=None, priority=None, category=None):
 
-    form = CreateTicketForm()
-
-    print(request.args.get('ticketdescription'))
-    print(request.args.get('tickettitle'))
-
+    form = CreateTicketForm(title=request.args.get('ticket_description'),
+                            priority=request.args.get('priority'))
 
     if form.validate_on_submit():
 
@@ -99,6 +96,7 @@ def ticket_create(sitename=None, projectname=None, component=None, tickettitle=N
         return redirect(url_for('ticket_view', ticket_id=new_ticket.id))
 
     print(sitename)
+    print(request.args.get('site_id'))
 
     if sitename != None:
         site = Site.query.filter_by(name=sitename).first()
@@ -247,8 +245,10 @@ def tickets(sitename=None):
     else:
         tickets = []
         #get all the tickets for a particular user
-        for user_site in current_user.sites:
-            tickets += FlicketTicket.query.filter_by(site_id=user_site.id).order_by(FlicketTicket.date_added.desc()).paginate(page, PER_PAGE, False)
+        # for user_site in current_user.sites:
+        #     tickets += FlicketTicket.query.filter_by(site_id=user_site.id).order_by(FlicketTicket.date_added.desc()).paginate(page, PER_PAGE, False)
+        tickets = FlicketTicket.query.filter(FlicketTicket.site_id.in_([user_site.id for user_site in current_user.sites]))
+        tickets = tickets.order_by(FlicketTicket.date_added.desc()).paginate(page, PER_PAGE, False)
         site = None
 
     print(tickets)
@@ -602,8 +602,7 @@ def delete_ticket(ticket_id):
         flash('ticket deleted', category='success')
         return redirect(url_for('tickets'))
 
-    return render_template('flicket/flicket_deletetopic.html',
-                           form=form,
+    return render_template('flicket/flicket_delete.html',
                            ticket=ticket,
                            title='Delete Ticket')
 
