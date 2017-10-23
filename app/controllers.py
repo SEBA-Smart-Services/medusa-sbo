@@ -164,6 +164,27 @@ def site_list():
         priority[site.name] = top_priority
     return render_template('sites.html', sites=sites, issues=issues, priority=priority)
 
+# @app.route('/site_filter')
+# def site_filter():
+#     issues = {}
+#     priority = {}
+#     if "admin" in current_user.roles:
+#         sites = Site.query.all()
+#     else:
+#         sites = current_user.sites
+#
+#     for site in sites:
+#         issues[site.name] = len(site.get_unresolved())
+#         if not site.get_unresolved_by_priority():
+#             # there are no issues at this site
+#             top_priority = "-"
+#         else:
+#             top_priority = site.get_unresolved_by_priority()[0].asset.priority
+#         priority[site.name] = top_priority
+#
+#     return jsonify({"results":render_template('/site_table_template.html', sites=sites),
+#                     "page": page})
+
 # list all unresolved issues for the sites attached to the logged in user
 @app.route('/site/all/issues')
 def unresolved_list_all():
@@ -1353,9 +1374,48 @@ def ITC_general_new():
 #Route for viewing all general ITC
 @app.route('/generic/ITC', methods=['POST','GET'])
 def ITC_general_list():
-    ITCs = ITC.query.all()
 
-    return render_template('generic_ITC/ITC_general.html', ITCs=ITCs)
+    PER_PAGE = 5
+    if request.args.get('page') == None:
+        page = 1
+    else:
+        page = int(request.args.get('page'))
+
+    deliverable_types = Deliverable_type.query.all()
+    ITCs = ITC.query.order_by(ITC.name.desc()).paginate(page, PER_PAGE, False)
+
+    return render_template('generic_ITC/ITC_general.html', ITCs=ITCs, deliverable_types=deliverable_types)
+
+@app.route('/_filter_generic_ITCs', methods=['POST','GET'])
+def ITC_generic_filter():
+
+    PER_PAGE = 5
+    if request.args.get('page') == None:
+        page = 1
+    else:
+        page = int(request.args.get('page'))
+
+    ITCs = ITC.query
+
+    name = request.args.get('name')
+    if name == "":
+        ITCs = ITCs
+    else:
+        ITCs = ITCs.filter(ITC.name.contains(name))
+
+    deliverable_type = request.args.get('deliverable_type')
+    if deliverable_type == "all":
+        ITCs = ITCs
+    else:
+        deliverable_type = Deliverable_type.query.filter_by(id=deliverable_type).first()
+        ITCs = ITCs.filter_by(deliverable_type_id=deliverable_type.id)
+
+    ITCs = ITCs.order_by(ITC.name.desc()).paginate(page, PER_PAGE, False)
+
+    print(ITCs.items)
+
+    return jsonify({"results":render_template('generic_ITC/ITC_general_table.html', ITCs=ITCs),
+                    "page": page})
 
 #Delete generic check
 @app.route('/generic/ITC/<ITCid>/delete', methods=['POST','GET'])

@@ -44,10 +44,22 @@
       </tbody>
     </table>
 
-    <div id="pagination" class="mdl-cell mdl-cell--12-col">
-      <a id="previous" class="mdl-cell mdl-cell--4-col" href="#" style="display: none">&lt;</a>
-      <p id="page" class="mdl-cell mdl-cell--4-col">{{checks.page}}</p>
-      <a id="next" class="mdl-cell mdl-cell--4-col" href="#">&gt;</a>
+    <div id="pagination" class="mdl-cell mdl-cell--12-col mdl-grid">
+      <div class="mdl-cell mdl-cell--4-col">
+        <a id="previous" href="#" style="display: none">
+          <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_left</i>
+        </a>
+      </div>
+      {% if checks.next_num %}
+      <div class="mdl-cell mdl-cell--4-col" style="text-align: center;">
+        <span id="page" >{{checks.page}}</span>
+      </div>
+      <div class="mdl-cell mdl-cell--4-col" style="text-align: right;">
+        <a id="next" href="#">
+          <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_right</i>
+        </a>
+      </div>
+      {% endif%}
     </div>
 
     <script>

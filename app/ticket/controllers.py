@@ -320,7 +320,7 @@ def filter_tickets():
         page = int(request.args.get('page'))
 
     sitename = request.args.get('site')
-    print(sitename)
+    
     access_allowed = check_valid_site(sitename)
 
     if sitename != None and access_allowed:
