@@ -104,8 +104,8 @@
               </th>
             </tr>
           </thead>
-          <tbody>
-            {% for ticket in tickets %}
+          <tbody id="tbody">
+            {% for ticket in tickets.items %}
               <tr>
                 <td class="mdl-data-table__cell--non-numeric">
                   {% if ticket.date_due != None %}
@@ -134,6 +134,24 @@
             {% endfor %}
           </tbody>
         </table>
+
+        <div id="pagination" class="mdl-cell mdl-cell--12-col mdl-grid">
+          <div class="mdl-cell mdl-cell--4-col">
+            <a id="previous" href="#" style="display: none">
+              <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_left</i>
+            </a>
+          </div>
+          {% if tickets.next_num %}
+          <div class="mdl-cell mdl-cell--4-col" style="text-align: center;">
+            <span id="page" >{{tickets.page}}</span>
+          </div>
+          <div class="mdl-cell mdl-cell--4-col" style="text-align: right;">
+            <a id="next" href="#">
+              <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_right</i>
+            </a>
+          </div>
+          {% endif%}
+        </div>
       </div>
     </div>
   </div>
@@ -176,5 +194,44 @@
       $(window).resize(function(){
          drawAnnotations();
       });
+  </script>
+
+  <script>
+    $(document).ready(function(){
+      $("a#previous").click(function(e){
+        e.preventDefault();
+        $.get("/filter_open_tickets", {page: (parseInt($("#page").html()) - 1),
+                                      site: "{{site}}"},
+        function(data){
+          $("#tbody").html(data['results']);
+          $("#page").html(data['page']);
+          var page_number = $('page_number').data()
+          if (data['page'] == 1){
+            $('#previous').hide()
+          }
+          if (data['page'] != data['pages']){
+            $('#next').show()
+          }
+        });
+      });
+    });
+
+    $(document).ready(function(){
+      $("a#next").click(function(e){
+        e.preventDefault();
+        $.get("/filter_open_tickets", {page: (parseInt($("#page").html()) + 1),
+                                  site: "{{site}}"},
+        function(data){
+          $("#tbody").html(data['results']);
+          $("#page").html(data['page']);
+          if (data['page'] == data['pages']){
+            $('#next').hide()
+          }
+          if (data['page'] != 1) {
+            $('#previous').show()
+          }
+        });
+      });
+    });
   </script>
 {% endblock %}

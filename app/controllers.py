@@ -88,6 +88,12 @@ def dashboard_all():
     else:
         sites = current_user.sites
 
+    PER_PAGE = 4
+    if request.args.get('page') == None:
+        page = 1
+    else:
+        page = int(request.args.get('page'))
+
     tickets = FlicketTicket.query.all()
     # sqlalchemy can't do relationship filtering to see if an attribute is in a list of objects (e.g. to see if asset.site is in sites)
     # instead, we do the filtering on the ids (e.g. to see if asset.site.id is in the list of site ids)
@@ -139,11 +145,25 @@ def dashboard_all():
         low_health_assets = []
         nalarms = []
 
-    open_tickets = FlicketTicket.query.filter(FlicketTicket.current_status.has(FlicketStatus.status == "Open")).all()
-    ticket_num = len(open_tickets)
+    open_tickets = FlicketTicket.query.filter(FlicketTicket.current_status.has(FlicketStatus.status == "Open"))
+    ticket_num = len(open_tickets.all())
+    open_tickets = open_tickets.order_by(FlicketTicket.date_added.desc()).paginate(page, PER_PAGE, False)
     # only send results[0:5], to display the top 5 priority issues in the list
     return render_template('dashboard.html', results=results[0:5], num_results=num_results, top_priority=top_priority, avg_health=avg_health, low_health_assets=low_health_assets, alarmcount=nalarms, tickets=open_tickets, ticket_num=ticket_num)
 
+@app.route('/filter_open_tickets')
+def filter_open_tickets():
+    PER_PAGE = 4
+    if request.args.get('page') == None:
+        page = 1
+    else:
+        page = int(request.args.get('page'))
+
+    open_tickets = FlicketTicket.query.filter(FlicketTicket.current_status.has(FlicketStatus.status == "Open"))
+    open_tickets = open_tickets.order_by(FlicketTicket.date_added.desc()).paginate(page, PER_PAGE, False)
+
+    return jsonify({"results":render_template('flicket/open_ticket_table_template.html', tickets=open_tickets),
+                    "page": page})
 # list all sites that are attached to the logged in user
 @app.route('/site/all/sites')
 def site_list():
@@ -824,7 +844,7 @@ def site_project_ITP(sitename, projectname, ITPname):
         if deliverable.percentage_complete > 0 and deliverable.percentage_complete < 100:
             deliverable.status = "In Progress"
         elif deliverable.percentage_complete == 100:
-            delvierable.status = "Completed"
+            deliverable.status = "Completed"
         else:
             deliverable.status = "Not Started"
     if total != 0:
@@ -933,7 +953,7 @@ def site_project_ITP_deliverable_list(sitename, projectname, ITPname):
         if percent > 0 and percent < 100:
             deliverable.status = "In Progress"
         elif percent == 100:
-            delvierable.status = "Completed"
+            deliverable.status = "Completed"
         else:
             deliverable.status = "Not Started"
         db.session.commit()

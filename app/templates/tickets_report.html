@@ -21,27 +21,39 @@
   </head>
 
   <body>
+    <style>
+      table {
+        border-collapse: collapse;
+        color: #333;
+        margin: auto;
+      }
+
+      td, th {
+        border: 1px solid #ccc;
+        padding: 0.5em;
+      }
+    </style>
     <h2 style="text-align:center">Tickets </h2>
-      <table class="mdl-data-table mdl-js-data-table" style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
+      <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
         <thead>
           <tr>
-            <th class="mdl-data-table__cell--non-numeric">Name</th>
-            <th class="mdl-data-table__cell--non-numeric">Description</th>
-            <th class="mdl-data-table__cell--non-numeric">Status</th>
-            <th class="mdl-data-table__cell--non-numeric">Created By</th>
-            <th class="mdl-data-table__cell--non-numeric">Creation Date</th>
-            <th class="mdl-data-table__cell--non-numeric">Assigned To</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Created By</th>
+            <th>Creation Date</th>
+            <th>Assigned To</th>
           </tr>
         </thead>
         <tbody>
           {% for ticket in tickets %}
             <tr>
-              <td class="mdl-data-table__cell--non-numeric">{{ticket.ticket_name}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{ticket.description}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{ticket.current_status.status}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{ticket.user.first_name}} {{ticket.user.last_name}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{ticket.date_added}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{ticket.assigned.first_name}} {{ticket.assigned.last_name}}</td>
+              <td>{{ticket.ticket_name}}</td>
+              <td>{{ticket.description}}</td>
+              <td>{{ticket.current_status.status}}</td>
+              <td>{{ticket.user.first_name}} {{ticket.user.last_name}}</td>
+              <td>{{ticket.date_added}}</td>
+              <td>{{ticket.assigned.first_name}} {{ticket.assigned.last_name}}</td>
             </tr>
         {% endfor %}
         </tbody>
