@@ -14,11 +14,12 @@ def report_page(sitename):
 
 # provide a url to download a report for an ITP
 @app.route('/site/<siteid>/projects/<projectid>/ITP/<ITPid>/report')
-def ITC_report_page(siteid, projectid, ITPid):
+def ITP_report_page(siteid, projectid, ITPid):
     site = Site.query.filter_by(id=siteid).first()
     project = Project.query.filter_by(id=projectid).first()
     project_ITP = ITP.query.filter_by(id=ITPid).first()
     deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id).all()
+    # image = flask_weasyprint.default_url_fetcher("/static/img/logo-schneider-electric.png")
 
     ITCs = []
     for deliverable in deliverables:

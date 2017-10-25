@@ -35,29 +35,35 @@
     </style>
     <h2 style="text-align:center">Inspection and Test Check list - {{ITC.ITC.name}}</h2>
     <br>
-    <h4>Project Name:</h4> {{project.name}}
+    <h5>Project Name:</h5> {{project.name}}
     <br>
-    <h4>Job Number:</h4> {{project.job_number}}
+    <h5>Job Number:</h5> {{project.job_number}}
     <br>
-    <h4>Location:</h4> {{deliverable.location.name}}
+    <h5>Location:</h5> {{deliverable.location.name}}
     <br>
-    <h4>Deliverable Start Date:</h4>
+    <h5>Deliverable Start Date:</h5>
     {% if deliverable.start_date != none %}
       {{deliverable.start_date.strftime('%d-%m-%Y')}}
     {% endif %}
     <br>
-    <h4>Deliverable Completion Date:</h4>
+    <h5>Deliverable Completion Date:</h5>
     {% if deliverable.completion_date != none %}
       {{deliverable.completion_date.strftime('%d-%m-%Y')}}
     {% endif %}
     <br>
-    <h4>Assigned to:</h4> {{deliverable.assigned_to}}
+    <h5>Assigned to:</h5> {{deliverable.assigned_to}}
     <br>
     <p style="page-break-after: always"></p>
-      <h3>{{deliverable.name}} - {{deliverable.type.name}}</h3>
+      <h5>{{deliverable.name}} - {{deliverable.type.name}}</h5>
       <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
         <thead>
-          <tr>
+          <col style="width:25%">
+          <col style="width:13%">
+          <col style="width:14%">
+          <col style="width:13%">
+          <col style="width:14%">
+          <col style="width:21%">
+          <tr style="background: lightgray !important;">
             <th>Check Description</th>
             <th>Status</th>
             <th>Completed</th>
@@ -75,9 +81,13 @@
               <td>{{check.is_done}}</td>
               {% if check.user != none %}
                 <td>{{check.user.first_name}} {{check.user.last_name}}</td>
+              {% else %}
+                <td></td>
               {% endif %}
               {% if check.completion_datetime != none %}
                 <td>{{check.completion_datetime.strftime('%d-%m-%Y')}}</td>
+              {% else %}
+                <td></td>
               {% endif %}
               <td>{{check.comments}}</td>
             </tr>
