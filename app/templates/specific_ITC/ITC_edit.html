@@ -6,7 +6,7 @@
   <br>
 
   <div>
-    <form method="POST" action="{{url_for('site_project_ITP_deliverable_ITC_edit', sitename=site, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id, ITCid=ITC.id)}}">
+    <form method="POST" action="{{url_for('site_project_ITP_deliverable_ITC_edit', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id)}}">
       <input type="text" name="ITC_name" placeholder="ITC Name" class="mdl-textfield__input">
       <br>
       <input type="text" name="ITC_comment" placeholder="Give a description of the ITC" class="mdl-textfield__input">

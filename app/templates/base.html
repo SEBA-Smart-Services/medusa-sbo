@@ -109,7 +109,7 @@
                   <a class="mdl-navigation__link" href="/site/{{site.name}}/tickets">Tickets</a>
                   <a class="mdl-navigation__link" href="/site/{{site.name}}/assets">Assets</a>
                   <a class="mdl-navigation__link" href="/site/{{site.name}}/issues">Analytics</a>
-                  <a class="mdl-navigation__link" href="/site/{{site.name}}/projects">Projects</a>
+                  <a class="mdl-navigation__link" href="/site/{{site.id}}/projects">Projects</a>
                   <a class="mdl-navigation__link" href="/site/{{site.name}}/config">Settings</a>
                 </nav>
               {% endif %}
@@ -128,7 +128,7 @@
               <a class="mdl-navigation__link" href="/site/{{site.name}}/tickets">Tickets</a>
               <a class="mdl-navigation__link" href="/site/{{site.name}}/assets">Assets</a>
               <a class="mdl-navigation__link" href="/site/{{site.name}}/issues">Analytics</a>
-              <a class="mdl-navigation__link" href="{{ url_for('site_projects_list', sitename=site.name)}}">Projects</a>
+              <a class="mdl-navigation__link" href="{{ url_for('site_projects_list', siteid=site.id)}}">Projects</a>
               <a class="mdl-navigation__link" href="/site/{{site.name}}/config">Settings</a>
             {% else %}
               <a class="mdl-navigation__link" href="/site/all/dashboard">Dashboard</a>

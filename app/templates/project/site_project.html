@@ -9,7 +9,7 @@
 
       <div class="mdl-cell mdl-cell--1-col" style="margin-right: 0">
           <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="float: right;"
-          href="{{url_for('site_project_edit', sitename=site.name, projectname=project.name)}}">
+          href="{{url_for('site_project_edit', siteid=site.id, projectid=project.id)}}">
             <i class="material-icons">edit</i>
           </a>
       </div>
@@ -46,11 +46,11 @@
               <th class="mdl-data-table__cell--non-numeric">ITP</th>
               <td class="mdl-data-table__cell--non-numeric">
                 {% if ITP == None %}
-                  <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/new">
+                  <a href="{{url_for('site_project_ITP_new', siteid=site.id, projectid=project.id)}}">
                     Create a new Inspection and Test Plan
                   </a>
                 {% else %}
-                  <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}">
+                  <a href="{{url_for('site_project_ITP', siteid=site.id, projectid=project.id, ITPid=ITP.id)}}">
                     Inspection and Test Plan
                   </a>
                 {% endif %}
@@ -108,7 +108,7 @@
   </div>
 
   <div class="mdl-cell mdl-cell--6-col">
-    <form action="/site/{{site.name}}/projects">
+    <form action="{{url_for('site_projects_list', siteid=site.id)}}">
       <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
       </input>
     </form>

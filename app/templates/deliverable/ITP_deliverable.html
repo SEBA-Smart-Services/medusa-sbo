@@ -9,7 +9,8 @@
       </div>
 
       <div class="mdl-cell mdl-cell--1-col" style="margin-right: 0">
-        <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="float: right;" href="{{url_for('site_project_ITP_deliverable_edit', sitename=site.name, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id)}}">
+        <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="float: right;"
+        href="{{url_for('site_project_ITP_deliverable_edit', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}">
           <i class="material-icons">edit</i>
         </a>
       </div>
@@ -60,7 +61,7 @@
               <tr>
                 <th class="mdl-data-table__cell--non-numeric">ITC</th>
                 <td class="mdl-data-table__cell--non-numeric">
-                  <a href="{{url_for('site_project_ITP_deliverable_ITC_list', sitename=site.name, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id)}}">
+                  <a href="{{url_for('site_project_ITP_deliverable_ITC_list', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}">
                     {{deliverable.name}} - ITC list
                   </a>
                 </td>
@@ -127,7 +128,7 @@
             {% for ITC in ITCs %}
               <tr>
                 <td class="mdl-data-table__cell--non-numeric">
-                  <a href="{{url_for('ITC_testing', sitename=site.name, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id, ITCid=ITC.id)}}">
+                  <a href="{{url_for('ITC_testing', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id)}}">
                     {{ITC.ITC.name}}
                   </a>
                 </td>
@@ -135,10 +136,10 @@
                 <td class="mdl-data-table__cell--non-numeric">{{ITC.status}}</td>
                 <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %ITC.percentage_complete}}%</td>
                 <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
-                  <a href="{{url_for('site_project_ITP_deliverable_ITC_edit', sitename=site.name, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id, ITCid=ITC.id)}}">
+                  <a href="{{url_for('site_project_ITP_deliverable_ITC_edit', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id)}}">
                     Edit
                   </a>/
-                  <a href="{{url_for('site_project_ITP_deliverable_ITC_delete', sitename=site.name, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id, ITCid=ITC.id)}}">
+                  <a href="{{url_for('site_project_ITP_deliverable_ITC_delete', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id)}}">
                     Delete
                   </a>
                 </td>
@@ -149,7 +150,7 @@
       </div>
 
       <div>
-        <form action="{{url_for('site_project_ITP_deliverable_list', sitename=site.name, projectname=project.name, ITPname=ITP.name)}}">
+        <form action="{{url_for('site_project_ITP_deliverable_list', siteid=site.id, projectid=project.id, ITPid=ITP.id)}}">
           <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
           </input>
         </form>

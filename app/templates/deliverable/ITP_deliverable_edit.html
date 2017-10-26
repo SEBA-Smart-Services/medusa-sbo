@@ -10,7 +10,7 @@
   <br>
 
   <div>
-    <form action="{{url_for('site_project_ITP_deliverable_edit', sitename=site, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id)}}" method="POST">
+    <form action="{{url_for('site_project_ITP_deliverable_edit', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}" method="POST">
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
         <input type="text" name="deliverable_name" value="{{deliverable.name}}" class="mdl-textfield__input">
         <label class="mdl-textfield__label">Deliverable Name</label>
@@ -52,9 +52,9 @@
 
     <div>
       {% if referrer == 'deliverable' %}
-        <form action="{{url_for('site_project_ITP_deliverable_list', sitename=site.name, projectname=project.name, ITPname=ITP.name)}}" method="GET">
+        <form action="{{url_for('site_project_ITP_deliverable_list', siteid=site.id, projectid=project.id, ITPid=ITP.id)}}" method="GET">
       {% else %}
-        <form action="{{url_for('site_project_ITP_deliverable', sitename=site.name, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id)}}" method="GET">
+        <form action="{{url_for('site_project_ITP_deliverable', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}" method="GET">
       {% endif %}
         <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
         </input>
