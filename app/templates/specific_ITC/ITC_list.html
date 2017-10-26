@@ -19,7 +19,7 @@
     {% for ITC in ITCs %}
       <tr>
         <td class="mdl-data-table__cell--non-numeric">
-          <a href="/site/{{ site.name }}/projects/{{ project.name }}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.id}}/checks">
+          <a href="{{url_for('ITC_testing', sitename=site, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id, ITCid=ITC.id)}}">
             {{ITC.ITC.name}}
           </a>
         </td>
@@ -28,7 +28,7 @@
         <td class="mdl-data-table__cell--non-numeric">{{ITC.status}}</td>
         <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %ITC.percentage_complete}}%</td>
         <td class="mdl-data-table__cell--non-numeric">
-          <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.id}}/starttest">
+          <a href="{{url_for('start_ITC_testing', sitename=site, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id, ITCid=ITC.id)}}">
             Start testing
           </a>
         </td>
@@ -36,7 +36,7 @@
           <!-- <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.id}}/edit">
             Edit
           </a>/ -->
-          <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.id}}/delete">
+          <a href="{{url_for('site_project_ITP_deliverable_ITC_delete', sitename=site, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id, ITCid=ITC.id)}}">
             Delete
           </a>
         </td>
@@ -48,21 +48,21 @@
   <br>
   <div class="mdl-grid">
     <div class="mdl-cell mdl-cell--5-col">
-      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}">
+      <form action="{{url_for('site_project_ITP_deliverable', sitename=site, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id)}}">
         <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
         </input>
       </form>
     </div>
 
     <div class="mdl-cell mdl-cell--6-col">
-      <form action="/generic/ITC/new">
+      <form action="{{url_for('ITC_general_new')}}">
         <input type="submit" value="Create a New ITC" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
         </input>
       </form>
     </div>
 
     <div class="mdl-cell mdl-cell--1-col" style="float:right;">
-      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/add">
+      <form action="{{url_for('site_project_ITP_deliverable_ITC_add',sitename=site, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id)}}">
         <input type="submit" value="Add ITC" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
         </input>
       </form>

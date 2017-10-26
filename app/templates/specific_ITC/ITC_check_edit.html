@@ -6,7 +6,7 @@
   <br>
 
   <div>
-    <form action="/site/{{ site.name }}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.id}}/checks/{{check.id}}/edit" method="POST">
+    <form method="POST" action="{{url_for('site_project_ITP_deliverable_ITC_check_edit', sitename=site, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id, ITCid=ITC.id, checkid=check.id)}}">
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
         <input type="text" name="check_comment" value="{{check.ITC_check.check}}" class="mdl-textfield__input">
         <label class="mdl-textfield__label">Check Description</label>
@@ -39,7 +39,7 @@
     <br>
 
     <div>
-      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.id}}/checks" method="GET">
+      <form method="Get" action="{{url_for('ITC_testing', sitename=site, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id, ITCid=ITC.id)}}">
         <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
         </input>
       </form>

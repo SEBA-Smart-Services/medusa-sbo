@@ -10,7 +10,7 @@
   <h3 class="mdl-cell mdl-cell--11-col">Checks for {{ITC.ITC.name}}</h3>
 
   <div class="mdl-cell mdl-cell--1-col">
-    <a id="tooltip3" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" href="{{ url_for('checks_report_page', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id) }}" class="material-icons">
+    <a id="tooltip3" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" href="{{ url_for('checks_report_page', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id) }}">
       <div class="material-icons" style="height: 10px; width: 10px;">file_download</div>
       <div class = "mdl-tooltip" for = "tooltip3">Download Report</div>
     </a>
@@ -23,7 +23,7 @@
   <br>
 
   <div>
-    <form method="POST" action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITCid}}/check/change">
+    <form method="POST" action="{{url_for('site_project_ITP_deliverable_ITC_change', sitename=site, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id, ITCid=ITC.id)}}">
       <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
         <thead>
           <tr>
@@ -56,10 +56,10 @@
             <td class="mdl-data-table__cell--non-numeric">{{check.completion_datetime}}</td>
             <td class="mdl-data-table__cell--non-numeric">{{check.user}}</td>
             <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
-              <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.id}}/checks/{{check.id}}/edit">
+              <a href="{{url_for('site_project_ITP_deliverable_ITC_check_edit', sitename=site, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id, ITCid=ITC.id, checkid=check.id)}}">
                 Edit
               </a>/
-              <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC/{{ITC.id}}/checks/{{check.id}}/delete">
+              <a href="{{url_for('site_project_ITP_deliverable_ITC_check_delete', sitename=site, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id, ITCid=ITC.id, checkid=check.id)}}">
                 Delete
               </a>
             </td>
@@ -77,7 +77,7 @@
     {% if request.referrer != none %}
       {% if request.referrer.split('/')[-1].strip('?') == 'delete' or request.referrer.split('/')[-1].strip('?') == 'edit'
       or request.referrer.split('/')[-1].strip('?') == 'checks' %}
-        <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC">
+        <form method="Get" action="{{url_for('site_project_ITP_deliverable_ITC_list', sitename=site, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id)}}">
           <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
           </input>
         </form>
@@ -88,7 +88,7 @@
         </form>
       {% endif %}
     {% else %}
-      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/ITC">
+      <form method="Get" action="{{url_for('site_project_ITP_deliverable_ITC_list', sitename=site, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id)}}">
         <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
         </input>
       </form>

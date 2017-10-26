@@ -99,7 +99,7 @@
           {% for deliverable in deliverables %}
             <tr>
               <td class="mdl-data-table__cell--non-numeric">
-                <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}">
+                <a href="{{url_for('site_project_ITP_deliverable', sitename=site, projectname=project.name, ITPname=ITP.name, deliverableid=deliverable.id)}}">
                   {{deliverable.name}}
                 </a>
               </td>
@@ -134,7 +134,7 @@
             <tr>
               <td class="mdl-data-table__cell--non-numeric">{{ITC.id}}</td>
               <td class="mdl-data-table__cell--non-numeric">
-                <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{ITC.deliverable.name}}/ITC/{{ITC.id}}/checks">
+                <a href="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{ITC.deliverable.id}}/ITC/{{ITC.id}}/checks">
                   {{ITC.ITC.name}}
                 </a>
               </td>

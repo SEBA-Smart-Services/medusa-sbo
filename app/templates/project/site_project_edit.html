@@ -44,7 +44,11 @@
     <br>
 
     <div>
-      <form action="/site/{{ site.name }}/projects" method="GET">
+      {% if referrer == 'projects' %}
+        <form action="{{url_for('site_projects_list', sitename=site.name)}}" method="GET">
+      {% else %}
+        <form action="{{url_for('site_project', sitename=site.name, projectname=project.name)}}" method="GET">
+      {% endif %}
         <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
         </input>
       </form>

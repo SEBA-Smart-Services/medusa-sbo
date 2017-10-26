@@ -1,7 +1,20 @@
 {% extends "layout.html" %}
 {% block title %}- {{project.name}}{% endblock %}
 {% block content %}
-  <h3>Project</h3>
+  <div class="mdl-grid">
+    <div class="row flicket-row-title-main mdl-cell mdl-cell--12-col mdl-grid">
+      <div class="mdl-cell mdl-cell--11-col">
+        <h3>Project</h3>
+      </div>
+
+      <div class="mdl-cell mdl-cell--1-col" style="margin-right: 0">
+          <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="float: right;"
+          href="{{url_for('site_project_edit', sitename=site.name, projectname=project.name)}}">
+            <i class="material-icons">edit</i>
+          </a>
+      </div>
+    </div>
+  </div>
 
   <div class="mdl-grid">
     <div class="mdl-cell mdl-cell--6-col">
