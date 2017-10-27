@@ -8,7 +8,7 @@
 
           <div class="mdl-cell mdl-cell--1-col">
             {%if site is defined and site != None %}
-              <a id="tooltip1" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" href="{{ url_for('ticket_create', sitename=site.name) }}">
+              <a id="tooltip1" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" href="{{ url_for('ticket_create', siteid=site.id) }}">
                 <div class="material-icons">add</div>
                 <div class = "mdl-tooltip" for = "tooltip1">Create Ticket</div>
               </a>
@@ -166,7 +166,7 @@
                                     priority: $('#priorityfil option:selected').val(),
                                     category: $('#categoryfil option:selected').val(),
                                     status: $('#statusfil option:selected').val(),
-                                    site: "{{site}}"},
+                                    site: "{{site.id}}"},
           function(data){
             $("#tbody").html(data['results']);
             $("#page").html(data['page']);
@@ -191,7 +191,7 @@
                                     category: $('#categoryfil option:selected').val(),
                                     status: $('#statusfil option:selected').val(),
                                     page: (parseInt($("#page").html()) - 1),
-                                    site: "{{site}}"},
+                                    site: "{{site.id}}"},
           function(data){
             $("#tbody").html(data['results']);
             $("#page").html(data['page']);
@@ -214,7 +214,7 @@
                                     category: $('#categoryfil option:selected').val(),
                                     status: $('#statusfil option:selected').val(),
                                     page: (parseInt($("#page").html()) + 1),
-                                    site: "{{site}}"},
+                                    site: "{{site.id}}"},
           function(data){
             $("#tbody").html(data['results']);
             $("#page").html(data['page']);

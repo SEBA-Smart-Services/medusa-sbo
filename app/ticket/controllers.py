@@ -25,9 +25,9 @@ app.jinja_env.globals.update(display_post_box=display_post_box)
 
 
 #creating a ticket
-@app.route('/site/<sitename>/ticket/create', methods=['GET', 'POST'])
+@app.route('/site/<siteid>/ticket/create', methods=['GET', 'POST'])
 @app.route('/site/all/ticket/create', methods=['GET', 'POST'])
-def ticket_create(sitename=None, projectname=None, component=None, priority=None, category=None):
+def ticket_create(siteid=None, projectname=None, component=None, priority=None, category=None):
 
     form = CreateTicketForm(title=request.args.get('ticket_description'),
                             priority=request.args.get('priority'))
@@ -46,7 +46,7 @@ def ticket_create(sitename=None, projectname=None, component=None, priority=None
             date_due=None
         sitename = request.form['sitename']
 
-        site = Site.query.filter_by(name=sitename).one()
+        site = Site.query.filter_by(id=siteid).one()
         app.logger.info('new ticket for ' + sitename)
         app.logger.info('new ticket for ' + site.name)
         app.logger.info('new ticket for ' + str(site.id))
@@ -95,11 +95,10 @@ def ticket_create(sitename=None, projectname=None, component=None, priority=None
 
         return redirect(url_for('ticket_view', ticket_id=new_ticket.id))
 
-    print(sitename)
     print(request.args.get('site_id'))
 
-    if sitename != None:
-        site = Site.query.filter_by(name=sitename).first()
+    if siteid != None:
+        site = Site.query.filter_by(id=siteid).first()
         sites = None
         if projectname != None:
             project = Project.query.filter_by(name=projectname).first()
@@ -131,7 +130,7 @@ def ticket_create(sitename=None, projectname=None, component=None, priority=None
     )
 
 @app.route('/site/all/ticket/<ticket_id>/view', methods=['GET', 'POST'])
-def ticket_view(ticket_id, sitename=None, page=1):
+def ticket_view(ticket_id, siteid=None, page=1):
     # is ticket number legitimate
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
     site =  Site.query.filter_by(id=ticket.site_id).one()
@@ -226,18 +225,18 @@ def view_ticket_uploads(filename):
     return send_from_directory(path, filename)
 
 @app.route('/site/all/tickets', methods=['GET', 'POST'])
-@app.route('/site/<sitename>/tickets', methods=['GET', 'POST'])
-def tickets(sitename=None):
+@app.route('/site/<siteid>/tickets', methods=['GET', 'POST'])
+def tickets(siteid=None):
 
-    access_allowed = check_valid_site(sitename)
+    access_allowed = check_valid_site(siteid)
     PER_PAGE = 5
     if request.args.get('page') == None:
         page = 1
     else:
         page = int(request.args.get('page'))
 
-    if sitename != None and access_allowed:
-        site = Site.query.filter_by(name=sitename).first()
+    if siteid != None and access_allowed:
+        site = Site.query.filter_by(id=siteid).first()
         tickets = FlicketTicket.query.filter_by(site_id=site.id).order_by(FlicketTicket.date_added.desc()).paginate(page, PER_PAGE, False)
     elif current_user.has_role('admin'):
         site = None
@@ -245,8 +244,6 @@ def tickets(sitename=None):
     else:
         tickets = []
         #get all the tickets for a particular user
-        # for user_site in current_user.sites:
-        #     tickets += FlicketTicket.query.filter_by(site_id=user_site.id).order_by(FlicketTicket.date_added.desc()).paginate(page, PER_PAGE, False)
         tickets = FlicketTicket.query.filter(FlicketTicket.site_id.in_([user_site.id for user_site in current_user.sites]))
         tickets = tickets.order_by(FlicketTicket.date_added.desc()).paginate(page, PER_PAGE, False)
         site = None
@@ -319,12 +316,12 @@ def filter_tickets():
     else:
         page = int(request.args.get('page'))
 
-    sitename = request.args.get('site')
-    
-    access_allowed = check_valid_site(sitename)
+    siteid = request.args.get('site')
 
-    if sitename != None and access_allowed:
-        site = Site.query.filter_by(name=sitename).first()
+    access_allowed = check_valid_site(siteid)
+
+    if id != None and access_allowed:
+        site = Site.query.filter_by(id=siteid).first()
         tickets = FlicketTicket.query.filter_by(site_id=site.id)
     elif current_user.has_role('admin'):
         tickets = FlicketTicket.query

@@ -95,7 +95,7 @@ def dashboard_all():
     else:
         sites = current_user.sites
 
-    PER_PAGE = 6
+    PER_PAGE = 2
     if request.args.get('page') == None:
         page = 1
     else:
@@ -160,17 +160,29 @@ def dashboard_all():
 
 @app.route('/filter_open_tickets')
 def filter_open_tickets():
-    PER_PAGE = 6
+    PER_PAGE = 2
     if request.args.get('page') == None:
         page = 1
     else:
         page = int(request.args.get('page'))
 
+    siteid = request.args.get('siteid')
+    if siteid != None:
+        site = Site.query.filter_by(id=siteid).first()
+    else:
+        site = None
+    print(site)
+
     open_tickets = FlicketTicket.query.filter(FlicketTicket.current_status.has(FlicketStatus.status == "Open"))
+    if site != None:
+        open_tickets = open_tickets.filter_by(site_id=site.id)
     open_tickets = open_tickets.order_by(FlicketTicket.date_added.desc()).paginate(page, PER_PAGE, False)
 
+    pages = open_tickets.pages
+
     return jsonify({"results":render_template('flicket/open_ticket_table_template.html', tickets=open_tickets),
-                    "page": page})
+                    "page": page,
+                    "pages": pages})
 # list all sites that are attached to the logged in user
 @app.route('/site/all/sites')
 def site_list():
@@ -327,6 +339,13 @@ def homepage(sitename):
 # show site overview dashboard
 @app.route('/site/<sitename>/dashboard')
 def dashboard_site(sitename):
+
+    PER_PAGE = 2
+    if request.args.get('page') == None:
+        page = 1
+    else:
+        page = int(request.args.get('page'))
+
     site = Site.query.filter_by(name=sitename).first()
     # only show the top 5 issues by priority in the list
     results = site.get_unresolved_by_priority()[0:4]
@@ -373,8 +392,9 @@ def dashboard_site(sitename):
     open_tickets = FlicketTicket.query.filter(
         (FlicketTicket.current_status.has(FlicketStatus.status == "Open")) &
         (FlicketTicket.site_id == site.id)
-    ).all()
-    ticket_num = len(open_tickets)
+    )
+    ticket_num = len(open_tickets.all())
+    open_tickets = open_tickets.order_by(FlicketTicket.date_added.desc()).paginate(page, PER_PAGE, False)
 
     return render_template(
         'dashboard.html',
@@ -385,7 +405,7 @@ def dashboard_site(sitename):
         low_health_assets=low_health_assets,
         site=site,
         alarmcount=nalarms,
-        tickets=tickets,
+        tickets=open_tickets,
         ticket_num=ticket_num
     )
 
