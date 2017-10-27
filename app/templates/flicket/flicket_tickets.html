@@ -4,23 +4,25 @@
 
     <div class="mdl-layout">
         <div class="mdl-grid" style="margin: 0 !important">
-          <h3 class="mdl-cell mdl-cell--11-col">{{ title }}</h3>
+          <h3 class="mdl-cell mdl-cell--11-col mdl-cell--3-col-phone">{{ title }}</h3>
 
-          <div class="mdl-cell mdl-cell--1-col">
+          <div class="mdl-cell mdl-cell--1-col mdl-cell--1-col-phone">
             {%if site is defined and site != None %}
-              <a id="tooltip1" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" href="{{ url_for('ticket_create', siteid=site.id) }}">
+              <a id="tooltip1" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
+              href="{{ url_for('ticket_create', siteid=site.id) }}">
                 <div class="material-icons">add</div>
                 <div class = "mdl-tooltip" for = "tooltip1">Create Ticket</div>
               </a>
             {% else %}
-              <a id="tooltip1" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" href="{{ url_for('ticket_create') }}">
+              <a id="tooltip1" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
+              href="{{ url_for('ticket_create') }}">
                 <div class="material-icons">add</div>
                 <div class = "mdl-tooltip" for = "tooltip1">Create Ticket</div>
               </a>
             {% endif %}
           </div>
 
-          <div class="mdl-cell mdl-cell--1-col">
+          <div class="mdl-cell mdl-cell--1-col mdl-cell--3-col-phone">
             <a id="tooltip2" href="{{ url_for('tickets_report') }}">
               <div class="material-icons">file_download</div>
               <div class = "mdl-tooltip" for = "tooltip2">Download Report</div>
@@ -29,16 +31,16 @@
         </div>
 
         <div class="mdl-grid mdl-cell mdl-cell--12-col">
-          <div class="mdl-cell--1-col"></div>
+          <div class="mdl-cell--1-col mdl-cell--0-col-phone"></div>
 
-          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col">
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col mdl-cell--4-col-phone">
             <input type="text" id="namefil" class="form-control mdl-textfield__input">
             <label class="mdl-textfield__label">Ticket Title</label>
           </div>
 
-          <div class="mdl-cell--1-col"></div>
+          <div class="mdl-cell--1-col mdl-cell--0-col-phone"></div>
 
-          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col">
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col mdl-cell--4-col-phone">
             <label class="mdl-textfield__label">Search by Priority</label>
             <select id="priorityfil" class="form-control mdl-textfield__input">
               <option value="all">All</option>
@@ -48,9 +50,9 @@
             </select>
           </div>
 
-          <div class="mdl-cell--1-col"></div>
+          <div class="mdl-cell--1-col mdl-cell--0-col-phone"></div>
 
-          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col">
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col mdl-cell--4-col-phone">
             <label class="mdl-textfield__label">Search by category</label>
             <select id="categoryfil" class="form-control mdl-textfield__input">
               <option value="all">All</option>
@@ -60,9 +62,9 @@
             </select>
           </div>
 
-          <div class="mdl-cell--1-col"></div>
+          <div class="mdl-cell--1-col mdl-cell--0-col-phone"></div>
 
-          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col">
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col mdl-cell--4-col-phone">
             <label class="mdl-textfield__label">Search by Status</label>
             <select id="statusfil" class="form-control mdl-textfield__input">
               <option value="all">All</option>
@@ -73,84 +75,86 @@
           </div>
         </div>
 
-        <table id="myTable" class="mdl-data-table mdl-js-data-table mdl-cell mdl-cell--12-col">
-          <thead>
-            <tr>
-                <th class="mdl-data-table__cell--non-numeric">
-                    Ticket Name
-                </th>
-                <th class="mdl-data-table__cell--non-numeric">
-                    Priority
-                </th>
-                <th class="mdl-data-table__cell--non-numeric">
-                    Description
-                </th>
-                <th class="mdl-data-table__cell--non-numeric">
-                    Submitted By
-                </th>
-                <th class="mdl-data-table__cell--non-numeric">
-                    Date
-                </th>
-                <th class="mdl-data-table__cell--non-numeric">
-                    Replies
-                </th>
-                <th class="mdl-data-table__cell--non-numeric">
-                    Category
-                </th>
-                <th class="mdl-data-table__cell--non-numeric">
-                    Status
-                </th>
-                <th class="mdl-data-table__cell--non-numeric">
-                    Assigned
-                </th>
-            </tr>
-          </thead>
-          <tbody id="tbody">
-            {% for t in tickets.items %}
-                <tr {%- if t.current_status.status == 'Closed' %} class="success"{% endif %}>
-                    <td class="mdl-data-table__cell--non-numeric">
-                        <a href="{{ url_for('ticket_view', ticket_id = t.id) }}">{{ t.ticket_name }}</a>
-                    </td>
-                    <td class="mdl-data-table__cell--non-numeric">
-                        {{ t.ticket_priority.priority }}
-                    </td>
-                    <td class="mdl-data-table__cell--non-numeric">
-                        {{ t.description }}
-                    </td>
-                    <td class="mdl-data-table__cell--non-numeric">
-                        {{ t.user.first_name }} {{ t.user.last_name }}
-                    </td>
-                    <td class="mdl-data-table__cell--non-numeric">
-                        {{ t.date_added.strftime('%Y-%m-%d') }}
-                    </td>
-                    <td class="mdl-data-table__cell--non-numeric">
-                        {{ t.num_replies }}
-                    </td>
-                    <td class="mdl-data-table__cell--non-numeric">
-                        {{ t.category.category }}
-                    </td>
-                    <td class="mdl-data-table__cell--non-numeric">
-                        {{ t.current_status.status }}
-                    </td>
-                    <td class="mdl-data-table__cell--non-numeric">
-                        {{ t.assigned.first_name }} {{ t.assigned.last_name }}
-                    </td>
-                </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div class="table-responsive">
+          <table id="myTable" class="mdl-data-table mdl-js-data-table mdl-cell mdl-cell--12-col">
+            <thead>
+              <tr>
+                  <th class="mdl-data-table__cell--non-numeric">
+                      Ticket Name
+                  </th>
+                  <th class="mdl-data-table__cell--non-numeric">
+                      Priority
+                  </th>
+                  <th class="mdl-data-table__cell--non-numeric">
+                      Description
+                  </th>
+                  <th class="mdl-data-table__cell--non-numeric">
+                      Submitted By
+                  </th>
+                  <th class="mdl-data-table__cell--non-numeric">
+                      Date
+                  </th>
+                  <th class="mdl-data-table__cell--non-numeric">
+                      Replies
+                  </th>
+                  <th class="mdl-data-table__cell--non-numeric">
+                      Category
+                  </th>
+                  <th class="mdl-data-table__cell--non-numeric">
+                      Status
+                  </th>
+                  <th class="mdl-data-table__cell--non-numeric">
+                      Assigned
+                  </th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              {% for t in tickets.items %}
+                  <tr {%- if t.current_status.status == 'Closed' %} class="success"{% endif %}>
+                      <td class="mdl-data-table__cell--non-numeric">
+                          <a href="{{ url_for('ticket_view', ticket_id = t.id) }}">{{ t.ticket_name }}</a>
+                      </td>
+                      <td class="mdl-data-table__cell--non-numeric">
+                          {{ t.ticket_priority.priority }}
+                      </td>
+                      <td class="mdl-data-table__cell--non-numeric">
+                          {{ t.description }}
+                      </td>
+                      <td class="mdl-data-table__cell--non-numeric">
+                          {{ t.user.first_name }} {{ t.user.last_name }}
+                      </td>
+                      <td class="mdl-data-table__cell--non-numeric">
+                          {{ t.date_added.strftime('%Y-%m-%d') }}
+                      </td>
+                      <td class="mdl-data-table__cell--non-numeric">
+                          {{ t.num_replies }}
+                      </td>
+                      <td class="mdl-data-table__cell--non-numeric">
+                          {{ t.category.category }}
+                      </td>
+                      <td class="mdl-data-table__cell--non-numeric">
+                          {{ t.current_status.status }}
+                      </td>
+                      <td class="mdl-data-table__cell--non-numeric">
+                          {{ t.assigned.first_name }} {{ t.assigned.last_name }}
+                      </td>
+                  </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
 
         <div id="pagination" class="mdl-cell mdl-cell--12-col mdl-grid">
-          <div class="mdl-cell mdl-cell--4-col">
+          <div class="mdl-cell mdl-cell--4-col mdl-cell--1-col-phone">
             <a id="previous" href="#" style="display: none">
               <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_left</i>
             </a>
           </div>
           {% if tickets.next_num %}
-          <div class="mdl-cell mdl-cell--4-col" style="text-align: center;">
+          <div class="mdl-cell mdl-cell--4-col mdl-cell--2-col-phone" style="text-align: center;">
             <span id="page" >{{tickets.page}}</span>
           </div>
-          <div class="mdl-cell mdl-cell--4-col" style="text-align: right;">
+          <div class="mdl-cell mdl-cell--4-col mdl-cell--1-col-phone" style="text-align: right;">
             <a id="next" href="#">
               <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_right</i>
             </a>

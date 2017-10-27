@@ -2,9 +2,9 @@
 {% block title %}- {{project.name}}{% endblock %}
 {% block content %}
   <div class="mdl-grid">
-    <h3 class="mdl-cell mdl-cell--11-col">Inspection and Test Plan</h3>
+    <h3 class="mdl-cell mdl-cell--11-col mdl-cell--3-col-phone">Inspection and Test Plan</h3>
 
-    <div class="mdl-cell mdl-cell--1-col">
+    <div class="mdl-cell mdl-cell--1-col mdl-cell--1-col-phone">
       <a id="tooltip1" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
       href="{{url_for('site_project_ITP_edit', siteid=site.id, projectid=project.id, ITPid=ITP.id)}}">
         <div class="material-icons" style="height: 10px; width: 10px;">edit</div>
@@ -12,15 +12,15 @@
       </a>
     </div>
 
-    <div class="mdl-cell mdl-cell--3-col mdl-grid" style="margin: 0px 0px 0px 0px">
-      <div class="mdl-cell mdl-cell--2-col">
+    <div class="mdl-cell mdl-cell--3-col mdl-grid mdl-cell--4-col-phone" style="margin: 0px 0px 0px 0px">
+      <div class="mdl-cell mdl-cell--2-col mdl-cell--1-col-phone">
         <a id="tooltip2" href="{{url_for('site_project_ITP_delete', siteid=site.id, projectid=project.id, ITPid=ITP.id)}}">
           <div class="material-icons">delete</div>
           <div class = "mdl-tooltip" for = "tooltip2">Delete</div>
         </a>
       </div>
 
-      <div class="mdl-cell mdl-cell--2-col">
+      <div class="mdl-cell mdl-cell--2-col mdl-cell--1-col-phone">
         <a id="tooltip3" href="{{ url_for('ITP_report_page', siteid=site.id, projectid=project.id, ITPid=ITP.id) }}">
           <div class="material-icons">file_download</div>
           <div class = "mdl-tooltip" for = "tooltip3">Download Report</div>
@@ -35,50 +35,52 @@
         <div class="mdl-card__title">
           <h2 class="mdl-card__title-text">Details</h2>
         </div>
-        <table class="mdl-data-table mdl-js-data-table" style="width:100%;table-layout:fixed;white-space: normal;">
-          <tbody>
-            <tr>
-              <th class="mdl-data-table__cell--non-numeric">Job number</th>
-              <td class="mdl-data-table__cell--non-numeric">#{{project.job_number}}</td>
-            </tr>
-            <tr>
-              <th class="mdl-data-table__cell--non-numeric">ITP name</th>
-              <td class="mdl-data-table__cell--non-numeric">{{ITP.name}}</td>
-            </tr>
-            <tr>
-              <th class="mdl-data-table__cell--non-numeric">Start Date</th>
-              <td class="mdl-data-table__cell--non-numeric">{{project.start_date.strftime('%d-%m-%Y')}}</td>
-            </tr>
-            <tr>
-              <th class="mdl-data-table__cell--non-numeric">Completion Date</th>
-              {% if project.completion_datetime != none %}
-                <td class="mdl-data-table__cell--non-numeric">{{project.completion_datetime}}</td>
-              {% endif %}
-            </tr>
-            <tr>
-              <th class="mdl-data-table__cell--non-numeric">Assigned To</th>
-              <td class="mdl-data-table__cell--non-numeric">{{project.assigned_to}}</td>
-            </tr>
-            <tr>
-              <th class="mdl-data-table__cell--non-numeric">Inspection and Test Checks Completed</th>
-              <td class="mdl-data-table__cell--non-numeric">{{totals[1]}}/{{totals[0]}}</td>
-            </tr>
-            <tr>
-              <th class="mdl-data-table__cell--non-numeric">Deliverables</th>
-              <td class="mdl-data-table__cell--non-numeric">
-                {% if ITP == None %}
-                  <a href="{{url_for('site_project_ITP_deliverable_new', siteid=site.id, projectid=project.id, ITPid=ITP.id)}}">
-                    Create a new Deliverable
-                  </a>
-                {% else %}
-                  <a href="{{url_for('site_project_ITP_deliverable_list', siteid=site.id, projectid=project.id, ITPid=ITP.id)}}">
-                    Deliverables
-                  </a>
+        <div class="table-responsive">
+          <table class="mdl-data-table mdl-js-data-table" style="width:100%;table-layout:fixed;white-space: normal;">
+            <tbody>
+              <tr>
+                <th class="mdl-data-table__cell--non-numeric">Job number</th>
+                <td class="mdl-data-table__cell--non-numeric">#{{project.job_number}}</td>
+              </tr>
+              <tr>
+                <th class="mdl-data-table__cell--non-numeric">ITP name</th>
+                <td class="mdl-data-table__cell--non-numeric">{{ITP.name}}</td>
+              </tr>
+              <tr>
+                <th class="mdl-data-table__cell--non-numeric">Start Date</th>
+                <td class="mdl-data-table__cell--non-numeric">{{project.start_date.strftime('%d-%m-%Y')}}</td>
+              </tr>
+              <tr>
+                <th class="mdl-data-table__cell--non-numeric">Completion Date</th>
+                {% if project.completion_datetime != none %}
+                  <td class="mdl-data-table__cell--non-numeric">{{project.completion_datetime}}</td>
                 {% endif %}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </tr>
+              <tr>
+                <th class="mdl-data-table__cell--non-numeric">Assigned To</th>
+                <td class="mdl-data-table__cell--non-numeric">{{project.assigned_to}}</td>
+              </tr>
+              <tr>
+                <th class="mdl-data-table__cell--non-numeric">Inspection and Test Checks Completed</th>
+                <td class="mdl-data-table__cell--non-numeric">{{totals[1]}}/{{totals[0]}}</td>
+              </tr>
+              <tr>
+                <th class="mdl-data-table__cell--non-numeric">Deliverables</th>
+                <td class="mdl-data-table__cell--non-numeric">
+                  {% if ITP == None %}
+                    <a href="{{url_for('site_project_ITP_deliverable_new', siteid=site.id, projectid=project.id, ITPid=ITP.id)}}">
+                      Create a new Deliverable
+                    </a>
+                  {% else %}
+                    <a href="{{url_for('site_project_ITP_deliverable_list', siteid=site.id, projectid=project.id, ITPid=ITP.id)}}">
+                      Deliverables
+                    </a>
+                  {% endif %}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -87,30 +89,32 @@
         <div class="mdl-card__title">
           <h2 class="mdl-card__title-text">Deliverable List</h2>
         </div>
-        <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
-          <thead>
-            <tr>
-              <th class="mdl-data-table__cell--non-numeric">Name</th>
-              <th class="mdl-data-table__cell--non-numeric">Type</th>
-              <th class="mdl-data-table__cell--non-numeric">Status</th>
-              <th class="mdl-data-table__cell--non-numeric">Complete</th>
-            </tr>
-          </thead>
-          <tbody>
-          {% for deliverable in deliverables %}
-            <tr>
-              <td class="mdl-data-table__cell--non-numeric">
-                <a href="{{url_for('site_project_ITP_deliverable', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}">
-                  {{deliverable.name}}
-                </a>
-              </td>
-              <td class="mdl-data-table__cell--non-numeric">{{deliverable.type}}</th>
-              <td class="mdl-data-table__cell--non-numeric">{{deliverable.status}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %deliverable.percentage_complete}}%</td>
-            </tr>
-          {% endfor %}
-          </tbody>
-        </table>
+        <div class="table-responsive">
+          <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+            <thead>
+              <tr>
+                <th class="mdl-data-table__cell--non-numeric">Name</th>
+                <th class="mdl-data-table__cell--non-numeric">Type</th>
+                <th class="mdl-data-table__cell--non-numeric">Status</th>
+                <th class="mdl-data-table__cell--non-numeric">Complete</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for deliverable in deliverables %}
+              <tr>
+                <td class="mdl-data-table__cell--non-numeric">
+                  <a href="{{url_for('site_project_ITP_deliverable', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}">
+                    {{deliverable.name}}
+                  </a>
+                </td>
+                <td class="mdl-data-table__cell--non-numeric">{{deliverable.type}}</th>
+                <td class="mdl-data-table__cell--non-numeric">{{deliverable.status}}</td>
+                <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %deliverable.percentage_complete}}%</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -119,38 +123,40 @@
         <div class="mdl-card__title">
           <h2 class="mdl-card__title-text">Inspection and Testing Checks</h2>
         </div>
-        <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
-          <thead>
-            <tr>
-              <th class="mdl-data-table__cell--non-numeric">ID</th>
-              <th class="mdl-data-table__cell--non-numeric">Name</th>
-              <th class="mdl-data-table__cell--non-numeric">Deliverable Name</th>
-              <th class="mdl-data-table__cell--non-numeric">Type</th>
-              <th class="mdl-data-table__cell--non-numeric">Status</th>
-              <th class="mdl-data-table__cell--non-numeric">Complete</th>
-            </tr>
-          </thead>
-          <tbody>
-          {% for ITC in ITCs %}
-            <tr>
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.id}}</td>
-              <td class="mdl-data-table__cell--non-numeric">
-                <a href="{{url_for('ITC_testing', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=ITC.deliverable.id, ITCid=ITC.id)}}">
-                  {{ITC.ITC.name}}
-                </a>
-              </td>
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.deliverable.name}}</td>
-              {% if ITC.ITC.deliverable_type %}
-                <td class="mdl-data-table__cell--non-numeric">{{ITC.ITC.deliverable_type.name}}</td>
-              {% else %}
-                <td class="mdl-data-table__cell--non-numeric">no deliverable_type</td>
-              {% endif %}
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.status}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %ITC.percentage_complete}}%</td>
-            </tr>
-          {% endfor %}
-          </tbody>
-        </table>
+        <div class="table-responsive">
+          <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+            <thead>
+              <tr>
+                <th class="mdl-data-table__cell--non-numeric">ID</th>
+                <th class="mdl-data-table__cell--non-numeric">Name</th>
+                <th class="mdl-data-table__cell--non-numeric">Deliverable Name</th>
+                <th class="mdl-data-table__cell--non-numeric">Type</th>
+                <th class="mdl-data-table__cell--non-numeric">Status</th>
+                <th class="mdl-data-table__cell--non-numeric">Complete</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for ITC in ITCs %}
+              <tr>
+                <td class="mdl-data-table__cell--non-numeric">{{ITC.id}}</td>
+                <td class="mdl-data-table__cell--non-numeric">
+                  <a href="{{url_for('ITC_testing', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=ITC.deliverable.id, ITCid=ITC.id)}}">
+                    {{ITC.ITC.name}}
+                  </a>
+                </td>
+                <td class="mdl-data-table__cell--non-numeric">{{ITC.deliverable.name}}</td>
+                {% if ITC.ITC.deliverable_type %}
+                  <td class="mdl-data-table__cell--non-numeric">{{ITC.ITC.deliverable_type.name}}</td>
+                {% else %}
+                  <td class="mdl-data-table__cell--non-numeric">no deliverable_type</td>
+                {% endif %}
+                <td class="mdl-data-table__cell--non-numeric">{{ITC.status}}</td>
+                <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %ITC.percentage_complete}}%</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>

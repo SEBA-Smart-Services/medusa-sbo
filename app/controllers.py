@@ -95,7 +95,7 @@ def dashboard_all():
     else:
         sites = current_user.sites
 
-    PER_PAGE = 2
+    PER_PAGE = 6
     if request.args.get('page') == None:
         page = 1
     else:
@@ -160,7 +160,7 @@ def dashboard_all():
 
 @app.route('/filter_open_tickets')
 def filter_open_tickets():
-    PER_PAGE = 2
+    PER_PAGE = 6
     if request.args.get('page') == None:
         page = 1
     else:
@@ -339,8 +339,7 @@ def homepage(sitename):
 # show site overview dashboard
 @app.route('/site/<sitename>/dashboard')
 def dashboard_site(sitename):
-
-    PER_PAGE = 2
+    PER_PAGE = 6
     if request.args.get('page') == None:
         page = 1
     else:
@@ -739,10 +738,12 @@ def site_project(siteid, projectid):
             ITC_totals = [total_ITC, ITC_complete, ITC_in_progress, ITC_not_applicable, ITC_not_started]
         else:
             percents = [0,0,0,0]
-            totals = [0,0,0,0]
+            totals = [0,0,0,0,0]
+            ITC_totals = [0,0,0,0,0]
     else:
         percents = [0,0,0,0]
-        totals = [0,0,0,0]
+        totals = [0,0,0,0,0]
+        ITC_totals = [0,0,0,0,0]
 
     return render_template('project/site_project.html', site=site, project=project, ITP=project_ITP, percents=percents, totals=ITC_totals)
 

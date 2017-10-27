@@ -6,7 +6,7 @@
   </p>
 
   <div class="mdl-grid">
-    <div class="mdl-cell mdl-cell--4-col" style="text-align: left;">
+    <div class="mdl-cell mdl-cell--4-col mdl-cell--1-col-phone" style="text-align: left;">
       {% if page_number > 1 %}
         {% if site == None %}
           <a href="{{ url_for('alarm_list_paged', sitename='all', page_number=page_number-1) }}" >
@@ -17,10 +17,10 @@
       </a>
       {% endif %}
     </div>
-    <div class="mdl-cell mdl-cell--4-col" style="text-align: center;">
+    <div class="mdl-cell mdl-cell--4-col mdl-cell--2-col-phone" style="text-align: center;">
       <span >{{ page_number }}</span>
     </div>
-    <div class="mdl-cell mdl-cell--4-col" style="text-align: right;">
+    <div class="mdl-cell mdl-cell--4-col mdl-cell--1-col-phone" style="text-align: right;">
       {% if site == None %}
         <a href="{{ url_for('alarm_list_paged', sitename='all', page_number=page_number+1) }}" >
       {% else %}
@@ -31,7 +31,7 @@
     </div>
   </div>
 
-  <div class="">
+  <div class="table-responsive">
     <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp full-width">
       <thead>
         <tr>
@@ -68,7 +68,7 @@
   </div>
 
   <div class="mdl-grid">
-    <div class="mdl-cell mdl-cell--4-col" style="text-align: left;">
+    <div class="mdl-cell mdl-cell--4-col mdl-cell--1-col-phone" style="text-align: left;">
       {% if page_number > 1 %}
         {% if site == None %}
           <a href="{{ url_for('alarm_list_paged', sitename='all', page_number=page_number-1) }}" >
@@ -79,10 +79,10 @@
       </a>
       {% endif %}
     </div>
-    <div class="mdl-cell mdl-cell--4-col" style="text-align: center;">
+    <div class="mdl-cell mdl-cell--4-col mdl-cell--2-col-phone" style="text-align: center;">
       <span >{{ page_number }}</span>
     </div>
-    <div class="mdl-cell mdl-cell--4-col" style="text-align: right;">
+    <div class="mdl-cell mdl-cell--4-col mdl-cell--1-col-phone" style="text-align: right;">
       {% if site == None %}
         <a href="{{ url_for('alarm_list_paged', sitename='all', page_number=page_number+1) }}" >
       {% else %}

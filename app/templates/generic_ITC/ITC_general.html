@@ -1,9 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="mdl-grid">
-  <h3 class="mdl-cell mdl-cell--11-col">Generic ITC list</h3>
+  <h3 class="mdl-cell mdl-cell--11-col mdl-cell--3-col-phone">Generic ITC list</h3>
 
-  <div class="mdl-cell mdl-cell--1-col">
+  <div class="mdl-cell mdl-cell--1-col mdl-cell--1-col-phone">
     <a id="tooltip1" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" href="/generic/ITC/new">
       <div class="material-icons" style="height: 10px; width: 10px;">add</div>
       <div class = "mdl-tooltip" for = "tooltip1">New ITC Template</div>
@@ -12,16 +12,16 @@
 </div>
 
 <div class="mdl-grid">
-  <div class="mdl-cell--2-col"></div>
+  <div class="mdl-cell--2-col mdl-cell--0-col-phone"></div>
 
-  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--3-col">
+  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--3-col mdl-cell--4-col-phone">
     <input type="text" id="namefil" class="form-control mdl-textfield__input">
     <label class="mdl-textfield__label">ITC Title</label>
   </div>
 
-  <div class="mdl-cell--2-col"></div>
+  <div class="mdl-cell--2-col mdl-cell--0-col-phone"></div>
 
-  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--3-col">
+  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--3-col mdl-cell--4-col-phone">
     <label class="mdl-textfield__label">Search by Deliverable Type</label>
     <select id="deltypefil" class="form-control mdl-textfield__input">
       <option value="all">All</option>
@@ -31,7 +31,7 @@
     </select>
   </div>
 
-  <div class="mdl-cell--2-col"></div>
+  <div class="mdl-cell--2-col mdl-cell--0-col-phone"></div>
 </div>
 
 <div class="mdl-cell mdl-cell--12-col mdl-grid">
@@ -66,16 +66,16 @@
   </table>
 
   <div id="pagination" class="mdl-cell mdl-cell--12-col mdl-grid">
-    <div class="mdl-cell mdl-cell--4-col">
+    <div class="mdl-cell mdl-cell--4-col mdl-cell--1-col-phone">
       <a id="previous" href="#" style="display: none">
         <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_left</i>
       </a>
     </div>
     {% if ITCs.next_num %}
-    <div class="mdl-cell mdl-cell--4-col" style="text-align: center;">
+    <div class="mdl-cell mdl-cell--4-col mdl-cell--2-col-phone" style="text-align: center;">
       <span id="page" >{{ITCs.page}}</span>
     </div>
-    <div class="mdl-cell mdl-cell--4-col" style="text-align: right;">
+    <div class="mdl-cell mdl-cell--4-col mdl-cell--1-col-phone" style="text-align: right;">
       <a id="next" href="#">
         <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_right</i>
       </a>
@@ -85,10 +85,13 @@
 </div>
 
 <div class="mdl-cell mdl-cell--12-col mdl-grid">
-  <form action="/generic" method="GET">
-    <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
-    </input>
-  </form>
+  <div class="mdl-cell mdl-cell--1-col-phone"></div>
+  <div class="mdl-cell mdl-cell--2-col-phone">
+    <form action="/generic" method="GET">
+      <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+      </input>
+    </form>
+  </div>
 </div>
 
 <script>

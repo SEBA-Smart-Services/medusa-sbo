@@ -7,21 +7,21 @@
   <div class="mdl-grid mdl-cell mdl-cell--12-col">
     <div class="mdl-cell--1-col"></div>
 
-    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col">
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col mdl-cell--4-col-phone">
       <input type="text" id="namefil" class="form-control mdl-textfield__input">
       <label class="mdl-textfield__label">Project Name</label>
     </div>
 
     <div class="mdl-cell--1-col"></div>
 
-    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col">
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col mdl-cell--4-col-phone">
       <input type="text" id="projectnumfil" class="form-control mdl-textfield__input">
       <label class="mdl-textfield__label">Project Number</label>
     </div>
 
     <div class="mdl-cell--1-col"></div>
 
-    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col">
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col mdl-cell--4-col-phone">
       <label class="mdl-textfield__label">Search by Site</label>
       <select id="sitefil" class="form-control mdl-textfield__input">
         <option value="all">All</option>
@@ -33,7 +33,7 @@
 
     <div class="mdl-cell--1-col"></div>
 
-    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col">
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col mdl-cell--4-col-phone">
       <label class="mdl-textfield__label">Search by First Name</label>
       <select id="assignfil" class="form-control mdl-textfield__input">
         <option value="all">All</option>
@@ -44,8 +44,7 @@
     </div>
   </div>
 
-    <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
-
+    <div class="table-responsive">
       <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
         <thead>
           <tr>
@@ -71,16 +70,16 @@
     </div>
 
     <div id="pagination" class="mdl-cell mdl-cell--12-col mdl-grid">
-      <div class="mdl-cell mdl-cell--4-col">
+      <div class="mdl-cell mdl-cell--4-col mdl-cell--1-col-phone">
         <a id="previous" href="#" style="display: none">
           <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_left</i>
         </a>
       </div>
       {% if projects.next_num %}
-      <div class="mdl-cell mdl-cell--4-col" style="text-align: center;">
+      <div class="mdl-cell mdl-cell--4-col mdl-cell--2-col-phone" style="text-align: center;">
         <span id="page" >{{projects.page}}</span>
       </div>
-      <div class="mdl-cell mdl-cell--4-col" style="text-align: right;">
+      <div class="mdl-cell mdl-cell--4-col mdl-cell--1-col-phone" style="text-align: right;">
         <a id="next" href="#">
           <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_right</i>
         </a>
@@ -89,11 +88,13 @@
     </div>
 
 
-  <div class="mdl-cell mdl-cell--12-col">
-    <form action="/generic" method="GET">
-      <input type="submit" value="Create Generic Templates" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
-      </input>
-    </form>
+  <div class="mdl-cell mdl-cell--12-col mdl-grid">
+    <div class="mdl-cell mdl-cell--2-col-phone">
+      <form action="/generic" method="GET">
+        <input type="submit" value="Create Generic Templates" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        </input>
+      </form>
+    </div>
   </div>
 
   <script>
