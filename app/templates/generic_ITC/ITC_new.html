@@ -20,7 +20,7 @@
         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
           <select name="deliverable_type" class="mdl-textfield__input">
             {% for deliverable in deliverables %}
-              <option value={{deliverable}}>{{deliverable.name}}</option>
+              <option value={{deliverable.id}}>{{deliverable.name}}</option>
             {% endfor %}
           </select>
           <label class="mdl-textfield__label">Deliverable Type</label>

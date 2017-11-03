@@ -136,6 +136,8 @@ def ticket_view(ticket_id, siteid=None, page=1):
     site =  Site.query.filter_by(id=ticket.site_id).one()
     resolutions = TicketResolution.query.all()
 
+    print(request.referrer.split('/'))
+
     if not ticket:
         flash('Cannot find ticket: "{}"'.format(ticket_id), category='warning')
         return redirect(url_for('tickets'))
@@ -890,6 +892,8 @@ def unsubscribe_ticket(ticket_id=None):
 def close_status(ticket_id):
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
     new_status = FlicketStatus.query.filter_by(status="Closed").first()
+
+    print(request.referrer.split('/')[-4])
 
     # Check to see if user is authorised to close ticket.
     edit = False

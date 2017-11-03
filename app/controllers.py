@@ -879,7 +879,10 @@ def site_project_ITP(siteid, projectid, ITPid):
                 else:
                     not_started += 1
 
-        deliverable.percentage_complete = deliver_completed/deliver_total*100
+        if deliver_total == 0:
+            deliverable.percentage_complete = 0
+        else:
+            deliverable.percentage_complete = deliver_completed/deliver_total*100
         db.session.commit()
 
         if deliverable.percentage_complete > 0 and deliverable.percentage_complete < 100:
@@ -1433,7 +1436,7 @@ def ITC_general_new():
             error = "ITC name missing!"
             return render_template('generic_ITC/ITC_new.html', deliverables=deliverable_types, error=error)
         if ITC.query.filter_by(name=request.form['ITC_name']).first() == None:
-            deliverable_type = Deliverable_type.query.filter_by(name=request.form['deliverable_type']).first()
+            deliverable_type = Deliverable_type.query.filter_by(id=request.form['deliverable_type']).first()
             new_ITC = ITC(request.form['ITC_name'], deliverable_type.id)
             db.session.add(new_ITC)
             db.session.commit()

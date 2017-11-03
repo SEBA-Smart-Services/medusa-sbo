@@ -123,34 +123,6 @@
         </table>
       </div>
 
-      {% if ticket.current_status.status != 'Closed' %}
-        <div class="mdl-cell mdl-cell--12-col mdl-grid">
-            <div class="mdl-cell mdl-cell--12-col">
-                <!-- <ul class="pagination pagination-sm">
-                    {% for page in replies.iter_pages() %}
-                      {% if page %}
-                        {% if page != replies.page %}
-                        <li>
-                          <a href="{{ url_for('ticket_view', ticket_id=ticket.id, page=page, **request.args) }}">
-                              {{ page }}
-                          </a>
-                        </li>
-                        {% else %}
-                        <li class="active">
-                          <a href="{{ url_for('ticket_view', ticket_id=ticket.id, page=page, **request.args) }}">
-                            {{ page }}
-                          </a>
-                        </li>
-                        {% endif %}
-                      {% else %}
-                      <li><a href="">...</a></li>
-                      {% endif %}
-                    {% endfor %}
-                </ul> -->
-            </div>
-        </div>
-      {% endif %}
-
       <div class="mdl-cell mdl-cell--12-col mdl-grid">
         <!-- display actions -->
         <h5 class="mdl-cell mdl-cell--12-col">Actions</h5>

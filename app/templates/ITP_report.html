@@ -36,7 +36,13 @@
       table table {
         direction: ltr;
       }
-
+      p{
+        margin-top: 0;
+        margin-bottom: 0;
+        margin-left: 0;
+        margin-right: 0;
+        font-size: 8pt;
+      }
     </style>
     <h2 style="text-align:center">Inspection and Test Plan Report - {{project.name}}</h2>
     <br>
@@ -48,22 +54,70 @@
     <br>
     <h4>Start Date:</h4> {{project.start_date.strftime('%d-%m-%Y')}}
     <br>
-    <h4>Completion Date:</h4>
     {% if project.completion_date != none %}
+    <h4>Completion Date:</h4>
       {{project.completion_date.strftime('%d-%m-%Y')}}
+    <br>
     {% endif %}
-    <br>
-    <h4>Assigned to:</h4> {{project.assigned_to}}
-    <br>
+    {% if project.assigned_to != none %}
+      <h4>Assigned to:</h4>
+        {{project.assigned_to}}
+      <br>
+    {% endif %}
     <p style="page-break-after: always"></p>
+    <h4><u>ITC Schedule</u></h4>
+    <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
+      <thead>
+        <col style="width:50%">
+        <col style="width:50%">
+        <tr  style="background-color: lightgrey !important;">
+          <th>Type</th>
+          <th>ITC</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for deliverable_type in deliverable_types %}
+          <tr>
+            <td style="vertical-align:top;">{{deliverable_type}}</td>
+            <td>
+              {% for ITC in deliverable_type.ITC %}
+                <p>{{ITC.name}}</p>
+              {% endfor %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="page-break-after: always"></p>
+    <h4><u>Deliverable Schedule</u></h4>
+    <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
+      <thead>
+        <col style="width:50%">
+        <col style="width:50%">
+        <tr  style="background-color: lightgrey !important;">
+          <th>Name</th>
+          <th>Type</th>
+        </tr>
+      </thead>
+        <tbody>
+        {% for deliverable in deliverables %}
+          <tr>
+            <td>{{deliverable.name}}</td>
+            <td>{{deliverable.type}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="page-break-after: always"></p>
+    <h6><u>SECTION 1 - Checklists</u></h6>
     {% for deliverable in deliverables %}
       <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
         <tbody>
           <col style="width:35%">
-          <col style="width:35%">
           <col style="width:30%">
+          <col style="width:35%">
           <tr>
-            <td><b>Logo goes here<b></td>
+            <td><b>SCHNEIDER ELECTRIC<b></td>
             <td>{{deliverable.name}} - {{deliverable.type.name}}</td>
             <td style="padding: 0">
               <table id="nest_table" style="width:100%; border-collapse: collapse;">
@@ -72,15 +126,15 @@
                     <td colspan="2">Ref: </td>
                   </tr>
                   <tr>
-                    <td colspan="2">Project: </td>
+                    <td colspan="2">Project: {{deliverable.ITP.project}}</td>
                   </tr>
                   <tr>
-                    <td colspan="2">Job number: </td>
+                    <td colspan="2">Job number: {{deliverable.ITP.project.job_number}}</td>
                   </tr>
                   <tr>
                     <col style="width:50%">
                     <col style="width:50%">
-                    <td>Date: </td>
+                    <td>Date: {{today.strftime('%d-%m-%Y')}}</td>
                     <td>Rev: </td>
                   </tr>
                 </tbody>
@@ -91,8 +145,6 @@
       </table>
 
       <br>
-
-      <h6><u>SECTION 1 - FUNCTIONAL TESTING</u><h6>
 
       {% for ITC in ITCs %}
         {% if ITC.deliverable.id == deliverable.id %}
@@ -108,9 +160,9 @@
             </thead>
             <thead>
               <col style="width:10%">
-              <col style="width:70%">
+              <col style="width:65%">
               <col style="width:10%">
-              <col style="width:10%">
+              <col style="width:15%">
               <tr>
                 <th>check number</th>
                 <th>Name</th>
@@ -124,11 +176,12 @@
                   <td>{{check.id}}</td>
                   <td>{{check.ITC_check.check.check_description}}</td>
                   {% if check.is_done %}
-                    <td></td>
+                    <td><b>PASS<b></td>
+                    <td>{{check.completion_datetime.strftime('%d-%m-%Y')}}</td>
                   {% else %}
                     <td></td>
+                    <td></td>
                   {% endif %}
-                  <td></td>
                 </tr>
             {% endfor %}
             </tbody>

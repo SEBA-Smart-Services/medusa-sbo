@@ -1,9 +1,10 @@
 from app import app, event
 from app.models import Site, Asset, Result
-from app.models.ITP import Project, ITP, Deliverable, Deliverable_ITC_map, Deliverable_check_map
+from app.models.ITP import Project, ITP, Deliverable, Deliverable_ITC_map, Deliverable_check_map, Deliverable_type
 from app.ticket.models import FlicketTicket
 from flask import render_template, url_for, redirect
 from flask_weasyprint import HTML, CSS, render_pdf
+import datetime
 
 # provide a url to download a report for a site
 @app.route('/site/<sitename>/report')
@@ -19,13 +20,17 @@ def ITP_report_page(siteid, projectid, ITPid):
     project = Project.query.filter_by(id=projectid).first()
     project_ITP = ITP.query.filter_by(id=ITPid).first()
     deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id).all()
+    deliverable_types = Deliverable_type.query.filter(Deliverable_type.id.in_([deliverable.deliverable_type_id for deliverable in deliverables])).all()
+    today = datetime.datetime.now()
     # image = flask_weasyprint.default_url_fetcher("/static/img/logo-schneider-electric.png")
+
+    print(deliverable_types)
 
     ITCs = []
     for deliverable in deliverables:
         ITCs += Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
 
-    html = render_template('ITP_report.html', site=site, project=project, project_ITP=project_ITP, deliverables=deliverables, ITCs=ITCs)
+    html = render_template('ITP_report.html', site=site, project=project, project_ITP=project_ITP, deliverables=deliverables, ITCs=ITCs, deliverable_types=deliverable_types, today=today)
     return render_pdf(HTML(string=html))
 
 # provide a url to download a report for all delvierables in an ITP
