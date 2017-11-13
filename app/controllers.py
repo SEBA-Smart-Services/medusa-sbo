@@ -763,13 +763,17 @@ def site_project_new(siteid):
             error = "Job Number is missing!"
             return render_template('project/site_project_new.html', site=site, users=users, error=error)
         elif Project.query.filter_by(site_id=site.id, name=request.form['project_name']).first() == None:
-            new_site = Project(request.form['project_name'], request.form['job_number'], request.form['project_description'], site.id)
-            if request.form['assigned_to'] != "":
-                assigned_to = User.query.filter_by(id=request.form['assigned_to']).first()
-                new_site.assigned_to_id = assigned_to.id
-            db.session.add(new_site)
-            db.session.commit()
-            return redirect(url_for('site_projects_list', sitename=site))
+            if Project.query.filter_by(job_number=request.form['job_number']).first() != None:
+                error =  "Project job number " + request.form['job_number'] + " already exists."
+                return render_template('project/site_project_new.html', site=site, users=users, error=error)
+            else:
+                new_site = Project(request.form['project_name'], request.form['job_number'], request.form['project_description'], site.id)
+                if request.form['assigned_to'] != "":
+                    assigned_to = User.query.filter_by(id=request.form['assigned_to']).first()
+                    new_site.assigned_to_id = assigned_to.id
+                db.session.add(new_site)
+                db.session.commit()
+                return redirect(url_for('site_projects_list', siteid=site.id))
         else:
             error =  site.name + " already has a project named " + request.form['project_name'] + "!"
             return render_template('project/site_project_new.html', site=site, users=users, error=error)
@@ -784,9 +788,10 @@ def site_project_edit(siteid, projectid):
     users = User.query.all()
 
     referrer = request.referrer.split('/')[-1].strip('?')
+    print(project.start_date)
 
     if request.method == 'POST':
-        if Project.query.filter_by(site_id=site.id, name=request.form['project_name']).first() == None or  Project.query.filter_by(site_id=site.id, name=request.form['project_name']).first().id == project.id:
+        if Project.query.filter_by(site_id=site.id, name=request.form['project_name']).first() == None or Project.query.filter_by(site_id=site.id, name=request.form['project_name']).first().id == project.id:
             project_name = request.form['project_name']
             if (project_name != "" and project_name != project.name):
                 project.name = project_name
@@ -794,6 +799,9 @@ def site_project_edit(siteid, projectid):
             if (description != "" and request.form['project_description'] != project.description):
                 project.description = request.form['project_description']
             job_number = request.form['job_number']
+            if Project.query.filter_by(job_number=job_number).first() != None and Project.query.filter_by(job_number=job_number).first().id != project.id:
+                error =  "Project job number " + request.form['job_number'] + " already exists."
+                return render_template('project/site_project_edit.html', site=site, project=project, users=users, error=error, referrer=referrer)
             if (job_number != "" and job_number != project.job_number):
                 project.job_number = request.form['job_number']
             start_date = request.form['start_date']
@@ -1147,7 +1155,7 @@ def site_project_ITP_deliverable_edit(siteid, projectid, ITPid, deliverableid):
             if referrer == 'deliverable':
                 return redirect(url_for('site_project_ITP_deliverable_list', siteid=site.id, projectid=project.id, ITPid=project_ITP.id))
             else:
-                return redirect(url_for('site_project_ITP_deliverable', stieid=site.id, projectid=project.id, ITPid=project_ITP.id, deliverableid=deliverable.id))
+                return redirect(url_for('site_project_ITP_deliverable', siteid=site.id, projectid=project.id, ITPid=project_ITP.id, deliverableid=deliverable.id))
         else:
             error = "Deliverable " + request.form['deliverable_name'] + " already exists!"
             return render_template('deliverable/ITP_deliverable_edit.html', site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations, deliverable=deliverable, users=users, error=error, referrer=referrer)
@@ -1382,6 +1390,8 @@ def site_project_ITP_deliverable_ITC_check_edit(siteid, projectid, ITPid, delive
         check_status = request.form['check_status']
         if (check_status != "" and check_status != check.status and check.is_done != True):
             check.status = check_status
+            if (request.form['check_status'] == "Completed"):
+                check.is_done = True
         db.session.commit()
         return redirect(url_for('ITC_testing', siteid=site.id, projectid=project.id, deliverableid=deliverable.id, ITPid=project_ITP.id, ITCid=ITP_ITC.id))
     else:

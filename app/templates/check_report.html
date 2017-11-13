@@ -39,6 +39,8 @@
     <br>
     <h5>Job Number:</h5> {{project.job_number}}
     <br>
+    <h5>Site:</h5> {{site.name}}
+    <br>
     <h5>Location:</h5> {{deliverable.location.name}}
     <br>
     <h5>Deliverable Start Date:</h5>
@@ -66,7 +68,7 @@
           <tr style="background: lightgray !important;">
             <th>Check Description</th>
             <th>Status</th>
-            <th>Completed</th>
+            <th>Pass/Fail</th>
             <th>Completed By</th>
             <th>Completion Date</th>
             <th>Comments</th>
@@ -78,7 +80,11 @@
             <tr>
               <td>{{check.ITC_check.check.check_description}}</td>
               <td>{{check.status}}</td>
-              <td>{{check.is_done}}</td>
+              {% if check.is_done %}
+                <td><b>PASS<b></td>
+              {% else %}
+                <td></td>
+              {% endif %}
               {% if check.user != none %}
                 <td>{{check.user.first_name}} {{check.user.last_name}}</td>
               {% else %}

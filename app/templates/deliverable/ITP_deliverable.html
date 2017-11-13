@@ -28,8 +28,19 @@
             <table class="mdl-data-table mdl-js-data-table" style="width:100%;table-layout:fixed;white-space: normal;">
               <tbody>
                 <tr>
-                  <th class="mdl-data-table__cell--non-numeric">Component Number</th>
-                  <td class="mdl-data-table__cell--non-numeric">#{{deliverable.component_number}}</td>
+                  <th class="mdl-data-table__cell--non-numeric">Component</th>
+                  <td class="mdl-data-table__cell--non-numeric">
+                    {{deliverable.name}}
+                    {% if deliverable.component_number != none %}
+                       - #{{deliverable.component_number}}
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <th class="mdl-data-table__cell--non-numeric">Type</th>
+                  <td class="mdl-data-table__cell--non-numeric">
+                    {{deliverable.type}}
+                  </td>
                 </tr>
                 <tr>
                   <th class="mdl-data-table__cell--non-numeric">Location</th>
@@ -53,7 +64,7 @@
                 </tr>
                 <tr>
                   <th class="mdl-data-table__cell--non-numeric">Assigned To</th>
-                  <td class="mdl-data-table__cell--non-numeric">{{deliverable.assigned_to}}</td>
+                  <td class="mdl-data-table__cell--non-numeric">{{deliverable.assigned_to.first_name}}</td>
                 </tr>
                 <tr>
                   <th class="mdl-data-table__cell--non-numeric">Inspection and Test Checks Completed</th>
@@ -139,9 +150,6 @@
                   <td class="mdl-data-table__cell--non-numeric">{{ITC.status}}</td>
                   <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %ITC.percentage_complete}}%</td>
                   <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
-                    <a href="{{url_for('site_project_ITP_deliverable_ITC_edit', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id)}}">
-                      Edit
-                    </a>/
                     <a href="{{url_for('site_project_ITP_deliverable_ITC_delete', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id)}}">
                       Delete
                     </a>

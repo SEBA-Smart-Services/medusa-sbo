@@ -73,12 +73,12 @@
     {% endif %}
 
     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
-      <select name="sitename" class="mdl-textfield__input">
+      <select name="siteid" class="mdl-textfield__input">
         {% if site != None %}
-          <option value="{{ site.name }}">{{site.name}}</option>
+          <option value="{{ site.id }}">{{site.name}}</option>
         {% else %}
           {% for site in sites %}
-            <option value="{{ site.name }}">{{site.name}}</option>
+            <option value="{{ site.id }}">{{site.name}}</option>
           {% endfor %}
         {% endif %}
       </select>
@@ -125,7 +125,13 @@
 
 <div class="mdl-grid">
   <div class="form-group mdl-cell mdl-cell--12-col">
-    <form action="{{url_for('tickets')}}" method="GET">
+    {% if request.referrer.split('/')[-1].strip('?') == 'create' %}
+      <form action="{{url_for('tickets')}}" method="GET">
+    {% elif site is defined and site != none %}
+      <form action="{{url_for('ticket_view', ticket_id=ticket.id, siteid=site.id)}}" method="GET">
+    {% else %}
+      <form action="{{url_for('ticket_view', ticket_id=ticket.id)}}" method="GET">
+    {% endif %}
       <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
       </input>
     </form>

@@ -44,11 +44,10 @@ def ticket_create(siteid=None, projectname=None, component=None, priority=None, 
             date_due = request.form['date_due']
         else:
             date_due=None
-        sitename = request.form['sitename']
+        siteid = request.form['siteid']
 
         site = Site.query.filter_by(id=siteid).one()
-        app.logger.info('new ticket for ' + sitename)
-        app.logger.info('new ticket for ' + site.name)
+        app.logger.info('new ticket for ' + siteid)
         app.logger.info('new ticket for ' + str(site.id))
 
         project_id = request.form['project']
@@ -129,6 +128,7 @@ def ticket_create(siteid=None, projectname=None, component=None, priority=None, 
         components=components
     )
 
+@app.route('/site/<siteid>/ticket/<ticket_id>/view', methods=['GET', 'POST'])
 @app.route('/site/all/ticket/<ticket_id>/view', methods=['GET', 'POST'])
 def ticket_view(ticket_id, siteid=None, page=1):
     # is ticket number legitimate
@@ -136,7 +136,12 @@ def ticket_view(ticket_id, siteid=None, page=1):
     site =  Site.query.filter_by(id=ticket.site_id).one()
     resolutions = TicketResolution.query.all()
 
-    print(request.referrer.split('/'))
+    print(request.referrer.split('/')[-2])
+    print(siteid)
+    if request.referrer.split('/')[-2] == 'all':
+        site_all = True
+    else:
+        site_all = False
 
     if not ticket:
         flash('Cannot find ticket: "{}"'.format(ticket_id), category='warning')
@@ -216,6 +221,7 @@ def ticket_view(ticket_id, siteid=None, page=1):
         ticket=ticket,
         form=form,
         site=site,
+        site_all=site_all,
         replies=replies,
         page=page,
         resolutions=resolutions
@@ -370,15 +376,18 @@ def filter_tickets():
                     "pages": pages})
 
 # edit ticket
+@app.route('/site/<siteid>/ticket/<ticket_id>/edit', methods=['GET', 'POST'])
 @app.route('/site/all/ticket/<ticket_id>/edit', methods=['GET', 'POST'])
-def edit_ticket(ticket_id):
+def edit_ticket(ticket_id, siteid=None):
     form = EditTicketForm(ticket_id=ticket_id)
 
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
 
     if not ticket:
         flash('Could not find ticket.', category='warning')
-        return redirect(url_for('flicket_main'))
+        return redirect(url_for('tickets'))
+
+    siteid = siteid
 
     site =  Site.query.filter_by(id=ticket.site_id).one()
 
@@ -491,9 +500,11 @@ def edit_ticket(ticket_id):
         form=form,
         site=site,
         sites=site_list,
+        siteid=siteid,
         project=project,
         projects=projects,
-        components=components
+        components=components,
+        ticket=ticket
     )
 
 

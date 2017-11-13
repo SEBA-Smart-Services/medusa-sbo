@@ -112,7 +112,11 @@
               {% for t in tickets.items %}
                   <tr {%- if t.current_status.status == 'Closed' %} class="success"{% endif %}>
                       <td class="mdl-data-table__cell--non-numeric">
+                        {% if site is defined and site != none %}
+                          <a href="{{ url_for('ticket_view', ticket_id = t.id, siteid=site.id) }}">{{ t.ticket_name }}</a>
+                        {% else %}
                           <a href="{{ url_for('ticket_view', ticket_id = t.id) }}">{{ t.ticket_name }}</a>
+                        {% endif %}
                       </td>
                       <td class="mdl-data-table__cell--non-numeric">
                           {{ t.ticket_priority.priority }}
