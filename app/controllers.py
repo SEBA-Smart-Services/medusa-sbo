@@ -1095,9 +1095,11 @@ def site_project_ITP_deliverable_new(siteid, projectid, ITPid):
             return render_template('deliverable/ITP_deliverable_new.html', site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations, error=error)
         elif Deliverable.query.filter_by(name=request.form['deliverable_name'], ITP_id=project_ITP.id).first() == None:
             location_id = Location.query.filter_by(name=request.form['deliverable_location']).first()
+            secondary_location_id = Secondary_location.query.filter_by(name=request.form['secondary_location']).first()
             deliverable_type = Deliverable_type.query.filter_by(name=request.form['deliverable_type']).first()
             deliverable = Deliverable(request.form['deliverable_name'], request.form['deliverable_description'], deliverable_type.id, location_id.id, project_ITP.id)
             db.session.add(deliverable)
+            deliverable.secondary_location_id = secondary_location_id.id
             db.session.commit()
             deliverable = Deliverable.query.filter_by(name=request.form['deliverable_name'], ITP_id=project_ITP.id).first()
             ITCs = ITC.query.filter_by(deliverable_type_id=deliverable_type.id).all()
@@ -1132,7 +1134,6 @@ def get_secondary_location():
         secondary_locations = secondary_locations
     else:
         location = Location.query.filter_by(name=location).first()
-        print(location)
         secondary_locations = secondary_locations.filter(Secondary_location.location_id.contains(location.id)).all()
 
     return jsonify({"results":render_template('secondary_location_template.html', secondary_locations=secondary_locations)})
@@ -1148,6 +1149,7 @@ def site_project_ITP_deliverable_edit(siteid, projectid, ITPid, deliverableid):
     deliverable_types = Deliverable_type.query.all()
     locations = Location.query.all()
     users = User.query.all()
+    secondary_locations = Secondary_location.query.filter(deliverable.id == deliverable.id).all()
 
     referrer = request.referrer.split('/')[-1].strip('?')
 
@@ -1175,9 +1177,11 @@ def site_project_ITP_deliverable_edit(siteid, projectid, ITPid, deliverableid):
                 return redirect(url_for('site_project_ITP_deliverable', siteid=site.id, projectid=project.id, ITPid=project_ITP.id, deliverableid=deliverable.id))
         else:
             error = "Deliverable " + request.form['deliverable_name'] + " already exists!"
-            return render_template('deliverable/ITP_deliverable_edit.html', site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations, deliverable=deliverable, users=users, error=error, referrer=referrer)
+            return render_template('deliverable/ITP_deliverable_edit.html', site=site, project=project, ITP=project_ITP, types=deliverable_types,
+                        secondary_locations=secondary_locations, locations=locations, deliverable=deliverable, users=users, error=error, referrer=referrer)
     else:
-        return render_template('deliverable/ITP_deliverable_edit.html', site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations, deliverable=deliverable, users=users, referrer=referrer)
+        return render_template('deliverable/ITP_deliverable_edit.html', site=site, project=project, ITP=project_ITP, types=deliverable_types,
+                        secondary_locations=secondary_locations, locations=locations, deliverable=deliverable, users=users, referrer=referrer)
 
 #Route for deleting a current deliverable
 @app.route('/site/<siteid>/projects/<projectid>/ITP/<ITPid>/deliverable/<deliverableid>/delete', methods=['POST','GET'])

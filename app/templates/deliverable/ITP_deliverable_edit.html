@@ -28,6 +28,55 @@
         <label class="mdl-textfield__label">Deliverable Start Date</label>
       </div>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        {% if deliverable.location != "" %}
+          <select name="deliverable_type" class="mdl-textfield__input">
+            <option value="{{ deliverable.type }}">{{ deliverable.type }}</option>
+        {% else %}
+        <select name="deliverable_type" class="mdl-textfield__input">
+          <option value=""></option>
+        {% endif %}
+          {% for type in types %}
+            {% if type.id != deliverable.deliverable_type_id %}
+              <option value="{{type.name}}">{{type.name}}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+        <label class="mdl-textfield__label">Deliverable Type</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        {% if deliverable.location != "" %}
+          <select name="deliverable_location" id="deliverLocation" class="mdl-textfield__input">
+            <option value="{{ deliverable.location }}">{{ deliverable.location }}</option>
+        {% else %}
+          <select name="deliverable_location" id="deliverLocation" class="mdl-textfield__input">
+            <option value=""></option>
+        {% endif %}
+          {% for location in locations %}
+            {% if location.id != deliverable.location_id %}
+              <option value="{{location.name}}">{{location.name}}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+        <label class="mdl-textfield__label">Deliverable Location</label>
+      </div>
+      {% if deliverable.secondary != "" %}
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col" id="secondaryLocation">
+          <select name="secondary_location" id="secondarySelect" class="mdl-textfield__input">
+            <option value="{{ deliverable.secondary }}">{{ deliverable.secondary }}</option>
+        {% else %}
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col" id="secondaryLocation" style="display: none;">
+            <select name="secondary_location" id="secondarySelect" class="mdl-textfield__input">
+              <option value=""></option>
+        {% endif %}
+        {% for secondary in secondary_locations %}
+          {% if secondary.id != deliverable.secondary_location_id %}
+            <option value="{{secondary.name}}">{{secondary.name}}</option>
+          {% endif %}
+        {% endfor %}
+        </select>
+        <label class="mdl-textfield__label">Secondary Location</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
         <select name="assigned_to" class="mdl-textfield__input">
           <option value=""></option>
           {% for user in users %}
@@ -61,5 +110,21 @@
       </form>
     </div>
   </div>
+
+  <script>
+    $(document).ready(function(){
+      $("#deliverLocation").change(function(){
+        if ($("#deliverLocation option:selected") == ""){
+          $("#secondaryLocation").css("display", "none")
+        } else {
+          $("#secondaryLocation").css("display", "inline-block")
+        }
+        $.get("/_get_secondary", {location: $('#deliverLocation option:selected').val()},
+        function(data){
+          $("#secondarySelect").html(data['results']);
+        });
+      });
+    });
+  </script>
 
 {% endblock %}
