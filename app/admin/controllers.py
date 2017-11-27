@@ -118,7 +118,7 @@ class LocationView(ProtectedView):
     column_display_pk = True
 
 class SecondaryLocationView(ProtectedView):
-    column_display_pk = True
+    column_list = ('name', 'location', 'deliverable')
 
 class ITassetView(ProtectedView):
     pass

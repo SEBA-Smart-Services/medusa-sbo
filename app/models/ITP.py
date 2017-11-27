@@ -32,7 +32,7 @@ class Location(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(255), unique=True)
     site_id = db.Column(db.Integer(), db.ForeignKey('site.ID'))
-    secondary_location_id = db.Column(db.Integer(), db.ForeignKey('secondary_location.id'))
+    secondary_location = db.relationship('Secondary_location', backref = 'location')
     deliverable = db.relationship('Deliverable',
         backref = 'location')
 
@@ -42,8 +42,7 @@ class Location(db.Model):
 class Secondary_location(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(255), unique=True)
-    location = db.relationship('Location',
-        backref = 'secondary')
+    location_id = db.Column(db.Integer(), db.ForeignKey('location.id'))
     deliverable = db.relationship('Deliverable',
         backref = 'secondary')
 

@@ -1132,7 +1132,8 @@ def get_secondary_location():
         secondary_locations = secondary_locations
     else:
         location = Location.query.filter_by(name=location).first()
-        secondary_locations = secondary_locations.filter(Secondary_location.location.contains(location)).all()
+        print(location)
+        secondary_locations = secondary_locations.filter(Secondary_location.location_id.contains(location.id)).all()
 
     return jsonify({"results":render_template('secondary_location_template.html', secondary_locations=secondary_locations)})
 
