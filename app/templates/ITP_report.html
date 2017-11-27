@@ -148,6 +148,7 @@
 
       {% for ITC in ITCs %}
         {% if ITC.deliverable.id == deliverable.id %}
+          <h6>{{ ITC.ITC.group }}</h6>
           <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
             <thead>
               <tr style="background-color: lightgrey !important;">

@@ -10,6 +10,7 @@ from flask_mail import Message
 from flask import render_template, url_for
 from flask_security.utils import hash_password, send_mail
 from flask_security.confirmable import generate_confirmation_link
+from app.models.ITP import ITC_group, Secondary_location
 
 # configuration of views for Admin page
 # some columns (eg results) are excluded, since it tries to load and display >10,000 entries and crashes the page
@@ -116,6 +117,9 @@ class DeliverableTypeView(ProtectedView):
 class LocationView(ProtectedView):
     column_display_pk = True
 
+class SecondaryLocationView(ProtectedView):
+    column_display_pk = True
+
 class ITassetView(ProtectedView):
     pass
 
@@ -132,6 +136,9 @@ class TicketComponentView(ProtectedView):
     pass
 
 class TicketResolutionView(ProtectedView):
+    pass
+
+class ITCGroup(ProtectedView):
     pass
 
 # attach the model views to the admin page
@@ -154,9 +161,11 @@ admin.add_view(LoggedEntityView(LoggedEntity, db.session))
 admin.add_view(LogTimeValueView(LogTimeValue, db.session))
 admin.add_view(DeliverableTypeView(Deliverable_type, db.session))
 admin.add_view(LocationView(Location, db.session))
+admin.add_view(SecondaryLocationView(Secondary_location, db.session))
 admin.add_view(ITassetView(ITasset, db.session))
 admin.add_view(TicketPriorityView(FlicketPriority, db.session))
 admin.add_view(TicketCategoryView(FlicketCategory, db.session))
 admin.add_view(TicketStatusView(FlicketStatus, db.session))
 admin.add_view(TicketComponentView(TicketComponent, db.session))
 admin.add_view(TicketResolutionView(TicketResolution, db.session))
+admin.add_view(ITCGroup(ITC_group, db.session))

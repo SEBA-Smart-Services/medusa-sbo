@@ -31,8 +31,21 @@ class Project(db.Model):
 class Location(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(255), unique=True)
+    site_id = db.Column(db.Integer(), db.ForeignKey('site.ID'))
+    secondary_location_id = db.Column(db.Integer(), db.ForeignKey('secondary_location.id'))
     deliverable = db.relationship('Deliverable',
         backref = 'location')
+
+    def __repr__(self):
+        return self.name
+
+class Secondary_location(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(255), unique=True)
+    location = db.relationship('Location',
+        backref = 'secondary')
+    deliverable = db.relationship('Deliverable',
+        backref = 'secondary')
 
     def __repr__(self):
         return self.name
@@ -40,6 +53,7 @@ class Location(db.Model):
 class ITP(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.String(255), nullable=True)
     project_id = db.Column(db.Integer(), db.ForeignKey('project.id', ondelete='CASCADE'))
     deliverable = db.relationship('Deliverable',
         backref = 'ITP')
@@ -76,6 +90,7 @@ class Deliverable(db.Model):
     description = db.Column(db.String(255))
     deliverable_type_id = db.Column(db.Integer(), db.ForeignKey('deliverable_type.id', ondelete='CASCADE'))
     location_id = db.Column(db.Integer(), db.ForeignKey('location.id', ondelete='CASCADE'))
+    secondary_location_id = db.Column(db.Integer(), db.ForeignKey('secondary_location.id', ondelete='CASCADE'))
     ITP_id = db.Column(db.Integer(), db.ForeignKey('ITP.id', ondelete='CASCADE'))
     Deliverable_ITC_map = db.relationship('Deliverable_ITC_map',
         backref = 'deliverable')
@@ -121,15 +136,26 @@ class ITC(db.Model):
     __tablename__ = "ITC"
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(255), unique=True)
+    description = db.Column(db.String(255), nullable=True)
     ITC_check_map = db.relationship('ITC_check_map',
         backref='ITC')
     deliverable_type_id = db.Column(db.Integer(), db.ForeignKey('deliverable_type.id'))
     deliverable_ITC_map = db.relationship('Deliverable_ITC_map',
         backref='ITC')
+    ITC_group_id = db.Column(db.Integer(), db.ForeignKey('ITC_group.id'))
 
     def __init__(self, name, deliverable_type_id):
         self.name = name
         self.deliverable_type_id = deliverable_type_id
+
+    def __repr__(self):
+        return self.name
+
+class ITC_group(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(255), unique=True)
+    ITC = db.relationship('ITC',
+        backref = 'group')
 
     def __repr__(self):
         return self.name
@@ -155,6 +181,7 @@ class ITC_check_map(db.Model):
 class Deliverable_ITC_map(db.Model):
     __tablename__ = "Deliverable_ITC_map"
     id = db.Column(db.Integer(), primary_key=True)
+    comments = db.Column(db.String(255), nullable=True)
     deliverable_id = db.Column(db.Integer(), db.ForeignKey('deliverable.id', ondelete='CASCADE'))
     ITC_id = db.Column(db.Integer(), db.ForeignKey('ITC.id', ondelete='CASCADE'))
     deliverable_check_map = db.relationship('Deliverable_check_map',

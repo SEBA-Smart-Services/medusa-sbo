@@ -17,6 +17,14 @@
           </select>
           <label class="mdl-textfield__label">Deliverable Type</label>
         </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+          <select name="ITC_general_group" class="mdl-textfield__input">
+            {% for ITC_group in ITC_groups %}
+              <option value={{ITC_group.id}}>{{ITC_group}}</option>
+            {% endfor %}
+          </select>
+          <label class="mdl-textfield__label">ITC group</label>
+        </div>
         <input type="submit" value="Save Changes" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
       </form>
     </div>

@@ -15,17 +15,14 @@
         <input type="text" name="deliverable_name" class="mdl-textfield__input">
         <label class="mdl-textfield__label">Deliverable Name</label>
       </div>
-      <br>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
         <input type="text" name="deliverable_number" class="mdl-textfield__input">
         <label class="mdl-textfield__label">Deliverable Component Number</label>
       </div>
-      <br>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
         <input type="text" name="deliverable_description" class="mdl-textfield__input">
         <label class="mdl-textfield__label">Deliverable Description</label>
       </div>
-      <br>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
         <select name="deliverable_type" class="mdl-textfield__input">
           <option value=""></option>
@@ -35,9 +32,8 @@
         </select>
         <label class="mdl-textfield__label">Deliverable Type</label>
       </div>
-      <br>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
-        <select name="deliverable_location" class="mdl-textfield__input">
+        <select name="deliverable_location" id="deliverLocation" class="mdl-textfield__input">
           <option value=""></option>
           {% for location in locations %}
             <option value="{{location.name}}">{{location.name}}</option>
@@ -45,7 +41,12 @@
         </select>
         <label class="mdl-textfield__label">Deliverable Location</label>
       </div>
-      <br>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col" id="secondaryLocation" style="display: none;">
+        <select name="secondary_location" id="secondarySelect" class="mdl-textfield__input">
+          <option value=""></option>
+        </select>
+        <label class="mdl-textfield__label">Secondary Location</label>
+      </div>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
         <select name="assigned_to" class="mdl-textfield__input">
           <option value=""></option>
@@ -55,7 +56,6 @@
         </select>
         <label class="mdl-textfield__label">Assigned To</label>
       </div>
-      <br>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
         <select name="deliverable_status" class="mdl-textfield__input">
           <option value="Not Started">Not Started</option>
@@ -65,7 +65,6 @@
         </select>
         <label class="mdl-textfield__label">Deliverable Status</label>
       </div>
-      <br>
       <input type="submit" value="Create Deliverable" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     </form>
 
@@ -79,4 +78,19 @@
     </div>
   </div>
 
+  <script>
+    $(document).ready(function(){
+      $("#deliverLocation").change(function(){
+        if ($("#deliverLocation option:selected") == ""){
+          $("#secondaryLocation").css("display", "none")
+        } else {
+          $("#secondaryLocation").css("display", "inline-block")
+        }
+        $.get("/_get_secondary", {location: $('#deliverLocation option:selected').val()},
+        function(data){
+          $("#secondarySelect").html(data['results']);
+        });
+      });
+    });
+  </script>
 {% endblock %}

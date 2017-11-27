@@ -17,7 +17,7 @@ from app.models import (
     Site
 )
 from app.models import Alarm
-from app.models.ITP import Project, ITP, Deliverable, Location, Deliverable_type, ITC, ITC_check_map, Check_generic, Deliverable_ITC_map, Deliverable_check_map
+from app.models.ITP import Project, ITP, Deliverable, Location, Deliverable_type, ITC, ITC_check_map, Check_generic, Deliverable_ITC_map, Deliverable_check_map, ITC_group, Secondary_location
 from app.models.users import User
 from app.ticket.models import FlicketTicket, FlicketStatus
 from app.forms import SiteConfigForm, AddSiteForm
@@ -1080,7 +1080,8 @@ def site_project_ITP_deliverable_new(siteid, projectid, ITPid):
     project = Project.query.filter_by(id=projectid, site_id=site.id).first()
     project_ITP = ITP.query.filter_by(id=ITPid, project_id=project.id).first()
     deliverable_types = Deliverable_type.query.all()
-    locations = Location.query.all()
+    locations = Location.query.filter_by(site_id=site.id).all()
+    users = User.query.all()
 
     if request.method == 'POST':
         if request.form['deliverable_name'] == None or request.form['deliverable_name'] == "":
@@ -1117,9 +1118,24 @@ def site_project_ITP_deliverable_new(siteid, projectid, ITPid):
             return redirect(url_for('site_project_ITP_deliverable_list', siteid=site.id, projectid=project.id, ITPid= project_ITP.id))
         else:
             error = "Deliverable " + request.form['deliverable_name'] + " already exists!"
-            return render_template('deliverable/ITP_deliverable_new.html', site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations, error=error)
+            return render_template('deliverable/ITP_deliverable_new.html', site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations, error=error, users=users)
     else:
-        return render_template('deliverable/ITP_deliverable_new.html', site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations)
+        return render_template('deliverable/ITP_deliverable_new.html', site=site, project=project, ITP=project_ITP, types=deliverable_types, locations=locations, users=users)
+
+@app.route('/_get_secondary', methods=['POST','GET'])
+def get_secondary_location():
+    secondary_locations = Secondary_location.query
+
+    location = request.args.get('location')
+    print(location)
+    if location == "":
+        secondary_locations = secondary_locations
+    else:
+        location = Location.query.filter_by(name=location).first()
+        secondary_locations = secondary_locations.filter(Secondary_location.location.contains(location)).all()
+
+    return jsonify({"results":render_template('secondary_location_template.html', secondary_locations=secondary_locations)})
+
 
 #Route for editing a current deliverable
 @app.route('/site/<siteid>/projects/<projectid>/ITP/<ITPid>/deliverable/<deliverableid>/edit', methods=['POST','GET'])
@@ -1189,6 +1205,9 @@ def site_project_ITP_deliverable_ITC_list(siteid, projectid, ITPid, deliverablei
     project_ITP = ITP.query.filter_by(project_id=project.id, id=ITPid).first()
     deliverable = Deliverable.query.filter_by(ITP_id=project_ITP.id, id=deliverableid).first()
     ITP_ITCs = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
+    ITC_groups = ITC_group.query.all()
+
+    groups = []
 
     for ITC in ITP_ITCs:
         total = 0
@@ -1210,7 +1229,10 @@ def site_project_ITP_deliverable_ITC_list(siteid, projectid, ITPid, deliverablei
             ITC.status = "In Progress"
         db.session.commit()
 
-    return render_template('specific_ITC/ITC_list.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITCs=ITP_ITCs)
+        if ITC.ITC.group in ITC_groups:
+            groups.append(ITC.ITC.group)
+
+    return render_template('specific_ITC/ITC_list.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITCs=ITP_ITCs, groups=groups)
 
 #Route for editing a current ITC
 @app.route('/site/<siteid>/projects/<projectid>/ITP/<ITPid>/deliverable/<deliverableid>/ITC/<ITCid>/edit', methods=['POST','GET'])
@@ -1436,6 +1458,7 @@ def ITC_general(ITCid):
 @app.route('/generic/ITC/new', methods=['POST','GET'])
 def ITC_general_new():
     deliverable_types = Deliverable_type.query.all()
+    ITC_groups = ITC_group.query.all()
 
     redirect_url = None
     if request.referrer.split('/')[-3].strip('?') == 'deliverable':
@@ -1444,11 +1467,15 @@ def ITC_general_new():
     if request.method == 'POST':
         if request.form['ITC_name'] == "" or request.form['ITC_name'] == None:
             error = "ITC name missing!"
-            return render_template('generic_ITC/ITC_new.html', deliverables=deliverable_types, error=error)
+            return render_template('generic_ITC/ITC_new.html', deliverables=deliverable_types, ITC_groups=ITC_groups, error=error)
         if ITC.query.filter_by(name=request.form['ITC_name']).first() == None:
             deliverable_type = Deliverable_type.query.filter_by(id=request.form['deliverable_type']).first()
             new_ITC = ITC(request.form['ITC_name'], deliverable_type.id)
             db.session.add(new_ITC)
+            new_ITC.description = request.form['ITC_description']
+            group = ITC_group.query.filter_by(id=request.form['ITC_general_group']).first()
+            if (group != ""):
+                new_ITC.group = group
             db.session.commit()
             if request.args.get('redirect_url') == None:
                 return redirect(url_for('ITC_general_list'))
@@ -1456,9 +1483,9 @@ def ITC_general_new():
                 return redirect(redirect_url)
         else:
             error = "ITC " + request.form['ITC_name'] + " already exists!"
-            return render_template('generic_ITC/ITC_new.html', deliverables=deliverable_types, error=error, redirect_url=redirect_url)
+            return render_template('generic_ITC/ITC_new.html', deliverables=deliverable_types, ITC_groups=ITC_groups, error=error, redirect_url=redirect_url)
     else:
-        return render_template('generic_ITC/ITC_new.html', deliverables=deliverable_types, redirect_url=redirect_url)
+        return render_template('generic_ITC/ITC_new.html', deliverables=deliverable_types, ITC_groups=ITC_groups, redirect_url=redirect_url)
 
 #Route for viewing all general ITC
 @app.route('/generic/ITC', methods=['POST','GET'])
@@ -1525,6 +1552,7 @@ def ITC_general_delete(ITCid):
 @app.route('/generic/ITC/<ITCid>/edit', methods=['POST','GET'])
 def ITC_general_edit(ITCid):
     ITC_generic = ITC.query.filter_by(id=ITCid).first()
+    ITC_groups = ITC_group.query.all()
 
     if request.method == 'POST':
         name = request.form['ITC_general_name']
@@ -1533,10 +1561,13 @@ def ITC_general_edit(ITCid):
         # deliverable_type_id = Deliverable_type.query.filter_by(name=request.form['ITC_general_deliverable_type']).first()
         # if (deliverable_type_id != ITC_generic.deliverable_type_id):
         #     ITC_generic.deliverable_type_id = deliverable_type_id
+        group = ITC_group.query.filter_by(id=request.form['ITC_general_group']).first()
+        if (group != "" and group != ITC_generic.group):
+            ITC_generic.group = group
         db.session.commit()
         return redirect(url_for('ITC_general_list'))
     else:
-        return render_template('generic_ITC/ITC_general_edit.html', ITC=ITC_generic)
+        return render_template('generic_ITC/ITC_general_edit.html', ITC=ITC_generic, ITC_groups=ITC_groups)
 
 
 ################ Check creation and editing for generic ITC ####################
