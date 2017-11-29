@@ -22,13 +22,12 @@
   <br>
 
   <div>
-    <form method="POST" action="{{url_for('site_project_ITP_deliverable_ITC_change', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id)}}">
+    <form method="POST" id="submit_form" action="{{url_for('site_project_ITP_deliverable_ITC_change', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id)}}">
       <div class="table-responsive">
         <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
           <thead>
             <tr>
               <th class="mdl-data-table__cell--non-numeric">Description</th>
-              <th class="mdl-data-table__cell--non-numeric">Comments</th>
               <th class="mdl-data-table__cell--non-numeric">Status</th>
               <th class="mdl-data-table__cell--non-numeric">Completed?</th>
               <th class="mdl-data-table__cell--non-numeric">Completion Date</th>
@@ -40,7 +39,6 @@
           {% for check in checks %}
             <tr>
               <td class="mdl-data-table__cell--non-numeric">{{check.ITC_check.check.check_description}}</th>
-              <td class="mdl-data-table__cell--non-numeric">{{check.comments}}</th>
               <td class="mdl-data-table__cell--non-numeric">{{check.status}}</td>
               <td class="mdl-data-table__cell--non-numeric">
                 {% if check.is_done == True %}
@@ -67,6 +65,17 @@
           {% endfor %}
           </tbody>
         </table>
+      </div>
+      <br>
+      <div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+          {% if ITC.comments != None %}
+            <textarea type="textarea" name="deliverable_comments" form="submit_form" class="mdl-textfield__input">{{ ITC.comments }}</textarea>
+          {% else %}
+            <textarea type="textarea" name="deliverable_comments" form="submit_form" class="mdl-textfield__input"></textarea>
+          {% endif %}
+          <label class="mdl-textfield__label">Comments</label>
+        </div>
       </div>
       <br>
       <input type="submit" value="save changes" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">

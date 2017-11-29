@@ -183,6 +183,7 @@ def filter_open_tickets():
     return jsonify({"results":render_template('flicket/open_ticket_table_template.html', tickets=open_tickets),
                     "page": page,
                     "pages": pages})
+
 # list all sites that are attached to the logged in user
 @app.route('/site/all/sites')
 def site_list():
@@ -843,7 +844,7 @@ def site_project_ITP(siteid, projectid, ITPid):
     site = Site.query.filter_by(id=siteid).first()
     project = Project.query.filter_by(id=projectid, site_id=site.id).first()
     project_ITP = ITP.query.filter_by(id=ITPid, project_id=project.id).first()
-    deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id).all()
+    deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id)
 
     all_ITCs = []
     total = 0
@@ -857,7 +858,7 @@ def site_project_ITP(siteid, projectid, ITPid):
     ITC_not_applicable = 0
     ITC_not_started = 0
     total_ITC = 0
-    for deliverable in deliverables:
+    for deliverable in deliverables.all():
         deliver_total = 0
         deliver_completed = 0
         ITCs = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
@@ -913,7 +914,43 @@ def site_project_ITP(siteid, projectid, ITPid):
             if check.completion_datetime < completion_date:
                 completion_date = check.completion_datetime
 
-    return render_template('ITP/project_ITP.html', site=site, project=project, ITP=project_ITP, deliverables=deliverables, completion_date=completion_date, ITCs=all_ITCs, percents=percents, totals=totals)
+    PER_PAGE = 5
+    if request.args.get('page') == None:
+        page = 1
+    else:
+        page = int(request.args.get('page'))
+
+    deliverables_list = deliverables.order_by(Deliverable.name.desc()).paginate(page, PER_PAGE, False)
+
+    return render_template('ITP/project_ITP.html', site=site, project=project, ITP=project_ITP,
+            deliverables=deliverables, completion_date=completion_date, ITCs=all_ITCs,
+            percents=percents, totals=totals, deliverables_list=deliverables_list)
+
+@app.route('/filter_deliverables_list')
+def filter_deliverables_list():
+    PER_PAGE = 5
+    if request.args.get('page') == None:
+        page = 1
+    else:
+        page = int(request.args.get('page'))
+
+    siteid = request.args.get('siteid')
+    if siteid != None:
+        site = Site.query.filter_by(id=siteid).first()
+    else:
+        site = None
+    print(site)
+
+    open_tickets = FlicketTicket.query.filter(FlicketTicket.current_status.has(FlicketStatus.status == "Open"))
+    if site != None:
+        open_tickets = open_tickets.filter_by(site_id=site.id)
+    open_tickets = open_tickets.order_by(FlicketTicket.date_added.desc()).paginate(page, PER_PAGE, False)
+
+    pages = open_tickets.pages
+
+    return jsonify({"results":render_template('flicket/open_ticket_table_template.html', tickets=open_tickets),
+                    "page": page,
+                    "pages": pages})
 
 #Route for creating new ITP
 @app.route('/site/<siteid>/projects/<projectid>/ITP/new', methods=['POST','GET'])
@@ -1064,7 +1101,7 @@ def site_project_ITP_deliverable(siteid, projectid, ITPid, deliverableid):
         totals = [0,0,0,0]
     deliverable_current.percentage_complete = percents[0]
     if (deliverable_current.percentage_complete == 100 and deliverable_current.completion_date == None):
-        print("now complete")
+        print("Now complete")
         deliverable_current.completion_date = datetime.datetime.now()
     else:
         print("Not complete")
@@ -1099,7 +1136,8 @@ def site_project_ITP_deliverable_new(siteid, projectid, ITPid):
             deliverable_type = Deliverable_type.query.filter_by(name=request.form['deliverable_type']).first()
             deliverable = Deliverable(request.form['deliverable_name'], request.form['deliverable_description'], deliverable_type.id, location_id.id, project_ITP.id)
             db.session.add(deliverable)
-            deliverable.secondary_location_id = secondary_location_id.id
+            if secondary_location_id != None:
+                deliverable.secondary_location_id = secondary_location_id.id
             db.session.commit()
             deliverable = Deliverable.query.filter_by(name=request.form['deliverable_name'], ITP_id=project_ITP.id).first()
             ITCs = ITC.query.filter_by(deliverable_type_id=deliverable_type.id).all()
@@ -1311,6 +1349,14 @@ def site_project_ITP_deliverable_ITC_change(siteid, projectid, ITPid, deliverabl
     completed_checks = Deliverable_check_map.query.filter_by(is_done=True, deliverable_ITC_map_id=deliver_ITC.id).all()
     checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=deliver_ITC.id).all()
 
+    print("getting comments")
+    print(request.form['deliverable_comments'] == "")
+    comments = request.form['deliverable_comments']
+
+    if comments != deliver_ITC.comments:
+        deliver_ITC.comments = comments
+        db.session.commit()
+
     #Change form status to done
     for checkid in checked:
         check = Deliverable_check_map.query.filter_by(id=checkid).first()
@@ -1394,6 +1440,8 @@ def ITC_testing(siteid, projectid, ITPid, deliverableid, ITCid):
     elif (percentage_complete > 0 and percentage_complete < 100):
         deliver_ITC.status = "In Progress"
     db.session.commit()
+
+    print(deliver_ITC.comments)
 
     return render_template('specific_ITC/ITC.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=deliver_ITC, checks=deliverable_checks, ITCid=ITCid, percentage_complete=percentage_complete)
 

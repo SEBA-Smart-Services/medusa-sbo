@@ -44,7 +44,11 @@
                 </tr>
                 <tr>
                   <th class="mdl-data-table__cell--non-numeric">Location</th>
-                  <td class="mdl-data-table__cell--non-numeric">{{deliverable.location}}</td>
+                  <td class="mdl-data-table__cell--non-numeric">{{deliverable.location}}
+                    {% if deliverable.secondary != None %}
+                     - {{deliverable.secondary}}
+                    {% endif %}
+                  </td>
                 </tr>
                 <tr>
                   <th class="mdl-data-table__cell--non-numeric">Date Started</th>
@@ -54,18 +58,18 @@
                     <td class="mdl-data-table__cell--non-numeric"></td>
                   {% endif %}
                 </tr>
-                <tr>
-                  <th class="mdl-data-table__cell--non-numeric">Date Completed</th>
-                  {% if deliverable.completion_date != none %}
+                {% if deliverable.completion_date != none %}
+                  <tr>
+                    <th class="mdl-data-table__cell--non-numeric">Date Completed</th>
                     <td class="mdl-data-table__cell--non-numeric">{{deliverable.completion_date.strftime('%d-%m-%Y')}}</td>
-                  {% else %}
-                    <td class="mdl-data-table__cell--non-numeric"></td>
-                  {% endif %}
-                </tr>
-                <tr>
-                  <th class="mdl-data-table__cell--non-numeric">Assigned To</th>
-                  <td class="mdl-data-table__cell--non-numeric">{{deliverable.assigned_to.first_name}}</td>
-                </tr>
+                  </tr>
+                {% endif %}
+                {% if deliverable.assigned_to != none %}
+                  <tr>
+                    <th class="mdl-data-table__cell--non-numeric">Assigned To</th>
+                    <td class="mdl-data-table__cell--non-numeric">{{deliverable.assigned_to.first_name}}</td>
+                  </tr>
+                {% endif %}
                 <tr>
                   <th class="mdl-data-table__cell--non-numeric">Inspection and Test Checks Completed</th>
                   <td class="mdl-data-table__cell--non-numeric">{{totals[1]}}/{{totals[0]}}</td>

@@ -50,16 +50,18 @@
                 <th class="mdl-data-table__cell--non-numeric">Start Date</th>
                 <td class="mdl-data-table__cell--non-numeric">{{project.start_date.strftime('%d-%m-%Y')}}</td>
               </tr>
-              <tr>
-                <th class="mdl-data-table__cell--non-numeric">Completion Date</th>
-                {% if project.completion_datetime != none %}
-                  <td class="mdl-data-table__cell--non-numeric">{{project.completion_datetime}}</td>
-                {% endif %}
-              </tr>
-              <tr>
-                <th class="mdl-data-table__cell--non-numeric">Assigned To</th>
-                <td class="mdl-data-table__cell--non-numeric">{{project.assigned_to}}</td>
-              </tr>
+              {% if project.completion_date != None %}
+                <tr>
+                  <th class="mdl-data-table__cell--non-numeric">Completion Date</th>
+                  <td class="mdl-data-table__cell--non-numeric">{{project.completion_date.strftime('%d-%m-%Y')}}</td>
+                </tr>
+              {% endif %}
+              {% if project.user != none %}
+                <tr>
+                  <th class="mdl-data-table__cell--non-numeric">Assigned To</th>
+                  <td class="mdl-data-table__cell--non-numeric">{{project.user.first_name}}</td>
+                </tr>
+              {% endif %}
               <tr>
                 <th class="mdl-data-table__cell--non-numeric">Inspection and Test Checks Completed</th>
                 <td class="mdl-data-table__cell--non-numeric">{{totals[1]}}/{{totals[0]}}</td>
@@ -100,7 +102,7 @@
               </tr>
             </thead>
             <tbody>
-            {% for deliverable in deliverables %}
+            {% for deliverable in deliverables_list.items %}
               <tr>
                 <td class="mdl-data-table__cell--non-numeric">
                   <a href="{{url_for('site_project_ITP_deliverable', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}">
