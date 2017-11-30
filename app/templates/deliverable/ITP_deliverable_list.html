@@ -20,8 +20,47 @@
     </div>
   </div>
 
+  <div class="mdl-grid mdl-cell mdl-cell--12-col">
+    <div class="mdl-cell--1-col mdl-cell--0-col-phone"></div>
+
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--3-col mdl-cell--4-col-phone">
+      <input type="text" id="namefil" class="form-control mdl-textfield__input">
+      <label class="mdl-textfield__label">Ticket Title</label>
+    </div>
+
+    <div class="mdl-cell--1-col mdl-cell--0-col-phone"></div>
+
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--3-col mdl-cell--4-col-phone">
+      <label class="mdl-textfield__label">Search by Type</label>
+      <select id="typefil" class="form-control mdl-textfield__input">
+        <option value="all">All</option>
+        {% for type in all_types %}
+          <option value="{{type.name}}">{{type.name}}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mdl-cell--1-col mdl-cell--0-col-phone"></div>
+
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--3-col mdl-cell--4-col-phone">
+      <label class="mdl-textfield__label">Search by Status</label>
+      <select id="statusfil" class="form-control mdl-textfield__input">
+        <option value="all">All</option>
+        {% for status in all_status %}
+          <option value="{{status}}">{{status}}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
   <div class ="table-responsive">
     <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+      <col style="width:20%">
+      <col style="width:20%">
+      <col style="width:20%">
+      <col style="width:20%">
+      <col style="width:10%">
+      <col style="width:10%">
       <thead>
         <tr>
           <th class="mdl-data-table__cell--non-numeric">Name</th>
@@ -32,28 +71,67 @@
           <th class="mdl-data-table__cell--non-numeric"></th>
         </tr>
       </thead>
+      <tbody id="tbody">
+        {% for deliverable in deliverables_list.items %}
+          <tr>
+            <td class="mdl-data-table__cell--non-numeric">
+              <a href="{{url_for('site_project_ITP_deliverable', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}">
+                {{deliverable.name}}
+              </a>
+            </td>
+            <td class="mdl-data-table__cell--non-numeric">{{deliverable.description}}</td>
+            <td class="mdl-data-table__cell--non-numeric">{{deliverable.type.name}}</td>
+            <td class="mdl-data-table__cell--non-numeric">{{deliverable.status}}</td>
+            <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %deliverable.percentage_complete}}%</td>
+            <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
+              <a href="{{url_for('site_project_ITP_deliverable_edit', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}">
+                Edit
+              </a>/
+              <a href="{{url_for('site_project_ITP_deliverable_delete', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}">
+                Delete
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <col style="width:10%">
+      <col style="width:80%">
+      <col style="width:10%">
       <tbody>
-      {% for deliverable in deliverables %}
         <tr>
-          <td class="mdl-data-table__cell--non-numeric">
-            <a href="{{url_for('site_project_ITP_deliverable', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}">
-              {{deliverable.name}}
-            </a>
-          </td>
-          <td class="mdl-data-table__cell--non-numeric">{{deliverable.description}}</td>
-          <td class="mdl-data-table__cell--non-numeric">{{deliverable.type.name}}</td>
-          <td class="mdl-data-table__cell--non-numeric">{{deliverable.status}}</td>
-          <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %deliverable.percentage_complete}}%</td>
-          <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
-            <a href="{{url_for('site_project_ITP_deliverable_edit', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}">
-              Edit
-            </a>/
-            <a href="{{url_for('site_project_ITP_deliverable_delete', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}">
-              Delete
-            </a>
-          </td>
+          <div id="pagination">
+            <td>
+              <div style="text-align: left;">
+                <a id="previous" href="#" style="display: none">
+                  <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">
+                    chevron_left
+                  </i>
+                </a>
+              </div>
+            </td>
+            <td colspan="4">
+              <div style="text-align: center;">
+                <span id="page" >{{deliverables_list.page}}</span>
+              </div>
+            </td>
+            {% if deliverables_list.next_num %}
+              <td>
+                <div style="text-align: right;">
+                  <a id="next" href="#">
+                    <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">
+                      chevron_right
+                    </i>
+                  </a>
+                </div>
+              </td>
+            {% else %}
+              <td>
+                <div>
+                </div>
+              </td>
+            {% endif%}
+          </div>
         </tr>
-      {% endfor %}
       </tbody>
     </table>
   </div>
@@ -67,6 +145,82 @@
       </form>
     </div>
   </div>
+
+  <script>
+    $(document).ready(function(){
+      $("#namefil, #typefil, #statusfil").change(function(){
+        $.get("/_filter_deliverable_list_extended",
+                          {name: $('#namefil').val(),
+                          type: $('#typefil option:selected').val(),
+                          status: $('#statusfil option:selected').val(),
+                          projectid: "{{project.id}}",
+                          ITPid: "{{ITP.id}}",
+                          siteid: "{{site.id}}"},
+        function(data){
+          $("#tbody").html(data['results']);
+          $("#page").html(data['page']);
+          if (data['page'] == 1){
+            $('#previous').hide()
+          }
+          if (data['page'] == data['pages'] || data['pages'] == 0){
+            $('#next').hide()
+          }
+          if (data['page'] != data['pages'] && data['pages'] != 0){
+            $('#next').show()
+          }
+        });
+      });
+    });
+
+    $(document).ready(function(){
+      $("a#previous").click(function(e){
+        e.preventDefault();
+        $.get("/_filter_deliverable_list_extended",
+                          {name: $('#namefil').val(),
+                          type: $('#typefil option:selected').val(),
+                          status: $('#statusfil option:selected').val(),
+                          page: (parseInt($("#page").html()) - 1),
+                          projectid: "{{project.id}}",
+                          ITPid: "{{ITP.id}}",
+                          siteid: "{{site.id}}"},
+        function(data){
+          $("#tbody").html(data['results']);
+          $("#page").html(data['page']);
+          var page_number = $('page_number').data()
+          if (data['page'] == 1){
+            $('#previous').hide()
+          }
+          if (data['page'] != data['pages']){
+            $('#next').show()
+          }
+        });
+      });
+    });
+
+    $(document).ready(function(){
+      $("a#next").click(function(e){
+        e.preventDefault();
+        $.get("/_filter_deliverable_list_extended",
+                          {name: $('#namefil').val(),
+                          type: $('#typefil option:selected').val(),
+                          status: $('#statusfil option:selected').val(),
+                          page: (parseInt($("#page").html()) + 1),
+                          projectid: "{{project.id}}",
+                          ITPid: "{{ITP.id}}",
+                          siteid: "{{site.id}}"},
+        function(data){
+          $("#tbody").html(data['results']);
+          $("#page").html(data['page']);
+          if (data['page'] == data['pages']){
+            $('#next').hide()
+          }
+          if (data['page'] != 1) {
+            $('#previous').show()
+          }
+        });
+      });
+    });
+  </script>
 
 
 {% endblock %}

@@ -1,0 +1,12 @@
+{% for deliverable in deliverables_list.items %}
+  <tr>
+    <td class="mdl-data-table__cell--non-numeric">
+      <a href="{{url_for('site_project_ITP_deliverable', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}">
+        {{deliverable.name}}
+      </a>
+    </td>
+    <td class="mdl-data-table__cell--non-numeric">{{deliverable.type}}</th>
+    <td class="mdl-data-table__cell--non-numeric">{{deliverable.status}}</td>
+    <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %deliverable.percentage_complete}}%</td>
+  </tr>
+{% endfor %}

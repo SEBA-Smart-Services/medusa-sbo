@@ -101,19 +101,49 @@
                 <th class="mdl-data-table__cell--non-numeric">Complete</th>
               </tr>
             </thead>
+            <tbody id="tbody">
+              {% for deliverable in deliverables_list.items %}
+                <tr>
+                  <td class="mdl-data-table__cell--non-numeric">
+                    <a href="{{url_for('site_project_ITP_deliverable', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}">
+                      {{deliverable.name}}
+                    </a>
+                  </td>
+                  <td class="mdl-data-table__cell--non-numeric">{{deliverable.type}}</th>
+                  <td class="mdl-data-table__cell--non-numeric">{{deliverable.status}}</td>
+                  <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %deliverable.percentage_complete}}%</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+            <col style="width:10%">
+            <col style="width:80%">
+            <col style="width:10%">
             <tbody>
-            {% for deliverable in deliverables_list.items %}
               <tr>
-                <td class="mdl-data-table__cell--non-numeric">
-                  <a href="{{url_for('site_project_ITP_deliverable', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}">
-                    {{deliverable.name}}
-                  </a>
-                </td>
-                <td class="mdl-data-table__cell--non-numeric">{{deliverable.type}}</th>
-                <td class="mdl-data-table__cell--non-numeric">{{deliverable.status}}</td>
-                <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %deliverable.percentage_complete}}%</td>
+                <div id="pagination">
+                  <td>
+                    <div style="text-align: left;">
+                      <a id="previous" href="#" style="display: none">
+                        <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_left</i>
+                      </a>
+                    </div>
+                  </td>
+                  {% if deliverables_list.next_num %}
+                    <td colspan="2">
+                      <div style="text-align: center;">
+                        <span id="page" >{{deliverables_list.page}}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div style="text-align: right;">
+                        <a id="next" href="#">
+                          <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_right</i>
+                        </a>
+                      </div>
+                    </td>
+                  {% endif%}
+                </div>
               </tr>
-            {% endfor %}
             </tbody>
           </table>
         </div>
@@ -127,35 +157,72 @@
         </div>
         <div class="table-responsive">
           <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+            <col style="width:20%">
+            <col style="width:40%">
+            <col style="width:20%">
+            <col style="width:10%">
+            <col style="width:10%">
             <thead>
               <tr>
-                <th class="mdl-data-table__cell--non-numeric">ID</th>
-                <th class="mdl-data-table__cell--non-numeric">Name</th>
                 <th class="mdl-data-table__cell--non-numeric">Deliverable Name</th>
+                <th class="mdl-data-table__cell--non-numeric">Name</th>
                 <th class="mdl-data-table__cell--non-numeric">Type</th>
                 <th class="mdl-data-table__cell--non-numeric">Status</th>
                 <th class="mdl-data-table__cell--non-numeric">Complete</th>
               </tr>
             </thead>
+            <tbody id="tbody1">
+              {% for ITC in ITCs.items %}
+                <tr>
+                  <td class="mdl-data-table__cell--non-numeric">{{ITC.deliverable.name}}</td>
+                  <td class="mdl-data-table__cell--non-numeric">
+                    <a href="{{url_for('ITC_testing', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=ITC.deliverable.id, ITCid=ITC.id)}}">
+                      {{ITC.ITC.name}}
+                    </a>
+                  </td>
+                  {% if ITC.ITC.deliverable_type %}
+                    <td class="mdl-data-table__cell--non-numeric">{{ITC.ITC.deliverable_type.name}}</td>
+                  {% else %}
+                    <td class="mdl-data-table__cell--non-numeric">no deliverable_type</td>
+                  {% endif %}
+                  <td class="mdl-data-table__cell--non-numeric">{{ITC.status}}</td>
+                  <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %ITC.percentage_complete}}%</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+            <col style="width:10%">
+            <col style="width:80%">
+            <col style="width:10%">
             <tbody>
-            {% for ITC in ITCs %}
               <tr>
-                <td class="mdl-data-table__cell--non-numeric">{{ITC.id}}</td>
-                <td class="mdl-data-table__cell--non-numeric">
-                  <a href="{{url_for('ITC_testing', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=ITC.deliverable.id, ITCid=ITC.id)}}">
-                    {{ITC.ITC.name}}
-                  </a>
-                </td>
-                <td class="mdl-data-table__cell--non-numeric">{{ITC.deliverable.name}}</td>
-                {% if ITC.ITC.deliverable_type %}
-                  <td class="mdl-data-table__cell--non-numeric">{{ITC.ITC.deliverable_type.name}}</td>
-                {% else %}
-                  <td class="mdl-data-table__cell--non-numeric">no deliverable_type</td>
-                {% endif %}
-                <td class="mdl-data-table__cell--non-numeric">{{ITC.status}}</td>
-                <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %ITC.percentage_complete}}%</td>
+                <div id="pagination1">
+                  <td>
+                    <div style="text-align: left;">
+                      <a id="previous1" href="#" style="display: none;">
+                        <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">
+                          chevron_left
+                        </i>
+                      </a>
+                    </div>
+                  </td>
+                  {% if ITCs.next_num %}
+                    <td colspan="3">
+                      <div style="text-align: center;">
+                        <span id="page1" >{{ITCs.page}}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div style="text-align: right;">
+                        <a id="next1" href="#">
+                          <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">
+                            chevron_right
+                          </i>
+                        </a>
+                      </div>
+                    </td>
+                  {% endif%}
+                </div>
               </tr>
-            {% endfor %}
             </tbody>
           </table>
         </div>
@@ -170,6 +237,88 @@
     </form>
   </div>
 
-  <br>
+  <script>
+    $(document).ready(function(){
+      $("a#previous").click(function(e){
+        e.preventDefault();
+        $.get("/_filter_deliverables_list", {siteid: "{{site.id}}",
+                                  projectid: "{{project.id}}",
+                                  page: (parseInt($("#page").html()) - 1),
+                                  ITPid: "{{ITP.id}}"},
+        function(data){
+          $("#tbody").html(data['results']);
+          $("#page").html(data['page']);
+          var page_number = $('page_number').data()
+          if (data['page'] == 1){
+            $('#previous').hide()
+          }
+          if (data['page'] != data['pages']){
+            $('#next').show()
+          }
+        });
+      });
+    });
+
+    $(document).ready(function(){
+      $("a#next").click(function(e){
+        e.preventDefault();
+        $.get("/_filter_deliverables_list", {siteid: "{{site.id}}",
+                                  projectid: "{{project.id}}",
+                                  page: (parseInt($("#page").html()) + 1),
+                                  ITPid: "{{ITP.id}}"},
+        function(data){
+          $("#tbody").html(data['results']);
+          $("#page").html(data['page']);
+          if (data['page'] == data['pages']){
+            $('#next').hide()
+          }
+          if (data['page'] != 1) {
+            $('#previous').show()
+          }
+        });
+      });
+    });
+
+    $(document).ready(function(){
+      $("a#previous1").click(function(e){
+        e.preventDefault();
+        $.get("/_filter_ITCs_list", {siteid: "{{site.id}}",
+                                  projectid: "{{project.id}}",
+                                  page: (parseInt($("#page1").html()) - 1),
+                                  ITPid: "{{ITP.id}}"},
+        function(data){
+          $("#tbody1").html(data['results']);
+          $("#page1").html(data['page']);
+          var page_number = $('page_number').data()
+          if (data['page'] == 1){
+            $('#previous1').hide()
+          }
+          if (data['page'] != data['pages']){
+            $('#next1').show()
+          }
+        });
+      });
+    });
+
+    $(document).ready(function(){
+      $("a#next1").click(function(e){
+        e.preventDefault();
+        $.get("/_filter_ITCs_list", {siteid: "{{site.id}}",
+                                  projectid: "{{project.id}}",
+                                  page: (parseInt($("#page1").html()) + 1),
+                                  ITPid: "{{ITP.id}}"},
+        function(data){
+          $("#tbody1").html(data['results']);
+          $("#page1").html(data['page']);
+          if (data['page'] == data['pages']){
+            $('#next1').hide()
+          }
+          if (data['page'] != 1) {
+            $('#previous1').show()
+          }
+        });
+      });
+    });
+  </script>
 
 {% endblock %}

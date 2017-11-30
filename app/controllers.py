@@ -914,43 +914,78 @@ def site_project_ITP(siteid, projectid, ITPid):
             if check.completion_datetime < completion_date:
                 completion_date = check.completion_datetime
 
-    PER_PAGE = 5
+    PER_PAGE = 4
     if request.args.get('page') == None:
         page = 1
     else:
         page = int(request.args.get('page'))
 
-    deliverables_list = deliverables.order_by(Deliverable.name.desc()).paginate(page, PER_PAGE, False)
+    deliverables_list = deliverables.order_by(Deliverable.name.asc()).paginate(page, PER_PAGE, False)
+    ITCs = Deliverable_ITC_map.query.filter(Deliverable_ITC_map.deliverable_id.in_([deliverable.id for deliverable in deliverables]))
+    ITCs = ITCs.order_by(Deliverable_ITC_map.deliverable_id.desc()).paginate(page, PER_PAGE, False)
 
     return render_template('ITP/project_ITP.html', site=site, project=project, ITP=project_ITP,
-            deliverables=deliverables, completion_date=completion_date, ITCs=all_ITCs,
+            deliverables=deliverables, completion_date=completion_date, ITCs=ITCs,
             percents=percents, totals=totals, deliverables_list=deliverables_list)
 
-@app.route('/filter_deliverables_list')
+@app.route('/_filter_deliverables_list')
 def filter_deliverables_list():
-    PER_PAGE = 5
+    siteid = request.args.get('siteid')
+    projectid = request.args.get('projectid')
+    ITPid = request.args.get('ITPid')
+    site = Site.query.filter_by(id=siteid).first()
+    project = Project.query.filter_by(id=projectid, site_id=site.id).first()
+    project_ITP = ITP.query.filter_by(id=ITPid, project_id=project.id).first()
+    deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id)
+
+    PER_PAGE = 4
     if request.args.get('page') == None:
         page = 1
     else:
         page = int(request.args.get('page'))
 
-    siteid = request.args.get('siteid')
-    if siteid != None:
-        site = Site.query.filter_by(id=siteid).first()
-    else:
-        site = None
-    print(site)
+    deliverables_list = deliverables.order_by(Deliverable.name.asc()).paginate(page, PER_PAGE, False)
 
-    open_tickets = FlicketTicket.query.filter(FlicketTicket.current_status.has(FlicketStatus.status == "Open"))
-    if site != None:
-        open_tickets = open_tickets.filter_by(site_id=site.id)
-    open_tickets = open_tickets.order_by(FlicketTicket.date_added.desc()).paginate(page, PER_PAGE, False)
+    pages = deliverables_list.pages
 
-    pages = open_tickets.pages
-
-    return jsonify({"results":render_template('flicket/open_ticket_table_template.html', tickets=open_tickets),
+    return jsonify({"results":render_template('deliverable/deliverable_table_template.html',
+                    deliverables_list=deliverables_list,
+                    site=site,
+                    project=project,
+                    ITP=project_ITP),
                     "page": page,
-                    "pages": pages})
+                    "pages": pages,})
+
+@app.route('/_filter_ITCs_list')
+def filter_ITCs_list():
+    siteid = request.args.get('siteid')
+    projectid = request.args.get('projectid')
+    ITPid = request.args.get('ITPid')
+
+    site = Site.query.filter_by(id=siteid).first()
+    project = Project.query.filter_by(id=projectid, site_id=site.id).first()
+    project_ITP = ITP.query.filter_by(id=ITPid, project_id=project.id).first()
+    deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id).all()
+
+    ITCs = Deliverable_ITC_map.query.filter(Deliverable_ITC_map.deliverable_id.in_([deliverable.id for deliverable in deliverables]))
+
+    PER_PAGE = 4
+    if request.args.get('page') == None:
+        page = 1
+    else:
+        page = int(request.args.get('page'))
+
+    ITCs = ITCs.order_by(Deliverable_ITC_map.deliverable_id.asc()).paginate(page, PER_PAGE, False)
+
+    pages = ITCs.pages
+
+    return jsonify({"results":render_template('specific_ITC/ITCs_table_template.html',
+                    site=site,
+                    project=project,
+                    ITP=project_ITP,
+                    ITCs=ITCs),
+                    "page": page,
+                    "pages": pages,})
 
 #Route for creating new ITP
 @app.route('/site/<siteid>/projects/<projectid>/ITP/new', methods=['POST','GET'])
@@ -1021,9 +1056,9 @@ def site_project_ITP_deliverable_list(siteid, projectid, ITPid):
     site = Site.query.filter_by(id=siteid).first()
     project = Project.query.filter_by(id=projectid, site_id=site.id).first()
     project_ITP = ITP.query.filter_by(id=ITPid, project_id=project.id).first()
-    deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id).all()
+    deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id)
 
-    for deliverable in deliverables:
+    for deliverable in deliverables.all():
         total = 0
         completed = 0
         ITCs = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
@@ -1047,7 +1082,76 @@ def site_project_ITP_deliverable_list(siteid, projectid, ITPid):
             deliverable.status = "Not Started"
         db.session.commit()
 
-    return render_template('deliverable/ITP_deliverable_list.html', site=site, project=project, ITP=project_ITP, deliverables=deliverables)
+    PER_PAGE = 4
+    if request.args.get('page') == None:
+        page = 1
+    else:
+        page = int(request.args.get('page'))
+
+    deliverables_list = deliverables.order_by(Deliverable.name.asc()).paginate(page, PER_PAGE, False)
+    all_types = Deliverable_type.query.all()
+    all_status = ['Completed', 'In Progress', 'Not started', 'Not Applicable']
+
+    return render_template('deliverable/ITP_deliverable_list.html',
+                    site=site,
+                    project=project,
+                    ITP=project_ITP,
+                    deliverables=deliverables,
+                    deliverables_list=deliverables_list,
+                    all_types=all_types,
+                    all_status=all_status)
+
+@app.route('/_filter_deliverable_list_extended', methods=['GET', 'POST'])
+def filter_deliverable_list_extended():
+    siteid = request.args.get('siteid')
+    projectid = request.args.get('projectid')
+    ITPid = request.args.get('ITPid')
+
+    site = Site.query.filter_by(id=siteid).first()
+    project = Project.query.filter_by(id=projectid, site_id=site.id).first()
+    project_ITP = ITP.query.filter_by(id=ITPid, project_id=project.id).first()
+    deliverables_list = Deliverable.query.filter_by(ITP_id=project_ITP.id)
+
+    PER_PAGE = 4
+    if request.args.get('page') == None:
+        page = 1
+    else:
+        page = int(request.args.get('page'))
+
+    siteid = request.args.get('site')
+
+    name = request.args.get('name', None)
+    if name == "":
+        deliverables_list = deliverables_list
+    else:
+        deliverables_list = deliverables_list.filter(Deliverable.name.contains(name))
+    deliver_type = request.args.get('type', None)
+    if deliver_type == "all":
+        deliverables_list = deliverables_list
+    else:
+        deliver_type = Deliverable_type.query.filter_by(name=deliver_type).first()
+        deliverables_list = deliverables_list.filter_by(deliverable_type_id=deliver_type.id)
+    status = request.args.get('status', None)
+    if status == "all":
+        deliverables_list = deliverables_list
+    else:
+        deliverables_list = deliverables_list.filter_by(status=status)
+
+    deliverables_list = deliverables_list.order_by(Deliverable.name.asc()).paginate(page, PER_PAGE, False)
+    previous_page = deliverables_list.has_prev
+    next_page = deliverables_list.has_next
+    pages = deliverables_list.pages
+    print(page)
+    print(pages)
+    return jsonify({"results":render_template('deliverable/deliverables_list_table_template.html',
+                    deliverables_list=deliverables_list,
+                    site=site,
+                    project=project,
+                    ITP=project_ITP),
+                    "page": page,
+                    "next": next_page,
+                    "previous": previous_page,
+                    "pages": pages})
 
 #Route for deliverable
 @app.route('/site/<siteid>/projects/<projectid>/ITP/<ITPid>/deliverable/<deliverableid>')
@@ -1185,7 +1289,7 @@ def site_project_ITP_deliverable_edit(siteid, projectid, ITPid, deliverableid):
     project_ITP = ITP.query.filter_by(id=ITPid, project_id=project.id).first()
     deliverable = Deliverable.query.filter_by(id=deliverableid, ITP_id=project_ITP.id).first()
     deliverable_types = Deliverable_type.query.all()
-    locations = Location.query.all()
+    locations = Location.query.filter_by(site_id=site.id).all()
     users = User.query.all()
     secondary_locations = Secondary_location.query.filter(deliverable.id == deliverable.id).all()
 
@@ -1208,6 +1312,9 @@ def site_project_ITP_deliverable_edit(siteid, projectid, ITPid, deliverableid):
             assigned_to = request.form['assigned_to']
             if (assigned_to != "" and assigned_to != deliverable.assigned_to):
                 deliverable.assigned_to = assigned_to
+            secondary_location_id = Secondary_location.query.filter_by(name=request.form['secondary_location']).first()
+            if secondary_location_id != None:
+                deliverable.secondary_location_id = secondary_location_id.id
             db.session.commit()
             if referrer == 'deliverable':
                 return redirect(url_for('site_project_ITP_deliverable_list', siteid=site.id, projectid=project.id, ITPid=project_ITP.id))

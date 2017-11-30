@@ -1,0 +1,17 @@
+{% for ITC in ITCs.items %}
+  <tr>
+    <td class="mdl-data-table__cell--non-numeric">{{ITC.deliverable.name}}</td>
+    <td class="mdl-data-table__cell--non-numeric">
+      <a href="{{url_for('ITC_testing', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=ITC.deliverable.id, ITCid=ITC.id)}}">
+        {{ITC.ITC.name}}
+      </a>
+    </td>
+    {% if ITC.ITC.deliverable_type %}
+      <td class="mdl-data-table__cell--non-numeric">{{ITC.ITC.deliverable_type.name}}</td>
+    {% else %}
+      <td class="mdl-data-table__cell--non-numeric">no deliverable_type</td>
+    {% endif %}
+    <td class="mdl-data-table__cell--non-numeric">{{ITC.status}}</td>
+    <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %ITC.percentage_complete}}%</td>
+  </tr>
+{% endfor %}
