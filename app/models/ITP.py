@@ -153,8 +153,7 @@ class ITC(db.Model):
 class ITC_group(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(255), unique=True)
-    ITC = db.relationship('ITC',
-        backref = 'group')
+    ITC = db.relationship('ITC', backref = 'group')
 
     def __repr__(self):
         return self.name
@@ -188,6 +187,7 @@ class Deliverable_ITC_map(db.Model):
         primaryjoin="Deliverable_ITC_map.id == Deliverable_check_map.deliverable_ITC_map_id")
     status = db.Column(db.String(200))
     percentage_complete = db.Column(db.Integer())
+    ITC_group_number = db.Column(db.Integer())
 
     def __init__(self, deliverable_id, ITC_id):
         self.deliverable_id = deliverable_id
@@ -206,6 +206,7 @@ class Deliverable_check_map(db.Model):
     completion_by_user_id = db.Column(db.Integer(), db.ForeignKey('user.id'))
     comments = db.Column(db.String(500))
     status = db.Column(db.String(200))
+    check_number = db.Column(db.Integer())
 
     def __init__(self, deliverable_ITC_map_id, ITC_check_id):
         self.deliverable_ITC_map_id = deliverable_ITC_map_id

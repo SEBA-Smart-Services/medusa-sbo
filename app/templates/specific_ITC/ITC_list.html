@@ -9,6 +9,7 @@
       <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
         <thead>
           <tr>
+            <th class="mdl-data-table__cell--non-numeric"></th>
             <th class="mdl-data-table__cell--non-numeric">Name</th>
             <th class="mdl-data-table__cell--non-numeric">Deliverable</th>
             <th class="mdl-data-table__cell--non-numeric">Status</th>
@@ -21,6 +22,11 @@
         {% for ITC in ITCs %}
           {% if ITC.ITC.group == group %}
             <tr>
+              {% if ITC.ITC_group_number != none %}
+                <td class="mdl-data-table__cell--non-numeric">{{ITC.ITC_group_number}}</td>
+              {% else %}
+                <td class="mdl-data-table__cell--non-numeric"></td>
+              {% endif %}
               <td class="mdl-data-table__cell--non-numeric">
                 <a href="{{url_for('ITC_testing', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id)}}">
                   {{ITC.ITC.name}}
@@ -44,9 +50,9 @@
               </td>
             </tr>
           </tbody>
-        </table>
-      {% endif %}
-    {% endfor %}
+        {% endif %}
+      {% endfor %}
+    </table>
   {% endfor %}
   </div>
 

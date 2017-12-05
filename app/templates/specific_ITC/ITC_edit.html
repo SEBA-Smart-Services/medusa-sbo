@@ -7,17 +7,27 @@
 
   <div>
     <form method="POST" action="{{url_for('site_project_ITP_deliverable_ITC_edit', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id)}}">
-      <input type="text" name="ITC_name" placeholder="ITC Name" class="mdl-textfield__input">
-      <br>
-      <input type="text" name="ITC_comment" placeholder="Give a description of the ITC" class="mdl-textfield__input">
-      <br>
-      <select name="ITC_status" class="mdl-textfield__input">
-        <option value="Not Started">Not Started</option>
-        <option value="In Progress">In Progress</option>
-        <option value="Completed">Completed</option>
-        <option value="Not Applicable">Not Applicable</option>
-      </select>
-      <br>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        <input type="text" value="{{ ITC.ITC.name }}" name="ITC_name" class="mdl-textfield__input">
+        <label class="mdl-textfield__label">ITC Name</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        <input type="text" value="{{ ITC.comments }}" name="ITC_comment" class="mdl-textfield__input">
+        <label class="mdl-textfield__label">ITC Comments</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        <input type="number" value="{{ ITC.ITC_group_number }}" name="group_number" class="mdl-textfield__input">
+        <label class="mdl-textfield__label">ITC Group Number</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        <select name="ITC_status" class="mdl-textfield__input">
+          <option value="Not Started">Not Started</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
+          <option value="Not Applicable">Not Applicable</option>
+        </select>
+        <label class="mdl-textfield__label">Deliverable Status</label>
+      </div>
       <input type="submit" value="Save Changes" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
     </form>
 

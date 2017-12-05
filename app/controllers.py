@@ -30,6 +30,7 @@ from wtforms import TextField, PasswordField, validators
 from werkzeug.security import check_password_hash
 from flask_security.utils import encrypt_password
 from flask_paginate import Pagination
+from collections import Counter
 
 # enforce login required for all pages
 @app.before_request
@@ -1082,7 +1083,7 @@ def site_project_ITP_deliverable_list(siteid, projectid, ITPid):
             deliverable.status = "Not Started"
         db.session.commit()
 
-    PER_PAGE = 4
+    PER_PAGE = 5
     if request.args.get('page') == None:
         page = 1
     else:
@@ -1112,7 +1113,7 @@ def filter_deliverable_list_extended():
     project_ITP = ITP.query.filter_by(id=ITPid, project_id=project.id).first()
     deliverables_list = Deliverable.query.filter_by(ITP_id=project_ITP.id)
 
-    PER_PAGE = 4
+    PER_PAGE = 5
     if request.args.get('page') == None:
         page = 1
     else:
@@ -1249,6 +1250,11 @@ def site_project_ITP_deliverable_new(siteid, projectid, ITPid):
             for itc in ITCs:
                 deliver_itc = Deliverable_ITC_map(deliverable.id, itc.id)
                 db.session.add(deliver_itc)
+
+                #Adding a ITC group number
+                created_ITCs = ITC.query.join(Deliverable_ITC_map, ITC.id.in_([itc.ITC_id for itc in deliverable.Deliverable_ITC_map])).all()
+                counts = Counter(x.group for x in created_ITCs)
+                deliver_itc.ITC_group_number = (counts[itc.group] + 1)
                 db.session.commit()
 
             deliver_itcs = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
@@ -1257,6 +1263,8 @@ def site_project_ITP_deliverable_new(siteid, projectid, ITPid):
                 for ITC_check in ITC_checks:
                     deliver_check = Deliverable_check_map(deliver_itc.id, ITC_check.id)
                     db.session.add(deliver_check)
+                    check_number = deliver_itc.deliverable_check_map
+                    deliver_check.check_number = len(check_number)
                     db.session.commit()
 
             return redirect(url_for('site_project_ITP_deliverable_list', siteid=site.id, projectid=project.id, ITPid= project_ITP.id))
@@ -1382,6 +1390,10 @@ def site_project_ITP_deliverable_ITC_list(siteid, projectid, ITPid, deliverablei
         if ITC.ITC.group in ITC_groups:
             groups.append(ITC.ITC.group)
 
+    groups = list(set(groups))
+    groups = sorted(groups, key=lambda x: x.name)
+    print(groups)
+
     return render_template('specific_ITC/ITC_list.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITCs=ITP_ITCs, groups=groups)
 
 #Route for editing a current ITC
@@ -1396,14 +1408,36 @@ def site_project_ITP_deliverable_ITC_edit(siteid, projectid, ITPid, deliverablei
 
     if request.method == 'POST':
         ITC_name = request.form['ITC_name']
-        if (ITC_name != "" and ITC_name != ITP_ITC.name):
-            ITP_ITC.name = ITC_name
+        if (ITC_name != "" and ITC_name != ITP_ITC.ITC.name):
+            ITP_ITC.ITC.name = ITC_name
         ITC_status = request.form['ITC_status']
         if (ITC_status != "" and ITC_status != ITP_ITC.status):
             ITP_ITC.status = ITC_status
         ITC_comment = request.form['ITC_comment']
-        if (ITC_comment != "" and ITC_comment != ITP_ITC.comment):
-            ITP_ITC.comment = ITC_comment
+        if (ITC_comment != "" and ITC_comment != ITP_ITC.comments):
+            ITP_ITC.comments = ITC_comment
+
+        #update ITC group number
+        created_ITCs = ITC.query.join(Deliverable_ITC_map, ITC.id.in_([itc.ITC_id for itc in deliverable.Deliverable_ITC_map])).all()
+        counts = Counter(x.group for x in created_ITCs)[ITP_ITC.ITC.group]
+        remain_ITCs = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
+        ITC_group_number = int(request.form['group_number'])
+        if (ITC_group_number != None and ITC_group_number != "" and ITC_group_number != ITP_ITC.ITC_group_number):
+            if ITC_group_number >= counts:
+                for itc in remain_ITCs:
+                    if itc.ITC.group == ITP_ITC.ITC.group:
+                        if itc.ITC_group_number > ITP_ITC.ITC_group_number:
+                            itc.ITC_group_number -= 1
+                ITP_ITC.ITC_group_number = counts
+            if ITC_group_number < counts:
+                for itc in remain_ITCs:
+                    if itc.ITC.group == ITP_ITC.ITC.group:
+                        if itc.ITC_group_number >= ITC_group_number and itc.ITC_group_number < ITP_ITC.ITC_group_number:
+                            itc.ITC_group_number += 1
+                ITP_ITC.ITC_group_number = ITC_group_number
+        else:
+            ITP_ITC.ITC_group_number = ITC_group_number
+
         db.session.commit()
         return redirect(url_for('site_project_ITP_deliverable_ITC_list', siteid=site.id, projectid=project.id, ITPid=project_ITP.id, deliverableid=deliverable.id))
     else:
@@ -1418,8 +1452,17 @@ def site_project_ITP_deliverable_ITC_delete(siteid, projectid, ITPid, deliverabl
     deliverable = Deliverable.query.filter_by(ITP_id=project_ITP.id, id=deliverableid).first()
     ITP_ITC = Deliverable_ITC_map.query.filter_by(id=ITCid).first()
 
+
     if request.method == 'POST':
+        created_ITCs = ITC.query.join(Deliverable_ITC_map, ITC.id.in_([itc.ITC_id for itc in deliverable.Deliverable_ITC_map])).all()
+        counts = Counter(x.group for x in created_ITCs)[ITP_ITC.ITC.group]
+        group_number = ITP_ITC.ITC_group_number
         db.session.delete(ITP_ITC)
+        if group_number != None and group_number < counts:
+            remain_ITCs = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
+            for itc in remain_ITCs:
+                if itc.ITC_group_number > group_number:
+                    itc.ITC_group_number -= 1
         db.session.commit()
         return redirect(url_for('site_project_ITP_deliverable_ITC_list', siteid=site.id, projectid=project.id, ITPid=project_ITP.id, deliverableid=deliverable.id))
     else:
@@ -1438,7 +1481,21 @@ def site_project_ITP_deliverable_ITC_add(siteid, projectid, ITPid, deliverableid
         itc = ITC.query.filter_by(id=request.form['ITC']).first()
         deliver_itc = Deliverable_ITC_map(deliverable.id, itc.id)
         db.session.add(deliver_itc)
+
+        created_ITCs = ITC.query.join(Deliverable_ITC_map, ITC.id.in_([itc.ITC_id for itc in deliverable.Deliverable_ITC_map])).all()
+        counts = Counter(x.group for x in created_ITCs)
+        deliver_itc.ITC_group_number = (counts[itc.group])
+
         db.session.commit()
+
+        ITC_checks = ITC_check_map.query.filter_by(ITC_id=deliver_itc.ITC_id).all()
+        for ITC_check in ITC_checks:
+            deliver_check = Deliverable_check_map(deliver_itc.id, ITC_check.id)
+            db.session.add(deliver_check)
+            check_number = deliver_itc.deliverable_check_map
+            deliver_check.check_number = len(check_number)
+            db.session.commit()
+
         return redirect(url_for('site_project_ITP_deliverable_ITC_list', siteid=site.id, projectid=project.id, deliverableid=deliverable.id, ITPid=project_ITP.id))
     else:
         return render_template('ITC_add.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITCs=ITCs)
@@ -1508,6 +1565,8 @@ def start_ITC_testing(siteid, projectid, ITPid, deliverableid, ITCid):
     for ITC_check in ITC_checks:
         deliver_check = Deliverable_check_map(deliver_ITC.id, ITC_check.id)
         db.session.add(deliver_check)
+        check_number = deliver_ITC.deliverable_check_map
+        deliver_check.check_number = len(check_number)
         db.session.commit()
 
     deliver_ITC.status = "In Progress"
@@ -1548,7 +1607,10 @@ def ITC_testing(siteid, projectid, ITPid, deliverableid, ITCid):
         deliver_ITC.status = "In Progress"
     db.session.commit()
 
-    print(deliver_ITC.comments)
+    try:
+        deliverable_checks = sorted(deliverable_checks, key=lambda x: x.check_number)
+    except:
+        pass
 
     return render_template('specific_ITC/ITC.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=deliver_ITC, checks=deliverable_checks, ITCid=ITCid, percentage_complete=percentage_complete)
 
@@ -1574,6 +1636,24 @@ def site_project_ITP_deliverable_ITC_check_edit(siteid, projectid, ITPid, delive
             check.status = check_status
             if (request.form['check_status'] == "Completed"):
                 check.is_done = True
+
+        #update check number
+        checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=ITP_ITC.id).all()
+        counts = len(checks)
+        print(counts)
+        check_number = int(request.form['check_number'])
+        if (check_number != None and check_number != "" and check_number != check.check_number):
+            if check_number >= counts:
+                for remain_check in checks:
+                    if remain_check.check_number > check.check_number:
+                        remain_check.check_number -= 1
+                check.check_number = counts
+            if check_number < counts:
+                for remain_check in checks:
+                    if remain_check.check_number >= check_number and remain_check.check_number < check.check_number:
+                        remain_check.check_number += 1
+                check.check_number = check_number
+
         db.session.commit()
         return redirect(url_for('ITC_testing', siteid=site.id, projectid=project.id, deliverableid=deliverable.id, ITPid=project_ITP.id, ITCid=ITP_ITC.id))
     else:
@@ -1590,7 +1670,14 @@ def site_project_ITP_deliverable_ITC_check_delete(siteid, projectid, ITPid, deli
     check = Deliverable_check_map.query.filter_by(id=checkid).first()
 
     if request.method == 'POST':
+        checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=ITP_ITC.id).all()
+        counts = len(checks)
+        check_number = check.check_number
         db.session.delete(check)
+        if (check_number != None and check_number < counts):
+            for remain_check in checks:
+                if remain_check.check_number > check.check_number:
+                    remain_check.check_number -= 1
         db.session.commit()
         return redirect(url_for('ITC_testing', siteid=site.id, projectid=project.id, deliverableid=deliverable.id, ITPid=project_ITP.id, ITCid=ITP_ITC.id))
     else:

@@ -27,6 +27,7 @@
         <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
           <thead>
             <tr>
+              <th class="mdl-data-table__cell--non-numeric"></th>
               <th class="mdl-data-table__cell--non-numeric">Description</th>
               <th class="mdl-data-table__cell--non-numeric">Status</th>
               <th class="mdl-data-table__cell--non-numeric">Completed?</th>
@@ -38,6 +39,11 @@
           <tbody>
           {% for check in checks %}
             <tr>
+              {% if check.check_number != none %}
+                <td class="mdl-data-table__cell--non-numeric">{{check.check_number}}</th>
+              {% else %}
+                <td class="mdl-data-table__cell--non-numeric"></th>
+              {% endif %}
               <td class="mdl-data-table__cell--non-numeric">{{check.ITC_check.check.check_description}}</th>
               <td class="mdl-data-table__cell--non-numeric">{{check.status}}</td>
               <td class="mdl-data-table__cell--non-numeric">
