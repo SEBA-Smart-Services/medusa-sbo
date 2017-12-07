@@ -142,10 +142,10 @@
               <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_left</i>
             </a>
           </div>
-          {% if tickets.next_num %}
           <div class="mdl-cell mdl-cell--4-col" style="text-align: center;">
             <span id="page" >{{tickets.page}}</span>
           </div>
+          {% if tickets.next_num %}
           <div class="mdl-cell mdl-cell--4-col" style="text-align: right;">
             <a id="next" href="#">
               <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_right</i>
@@ -234,4 +234,6 @@
         });
       });
     });
+
+  </script>
 {% endblock %}

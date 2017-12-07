@@ -96,7 +96,7 @@ def dashboard_all():
     else:
         sites = current_user.sites
 
-    PER_PAGE = 6
+    PER_PAGE = 5
     if request.args.get('page') == None:
         page = 1
     else:
@@ -161,7 +161,7 @@ def dashboard_all():
 
 @app.route('/filter_open_tickets')
 def filter_open_tickets():
-    PER_PAGE = 6
+    PER_PAGE = 5
     if request.args.get('page') == None:
         page = 1
     else:
