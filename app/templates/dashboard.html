@@ -57,83 +57,102 @@
         <div class="mdl-card__title"><h2 class="mdl-card__title-text">Alarms</h2></div>
         <div id="chart_div" style="width:92.5%; padding-left:5%"></div>
 
-	<div class="mdl-card__actions mdl-card--border">
- 	<a
-	{% if site is defined %}
-		href="{{ url_for('alarm_list', sitename=site.name)  }}"
-	{% else %}
-		href="{{ url_for('alarm_list', sitename="all")  }}"
-	{% endif %}
-	class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" style="color: rgb(68,138,255);">
-      	View
-	</a>
-	</div>
-
+      	<div class="mdl-card__actions mdl-card--border">
+       	<a
+      	{% if site is defined %}
+      		href="{{ url_for('alarm_list', sitename=site.name)  }}"
+      	{% else %}
+      		href="{{ url_for('alarm_list', sitename="all")  }}"
+      	{% endif %}
+      	class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" style="color: rgb(68,138,255);">
+            	View
+      	</a>
+      	</div>
       </div>
-
     </div>
+
 
     <div class="mdl-cell mdl-cell--6-col mdl-grid mdl-cell--8-col-tablet">
       <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
         <div class="mdl-card__title">
           <h2 class="mdl-card__title-text">Support tickets</h2>
         </div>
-        <table class="mdl-data-table mdl-js-data-table" style="width:100%;table-layout:fixed;white-space: normal;">
-          <thead>
-            <tr>
-              <th class="mdl-data-table__cell--non-numeric">
-                Due date
-              </th>
-              <th class="mdl-data-table__cell--non-numeric">
-                  Name
-              </th>
-              <th class="mdl-data-table__cell--non-numeric">
-                  Priority
-              </th>
-              <th class="mdl-data-table__cell--non-numeric">
-                  Category
-              </th>
-              <th class="mdl-data-table__cell--non-numeric">
-                  Status
-              </th>
-              <th class="mdl-data-table__cell--non-numeric">
-                Submitted by
-              </th>
-              <th class="mdl-data-table__cell--non-numeric">
-                  Assigned to
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for ticket in tickets %}
+        <div class="table-responsive">
+          <table class="mdl-data-table mdl-js-data-table" style="width:100%;table-layout:fixed;white-space: normal;">
+            <thead>
               <tr>
-                <td class="mdl-data-table__cell--non-numeric">
-                  {% if ticket.date_due != None %}
-                    {{ ticket.date_due.strftime('%Y-%m-%d') }}
-                  {% endif %}
-                </td>
-                <td class="mdl-data-table__cell--non-numeric">
-                  {{ticket.ticket_name}}
-                </td>
-                <td class="mdl-data-table__cell--non-numeric">
-                  {{ticket.ticket_priority.priority}}
-                </td>
-                <td class="mdl-data-table__cell--non-numeric">
-                  {{ ticket.category.category }}
-                </td>
-                <td class="mdl-data-table__cell--non-numeric">
-                  {{ ticket.current_status.status }}
-                </td>
-                <td class="mdl-data-table__cell--non-numeric">
-                  {{ticket.user.first_name}} {{ticket.user.last_name}}
-                </td>
-                <td class="mdl-data-table__cell--non-numeric">
-                    {{ ticket.assigned.first_name }} {{ ticket.assigned.last_name }}
-                </td>
+                <th class="mdl-data-table__cell--non-numeric">
+                  Due date
+                </th>
+                <th class="mdl-data-table__cell--non-numeric">
+                    Name
+                </th>
+                <th class="mdl-data-table__cell--non-numeric">
+                    Priority
+                </th>
+                <th class="mdl-data-table__cell--non-numeric">
+                    Category
+                </th>
+                <th class="mdl-data-table__cell--non-numeric">
+                    Status
+                </th>
+                <th class="mdl-data-table__cell--non-numeric">
+                  Submitted by
+                </th>
+                <th class="mdl-data-table__cell--non-numeric">
+                    Assigned to
+                </th>
               </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+            </thead>
+            <tbody id="tbody">
+              {% for ticket in tickets.items %}
+                <tr>
+                  <td class="mdl-data-table__cell--non-numeric">
+                    {% if ticket.date_due != None %}
+                      {{ ticket.date_due.strftime('%Y-%m-%d') }}
+                    {% endif %}
+                  </td>
+                  <td class="mdl-data-table__cell--non-numeric">
+                    {{ticket.ticket_name}}
+                  </td>
+                  <td class="mdl-data-table__cell--non-numeric">
+                    {{ticket.ticket_priority.priority}}
+                  </td>
+                  <td class="mdl-data-table__cell--non-numeric">
+                    {{ ticket.category.category }}
+                  </td>
+                  <td class="mdl-data-table__cell--non-numeric">
+                    {{ ticket.current_status.status }}
+                  </td>
+                  <td class="mdl-data-table__cell--non-numeric">
+                    {{ticket.user.first_name}} {{ticket.user.last_name}}
+                  </td>
+                  <td class="mdl-data-table__cell--non-numeric">
+                      {{ ticket.assigned.first_name }} {{ ticket.assigned.last_name }}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div id="pagination" class="mdl-cell mdl-cell--12-col mdl-grid">
+          <div class="mdl-cell mdl-cell--4-col">
+            <a id="previous" href="#" style="display: none">
+              <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_left</i>
+            </a>
+          </div>
+          <div class="mdl-cell mdl-cell--4-col" style="text-align: center;">
+            <span id="page" >{{tickets.page}}</span>
+          </div>
+          {% if tickets.next_num %}
+          <div class="mdl-cell mdl-cell--4-col" style="text-align: right;">
+            <a id="next" href="#">
+              <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_right</i>
+            </a>
+          </div>
+          {% endif%}
+        </div>
       </div>
     </div>
   </div>
@@ -176,5 +195,45 @@
       $(window).resize(function(){
          drawAnnotations();
       });
+  </script>
+
+  <script>
+    $(document).ready(function(){
+      $("a#previous").click(function(e){
+        e.preventDefault();
+        $.get("/filter_open_tickets", {page: (parseInt($("#page").html()) - 1),
+                                      site: "{{site}}"},
+        function(data){
+          $("#tbody").html(data['results']);
+          $("#page").html(data['page']);
+          var page_number = $('page_number').data()
+          if (data['page'] == 1){
+            $('#previous').hide()
+          }
+          if (data['page'] != data['pages']){
+            $('#next').show()
+          }
+        });
+      });
+    });
+
+    $(document).ready(function(){
+      $("a#next").click(function(e){
+        e.preventDefault();
+        $.get("/filter_open_tickets", {page: (parseInt($("#page").html()) + 1),
+                                  site: "{{site}}"},
+        function(data){
+          $("#tbody").html(data['results']);
+          $("#page").html(data['page']);
+          if (data['page'] == data['pages']){
+            $('#next').hide()
+          }
+          if (data['page'] != 1) {
+            $('#previous').show()
+          }
+        });
+      });
+    });
+
   </script>
 {% endblock %}

@@ -1,0 +1,21 @@
+{% for deliverable in deliverables_list.items %}
+  <tr>
+    <td class="mdl-data-table__cell--non-numeric">
+      <a href="{{url_for('site_project_ITP_deliverable', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}">
+        {{deliverable.name}}
+      </a>
+    </td>
+    <td class="mdl-data-table__cell--non-numeric">{{deliverable.description}}</td>
+    <td class="mdl-data-table__cell--non-numeric">{{deliverable.type.name}}</td>
+    <td class="mdl-data-table__cell--non-numeric">{{deliverable.status}}</td>
+    <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %deliverable.percentage_complete}}%</td>
+    <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
+      <a href="{{url_for('site_project_ITP_deliverable_edit', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}">
+        Edit
+      </a>/
+      <a href="{{url_for('site_project_ITP_deliverable_delete', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}">
+        Delete
+      </a>
+    </td>
+  </tr>
+{% endfor %}

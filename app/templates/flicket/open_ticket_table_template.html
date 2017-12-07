@@ -1,0 +1,27 @@
+{% for ticket in tickets.items %}
+  <tr>
+    <td class="mdl-data-table__cell--non-numeric">
+      {% if ticket.date_due != None %}
+        {{ ticket.date_due.strftime('%Y-%m-%d') }}
+      {% endif %}
+    </td>
+    <td class="mdl-data-table__cell--non-numeric">
+      {{ticket.ticket_name}}
+    </td>
+    <td class="mdl-data-table__cell--non-numeric">
+      {{ticket.ticket_priority.priority}}
+    </td>
+    <td class="mdl-data-table__cell--non-numeric">
+      {{ ticket.category.category }}
+    </td>
+    <td class="mdl-data-table__cell--non-numeric">
+      {{ ticket.current_status.status }}
+    </td>
+    <td class="mdl-data-table__cell--non-numeric">
+      {{ticket.user.first_name}} {{ticket.user.last_name}}
+    </td>
+    <td class="mdl-data-table__cell--non-numeric">
+        {{ ticket.assigned.first_name }} {{ ticket.assigned.last_name }}
+    </td>
+  </tr>
+{% endfor %}

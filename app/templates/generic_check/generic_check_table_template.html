@@ -1,0 +1,14 @@
+{% for check in checks.items %}
+  <tr>
+    <td class="mdl-data-table__cell--non-numeric">{{check.id}}</th>
+    <td class="mdl-data-table__cell--non-numeric">{{check.check_description}}</td>
+    <td class="mdl-data-table__cell--non-numeric">
+      <a href="/generic/check/{{check.id}}/edit">
+        Edit
+      </a>/
+      <a href="/generic/check/{{check.id}}/delete">
+        Delete
+      </a>
+    </td>
+  </tr>
+{% endfor %}

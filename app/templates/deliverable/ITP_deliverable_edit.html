@@ -10,7 +10,7 @@
   <br>
 
   <div>
-    <form action="/site/{{ site.name }}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable/{{deliverable.name}}/edit" method="POST">
+    <form action="{{url_for('site_project_ITP_deliverable_edit', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}" method="POST">
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
         <input type="text" name="deliverable_name" value="{{deliverable.name}}" class="mdl-textfield__input">
         <label class="mdl-textfield__label">Deliverable Name</label>
@@ -24,8 +24,57 @@
         <label class="mdl-textfield__label">Deliverable Description</label>
       </div>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
-        <input type="date" name="start_date" placeholder="" value="{{deliverable.start_date}}" class="mdl-textfield__input">
+        <input type="date" name="start_date" placeholder="" value="{{deliverable.start_date.strftime('%Y-%m-%d')}}" class="mdl-textfield__input">
         <label class="mdl-textfield__label">Deliverable Start Date</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        {% if deliverable.location != "" %}
+          <select name="deliverable_type" class="mdl-textfield__input">
+            <option value="{{ deliverable.type }}">{{ deliverable.type }}</option>
+        {% else %}
+        <select name="deliverable_type" class="mdl-textfield__input">
+          <option value=""></option>
+        {% endif %}
+          {% for type in types %}
+            {% if type.id != deliverable.deliverable_type_id %}
+              <option value="{{type.name}}">{{type.name}}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+        <label class="mdl-textfield__label">Deliverable Type</label>
+      </div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
+        {% if deliverable.location != "" %}
+          <select name="deliverable_location" id="deliverLocation" class="mdl-textfield__input">
+            <option value="{{ deliverable.location }}">{{ deliverable.location }}</option>
+        {% else %}
+          <select name="deliverable_location" id="deliverLocation" class="mdl-textfield__input">
+            <option value=""></option>
+        {% endif %}
+          {% for location in locations %}
+            {% if location.id != deliverable.location_id %}
+              <option value="{{location.name}}">{{location.name}}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+        <label class="mdl-textfield__label">Deliverable Location</label>
+      </div>
+      {% if deliverable.secondary != "" %}
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col" id="secondaryLocation">
+          <select name="secondary_location" id="secondarySelect" class="mdl-textfield__input">
+            <option value="{{ deliverable.secondary }}">{{ deliverable.secondary }}</option>
+        {% else %}
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col" id="secondaryLocation" style="display: none;">
+            <select name="secondary_location" id="secondarySelect" class="mdl-textfield__input">
+              <option value=""></option>
+        {% endif %}
+        {% for secondary in secondary_locations %}
+          {% if secondary.id != deliverable.secondary_location_id %}
+            <option value="{{secondary.name}}">{{secondary.name}}</option>
+          {% endif %}
+        {% endfor %}
+        </select>
+        <label class="mdl-textfield__label">Secondary Location</label>
       </div>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
         <select name="assigned_to" class="mdl-textfield__input">
@@ -51,11 +100,31 @@
     <br>
 
     <div>
-      <form action="/site/{{site.name}}/projects/{{project.name}}/ITP/{{ITP.name}}/deliverable" method="GET">
+      {% if referrer == 'deliverable' %}
+        <form action="{{url_for('site_project_ITP_deliverable_list', siteid=site.id, projectid=project.id, ITPid=ITP.id)}}" method="GET">
+      {% else %}
+        <form action="{{url_for('site_project_ITP_deliverable', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}" method="GET">
+      {% endif %}
         <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
         </input>
       </form>
     </div>
   </div>
+
+  <script>
+    $(document).ready(function(){
+      $("#deliverLocation").change(function(){
+        if ($("#deliverLocation option:selected") == ""){
+          $("#secondaryLocation").css("display", "none")
+        } else {
+          $("#secondaryLocation").css("display", "inline-block")
+        }
+        $.get("/_get_secondary", {location: $('#deliverLocation option:selected').val()},
+        function(data){
+          $("#secondarySelect").html(data['results']);
+        });
+      });
+    });
+  </script>
 
 {% endblock %}

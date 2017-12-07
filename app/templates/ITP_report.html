@@ -21,49 +21,482 @@
   </head>
 
   <body>
+    <style>
+      table {
+        border-collapse: collapse;
+        color: #333;
+        margin: auto;
+      }
+
+      td, th {
+        border: 1px solid #ccc;
+        padding: 0.5em;
+      }
+
+      table table {
+        direction: ltr;
+      }
+      p{
+        margin-top: 0;
+        margin-bottom: 0;
+        margin-left: 0;
+        margin-right: 0;
+        font-size: 8pt;
+      }
+    </style>
     <h2 style="text-align:center">Inspection and Test Plan Report - {{project.name}}</h2>
     <br>
     <h4>Job Number:</h4> {{project.job_number}}
     <br>
     <h4>Description:</h4> {{project_ITP.name}}
     <br>
-    <h4>Location:</h4> {{site.name}}
+    <h4>Site:</h4> {{site.name}}
     <br>
     <h4>Start Date:</h4> {{project.start_date.strftime('%d-%m-%Y')}}
     <br>
-    <h4>Completion Date:</h4>
     {% if project.completion_date != none %}
+    <h4>Completion Date:</h4>
       {{project.completion_date.strftime('%d-%m-%Y')}}
+    <br>
     {% endif %}
-    <br>
-    <h4>Assigned to:</h4> {{project.assigned_to}}
-    <br>
+    {% if project.assigned_to != none %}
+      <h4>Assigned to:</h4>
+        {{project.assigned_to}}
+      <br>
+    {% endif %}
     <p style="page-break-after: always"></p>
-    {% for deliverable in deliverables %}
-      <h3>{{deliverable.name}} - {{deliverable.type.name}}</h3>
-      <table class="mdl-data-table mdl-js-data-table" style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
-        <thead>
-          <tr>
-            <th class="mdl-data-table__cell--non-numeric">ITC ID</th>
-            <th class="mdl-data-table__cell--non-numeric">Name</th>
-            <th class="mdl-data-table__cell--non-numeric">Status</th>
-            <th class="mdl-data-table__cell--non-numeric">Complete</th>
-          </tr>
-        </thead>
+    <h4><u>Deliverable Schedule</u></h4>
+
+    <h5>DDC Deliverable Group</h5>
+    <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
+      <thead>
+        <col style="width:25%">
+        <col style="width:25%">
+        <col style="width:25%">
+        <col style="width:25%">
+        <tr  style="background-color: lightgrey !important;">
+          <th>Name</th>
+          <th>Type</th>
+          <th>Location</th>
+          <th>Sublocation</th>
+        </tr>
+      </thead>
         <tbody>
-        {% for ITC in ITCs %}
-          {% if ITC.deliverable.id == deliverable.id %}
+        {% for deliverable in deliverables %}
+          {% if deliverable.type.name in DDC_group %}
             <tr>
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.id}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.ITC.name}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.status}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.percentage_complete}}%</td>
+              <td>{{deliverable.name}}</td>
+              <td>{{deliverable.type}}</td>
+              <td>{{deliverable.location}}</td>
+              {% if deliverable.secondary != none %}
+                <td>{{deliverable.secondary}}</td>
+              {% else %}
+                <td></td>
+              {% endif %}
             </tr>
           {% endif %}
         {% endfor %}
+      </tbody>
+    </table>
+
+    <h5>Plant Deliverable Group</h5>
+    <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
+      <thead>
+        <col style="width:25%">
+        <col style="width:25%">
+        <col style="width:25%">
+        <col style="width:25%">
+        <tr  style="background-color: lightgrey !important;">
+          <th>Name</th>
+          <th>Type</th>
+          <th>Location</th>
+          <th>Sublocation</th>
+        </tr>
+      </thead>
+        <tbody>
+        {% for deliverable in deliverables %}
+          {% if deliverable.type.name not in DDC_group %}
+            <tr>
+              <td>{{deliverable.name}}</td>
+              <td>{{deliverable.type}}</td>
+              <td>{{deliverable.location}}</td>
+              {% if deliverable.secondary != none %}
+                <td>{{deliverable.secondary}}</td>
+              {% else %}
+                <td></td>
+              {% endif %}
+            </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="page-break-after: always"></p>
+    <h4><u>ITC Schedule</u></h4>
+
+    <h5>DDC Deliverable Group</h5>
+    <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
+      <thead>
+        <col style="width:20%">
+        <col style="width:20%">
+        <col style="width:20%">
+        <col style="width:20%">
+        <col style="width:20%">
+        <tr  style="background-color: lightgrey !important;">
+          <th>Type</th>
+          <th>ITC Template Short Name</th>
+          <th>ITC Template Description</th>
+          <th>ITC Template Version</th>
+          <th>ITC Template Code</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for deliverable_type in deliverable_types %}
+          {% if deliverable_type.name in DDC_group %}
+          <tr>
+            <td style="vertical-align:top;">{{deliverable_type}}</td>
+            <td colspan="4" style="padding: 0">
+              <table id="nest_table" style="width:100%;">
+                <tbody>
+                  <col style="width:25%">
+                  <col style="width:25%">
+                  <col style="width:25%">
+                  <col style="width:25%">
+                  {% for ITC in deliverable_type.ITC %}
+                    <tr>
+                      <td>{{ITC.group.short_name}}</td>
+                      <td>{{ITC.name}}</td>
+                      <td>
+                        {% if ITC.major_revision_number != none %}
+                          {{ITC.major_revision_number}}.
+                        {% else %}
+                          0.
+                        {% endif %}
+                        {% if ITC.minor_revision_number != none %}
+                          {{ITC.minor_revision_number}}.
+                        {% else %}
+                          1.
+                        {% endif %}
+                        {% if ITC.maintenance_revision_number != none %}
+                          {{ITC.maintenance_revision_number}}
+                        {% else %}
+                          0
+                        {% endif %}
+                      </td>
+                      <td>
+                        {{deliverable_type}}_
+                        {{ITC.group.short_name}}_
+                        {% if ITC.major_revision_number != none %}
+                          {{ITC.major_revision_number}}.
+                        {% else %}
+                          0.
+                        {% endif %}
+                        {% if ITC.minor_revision_number != none %}
+                          {{ITC.minor_revision_number}}.
+                        {% else %}
+                          1.
+                        {% endif %}
+                        {% if ITC.maintenance_revision_number != none %}
+                          {{ITC.maintenance_revision_number}}
+                        {% else %}
+                          0
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h5>Plant Deliverable Group</h5>
+    <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
+      <thead>
+        <col style="width:20%">
+        <col style="width:20%">
+        <col style="width:20%">
+        <col style="width:20%">
+        <col style="width:20%">
+        <tr  style="background-color: lightgrey !important;">
+          <th>Type</th>
+          <th>ITC Template Short Name</th>
+          <th>ITC Template Description</th>
+          <th>ITC Template Version</th>
+          <th>ITC Template Code</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for deliverable_type in deliverable_types %}
+          {% if deliverable_type.name not in DDC_group %}
+          <tr>
+            <td style="vertical-align:top;">{{deliverable_type}}</td>
+            <td colspan="4" style="padding: 0">
+              <table id="nest_table" style="width:100%;">
+                <tbody>
+                  <col style="width:25%">
+                  <col style="width:25%">
+                  <col style="width:25%">
+                  <col style="width:25%">
+                  {% for ITC in deliverable_type.ITC %}
+                    <tr>
+                      <td>{{ITC.group.short_name}}</td>
+                      <td>{{ITC.name}}</td>
+                      <td>
+                        {% if ITC.major_revision_number != none %}
+                          {{ITC.major_revision_number}}.
+                        {% else %}
+                          0.
+                        {% endif %}
+                        {% if ITC.minor_revision_number != none %}
+                          {{ITC.minor_revision_number}}.
+                        {% else %}
+                          1.
+                        {% endif %}
+                        {% if ITC.maintenance_revision_number != none %}
+                          {{ITC.maintenance_revision_number}}
+                        {% else %}
+                          0
+                        {% endif %}
+                      </td>
+                      <td>
+                        {{deliverable_type}}_
+                        {{ITC.group.short_name}}_
+                        {% if ITC.major_revision_number != none %}
+                          {{ITC.major_revision_number}}.
+                        {% else %}
+                          0.
+                        {% endif %}
+                        {% if ITC.minor_revision_number != none %}
+                          {{ITC.minor_revision_number}}.
+                        {% else %}
+                          1.
+                        {% endif %}
+                        {% if ITC.maintenance_revision_number != none %}
+                          {{ITC.maintenance_revision_number}}
+                        {% else %}
+                          0
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="page-break-after: always"></p>
+    <h6><u>SECTION 1 - Checklists</u></h6>
+    {% for deliverable in deliverables %}
+      <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
+        <tbody>
+          <col style="width:35%">
+          <col style="width:30%">
+          <col style="width:35%">
+          <tr>
+            <td><b>SCHNEIDER ELECTRIC<b></td>
+            <td>{{deliverable.name}} - {{deliverable.type.name}}</td>
+            <td style="padding: 0">
+              <table id="nest_table" style="width:100%; border-collapse: collapse;">
+                <tbody>
+                  <tr>
+                    <td colspan="2">Ref: </td>
+                  </tr>
+                  <tr>
+                    <td colspan="2">Project: {{deliverable.ITP.project}}</td>
+                  </tr>
+                  <tr>
+                    <td colspan="2">Job number: {{deliverable.ITP.project.job_number}}</td>
+                  </tr>
+                  <tr>
+                    <col style="width:50%">
+                    <col style="width:50%">
+                    <td>Date: {{today.strftime('%d-%m-%Y')}}</td>
+                    <td>Rev: </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
         </tbody>
       </table>
+
+      <br>
+
+      {% for group in groups %}
+        {% for i in range(0, (ITCs | length)) %}
+          <!-- <table>
+            <thead>
+              <tr style="background-color: lightgrey !important;">
+                <td colspan="4">
+                  <span><b>Test {{ITCs[i].test_number}} - {{ITCs[i].ITC}}</b></span><br>
+                  <span>Summary Refer Section: </span>
+                  <span>{{ITCs[i].ITC.description}}</span>
+                </td>
+              </tr>
+            </thead>
+          </table> -->
+          {% if ITCs[i].deliverable.id == deliverable.id %}
+            {% if ITCs[i].ITC.group == group %}
+              {% if i == 0 %}
+                <h6>{{ group }}</h6>
+                <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
+                  <thead>
+                    <col style="width:10%">
+                    <col style="width:65%">
+                    <col style="width:10%">
+                    <col style="width:15%">
+                    <tr style="background-color: lightgrey !important;">
+                      <th>id</th>
+                      <th>Description</th>
+                      <th>Pass/Fail</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                {% elif ITCs[i].ITC.group != ITCs[i-1].ITC.group %}
+                  <h6>{{ group }}</h6>
+                  <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
+                    <thead>
+                      <col style="width:10%">
+                      <col style="width:65%">
+                      <col style="width:10%">
+                      <col style="width:15%">
+                      <tr style="background-color: lightgrey !important;">
+                        <th>id</th>
+                        <th>Description</th>
+                        <th>Pass/Fail</th>
+                        <th>Date</th>
+                      </tr>
+                    </thead>
+                {% elif ITCs[i].deliverable.id != ITCs[i-1].deliverable.id %}
+                  <h6>{{ group }}</h6>
+                  <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
+                    <thead>
+                      <col style="width:10%">
+                      <col style="width:65%">
+                      <col style="width:10%">
+                      <col style="width:15%">
+                      <tr style="background-color: lightgrey !important;">
+                        <th>id</th>
+                        <th>Description</th>
+                        <th>Pass/Fail</th>
+                        <th>Date</th>
+                      </tr>
+                    </thead>
+                {% endif %}
+                <tbody>
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td><b>{{ ITCs[i].ITC_group_number }}.0</b></td>
+                    <td><b>{{ ITCs[i].ITC.name }}</b></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                {% for i in range(0, (ITCs[i].deliverable_check_map | length)) %}
+                  {% for check in ITCs[i].deliverable_check_map %}
+                    {% if check.check_number == i+1 %}
+                      <tr>
+                        <td>{{ ITCs[i].ITC_group_number }}.{{check.check_number}}</td>
+                        <td>{{check.ITC_check.check.check_description}}</td>
+                        {% if check.is_done %}
+                          <td><b>PASS<b></td>
+                          <td>{{check.completion_datetime.strftime('%d-%m-%Y')}}</td>
+                        {% else %}
+                          <td></td>
+                          <td></td>
+                        {% endif %}
+                      </tr>
+                    {% endif %}
+                  {% endfor %}
+                {% endfor %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+      <br>
+      {% endfor %}
       <p style="page-break-after: always"></p>
     {% endfor %}
+
+    <h6><u>SECTION 2 - COMMENTS, RECOMMENDATIONS & CORRECTIVE ACTION</u></h6>
+
+    <table>
+      <thead>
+        <col style="width:10%">
+        <col style="width:40%">
+        <col style="width:40%">
+        <col style="width:10%">
+        <tr>
+          <td>Item</td>
+          <td>Comment/Recommendation</td>
+          <td>Corrective Action Required</td>
+          <td>Severity</td>
+        </tr>
+      </thead>
+      {% for i in range(0, deliverables|length + 1) %}
+        <tbody>
+          <tr>
+            <td>{{ i + 1 }}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tbody>
+      {% endfor %}
+    </table>
+
+    <br>
+
+    <p><i class="material-icons">check_box_outline_blank</i> CORRECTIVE ACTION COMPLETED</p>
+
+    <p>Signature: ___________________<p>
+    <p>Date: _______________</p>
+
+    <h6><u>SECTION 3 - WITNESS AND ACCEPTANCE</u></h6>
+    <p>Ensure any corrective actions identified in section 3 have been actioned prior to acceptance.</p>
+    <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
+      <thead>
+        <tr>
+          <td></td>
+          <td>Company Name</td>
+          <td>Name (print)</td>
+          <td>Signature</td>
+          <td>Date</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Tested by: </td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Accepted by: </td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <span><h6><u>SECTION 4 - COMPLETION</u></h6>(INTERNAL USE)</span>
+    <p><i class="material-icons">check_box_outline_blank</i> Section 1 complete (including onsite)</p>
+    <p><i class="material-icons">check_box_outline_blank</i> Section 2 complete (including corrective action and witness acceptance)</p>
+
+    <p>Signature: ___________________<p>
+    <p>Date: _______________</p>
   </body>
 </html>

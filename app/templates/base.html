@@ -26,6 +26,7 @@
     <script type=text/javascript>
       $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="./bower_components/mdl-date-textfield/dist/mdl-date-textfield.min.js"></script>
 
     <!-- refresh pages every 5 min - maybe better way to keep information up to date? -->
@@ -96,7 +97,7 @@
         </div>
         {% if site is defined and site != None %}
           <div class="mdl-layout__header-row">
-            <span class="mdl-layout-title" >
+            <span class="mdl-layout-title">
               <h4>{{site.name}} {% block title %}{% endblock %}</h4>
             </span>
 
@@ -105,10 +106,10 @@
               {% if site is defined and site != None %}
                 <nav class="largeNav mdl-navigation">
                   <a class="mdl-navigation__link" href="/site/{{site.name}}/dashboard">Dashboard</a>
-                  <a class="mdl-navigation__link" href="/site/{{site.name}}/tickets">Tickets</a>
+                  <a class="mdl-navigation__link" href="/site/{{site.id}}/tickets">Tickets</a>
                   <a class="mdl-navigation__link" href="/site/{{site.name}}/assets">Assets</a>
                   <a class="mdl-navigation__link" href="/site/{{site.name}}/issues">Analytics</a>
-                  <a class="mdl-navigation__link" href="/site/{{site.name}}/projects">Projects</a>
+                  <a class="mdl-navigation__link" href="/site/{{site.id}}/projects">Projects</a>
                   <a class="mdl-navigation__link" href="/site/{{site.name}}/config">Settings</a>
                 </nav>
               {% endif %}
@@ -127,7 +128,7 @@
               <a class="mdl-navigation__link" href="/site/{{site.name}}/tickets">Tickets</a>
               <a class="mdl-navigation__link" href="/site/{{site.name}}/assets">Assets</a>
               <a class="mdl-navigation__link" href="/site/{{site.name}}/issues">Analytics</a>
-              <a class="mdl-navigation__link" href="{{ url_for('site_projects_list', sitename=site.name)}}">Projects</a>
+              <a class="mdl-navigation__link" href="{{ url_for('site_projects_list', siteid=site.id)}}">Projects</a>
               <a class="mdl-navigation__link" href="/site/{{site.name}}/config">Settings</a>
             {% else %}
               <a class="mdl-navigation__link" href="/site/all/dashboard">Dashboard</a>

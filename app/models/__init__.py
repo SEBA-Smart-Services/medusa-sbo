@@ -236,6 +236,7 @@ class Site(db.Model):
     issue_history = db.relationship('IssueHistory', backref='site', cascade='save-update, merge, delete, delete-orphan')
     emails = db.relationship('Email', backref='site', cascade='save-update, merge, delete, delete-orphan')
     project = db.relationship('Project', backref='site', cascade='save-update, merge, delete, delete-orphan')
+    location = db.relationship('Location', backref='site', cascade='save-update, merge, delete, delete-orphan')
     site_data_uploader = db.relationship("SiteDataUploader", uselist=False, back_populates="site")
     it_assets = db.relationship('ITasset', backref='site')
 

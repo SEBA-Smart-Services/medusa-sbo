@@ -40,45 +40,47 @@
 
   <h5>Anomalies</h5>
   <form action="{{ url_for('asset_issues_submit', sitename=site.name, asset_id=asset.id) }}" method=post>
-    <table class="mdl-data-table mdl-js-data-table full-width">
-      <thead>
-        <tr>
-          <th class="mdl-data-table__cell--non-numeric">First Failure</th>
-          <th class="mdl-data-table__cell--non-numeric">Description</th>
-          <th>Passed</th>
-          <th>Result</th>
-          <th class="mdl-data-table__cell--non-numeric">Notes</th>
-          <th>Acknowledged</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for result in unresolved_results %}
+    <div class="table-responsive">
+      <table class="mdl-data-table mdl-js-data-table full-width">
+        <thead>
           <tr>
-            <td class="mdl-data-table__cell--non-numeric">{{result.first_timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
-            <td class="mdl-data-table__cell--non-numeric">{{result.algorithm.descr}}</td>
-            <td>{{result.passed}}</td>
-
-            {% if result.algorithm.algorithm.format == 'bool' %}
-            <td>{{result.value != 0}}</td>
-            {% else %}
-            <td>{{result.algorithm.algorithm.format.format(result.value)}}</td>
-            {% endif %}
-
-            <td class="notes mdl-data-table__cell--non-numeric">
-              <div class="mdl-textfield mdl-js-textfield">
-                <textarea class="mdl-textfield__input" type="text" rows="1" name="notes-{{result.id}}" id="notes-{{result.id}}" style="font-size:80%">{{result.notes}}</textarea>
-                <label class="mdl-textfield__label" for="notes-{{result.id}}">Notes...</label>
-              </div>
-            </td>
-            <td>
-              <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-data-table__select" for="acknowledge-{{result.id}}">
-                <input type="checkbox" name="acknowledge" id="acknowledge-{{result.id}}" value="{{result.id}}" class="mdl-checkbox__input" {% if result.acknowledged %}checked{% endif %}/>
-              </label>
-            </td>
+            <th class="mdl-data-table__cell--non-numeric">First Failure</th>
+            <th class="mdl-data-table__cell--non-numeric">Description</th>
+            <th>Passed</th>
+            <th>Result</th>
+            <th class="mdl-data-table__cell--non-numeric">Notes</th>
+            <th>Acknowledged</th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {% for result in unresolved_results %}
+            <tr>
+              <td class="mdl-data-table__cell--non-numeric">{{result.first_timestamp.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+              <td class="mdl-data-table__cell--non-numeric">{{result.algorithm.descr}}</td>
+              <td>{{result.passed}}</td>
+
+              {% if result.algorithm.algorithm.format == 'bool' %}
+              <td>{{result.value != 0}}</td>
+              {% else %}
+              <td>{{result.algorithm.algorithm.format.format(result.value)}}</td>
+              {% endif %}
+
+              <td class="notes mdl-data-table__cell--non-numeric">
+                <div class="mdl-textfield mdl-js-textfield">
+                  <textarea class="mdl-textfield__input" type="text" rows="1" name="notes-{{result.id}}" id="notes-{{result.id}}" style="font-size:80%">{{result.notes}}</textarea>
+                  <label class="mdl-textfield__label" for="notes-{{result.id}}">Notes...</label>
+                </div>
+              </td>
+              <td>
+                <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-data-table__select" for="acknowledge-{{result.id}}">
+                  <input type="checkbox" name="acknowledge" id="acknowledge-{{result.id}}" value="{{result.id}}" class="mdl-checkbox__input" {% if result.acknowledged %}checked{% endif %}/>
+                </label>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
     <br>
     <input type=submit value=Save class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
   </form>

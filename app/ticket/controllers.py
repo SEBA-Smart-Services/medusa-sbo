@@ -25,15 +25,12 @@ app.jinja_env.globals.update(display_post_box=display_post_box)
 
 
 #creating a ticket
-@app.route('/site/<sitename>/ticket/create', methods=['GET', 'POST'])
+@app.route('/site/<siteid>/ticket/create', methods=['GET', 'POST'])
 @app.route('/site/all/ticket/create', methods=['GET', 'POST'])
-def ticket_create(sitename=None, projectname=None, component=None, tickettitle=None, ticketdescription=None, priority=None, category=None):
+def ticket_create(siteid=None, projectname=None, component=None, priority=None, category=None):
 
-    form = CreateTicketForm()
-
-    print(request.args.get('ticketdescription'))
-    print(request.args.get('tickettitle'))
-
+    form = CreateTicketForm(title=request.args.get('ticket_description'),
+                            priority=request.args.get('priority'))
 
     if form.validate_on_submit():
 
@@ -47,11 +44,10 @@ def ticket_create(sitename=None, projectname=None, component=None, tickettitle=N
             date_due = request.form['date_due']
         else:
             date_due=None
-        sitename = request.form['sitename']
+        siteid = request.form['siteid']
 
-        site = Site.query.filter_by(name=sitename).one()
-        app.logger.info('new ticket for ' + sitename)
-        app.logger.info('new ticket for ' + site.name)
+        site = Site.query.filter_by(id=siteid).one()
+        app.logger.info('new ticket for ' + siteid)
         app.logger.info('new ticket for ' + str(site.id))
 
         project_id = request.form['project']
@@ -98,10 +94,10 @@ def ticket_create(sitename=None, projectname=None, component=None, tickettitle=N
 
         return redirect(url_for('ticket_view', ticket_id=new_ticket.id))
 
-    print(sitename)
+    print(request.args.get('site_id'))
 
-    if sitename != None:
-        site = Site.query.filter_by(name=sitename).first()
+    if siteid != None:
+        site = Site.query.filter_by(id=siteid).first()
         sites = None
         if projectname != None:
             project = Project.query.filter_by(name=projectname).first()
@@ -132,12 +128,20 @@ def ticket_create(sitename=None, projectname=None, component=None, tickettitle=N
         components=components
     )
 
+@app.route('/site/<siteid>/ticket/<ticket_id>/view', methods=['GET', 'POST'])
 @app.route('/site/all/ticket/<ticket_id>/view', methods=['GET', 'POST'])
-def ticket_view(ticket_id, sitename=None, page=1):
+def ticket_view(ticket_id, siteid=None, page=1):
     # is ticket number legitimate
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
     site =  Site.query.filter_by(id=ticket.site_id).one()
     resolutions = TicketResolution.query.all()
+
+    print(request.referrer.split('/')[-2])
+    print(siteid)
+    if request.referrer.split('/')[-2] == 'all':
+        site_all = True
+    else:
+        site_all = False
 
     if not ticket:
         flash('Cannot find ticket: "{}"'.format(ticket_id), category='warning')
@@ -217,6 +221,7 @@ def ticket_view(ticket_id, sitename=None, page=1):
         ticket=ticket,
         form=form,
         site=site,
+        site_all=site_all,
         replies=replies,
         page=page,
         resolutions=resolutions
@@ -228,22 +233,27 @@ def view_ticket_uploads(filename):
     return send_from_directory(path, filename)
 
 @app.route('/site/all/tickets', methods=['GET', 'POST'])
-@app.route('/site/<sitename>/tickets', methods=['GET', 'POST'])
-def tickets(sitename=None, page=1):
+@app.route('/site/<siteid>/tickets', methods=['GET', 'POST'])
+def tickets(siteid=None):
 
-    access_allowed = check_valid_site(sitename)
+    access_allowed = check_valid_site(siteid)
+    PER_PAGE = 5
+    if request.args.get('page') == None:
+        page = 1
+    else:
+        page = int(request.args.get('page'))
 
-    if sitename != None and access_allowed:
-        site = Site.query.filter_by(name=sitename).first()
-        tickets = FlicketTicket.query.filter_by(site_id=site.id).all()
+    if siteid != None and access_allowed:
+        site = Site.query.filter_by(id=siteid).first()
+        tickets = FlicketTicket.query.filter_by(site_id=site.id).order_by(FlicketTicket.date_added.desc()).paginate(page, PER_PAGE, False)
     elif current_user.has_role('admin'):
         site = None
-        tickets = FlicketTicket.query.all()
+        tickets = FlicketTicket.query.order_by(FlicketTicket.date_added.desc()).paginate(page, PER_PAGE, False)
     else:
         tickets = []
         #get all the tickets for a particular user
-        for user_site in current_user.sites:
-            tickets += FlicketTicket.query.filter_by(site_id=user_site.id).all()
+        tickets = FlicketTicket.query.filter(FlicketTicket.site_id.in_([user_site.id for user_site in current_user.sites]))
+        tickets = tickets.order_by(FlicketTicket.date_added.desc()).paginate(page, PER_PAGE, False)
         site = None
 
     print(tickets)
@@ -284,33 +294,10 @@ def tickets(sitename=None, page=1):
                                 user_id=user_id,
                                 ))
 
-    # todo: get data from api
-
-    # if status:
-    #     tickets = tickets.filter(FlicketTicket.current_status.has(FlicketStatus.status == status))
-    #     form.status.data = FlicketStatus.query.filter_by(status=status).first().id
-    # if category:
-    #     tickets = tickets.filter(FlicketTicket.category.has(FlicketCategory.category == category))
-    #     form.category.data = FlicketCategory.query.filter_by(category=category).first().id
-    # if department:
-    #     department_filter = FlicketDepartment.query.filter_by(department=department).first()
-    #     tickets = tickets.filter(FlicketTicket.category.has(FlicketCategory.department == department_filter))
-    #     form.department.data = department_filter.id
-    # if user_id:
-    #     tickets = tickets.filter_by(assigned_id=int(user_id))
-    #
-    # if content:
-    #     # search the titles
-    #     form.content.data = content
-    #
-    #     f1 = FlicketTicket.ticket_name.ilike('%' + content + '%')
-    #     f2 = FlicketTicket.description.ilike('%' + content + '%')
-    #     f3 = FlicketTicket.posts.any(FlicketPost.content.ilike('%' + content + '%'))
-    #     tickets = tickets.filter(f1 | f2 | f3)
-
-    number_results = len(tickets)
-
-    # tickets = tickets.paginate(page, app.config['posts_per_page'])
+    number_results = len(tickets.items)
+    all_status = FlicketStatus.query.all()
+    all_priority = FlicketPriority.query.all()
+    all_category = FlicketCategory.query.all()
 
     return render_template('flicket/flicket_tickets.html',
                            title='Tickets',
@@ -322,19 +309,85 @@ def tickets(sitename=None, page=1):
                            department=department,
                            category=category,
                            user_id=user_id,
-                           site=site
+                           site=site,
+                           all_status=all_status,
+                           all_priority=all_priority,
+                           all_category=all_category
                            )
 
+@app.route('/_filter_tickets', methods=['GET', 'POST'])
+def filter_tickets():
+
+    PER_PAGE = 5
+    if request.args.get('page') == None:
+        page = 1
+    else:
+        page = int(request.args.get('page'))
+
+    siteid = request.args.get('site')
+
+    access_allowed = check_valid_site(siteid)
+
+    if id != None and access_allowed:
+        site = Site.query.filter_by(id=siteid).first()
+        tickets = FlicketTicket.query.filter_by(site_id=site.id)
+    elif current_user.has_role('admin'):
+        tickets = FlicketTicket.query
+    else:
+        tickets = []
+        #get all the tickets for a particular user
+        for user_site in current_user.sites:
+            tickets += FlicketTicket.query.filter_by(site_id=user_site.id)
+        site = None
+
+    name = request.args.get('name', None)
+    if name == "":
+        tickets = tickets
+    else:
+        tickets = tickets.filter(FlicketTicket.ticket_name.contains(name))
+    priority = request.args.get('priority', None)
+    if priority == "all":
+        tickets = tickets
+    else:
+        priority = FlicketPriority.query.filter_by(priority=priority).first()
+        tickets = tickets.filter_by(ticket_priority_id=priority.id)
+    category = request.args.get('category', None)
+    if category == "all":
+        tickets = tickets
+    else:
+        category = FlicketCategory.query.filter_by(category=category).first()
+        tickets = tickets.filter_by(category_id=category.id)
+    status = request.args.get('status', None)
+    if status == "all":
+        tickets = tickets
+    else:
+        status = FlicketStatus.query.filter_by(status=status).first()
+        tickets = tickets.filter_by(status_id=status.id)
+    tickets = tickets.order_by(FlicketTicket.date_added.desc()).paginate(page, PER_PAGE, False)
+    previous_page = tickets.has_prev
+    next_page = tickets.has_next
+    pages = tickets.pages
+    print(page)
+    print(pages)
+    return jsonify({"results":render_template('flicket/ticket_table_template.html', tickets=tickets),
+                    "page": page,
+                    "next": next_page,
+                    "previous": previous_page,
+                    "pages": pages})
+
 # edit ticket
+@app.route('/site/<siteid>/ticket/<ticket_id>/edit', methods=['GET', 'POST'])
 @app.route('/site/all/ticket/<ticket_id>/edit', methods=['GET', 'POST'])
-def edit_ticket(ticket_id):
+def edit_ticket(ticket_id, siteid=None):
     form = EditTicketForm(ticket_id=ticket_id)
 
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
 
     if not ticket:
         flash('Could not find ticket.', category='warning')
-        return redirect(url_for('flicket_main'))
+        return redirect(url_for('tickets'))
+
+    siteid = siteid
 
     site =  Site.query.filter_by(id=ticket.site_id).one()
 
@@ -447,9 +500,11 @@ def edit_ticket(ticket_id):
         form=form,
         site=site,
         sites=site_list,
+        siteid=siteid,
         project=project,
         projects=projects,
-        components=components
+        components=components,
+        ticket=ticket
     )
 
 
@@ -557,8 +612,7 @@ def delete_ticket(ticket_id):
         flash('ticket deleted', category='success')
         return redirect(url_for('tickets'))
 
-    return render_template('flicket/flicket_deletetopic.html',
-                           form=form,
+    return render_template('flicket/flicket_delete.html',
                            ticket=ticket,
                            title='Delete Ticket')
 
@@ -849,6 +903,8 @@ def unsubscribe_ticket(ticket_id=None):
 def close_status(ticket_id):
     ticket = FlicketTicket.query.filter_by(id=ticket_id).first()
     new_status = FlicketStatus.query.filter_by(status="Closed").first()
+
+    print(request.referrer.split('/')[-4])
 
     # Check to see if user is authorised to close ticket.
     edit = False

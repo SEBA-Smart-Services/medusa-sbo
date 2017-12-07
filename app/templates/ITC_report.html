@@ -21,6 +21,18 @@
   </head>
 
   <body>
+    <style>
+      table {
+        border-collapse: collapse;
+        color: #333;
+        margin: auto;
+      }
+
+      td, th {
+        border: 1px solid #ccc;
+        padding: 0.5em;
+      }
+    </style>
     <h2 style="text-align:center">Inspection and Test Plan Report - {{project.name}}</h2>
     <br>
     <h4>Job Number:</h4> {{project.job_number}}
@@ -41,23 +53,23 @@
     <p style="page-break-after: always"></p>
     {% for deliverable in deliverables %}
       <h3>{{deliverable.name}} - {{deliverable.type.name}}</h3>
-      <table class="mdl-data-table mdl-js-data-table" style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
+      <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
         <thead>
           <tr>
-            <th class="mdl-data-table__cell--non-numeric">ITC ID</th>
-            <th class="mdl-data-table__cell--non-numeric">Name</th>
-            <th class="mdl-data-table__cell--non-numeric">Status</th>
-            <th class="mdl-data-table__cell--non-numeric">Complete</th>
+            <th>ITC ID</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Complete</th>
           </tr>
         </thead>
         <tbody>
         {% for ITC in ITCs %}
           {% if ITC.deliverable.id == deliverable.id %}
             <tr>
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.id}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.ITC.name}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.status}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{ITC.percentage_complete}}%</td>
+              <td>{{ITC.id}}</td>
+              <td>{{ITC.ITC.name}}</td>
+              <td>{{ITC.status}}</td>
+              <td>{{ITC.percentage_complete}}%</td>
             </tr>
           {% endif %}
         {% endfor %}

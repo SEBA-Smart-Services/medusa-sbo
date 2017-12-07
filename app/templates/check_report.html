@@ -21,53 +21,81 @@
   </head>
 
   <body>
+    <style>
+      table {
+        border-collapse: collapse;
+        color: #333;
+        margin: auto;
+      }
+
+      td, th {
+        border: 1px solid #ccc;
+        padding: 0.5em;
+      }
+    </style>
     <h2 style="text-align:center">Inspection and Test Check list - {{ITC.ITC.name}}</h2>
     <br>
-    <h4>Project Name:</h4> {{project.name}}
+    <h5>Project Name:</h5> {{project.name}}
     <br>
-    <h4>Job Number:</h4> {{project.job_number}}
+    <h5>Job Number:</h5> {{project.job_number}}
     <br>
-    <h4>Location:</h4> {{deliverable.location.name}}
+    <h5>Site:</h5> {{site.name}}
     <br>
-    <h4>Deliverable Start Date:</h4>
+    <h5>Location:</h5> {{deliverable.location.name}}
+    <br>
+    <h5>Deliverable Start Date:</h5>
     {% if deliverable.start_date != none %}
       {{deliverable.start_date.strftime('%d-%m-%Y')}}
     {% endif %}
     <br>
-    <h4>Deliverable Completion Date:</h4>
+    <h5>Deliverable Completion Date:</h5>
     {% if deliverable.completion_date != none %}
       {{deliverable.completion_date.strftime('%d-%m-%Y')}}
     {% endif %}
     <br>
-    <h4>Assigned to:</h4> {{deliverable.assigned_to}}
+    <h5>Assigned to:</h5> {{deliverable.assigned_to}}
     <br>
     <p style="page-break-after: always"></p>
-      <h3>{{deliverable.name}} - {{deliverable.type.name}}</h3>
-      <table class="mdl-data-table mdl-js-data-table" style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
+      <h5>{{deliverable.name}} - {{deliverable.type.name}}</h5>
+      <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
         <thead>
-          <tr>
-            <th class="mdl-data-table__cell--non-numeric">Check Description</th>
-            <th class="mdl-data-table__cell--non-numeric">Status</th>
-            <th class="mdl-data-table__cell--non-numeric">Completed</th>
-            <th class="mdl-data-table__cell--non-numeric">Completed By</th>
-            <th class="mdl-data-table__cell--non-numeric">Completion Date</th>
-            <th class="mdl-data-table__cell--non-numeric">Comments</th>
+          <col style="width:25%">
+          <col style="width:13%">
+          <col style="width:14%">
+          <col style="width:13%">
+          <col style="width:14%">
+          <col style="width:21%">
+          <tr style="background: lightgray !important;">
+            <th>Check Description</th>
+            <th>Status</th>
+            <th>Pass/Fail</th>
+            <th>Completed By</th>
+            <th>Completion Date</th>
+            <th>Comments</th>
           </tr>
         </thead>
         <tbody>
         {% for check in checks %}
           {% if ITC.deliverable.id == deliverable.id %}
             <tr>
-              <td class="mdl-data-table__cell--non-numeric">{{check.ITC_check.check.check_description}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{check.status}}</td>
-              <td class="mdl-data-table__cell--non-numeric">{{check.is_done}}</td>
+              <td>{{check.ITC_check.check.check_description}}</td>
+              <td>{{check.status}}</td>
+              {% if check.is_done %}
+                <td><b>PASS<b></td>
+              {% else %}
+                <td></td>
+              {% endif %}
               {% if check.user != none %}
-                <td class="mdl-data-table__cell--non-numeric">{{check.user.first_name}} {{check.user.last_name}}</td>
+                <td>{{check.user.first_name}} {{check.user.last_name}}</td>
+              {% else %}
+                <td></td>
               {% endif %}
               {% if check.completion_datetime != none %}
-                <td class="mdl-data-table__cell--non-numeric">{{check.completion_datetime.strftime('%d-%m-%Y')}}</td>
+                <td>{{check.completion_datetime.strftime('%d-%m-%Y')}}</td>
+              {% else %}
+                <td></td>
               {% endif %}
-              <td class="mdl-data-table__cell--non-numeric">{{check.comments}}</td>
+              <td>{{check.comments}}</td>
             </tr>
           {% endif %}
         {% endfor %}

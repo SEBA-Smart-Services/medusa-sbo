@@ -1,49 +1,50 @@
 {% extends "layout.html" %}
 {% block content %}
   <div class="mdl-grid">
-    <h3 class="mdl-cell mdl-cell--11-col">Projects</h3>
+    <h3 class="mdl-cell mdl-cell--11-col mdl-cell--3-col-phone">Projects</h3>
 
-    <div class="mdl-cell mdl-cell--1-col">
-      <a id="tooltip1" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" href="/site/{{site.name}}/projects/new">
+    <div class="mdl-cell mdl-cell--1-col mdl-cell--1-col-phone">
+      <a id="tooltip1" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
+      href="{{url_for('site_project_new', siteid=site.id)}}">
         <div class="material-icons" style="height: 10px; width: 10px;">add</div>
         <div class = "mdl-tooltip" for = "tooltip1">Create Project</div>
       </a>
     </div>
   </div>
 
-  <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
-    <thead>
-      <tr>
-        <th class="mdl-data-table__cell--non-numeric">Name</th>
-        <th class="mdl-data-table__cell--non-numeric">Project Number</th>
-        <th class="mdl-data-table__cell--non-numeric">Site</th>
-        <th class="mdl-data-table__cell--non-numeric">percentage complete</th>
-        <th class="mdl-data-table__cell--non-numeric">Assigned to</th>
-        <th class="mdl-data-table__cell--non-numeric"> </th>
-        <th class="mdl-data-table__cell--non-numeric"> </th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for project in projects %}
+  <div class="table-responsive">
+    <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
+      <thead>
         <tr>
-          <td class="mdl-data-table__cell--non-numeric"><a href="/site/{{project.site}}/projects/{{project.name}}">{{ project.name }}</a></td>
-          <td class="mdl-data-table__cell--non-numeric">#{{project.job_number}}</td>
-          <td class="mdl-data-table__cell--non-numeric">{{ project.site }}</td>
-          <td class="mdl-data-table__cell--non-numeric">{{project.percentage_complete}}%</td>
-          <td class="mdl-data-table__cell--non-numeric">{{project.user.first_name}} {{project.user.last_name}}<td>
-          <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
-            <a href="/site/{{site.name}}/projects/{{project.name}}/edit">
-              Edit
-            </a>/
-            <a href="/site/{{site.name}}/projects/{{project.name}}/delete">
-              Delete
-            </a>
-          </td>
+          <th class="mdl-data-table__cell--non-numeric">Name</th>
+          <th class="mdl-data-table__cell--non-numeric">Project Number</th>
+          <th class="mdl-data-table__cell--non-numeric">Site</th>
+          <th class="mdl-data-table__cell--non-numeric">percentage complete</th>
+          <th class="mdl-data-table__cell--non-numeric">Assigned to</th>
+          <th class="mdl-data-table__cell--non-numeric"> </th>
+          <th class="mdl-data-table__cell--non-numeric"> </th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-
+      </thead>
+      <tbody>
+        {% for project in projects %}
+          <tr>
+            <td class="mdl-data-table__cell--non-numeric"><a href="/site/{{project.site.id}}/projects/{{project.id}}">{{ project.name }}</a></td>
+            <td class="mdl-data-table__cell--non-numeric">#{{project.job_number}}</td>
+            <td class="mdl-data-table__cell--non-numeric">{{ project.site }}</td>
+            <td class="mdl-data-table__cell--non-numeric">{{project.percentage_complete}}%</td>
+            <td class="mdl-data-table__cell--non-numeric">{{project.user.first_name}} {{project.user.last_name}}<td>
+            <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
+              <a href="{{url_for('site_project_edit', siteid=site.id, projectid=project.id)}}">
+                Edit
+              </a>/
+              <a href="{{url_for('site_project_delete', siteid=site.id, projectid=project.id)}}">
+                Delete
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
 {% endblock %}

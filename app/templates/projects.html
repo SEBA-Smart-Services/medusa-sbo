@@ -4,11 +4,47 @@
       <h3>Projects</h3>
   </div>
 
-  <div class="mdl-cell mdl-cell--12-col mdl-grid">
-    <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
-      <div class="mdl-card__title">
-        <h2 class="mdl-card__title-text">Projects</h2>
-      </div>
+  <div class="mdl-grid mdl-cell mdl-cell--12-col">
+    <div class="mdl-cell--1-col"></div>
+
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col mdl-cell--4-col-phone">
+      <input type="text" id="namefil" class="form-control mdl-textfield__input">
+      <label class="mdl-textfield__label">Project Name</label>
+    </div>
+
+    <div class="mdl-cell--1-col"></div>
+
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col mdl-cell--4-col-phone">
+      <input type="text" id="projectnumfil" class="form-control mdl-textfield__input">
+      <label class="mdl-textfield__label">Project Number</label>
+    </div>
+
+    <div class="mdl-cell--1-col"></div>
+
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col mdl-cell--4-col-phone">
+      <label class="mdl-textfield__label">Search by Site</label>
+      <select id="sitefil" class="form-control mdl-textfield__input">
+        <option value="all">All</option>
+        {% for site in sites %}
+          <option value="{{site.name}}">{{site.name}}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mdl-cell--1-col"></div>
+
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell mdl-cell--2-col mdl-cell--4-col-phone">
+      <label class="mdl-textfield__label">Search by First Name</label>
+      <select id="assignfil" class="form-control mdl-textfield__input">
+        <option value="all">All</option>
+        {% for user in users %}
+          <option value="{{user.id}}">{{user.first_name}} {{user.last_name}}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+    <div class="table-responsive">
       <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
         <thead>
           <tr>
@@ -19,27 +55,117 @@
             <th class="mdl-data-table__cell--non-numeric">Assigned to</th>
           </tr>
         </thead>
-        <tbody>
-          {% for project in projects %}
+        <tbody id="tbody">
+          {% for project in projects.items %}
             <tr>
-              <td class="mdl-data-table__cell--non-numeric"><a href="/site/{{project.site}}/projects/{{project.name}}">{{ project.name }}</a></td>
+              <td class="mdl-data-table__cell--non-numeric"><a href="/site/{{project.site.id}}/projects/{{project.id}}">{{ project.name }}</a></td>
               <td class="mdl-data-table__cell--non-numeric">#{{project.job_number}}</td>
               <td class="mdl-data-table__cell--non-numeric">{{ project.site }}</td>
               <td class="mdl-data-table__cell--non-numeric">{{project.percentage_complete}}%</td>
-              <td class="mdl-data-table__cell--non-numeric">{{project.user.first_name}} {{project.user.last_name}}<td>
+              <td class="mdl-data-table__cell--non-numeric">{{project.user.first_name}} {{project.user.last_name}}</td>
             </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
+
+    <div id="pagination" class="mdl-cell mdl-cell--12-col mdl-grid">
+      <div class="mdl-cell mdl-cell--4-col mdl-cell--1-col-phone">
+        <a id="previous" href="#" style="display: none">
+          <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_left</i>
+        </a>
+      </div>
+      {% if projects.next_num %}
+      <div class="mdl-cell mdl-cell--4-col mdl-cell--2-col-phone" style="text-align: center;">
+        <span id="page" >{{projects.page}}</span>
+      </div>
+      <div class="mdl-cell mdl-cell--4-col mdl-cell--1-col-phone" style="text-align: right;">
+        <a id="next" href="#">
+          <i class="material-icons mdl-list__item-icon" style="color: rgb(68,138,255);">chevron_right</i>
+        </a>
+      </div>
+      {% endif %}
+    </div>
+
+
+  <div class="mdl-cell mdl-cell--12-col mdl-grid">
+    <div class="mdl-cell mdl-cell--2-col-phone">
+      <form action="/generic" method="GET">
+        <input type="submit" value="Create Generic Templates" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+        </input>
+      </form>
+    </div>
   </div>
 
-  <br>
+  <script>
+    //Filters
+    $(document).ready(function(){
+      $("#namefil, #projectnumfil, #sitefil, #assignfil").change(function(){
+        $.get("/_filter_projects", {name: $('#namefil').val(),
+                                  project_number: $('#projectnumfil').val(),
+                                  site: $('#sitefil option:selected').val(),
+                                  assigned: $('#assignfil option:selected').val()
+                                  },
+        function(data){
+          $("#tbody").html(data['results']);
+          $("#page").html(data['page']);
+          if (data['page'] == 1){
+            $('#previous').hide()
+          }
+          if (data['page'] == data['pages']){
+            $('#next').hide()
+          }
+          if (data['page'] != data['pages']){
+            $('#next').show()
+          }
+        });
+      });
+    });
 
-  <div class="mdl-cell mdl-cell--12-col">
-    <form action="/generic" method="GET">
-      <input type="submit" value="Create Generic Templates" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
-      </input>
-    </form>
-  </div>
+    //Previous
+    $(document).ready(function(){
+      $("a#previous").click(function(e){
+        e.preventDefault();
+        $.get("/_filter_projects", {name: $('#namefil').val(),
+                                  project_number: $('#projectnumfil').val(),
+                                  site: $('#sitefil option:selected').val(),
+                                  assigned: $('#assignfil option:selected').val(),
+                                  page: (parseInt($("#page").html()) - 1)
+                                  },
+        function(data){
+          $("#tbody").html(data['results']);
+          $("#page").html(data['page']);
+          if (data['page'] == 1){
+            $('#previous').hide()
+          }
+          if (data['page'] != data['pages']){
+            $('#next').show()
+          }
+        });
+      });
+    });
+
+    //Next
+    $(document).ready(function(){
+      $("a#next").click(function(e){
+        e.preventDefault();
+        $.get("/_filter_projects", {name: $('#namefil').val(),
+                                  project_number: $('#projectnumfil').val(),
+                                  site: $('#sitefil option:selected').val(),
+                                  assigned: $('#assignfil option:selected').val(),
+                                  page: (parseInt($("#page").html()) + 1)
+                                  },
+        function(data){
+          $("#tbody").html(data['results']);
+          $("#page").html(data['page']);
+          if (data['page'] == data['pages']){
+            $('#next').hide()
+          }
+          if (data['page'] != 1) {
+            $('#previous').show()
+          }
+        });
+      });
+    });
+  </script>
 {% endblock %}

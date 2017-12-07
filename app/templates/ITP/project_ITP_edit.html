@@ -10,13 +10,17 @@
   <br>
 
   <div>
-    <form action="/site/{{ site.name }}/projects/{{project.name}}/ITP/{{ITP.name}}/edit" method="POST">
+    <form action="{{url_for('site_project_ITP_edit', siteid=site.id, projectid=project.id, ITPid=ITP.id)}}" method="POST">
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
         <input type="text" name="ITP_name" value="{{ITP.name}}" class="mdl-textfield__input">
         <label class="mdl-textfield__label">ITP Name</label>
       </div>
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col">
-        <input type="text" name="ITP_description" value="{{ITP.description}}" class="mdl-textfield__input">
+        {% if ITP.description == 'None' %}
+          <input type="text" name="ITP_description" class="mdl-textfield__input">
+        {% else %}
+          <input type="text" name="ITP_description" value="{{ITP.description}}" class="mdl-textfield__input">
+        {% endif %}
         <label class="mdl-textfield__label">ITP Description</label>
       </div>
 
@@ -28,7 +32,7 @@
   <br>
 
   <div>
-    <form action="/site/{{ site.name }}/projects/{{project.name}}/ITP/{{ITP.name}}" method="GET">
+    <form action="{{url_for('site_project_ITP', siteid=site.id, projectid=project.id, ITPid=ITP.id)}}" method="GET">
       <input type="submit" value="Return" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
       </input>
     </form>

@@ -1,0 +1,31 @@
+{% for t in tickets.items %}
+    <tr {%- if t.current_status.status == 'Closed' %} class="success"{% endif %}>
+        <td class="mdl-data-table__cell--non-numeric">
+            <a href="{{ url_for('ticket_view', ticket_id = t.id) }}">{{ t.ticket_name }}</a>
+        </td>
+        <td class="mdl-data-table__cell--non-numeric">
+            {{ t.ticket_priority.priority }}
+        </td>
+        <td class="mdl-data-table__cell--non-numeric">
+            {{ t.description }}
+        </td>
+        <td class="mdl-data-table__cell--non-numeric">
+            {{ t.user.first_name }} {{ t.user.last_name }}
+        </td>
+        <td class="mdl-data-table__cell--non-numeric">
+            {{ t.date_added.strftime('%Y-%m-%d') }}
+        </td>
+        <td class="mdl-data-table__cell--non-numeric">
+            {{ t.num_replies }}
+        </td>
+        <td class="mdl-data-table__cell--non-numeric">
+            {{ t.category.category }}
+        </td>
+        <td class="mdl-data-table__cell--non-numeric">
+            {{ t.current_status.status }}
+        </td>
+        <td class="mdl-data-table__cell--non-numeric">
+            {{ t.assigned.first_name }} {{ t.assigned.last_name }}
+        </td>
+    </tr>
+{% endfor %}

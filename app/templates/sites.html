@@ -9,25 +9,27 @@
       {% endif %}
     {% endif %}
   </h3>
-  <table class="mdl-data-table mdl-js-data-table full-width">
-    <thead>
-      <tr>
-        <th class="mdl-data-table__cell--non-numeric">Name</th>
-        <th>Assets</th>
-        <th>Issues</th>
-        <th>Highest Priority</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for site in sites %}
+  <div class="table-responsive">
+    <table class="mdl-data-table mdl-js-data-table full-width">
+      <thead>
         <tr>
-          <td class="mdl-data-table__cell--non-numeric">
-            <a href="/site/{{site.name}}">{{site.name}}</a></th>
-          <td>{{site.assets|length}}</td>
-          <td>{{issues[site.name]}}</td>
-          <td>{{priority[site.name]}}</td>
+          <th class="mdl-data-table__cell--non-numeric">Name</th>
+          <th>Assets</th>
+          <th>Issues</th>
+          <th>Highest Priority</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for site in sites %}
+          <tr>
+            <td class="mdl-data-table__cell--non-numeric">
+              <a href="/site/{{site.name}}">{{site.name}}</a></th>
+            <td>{{site.assets|length}}</td>
+            <td>{{issues[site.name]}}</td>
+            <td>{{priority[site.name]}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 {% endblock %}

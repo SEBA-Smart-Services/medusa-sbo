@@ -20,10 +20,23 @@
               </h3>
           </div>
           <div class="mdl-cell mdl-cell--1-col" style="margin-right: 0">
+            {% if site is defined and site != None and site_all == false  %}
+              <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="float: right;" href="{{ url_for('edit_ticket', ticket_id = ticket.id, siteid = site.id) }}">
+            {% else %}
               <a class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" style="float: right;" href="{{ url_for('edit_ticket', ticket_id = ticket.id) }}">
+            {% endif %}
                 <i class="material-icons">edit</i>
               </a>
           </div>
+
+          {% if current_user.has_role('admin') %}
+            <div class="mdl-cell mdl-cell--1-col">
+              <a id="tooltip3" href="{{ url_for('delete_ticket', ticket_id=ticket.id) }}">
+                <div class="material-icons" >delete</div>
+                <div class = "mdl-tooltip" for = "tooltip3">Delete</div>
+              </a>
+            </div>
+          {% endif %}
       </div>
 
       <div class="mdl-cell mdl-cell--12-col mdl-grid">
@@ -113,34 +126,6 @@
           </tbody>
         </table>
       </div>
-
-      {% if ticket.current_status.status != 'Closed' %}
-        <div class="mdl-cell mdl-cell--12-col mdl-grid">
-            <div class="mdl-cell mdl-cell--12-col">
-                <!-- <ul class="pagination pagination-sm">
-                    {% for page in replies.iter_pages() %}
-                      {% if page %}
-                        {% if page != replies.page %}
-                        <li>
-                          <a href="{{ url_for('ticket_view', ticket_id=ticket.id, page=page, **request.args) }}">
-                              {{ page }}
-                          </a>
-                        </li>
-                        {% else %}
-                        <li class="active">
-                          <a href="{{ url_for('ticket_view', ticket_id=ticket.id, page=page, **request.args) }}">
-                            {{ page }}
-                          </a>
-                        </li>
-                        {% endif %}
-                      {% else %}
-                      <li><a href="">...</a></li>
-                      {% endif %}
-                    {% endfor %}
-                </ul> -->
-            </div>
-        </div>
-      {% endif %}
 
       <div class="mdl-cell mdl-cell--12-col mdl-grid">
         <!-- display actions -->
