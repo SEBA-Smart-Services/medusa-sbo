@@ -142,6 +142,9 @@ class ITC(db.Model):
     deliverable_ITC_map = db.relationship('Deliverable_ITC_map',
         backref='ITC')
     ITC_group_id = db.Column(db.Integer(), db.ForeignKey('ITC_group.id'))
+    major_revision_number = db.Column(db.Integer())
+    minor_revision_number = db.Column(db.Integer())
+    maintenance_revision_number = db.Column(db.Integer())
 
     def __init__(self, name, deliverable_type_id):
         self.name = name
@@ -154,6 +157,7 @@ class ITC_group(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(255), unique=True)
     ITC = db.relationship('ITC', backref = 'group')
+    short_name = db.Column(db.String(255))
 
     def __repr__(self):
         return self.name

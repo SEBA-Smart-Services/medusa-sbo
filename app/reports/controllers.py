@@ -24,19 +24,42 @@ def ITP_report_page(siteid, projectid, ITPid):
     today = datetime.datetime.now()
     # image = flask_weasyprint.default_url_fetcher("/static/img/logo-schneider-electric.png")
     ITC_groups = ITC_group.query.all()
+    ITC_groups = sorted(ITC_groups, key=lambda x: x.name)
 
-    print(deliverable_types)
+    DDC_group = ['Automation Server', 'AS-P', 'AS']
+    #
+    # print(deliverable_types)
+    # for deliverable_type in deliverable_types:
+    #     for ITC in deliverable_type.ITC:
+    #         print(ITC)
+    #         print(ITC.deliverable_ITC_map.filter_by())
+    #         print(ITC.deliverable_ITC_map.major_revision_number)
+    #
+    # for deliverable in deliverables:
+    #     print(deliverable)
+    #     if deliverable.type.name in DDC_group:
+    #         print(deliverable.type)
 
     ITCs = []
     for deliverable in deliverables:
         ITCs += Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
 
+    ITCs = sorted(ITCs, key=lambda x: x.ITC.group.name)
     # print(ITCs)
     # for ITC in ITCs:
     #     print(ITC.ITC.ITC_group_id)
     # print(Deliverable_ITC_map.query.filter(Deliverable_ITC_map.ITC_id.in_([ITC_group.deliverable.id for ITC_group in ITC_groups])).all())
 
-    html = render_template('ITP_report.html', site=site, project=project, project_ITP=project_ITP, deliverables=deliverables, ITCs=ITCs, deliverable_types=deliverable_types, today=today)
+    html = render_template('ITP_report.html',
+                            site=site,
+                            project=project,
+                            project_ITP=project_ITP,
+                            deliverables=deliverables,
+                            ITCs=ITCs,
+                            deliverable_types=deliverable_types,
+                            today=today,
+                            groups=ITC_groups,
+                            DDC_group=DDC_group)
     return render_pdf(HTML(string=html))
 
 # provide a url to download a report for all delvierables in an ITP
