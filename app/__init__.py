@@ -7,7 +7,8 @@ from flask_mail import Mail
 app = Flask(__name__)
 
 # set config
-app.config.from_envvar('MEDUSA_DEVELOPMENT_SETTINGS')
+#app.config.from_envvar('MEDUSA_DEVELOPMENT_SETTINGS')
+app.config.from_envvar('MEDUSA_PRODUCTION_SETTINGS')
 
 # initialise database models
 db = SQLAlchemy(app)
@@ -64,4 +65,4 @@ from app import models, admin, cmms, weather, algorithms, reports, scheduling
 from app.scheduled.tasks import register_points
 
 app.logger.info('registering points...')
-register_points()
+#register_points()
