@@ -1254,7 +1254,7 @@ def site_project_ITP_deliverable_new(siteid, projectid, ITPid):
                 #Adding a ITC group number
                 created_ITCs = ITC.query.join(Deliverable_ITC_map, ITC.id.in_([itc.ITC_id for itc in deliverable.Deliverable_ITC_map])).all()
                 counts = Counter(x.group for x in created_ITCs)
-                deliver_itc.ITC_group_number = (counts[itc.group] + 1)
+                deliver_itc.ITC_group_number = (counts[itc.group])
                 db.session.commit()
 
             deliver_itcs = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
