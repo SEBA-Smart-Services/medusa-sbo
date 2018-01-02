@@ -2,13 +2,14 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import os, ast, configparser
 from flask_mail import Mail
+from celery import Celery
 
 # set up Flask
 app = Flask(__name__)
 
 # set config
-#app.config.from_envvar('MEDUSA_DEVELOPMENT_SETTINGS')
-app.config.from_envvar('MEDUSA_PRODUCTION_SETTINGS')
+app.config.from_envvar('MEDUSA_DEVELOPMENT_SETTINGS')
+#app.config.from_envvar('MEDUSA_PRODUCTION_SETTINGS')
 
 # initialise database models
 db = SQLAlchemy(app)
@@ -47,6 +48,9 @@ bugsnag.configure(
 )
 handle_exceptions(app)
 
+# setup Celery asynchronus methods
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
 
 from app import controllers
 
