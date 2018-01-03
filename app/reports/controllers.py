@@ -2,10 +2,14 @@ from app import app, event
 from app.models import Site, Asset, Result
 from app.models.ITP import Project, ITP, Deliverable, Deliverable_ITC_map, Deliverable_check_map, Deliverable_type, ITC_group
 from app.ticket.models import FlicketTicket
-from flask import render_template, url_for, redirect
+from flask import render_template, url_for, redirect, make_response
 from flask_weasyprint import HTML, CSS, render_pdf
 import datetime
 from app import celery
+
+from jinja2 import Environment, PackageLoader, select_autoescape
+import weasyprint
+
 
 # provide a url to download a report for a site
 @app.route('/site/<sitename>/report')
@@ -17,11 +21,20 @@ def report_page(sitename):
 # provide a url to download a report for an ITP
 @app.route('/site/<siteid>/projects/<projectid>/ITP/<ITPid>/report')
 def ITP_report_page(siteid, projectid, ITPid):
-    html = ITP_report_page_render(siteid=siteid, projectid=projectid, ITPid=ITPid)
-    return html
+    print("starting background task")
+    pdf = ITP_report_pdf_render(siteid=siteid, projectid=projectid, ITPid=ITPid)
+    # html = HTML(string=html)
+    # return redirect(url_for('site_project_ITP', siteid=siteid, projectid=projectid, ITPid=ITPid))
+    # print(html)
+    # pdf = html.get()
+    # print(pdf)
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = \
+        'inline; filename=%s.pdf' % 'ITP_report'
+    return response
 
-@celery.task
-def ITP_report_page_render(siteid, projectid, ITPid):
+def ITP_report_pdf_render(siteid, projectid, ITPid):
     site = Site.query.filter_by(id=siteid).first()
     project = Project.query.filter_by(id=projectid).first()
     project_ITP = ITP.query.filter_by(id=ITPid).first()
@@ -40,17 +53,38 @@ def ITP_report_page_render(siteid, projectid, ITPid):
 
     ITCs = sorted(ITCs, key=lambda x: x.ITC.group.name)
 
-    html = render_template('ITP_report.html',
-                            site=site,
-                            project=project,
-                            project_ITP=project_ITP,
-                            deliverables=deliverables,
-                            ITCs=ITCs,
-                            deliverable_types=deliverable_types,
-                            today=today,
-                            groups=ITC_groups,
-                            DDC_group=DDC_group)
-    return render_pdf(HTML(string=html))
+    # env = Environment(
+    # loader=PackageLoader('app', 'templates'),
+    # autoescape=select_autoescape(['html', 'xml'])
+    # )
+    #
+    # template = env.get_template('ITP_report.html')
+
+    template = render_template('ITP_report.html',
+                                site=site,
+                                project=project,
+                                project_ITP=project_ITP,
+                                deliverables=deliverables,
+                                ITCs=ITCs,
+                                deliverable_types=deliverable_types,
+                                today=today,
+                                groups=ITC_groups,
+                                DDC_group=DDC_group)
+
+    # with app.app_context():
+    #     html = render_template( 'ITP_report.html',
+    #                             site=site,
+    #                             project=project,
+    #                             project_ITP=project_ITP,
+    #                             deliverables=deliverables,
+    #                             ITCs=ITCs,
+    #                             deliverable_types=deliverable_types,
+    #                             today=today,
+    #                             groups=ITC_groups,
+    #                             DDC_group=DDC_group)
+    html = HTML(string=template)
+    response = html.write_pdf()
+    return response
 
 
 # provide a url to download a report for all delvierables in an ITP
