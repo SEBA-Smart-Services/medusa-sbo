@@ -66,3 +66,6 @@ config.txt
 
 # atom packages
 .remote-sync.json
+
+#pdfs
+test.pdf

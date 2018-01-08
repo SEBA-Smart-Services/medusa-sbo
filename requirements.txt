@@ -85,4 +85,5 @@ webencodings==0.5.1
 WebOb==1.7.2
 Werkzeug==0.12.1
 WTForms==2.1
+xhtml2pdf==3.0.33
 xmltodict==0.11.0

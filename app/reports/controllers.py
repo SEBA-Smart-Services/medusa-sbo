@@ -2,14 +2,14 @@ from app import app, event
 from app.models import Site, Asset, Result
 from app.models.ITP import Project, ITP, Deliverable, Deliverable_ITC_map, Deliverable_check_map, Deliverable_type, ITC_group
 from app.ticket.models import FlicketTicket
-from flask import render_template, url_for, redirect, make_response
+from flask import render_template, url_for, redirect, make_response, send_file
 from flask_weasyprint import HTML, CSS, render_pdf
 import datetime
 from app import celery
 
 from jinja2 import Environment, PackageLoader, select_autoescape
 import weasyprint
-
+import time
 
 # provide a url to download a report for a site
 @app.route('/site/<sitename>/report')
@@ -22,19 +22,40 @@ def report_page(sitename):
 @app.route('/site/<siteid>/projects/<projectid>/ITP/<ITPid>/report')
 def ITP_report_page(siteid, projectid, ITPid):
     print("starting background task")
-    pdf = ITP_report_pdf_render(siteid=siteid, projectid=projectid, ITPid=ITPid)
-    # html = HTML(string=html)
-    # return redirect(url_for('site_project_ITP', siteid=siteid, projectid=projectid, ITPid=ITPid))
-    # print(html)
-    # pdf = html.get()
-    # print(pdf)
-    response = make_response(pdf)
-    response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = \
-        'inline; filename=%s.pdf' % 'ITP_report'
-    return response
+    print(siteid)
+    pdf = ITP_report_pdf_render.delay(siteid=siteid, projectid=projectid, ITPid=ITPid)
+    pdf.get()
+    #print(/var/www/medusa/test.pdf)
+    #uploads = os.path.join()
+    #return send_from_directory(directory='/var/www/medusa', filename='test.pdf')
+    try:
+        return send_file('/var/www/medusa/test.pdf', as_attachment=True)
+    except Exception as e:
+        self.log.exception(e)
+        self.Error(400)
+    #return pdf
+    # result = create_pdf.AsyncResult(pdf.id)
+    # i = 0
+    # while result != 'Complete' and i < 30:
+    #     i += 1
+    #     print('loading')
+    #     time.sleep(1)
+    #     result = create_pdf.AsyncResult(pdf.id)
+    # if i == 30:
+    #     print('Failed to create pdf')
+    #     return redirect(url_for('site_project_ITP', siteid=siteid, projectid=projectid, ITPid=ITPid))
+    # # html = HTML(string=html)
+    # # return redirect(url_for('site_project_ITP', siteid=siteid, projectid=projectid, ITPid=ITPid))
+    # elif task.info.get('response') != None:
+    #     pdf = task.info.get('response')
+    #     print(pdf)
+    #     return response
+    # else:
+    #     print('Something went wrong')
+    #     return redirect(url_for('site_project_ITP', siteid=siteid, projectid=projectid, ITPid=ITPid))
 
-def ITP_report_pdf_render(siteid, projectid, ITPid):
+@celery.task(bind=True)
+def ITP_report_pdf_render(self, siteid, projectid, ITPid):
     site = Site.query.filter_by(id=siteid).first()
     project = Project.query.filter_by(id=projectid).first()
     project_ITP = ITP.query.filter_by(id=ITPid).first()
@@ -45,6 +66,8 @@ def ITP_report_pdf_render(siteid, projectid, ITPid):
     ITC_groups = ITC_group.query.all()
     ITC_groups = sorted(ITC_groups, key=lambda x: x.name)
 
+    self.update_state(state='PROGRESS')
+
     DDC_group = ['Automation Server', 'AS-P', 'AS']
 
     ITCs = []
@@ -53,38 +76,28 @@ def ITP_report_pdf_render(siteid, projectid, ITPid):
 
     ITCs = sorted(ITCs, key=lambda x: x.ITC.group.name)
 
-    # env = Environment(
-    # loader=PackageLoader('app', 'templates'),
-    # autoescape=select_autoescape(['html', 'xml'])
-    # )
-    #
-    # template = env.get_template('ITP_report.html')
+    env = Environment(
+    loader=PackageLoader('app', 'templates'),
+    autoescape=select_autoescape(['html', 'xml'])
+    )
 
-    template = render_template('ITP_report.html',
-                                site=site,
-                                project=project,
-                                project_ITP=project_ITP,
-                                deliverables=deliverables,
-                                ITCs=ITCs,
-                                deliverable_types=deliverable_types,
-                                today=today,
-                                groups=ITC_groups,
-                                DDC_group=DDC_group)
+    template = env.get_template('ITP_report.html')
 
-    # with app.app_context():
-    #     html = render_template( 'ITP_report.html',
-    #                             site=site,
-    #                             project=project,
-    #                             project_ITP=project_ITP,
-    #                             deliverables=deliverables,
-    #                             ITCs=ITCs,
-    #                             deliverable_types=deliverable_types,
-    #                             today=today,
-    #                             groups=ITC_groups,
-    #                             DDC_group=DDC_group)
-    html = HTML(string=template)
-    response = html.write_pdf()
-    return response
+    with app.app_context():
+        template = template.render( site=site,
+                                    project=project,
+                                    project_ITP=project_ITP,
+                                    deliverables=deliverables,
+                                    ITCs=ITCs,
+                                    deliverable_types=deliverable_types,
+                                    today=today,
+                                    groups=ITC_groups,
+                                    DDC_group=DDC_group)
+
+        html = weasyprint.HTML(string=template)
+        pdf = html.write_pdf('test.pdf')
+        response = {'pdf': pdf}
+    self.update_state(state='Complete', meta={'response': response})
 
 
 # provide a url to download a report for all delvierables in an ITP
