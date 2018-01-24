@@ -144,28 +144,29 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
     self.update_state(state='PROGRESS',
                       meta={'current': i + len(deliverables) * 0.2, 'total': total, 'status': 'Starting Report build'})
 
-    template = env.get_template('ITP_report.html')
+    #template = env.get_template('ITP_report.html')
 
     name = str(site.name) + '_' + str(project.name) + '_' + time.strftime("%Y%m%d") + '.pdf'
     print(name)
 
     #Creates PDF
-    #with app.app_context():
-    template = template.render( site=site,
-                                project=project,
-                                project_ITP=project_ITP,
-                                deliverables=deliverables,
-                                ITCs=ITCs,
-                                deliverable_types=deliverable_types,
-                                today=today,
-                                groups=ITC_groups,
-                                DDC_group=DDC_group)
+    with app.app_context():
+        template = render_template( 'ITP_report.html',
+                                    site=site,
+                                    project=project,
+                                    project_ITP=project_ITP,
+                                    deliverables=deliverables,
+                                    ITCs=ITCs,
+                                    deliverable_types=deliverable_types,
+                                    today=today,
+                                    groups=ITC_groups,
+                                    DDC_group=DDC_group)
 
-    print('template rendered')
-    self.update_state(state='PROGRESS',
-                      meta={'current': i + len(deliverables) * 0.4, 'total': total, 'status': 'Starting Report build'})
+        print('template rendered')
+        self.update_state(state='PROGRESS',
+                          meta={'current': i + len(deliverables) * 0.4, 'total': total, 'status': 'Starting Report build'})
 
-    html = weasyprint.HTML(string=template)
+        html = weasyprint.HTML(string=template)
 
     print('converting to pdf')
 
