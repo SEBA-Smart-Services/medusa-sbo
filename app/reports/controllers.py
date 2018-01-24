@@ -150,26 +150,26 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
     print(name)
 
     #Creates PDF
-    with app.app_context():
-        template = template.render( site=site,
-                                    project=project,
-                                    project_ITP=project_ITP,
-                                    deliverables=deliverables,
-                                    ITCs=ITCs,
-                                    deliverable_types=deliverable_types,
-                                    today=today,
-                                    groups=ITC_groups,
-                                    DDC_group=DDC_group)
+    #with app.app_context():
+    template = template.render( site=site,
+                                project=project,
+                                project_ITP=project_ITP,
+                                deliverables=deliverables,
+                                ITCs=ITCs,
+                                deliverable_types=deliverable_types,
+                                today=today,
+                                groups=ITC_groups,
+                                DDC_group=DDC_group)
 
-        print('converting to pdf')
-        self.update_state(state='PROGRESS',
-                          meta={'current': i + len(deliverables) * 0.4, 'total': total, 'status': 'Starting Report build'})
+    print('template rendered')
+    self.update_state(state='PROGRESS',
+                      meta={'current': i + len(deliverables) * 0.4, 'total': total, 'status': 'Starting Report build'})
 
-        html = weasyprint.HTML(string=template)
+    html = weasyprint.HTML(string=template)
 
-        print('testing 1 2 3')
+    print('converting to pdf')
 
-        pdf = html.write_pdf('./app/reports/' + name)
+    pdf = html.write_pdf('./app/reports/' + name)
 
     self.update_state(state='PROGRESS',
                       meta={'current': i + len(deliverables) * 0.14, 'total': total, 'status': 'Saving Report'})
