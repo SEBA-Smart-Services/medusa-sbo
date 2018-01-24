@@ -20,15 +20,22 @@
   {% endblock %}
   <body>
     <h2>Downloading ITP Report</h2>
-    <button hidden id="start-bg-job">Start Long Calculation</button><br><br>
-    <h5 id="Loading">Please Wait</h5>
+    <button id="start-bg-job">Start Download</button><br><br>
+
+    <select id="typeOptions">
+      {% for type in deliverable_types %}
+        <option value='{{type.id}}'>{{type}}</option>
+      {% endfor %}
+    </select>
+
+    <h5 hidden id="Loading">Please Wait</h5>
     <div id="progress"></div>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script>
         // document.getElementById("progress").addEventListener("load", start_long_task);
-        document.getElementsByTagName("BODY")[0].onpageshow = function() {start_long_task()};
+        // document.getElementsByTagName("BODY")[0].onpageshow = function() {start_long_task()};
 
         function start_long_task() {
             // add task status elements
@@ -42,12 +49,14 @@
             var siteid = $('meta[name=siteid]').attr("content");
             var projectid = $('meta[name=projectid]').attr("content");
             var ITPid = $('meta[name=ITPid]').attr("content");
+            var typeOptions = document.getElementById("typeOptions");
+            var typeid = typeOptions.options[typeOptions.selectedIndex].value
             // send ajax POST request to start background job
             $.ajax({
                 type: 'POST',
                 url: '/longtask',
                 datatype: "json",
-                data: {siteid: siteid, projectid: projectid, ITPid: ITPid},
+                data: {siteid: siteid, projectid: projectid, ITPid: ITPid, typeid: typeid},
                 success: function(data, status, request) {
                     status_url = request.getResponseHeader('Location');
                     update_progress(status_url, nanobar, div[0]);

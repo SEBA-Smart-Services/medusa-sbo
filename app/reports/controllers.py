@@ -29,7 +29,7 @@ def ITP_report_page(siteid, projectid, ITPid):
     deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id).all()
     deliverable_types = Deliverable_type.query.filter(Deliverable_type.id.in_([deliverable.deliverable_type_id for deliverable in deliverables])).all()
 
-    return render_template('loading_page.html', site=site, project=project, ITP=project_ITP)
+    return render_template('loading_page.html', site=site, project=project, ITP=project_ITP, deliverable_types=deliverable_types)
 
 #Downloads the report
 @app.route('/<siteid>/<projectid>/<ITPid>/download_report')
@@ -60,11 +60,13 @@ def longtask():
     siteid = request.form['siteid']
     projectid = request.form['projectid']
     ITPid = request.form['ITPid']
+    typeid = request.form['typeid']
     print(siteid)
     print(projectid)
     print(ITPid)
+    print(typeid)
     print("starting background task")
-    pdf = ITP_report_pdf_render.delay(siteid=siteid, projectid=projectid, ITPid=ITPid)
+    pdf = ITP_report_pdf_render.delay(siteid=siteid, projectid=projectid, ITPid=ITPid, typeid=typeid)
     return jsonify({}), 202, {'Location': url_for('taskstatus', task_id=pdf.id)}
 
 #checks the current status for the generated report
@@ -105,12 +107,13 @@ def taskstatus(task_id):
 
 #Asynchronus task that will create the ITP report PDF
 @celery.task(bind=True)
-def ITP_report_pdf_render(self, siteid, projectid, ITPid):
+def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
     site = Site.query.filter_by(id=siteid).first()
     project = Project.query.filter_by(id=projectid).first()
     project_ITP = ITP.query.filter_by(id=ITPid).first()
     deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id).all()
-    deliverable_types = Deliverable_type.query.filter(Deliverable_type.id.in_([deliverable.deliverable_type_id for deliverable in deliverables])).all()
+    # deliverable_types = Deliverable_type.query.filter(Deliverable_type.id.in_([deliverable.deliverable_type_id for deliverable in deliverables])).all()
+    deliverable_types = [Deliverable_type.query.filter_by(id=typeid).first()]
     today = datetime.datetime.now()
     # image = flask_weasyprint.default_url_fetcher("/static/img/logo-schneider-electric.png")
     ITC_groups = ITC_group.query.all()
@@ -165,7 +168,7 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid):
         html = weasyprint.HTML(string=template)
 
         print('testing 1 2 3')
-        
+
         pdf = html.write_pdf('./app/reports/' + name)
 
     self.update_state(state='PROGRESS',
