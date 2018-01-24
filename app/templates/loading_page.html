@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+{% block title %}- Downloading Report{% endblock %}
+{% block content %}
+  {% block head %}
+    <head>
+      <style>
+          .progress {
+              width: 100%;
+              text-align: center;
+          }
+      </style>
+      <meta name="siteid" content="{{site.id}}">
+      <meta name="projectid" content="{{project.id}}">
+      <meta name="ITPid" content="{{ITP.id}}">
+    </head>
+  {% endblock %}
+  <body>
+    <h2>Please wait</h2>
+    <button hidden id="start-bg-job">Start Long Calculation</button><br><br>
+    <div id="progress"></div>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script>
+        // document.getElementById("progress").addEventListener("load", start_long_task);
+        document.getElementsByTagName("BODY")[0].onpageshow = function() {start_long_task()};
+
+        function start_long_task() {
+            // add task status elements
+            div = $('<div class="progress"><div></div><div>0%</div><div>...</div><div>&nbsp;</div></div><hr>');
+            $('#progress').append(div);
+            // create a progress bar
+            var nanobar = new Nanobar({
+                bg: '#44f',
+                target: div[0].childNodes[0]
+            });
+            var siteid = $('meta[name=siteid]').attr("content");
+            var projectid = $('meta[name=projectid]').attr("content");
+            var ITPid = $('meta[name=ITPid]').attr("content");
+            // send ajax POST request to start background job
+            $.ajax({
+                type: 'POST',
+                url: '/longtask',
+                datatype: "json",
+                data: {siteid: siteid, projectid: projectid, ITPid: ITPid},
+                success: function(data, status, request) {
+                    status_url = request.getResponseHeader('Location');
+                    update_progress(status_url, nanobar, div[0]);
+                },
+                error: function() {
+                    alert('Unexpected error');
+                }
+            });
+        }
+        function update_progress(status_url, nanobar, status_div) {
+            var siteid = $('meta[name=siteid]').attr("content");
+            var projectid = $('meta[name=projectid]').attr("content");
+            var ITPid = $('meta[name=ITPid]').attr("content");
+            // send GET request to status URL
+            $.getJSON(status_url, function(data) {
+                // update UI
+                percent = parseInt(data['current'] * 100 / data['total']);
+                nanobar.go(percent);
+                $(status_div.childNodes[1]).text(percent + '%');
+                $(status_div.childNodes[2]).text(data['status']);
+                if (data['state'] != 'PENDING' && data['state'] != 'PROGRESS') {
+                    if (data['state'] == 'SUCCESS') {
+                        // show result
+                        // Window.location('/test.pdf')
+                        $(status_div.childNodes[3]).html("<a id='link' href='/" + siteid + "/" + projectid + "/" + ITPid + "/download_report' hidden>Open</a>");
+                        document.getElementById('link').click();
+                    }
+                    else {
+                        // something unexpected happened
+                        $(status_div.childNodes[3]).text('Result: ' + data['state']);
+                    }
+                }
+                else {
+                    // rerun in 2 seconds
+                    setTimeout(function() {
+                        update_progress(status_url, nanobar, status_div);
+                    }, 2000);
+                }
+            });
+        }
+        $(function() {
+            $('#start-bg-job').click(start_long_task);
+        });
+    </script>
+  </body>
+{% endblock %}

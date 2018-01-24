@@ -48,6 +48,10 @@ bugsnag.configure(
 )
 handle_exceptions(app)
 
+#prompting
+from flask_script import Manager
+manager = Manager(app)
+
 # setup Celery asynchronus methods
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)

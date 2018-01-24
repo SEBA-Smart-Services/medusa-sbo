@@ -1,15 +1,17 @@
-from app import app, event
+from app import app, event, manager
 from app.models import Site, Asset, Result
 from app.models.ITP import Project, ITP, Deliverable, Deliverable_ITC_map, Deliverable_check_map, Deliverable_type, ITC_group
 from app.ticket.models import FlicketTicket
-from flask import render_template, url_for, redirect, make_response, send_file
+from flask import render_template, request, jsonify, url_for, redirect, make_response, send_file, send_from_directory, after_this_request
 from flask_weasyprint import HTML, CSS, render_pdf
 import datetime
 from app import celery
+import os
 
 from jinja2 import Environment, PackageLoader, select_autoescape
 import weasyprint
 import time
+from flask_script import prompt_choices, prompt_bool
 
 # provide a url to download a report for a site
 @app.route('/site/<sitename>/report')
@@ -21,39 +23,87 @@ def report_page(sitename):
 # provide a url to download a report for an ITP
 @app.route('/site/<siteid>/projects/<projectid>/ITP/<ITPid>/report')
 def ITP_report_page(siteid, projectid, ITPid):
-    print("starting background task")
-    print(siteid)
-    pdf = ITP_report_pdf_render.delay(siteid=siteid, projectid=projectid, ITPid=ITPid)
-    pdf.get()
-    #print(/var/www/medusa/test.pdf)
-    #uploads = os.path.join()
-    #return send_from_directory(directory='/var/www/medusa', filename='test.pdf')
+    site = Site.query.filter_by(id=siteid).first()
+    project = Project.query.filter_by(id=projectid).first()
+    project_ITP = ITP.query.filter_by(id=ITPid).first()
+    deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id).all()
+    deliverable_types = Deliverable_type.query.filter(Deliverable_type.id.in_([deliverable.deliverable_type_id for deliverable in deliverables])).all()
+
+    return render_template('loading_page.html', site=site, project=project, ITP=project_ITP)
+
+#Downloads the report
+@app.route('/<siteid>/<projectid>/<ITPid>/download_report')
+def download_report(siteid, projectid, ITPid):
+    site = Site.query.filter_by(id=siteid).first()
+    project = Project.query.filter_by(id=projectid).first()
+    project_ITP = ITP.query.filter_by(id=ITPid).first()
+
+    name = str(site.name) + '_' + str(project.name) + '_' + time.strftime("%Y%m%d") + '.pdf'
     try:
-        return send_file('/var/www/medusa/test.pdf', as_attachment=True)
+        path = os.path.join(os.getcwd(), app.config['TICKET_UPLOAD_FOLDER'])
+        print(path)
+        @after_this_request
+        def remove_file(response):
+            try:
+                os.remove('/var/www/medusa/app/reports/' + name)
+            except Exception as error:
+                app.logger.error("Error removing or closing downloaded file handle", error)
+            return response
+        return send_file('reports/' + name, as_attachment=True)
     except Exception as e:
         self.log.exception(e)
         self.Error(400)
-    #return pdf
-    # result = create_pdf.AsyncResult(pdf.id)
-    # i = 0
-    # while result != 'Complete' and i < 30:
-    #     i += 1
-    #     print('loading')
-    #     time.sleep(1)
-    #     result = create_pdf.AsyncResult(pdf.id)
-    # if i == 30:
-    #     print('Failed to create pdf')
-    #     return redirect(url_for('site_project_ITP', siteid=siteid, projectid=projectid, ITPid=ITPid))
-    # # html = HTML(string=html)
-    # # return redirect(url_for('site_project_ITP', siteid=siteid, projectid=projectid, ITPid=ITPid))
-    # elif task.info.get('response') != None:
-    #     pdf = task.info.get('response')
-    #     print(pdf)
-    #     return response
-    # else:
-    #     print('Something went wrong')
-    #     return redirect(url_for('site_project_ITP', siteid=siteid, projectid=projectid, ITPid=ITPid))
 
+#starts the pdf generation
+@app.route('/longtask', methods=['POST'])
+def longtask():
+    siteid = request.form['siteid']
+    projectid = request.form['projectid']
+    ITPid = request.form['ITPid']
+    print(siteid)
+    print(projectid)
+    print(ITPid)
+    print("starting background task")
+    pdf = ITP_report_pdf_render.delay(siteid=siteid, projectid=projectid, ITPid=ITPid)
+    return jsonify({}), 202, {'Location': url_for('taskstatus', task_id=pdf.id)}
+
+#checks the current status for the generated report
+@app.route('/status/<task_id>')
+def taskstatus(task_id):
+    task = ITP_report_pdf_render.AsyncResult(task_id)
+    if task.state == 'PENDING':
+        response = {
+            'state': task.state,
+            'current': 0,
+            'total': 1,
+            'status': 'Pending...'
+        }
+    elif task.state == 'SUCCESS':
+        response = {
+            'state': task.state,
+            'current': 1,
+            'total': 1,
+            'status': 'Complete'
+        }
+    elif task.state != 'FAILURE':
+        response = {
+            'state': task.state,
+            'current': task.info['current'],
+            'total': task.info['total'],
+        }
+        if 'result' in task.info:
+            response['result'] = task.info['result']
+    else:
+        # something went wrong in the background job
+        response = {
+            'state': task.state,
+            'current': 1,
+            'total': 1,
+            'status': str(task.info),  # this is the exception raised
+        }
+    return jsonify(response)
+
+#Asynchronus task that will create the ITP report PDF
 @celery.task(bind=True)
 def ITP_report_pdf_render(self, siteid, projectid, ITPid):
     site = Site.query.filter_by(id=siteid).first()
@@ -70,10 +120,17 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid):
 
     DDC_group = ['Automation Server', 'AS-P', 'AS']
 
+    #Set up variables to update user screen while ITCs are generated
     ITCs = []
+    i = 0.0
+    total = len(deliverables) + len(deliverables) * 0.25
     for deliverable in deliverables:
         ITCs += Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
+        i += 1
+        self.update_state(state='PROGRESS',
+                          meta={'current': i, 'total': total, 'status': 'Creating ITCs'})
 
+    print('ITCs have been created')
     ITCs = sorted(ITCs, key=lambda x: x.ITC.group.name)
 
     env = Environment(
@@ -81,8 +138,15 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid):
     autoescape=select_autoescape(['html', 'xml'])
     )
 
+    self.update_state(state='PROGRESS',
+                      meta={'current': i + len(deliverables) * 0.1, 'total': total, 'status': 'Starting Report build'})
+
     template = env.get_template('ITP_report.html')
 
+    name = str(site.name) + '_' + str(project.name) + '_' + time.strftime("%Y%m%d") + '.pdf'
+    print(name)
+
+    #Creates PDF
     with app.app_context():
         template = template.render( site=site,
                                     project=project,
@@ -95,9 +159,13 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid):
                                     DDC_group=DDC_group)
 
         html = weasyprint.HTML(string=template)
-        pdf = html.write_pdf('test.pdf')
-        response = {'pdf': pdf}
-    self.update_state(state='Complete', meta={'response': response})
+        pdf = html.write_pdf('./app/reports/' + name)
+
+    self.update_state(state='PROGRESS',
+                      meta={'current': i + len(deliverables) * 0.14, 'total': total, 'status': 'Saving Report'})
+    print('page has been rendered')
+
+    self.update_state(state='Complete', meta={'current': total, 'total': total, 'status': 'Complete'})
 
 
 # provide a url to download a report for all delvierables in an ITP

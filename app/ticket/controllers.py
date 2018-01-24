@@ -117,6 +117,8 @@ def ticket_create(siteid=None, projectname=None, component=None, priority=None, 
 
     components = TicketComponent.query.all()
 
+    print(request.referrer.split('/')[-1])
+
     return render_template(
         'flicket/flicket_create.html',
         title='Create Ticket',
