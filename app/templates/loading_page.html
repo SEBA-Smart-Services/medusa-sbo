@@ -8,6 +8,10 @@
               width: 100%;
               text-align: center;
           }
+          #Loading {
+              width: 100%;
+              text-align: center;
+          }
       </style>
       <meta name="siteid" content="{{site.id}}">
       <meta name="projectid" content="{{project.id}}">
@@ -15,8 +19,9 @@
     </head>
   {% endblock %}
   <body>
-    <h2>Please wait</h2>
+    <h2>Downloading ITP Report</h2>
     <button hidden id="start-bg-job">Start Long Calculation</button><br><br>
+    <h5 id="Loading">Please Wait</h5>
     <div id="progress"></div>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js"></script>

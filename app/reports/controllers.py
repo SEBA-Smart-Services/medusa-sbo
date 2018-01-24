@@ -123,7 +123,7 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid):
     #Set up variables to update user screen while ITCs are generated
     ITCs = []
     i = 0.0
-    total = len(deliverables) + len(deliverables) * 0.25
+    total = len(deliverables) + len(deliverables) * 0.75
     for deliverable in deliverables:
         ITCs += Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
         i += 1
@@ -139,7 +139,7 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid):
     )
 
     self.update_state(state='PROGRESS',
-                      meta={'current': i + len(deliverables) * 0.1, 'total': total, 'status': 'Starting Report build'})
+                      meta={'current': i + len(deliverables) * 0.2, 'total': total, 'status': 'Starting Report build'})
 
     template = env.get_template('ITP_report.html')
 
@@ -158,7 +158,14 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid):
                                     groups=ITC_groups,
                                     DDC_group=DDC_group)
 
+        print('converting to pdf')
+        self.update_state(state='PROGRESS',
+                          meta={'current': i + len(deliverables) * 0.4, 'total': total, 'status': 'Starting Report build'})
+
         html = weasyprint.HTML(string=template)
+
+        print('testing 1 2 3')
+        
         pdf = html.write_pdf('./app/reports/' + name)
 
     self.update_state(state='PROGRESS',
