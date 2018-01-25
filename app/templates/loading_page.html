@@ -70,6 +70,8 @@
             var siteid = $('meta[name=siteid]').attr("content");
             var projectid = $('meta[name=projectid]').attr("content");
             var ITPid = $('meta[name=ITPid]').attr("content");
+            var typeOptions = document.getElementById("typeOptions");
+            var typeid = typeOptions.options[typeOptions.selectedIndex].value
             // send GET request to status URL
             $.getJSON(status_url, function(data) {
                 // update UI
@@ -81,7 +83,7 @@
                     if (data['state'] == 'SUCCESS') {
                         // show result
                         // Window.location('/test.pdf')
-                        $(status_div.childNodes[3]).html("<a id='link' href='/" + siteid + "/" + projectid + "/" + ITPid + "/download_report' hidden>Open</a>");
+                        $(status_div.childNodes[3]).html("<a id='link' href='/" + siteid + "/" + projectid + "/" + ITPid + "/" + typeid + "/download_report' hidden>Open</a>");
                         document.getElementById('link').click();
                     }
                     else {

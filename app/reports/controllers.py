@@ -32,13 +32,14 @@ def ITP_report_page(siteid, projectid, ITPid):
     return render_template('loading_page.html', site=site, project=project, ITP=project_ITP, deliverable_types=deliverable_types)
 
 #Downloads the report
-@app.route('/<siteid>/<projectid>/<ITPid>/download_report')
-def download_report(siteid, projectid, ITPid):
+@app.route('/<siteid>/<projectid>/<ITPid>/<typeid>/download_report')
+def download_report(siteid, projectid, ITPid, typeid):
     site = Site.query.filter_by(id=siteid).first()
     project = Project.query.filter_by(id=projectid).first()
     project_ITP = ITP.query.filter_by(id=ITPid).first()
+    deliverable_type = Deliverable_type.query.filter_by(id=typeid).first()
 
-    name = str(site.name) + '_' + str(project.name) + '_' + time.strftime("%Y%m%d") + '.pdf'
+    name = str(site.name) + '_' + str(project.name) + '_' + str(deliverable_type.name) + '_' + time.strftime("%Y%m%d") + '.pdf'
     try:
         path = os.path.join(os.getcwd(), app.config['TICKET_UPLOAD_FOLDER'])
         print(path)
@@ -111,9 +112,9 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
     site = Site.query.filter_by(id=siteid).first()
     project = Project.query.filter_by(id=projectid).first()
     project_ITP = ITP.query.filter_by(id=ITPid).first()
-    deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id).all()
+    deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id, deliverable_type_id=typeid).all()
     # deliverable_types = Deliverable_type.query.filter(Deliverable_type.id.in_([deliverable.deliverable_type_id for deliverable in deliverables])).all()
-    deliverable_types = [Deliverable_type.query.filter_by(id=typeid).first()]
+    deliverable_types = Deliverable_type.query.filter_by(id=typeid).all()
     today = datetime.datetime.now()
     # image = flask_weasyprint.default_url_fetcher("/static/img/logo-schneider-electric.png")
     ITC_groups = ITC_group.query.all()
@@ -146,7 +147,7 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
 
     #template = env.get_template('ITP_report.html')
 
-    name = str(site.name) + '_' + str(project.name) + '_' + time.strftime("%Y%m%d") + '.pdf'
+    name = str(site.name) + '_' + str(project.name) + '_' + str(deliverable_types[0].name) + '_' + time.strftime("%Y%m%d") + '.pdf'
     print(name)
 
     #Creates PDF
