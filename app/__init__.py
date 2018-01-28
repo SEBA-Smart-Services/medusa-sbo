@@ -56,6 +56,10 @@ manager = Manager(app)
 #celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 #celery.conf.update(app.config)
 celery = Celery(app.name, backend=app.config['CELERY_BROKER_URL'], broker='amqp://localhost')
+celery.conf.update(CELERYD_CONCURRENCY = 1,
+                CELERYD_PREFETCH_MULTIPLIER = 1,
+                CELERY_ACKS_LATE = True,
+                CELERYD_MAX_MEMORY_PER_CHILD = 200,)
 
 from app import controllers
 

@@ -137,11 +137,6 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
     ITCs = Deliverable_ITC_map.query.filter(Deliverable_ITC_map.deliverable_id.in_([deliverable.id for deliverable in deliverables])).all()
     ITCs = sorted(ITCs, key=lambda x: (x.deliverable.type.name, x.deliverable.name, x.ITC.group.name))
 
-    for itc in ITCs:
-        print(itc.deliverable)
-        print(itc.deliverable.type)
-        print(itc.ITC)
-
     print('ITCs have been created')
     ITCs_old = sorted(ITCs, key=lambda x: (x.ITC.group.name))
 
