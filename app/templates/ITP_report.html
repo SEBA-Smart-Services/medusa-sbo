@@ -6,7 +6,7 @@
 
     <title>Medusa</title>
 
-    
+
   </head>
 
   <body>
@@ -391,9 +391,7 @@
                     <td></td>
                     <td></td>
                   </tr>
-                {% for i in range(0, (ITCs[i].deliverable_check_map | length)) %}
                   {% for check in ITCs[i].deliverable_check_map %}
-                    {% if check.check_number == i+1 %}
                       <tr>
                         <td>{{ ITCs[i].ITC_group_number }}.{{check.check_number}}</td>
                         <td>{{check.ITC_check.check.check_description}}</td>
@@ -405,9 +403,7 @@
                           <td></td>
                         {% endif %}
                       </tr>
-                    {% endif %}
                   {% endfor %}
-                {% endfor %}
               {% endif %}
             {% endif %}
           {% endfor %}
@@ -415,8 +411,9 @@
       </table>
       <br>
       {% endfor %}
-      <p style="page-break-after: always"></p>
     {% endfor %}
+
+    <p style="page-break-after: always"></p>
 
     <h6><u>SECTION 2 - COMMENTS, RECOMMENDATIONS & CORRECTIVE ACTION</u></h6>
 

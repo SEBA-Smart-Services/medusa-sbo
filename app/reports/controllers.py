@@ -112,9 +112,9 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
     site = Site.query.filter_by(id=siteid).first()
     project = Project.query.filter_by(id=projectid).first()
     project_ITP = ITP.query.filter_by(id=ITPid).first()
-    deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id, deliverable_type_id=typeid).all()
-    # deliverable_types = Deliverable_type.query.filter(Deliverable_type.id.in_([deliverable.deliverable_type_id for deliverable in deliverables])).all()
-    deliverable_types = Deliverable_type.query.filter_by(id=typeid).all()
+    deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id).all()
+    deliverable_types = Deliverable_type.query.filter(Deliverable_type.id.in_([deliverable.deliverable_type_id for deliverable in deliverables])).all()
+    # deliverable_types = Deliverable_type.query.filter_by(id=typeid).all()
     today = datetime.datetime.now()
     # image = flask_weasyprint.default_url_fetcher("/static/img/logo-schneider-electric.png")
     ITC_groups = ITC_group.query.all()
@@ -125,17 +125,25 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
     DDC_group = ['Automation Server', 'AS-P', 'AS']
 
     #Set up variables to update user screen while ITCs are generated
-    ITCs = []
+    ITCs_old = []
     i = 0.0
     total = len(deliverables) + len(deliverables) * 0.75
     for deliverable in deliverables:
-        ITCs += Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
+        ITCs_old += Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
         i += 1
         self.update_state(state='PROGRESS',
                           meta={'current': i, 'total': total, 'status': 'Creating ITCs'})
 
+    ITCs = Deliverable_ITC_map.query.filter(Deliverable_ITC_map.deliverable_id.in_([deliverable.id for deliverable in deliverables])).all()
+    ITCs = sorted(ITCs, key=lambda x: (x.deliverable.type.name, x.deliverable.name, x.ITC.group.name))
+
+    for itc in ITCs:
+        print(itc.deliverable)
+        print(itc.deliverable.type)
+        print(itc.ITC)
+
     print('ITCs have been created')
-    ITCs = sorted(ITCs, key=lambda x: x.ITC.group.name)
+    ITCs_old = sorted(ITCs, key=lambda x: (x.ITC.group.name))
 
     env = Environment(
     loader=PackageLoader('app', 'templates'),
