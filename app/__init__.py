@@ -53,8 +53,9 @@ from flask_script import Manager
 manager = Manager(app)
 
 # setup Celery asynchronus methods
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-celery.conf.update(app.config)
+#celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+#celery.conf.update(app.config)
+celery = Celery(app.name, backend=app.config['CELERY_BROKER_URL'], broker='amqp://localhost')
 
 from app import controllers
 
