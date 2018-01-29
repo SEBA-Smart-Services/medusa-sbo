@@ -71,7 +71,7 @@
         </tr>
       </thead>
         <tbody>
-        {% for deliverable in deliverables %}
+        {% for deliverable in deliverables_all %}
           {% if deliverable.type.name in DDC_group %}
             <tr>
               <td>{{deliverable.name}}</td>
@@ -103,7 +103,7 @@
         </tr>
       </thead>
         <tbody>
-        {% for deliverable in deliverables %}
+        {% for deliverable in deliverables_all %}
           {% if deliverable.type.name not in DDC_group %}
             <tr>
               <td>{{deliverable.name}}</td>
@@ -139,7 +139,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for deliverable_type in deliverable_types %}
+        {% for deliverable_type in deliverable_types_all %}
           {% if deliverable_type.name in DDC_group %}
           <tr>
             <td style="vertical-align:top;">{{deliverable_type}}</td>
@@ -218,7 +218,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for deliverable_type in deliverable_types %}
+        {% for deliverable_type in deliverable_types_all %}
           {% if deliverable_type.name not in DDC_group %}
           <tr>
             <td style="vertical-align:top;">{{deliverable_type}}</td>

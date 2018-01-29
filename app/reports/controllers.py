@@ -114,8 +114,10 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
     site = Site.query.filter_by(id=siteid).first()
     project = Project.query.filter_by(id=projectid).first()
     project_ITP = ITP.query.filter_by(id=ITPid).first()
-    deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id).all()
+    deliverables_all = Deliverable.query.filter_by(ITP_id=project_ITP.id).all()
+    deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id, deliverable_type_id=typeid).all()
     deliverable_types = Deliverable_type.query.filter(Deliverable_type.id.in_([deliverable.deliverable_type_id for deliverable in deliverables])).all()
+    deliverable_types_all = Deliverable_type.query.filter(Deliverable_type.id.in_([deliverable.deliverable_type_id for deliverable in deliverables_all])).all()
     # deliverable_types = Deliverable_type.query.filter_by(id=typeid).all()
     today = datetime.datetime.now()
     # image = flask_weasyprint.default_url_fetcher("/static/img/logo-schneider-electric.png")
@@ -165,8 +167,10 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
                                     project=project,
                                     project_ITP=project_ITP,
                                     deliverables=deliverables,
+                                    deliverables_all=deliverables_all,
                                     ITCs=ITCs,
                                     deliverable_types=deliverable_types,
+                                    deliverable_types_all=deliverable_types_all,
                                     today=today,
                                     groups=ITC_groups,
                                     DDC_group=DDC_group)
