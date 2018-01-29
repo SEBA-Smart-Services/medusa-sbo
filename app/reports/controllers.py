@@ -13,6 +13,8 @@ import weasyprint
 import time
 from flask_script import prompt_choices, prompt_bool
 
+import pdfkit
+
 # provide a url to download a report for a site
 @app.route('/site/<sitename>/report')
 def report_page(sitename):
@@ -153,6 +155,9 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
     name = str(site.name) + '_' + str(project.name) + '_' + str(deliverable_types[0].name) + '_' + time.strftime("%Y%m%d") + '.pdf'
     print(name)
 
+    path_wkthmltopdf = '/var/www/medusa/wkhtmltox/bin/wkhtmltopdf'
+    config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
+
     #Creates PDF
     with app.app_context():
         template = render_template( 'ITP_report.html',
@@ -170,11 +175,13 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
         self.update_state(state='PROGRESS',
                           meta={'current': i + len(deliverables) * 0.4, 'total': total, 'status': 'Starting Report build'})
 
-        html = weasyprint.HTML(string=template)
+        # html = weasyprint.HTML(string=template)
 
-    print('converting to pdf')
+        print('converting to pdf')
 
-    pdf = html.write_pdf('./app/reports/' + name)
+        pdfkit.from_string(template, './app/reports/' + name, configuration=config)
+
+    #pdf = html.write_pdf('./app/reports/' + name)
 
     self.update_state(state='PROGRESS',
                       meta={'current': i + len(deliverables) * 0.14, 'total': total, 'status': 'Saving Report'})
