@@ -12,6 +12,7 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 import weasyprint
 import time
 from flask_script import prompt_choices, prompt_bool
+from PyPDF2 import PdfFileMerger, PdfFileReader
 
 import pdfkit
 
@@ -41,21 +42,16 @@ def download_report(siteid, projectid, ITPid, typeid):
     project_ITP = ITP.query.filter_by(id=ITPid).first()
     deliverable_type = Deliverable_type.query.filter_by(id=typeid).first()
 
-    name = str(site.name) + '_' + str(project.name) + '_' + str(deliverable_type.name) + '_' + time.strftime("%Y%m%d") + '.pdf'
-    try:
-        path = os.path.join(os.getcwd(), app.config['TICKET_UPLOAD_FOLDER'])
-        print(path)
-        @after_this_request
-        def remove_file(response):
-            try:
-                os.remove('/var/www/medusa/app/reports/' + name)
-            except Exception as error:
-                app.logger.error("Error removing or closing downloaded file handle", error)
-            return response
-        return send_file('reports/' + name, as_attachment=True)
-    except Exception as e:
-        self.log.exception(e)
-        self.Error(400)
+    # name = str(site.name).replace(" ","_") + '_' + str(project.name).replace(" ","_") + '_' + time.strftime("%Y%m%d") + '.pdf'
+    name = 'test.pdf'
+    @after_this_request
+    def remove_file(response):
+        try:
+            os.remove('/var/www/medusa/app/reports/' + name)
+        except Exception as error:
+            app.logger.error("Error removing or closing downloaded file handle", error)
+        return response
+    return send_file('reports/' + name, as_attachment=True)
 
 #starts the pdf generation
 @app.route('/longtask', methods=['POST'])
@@ -154,7 +150,9 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
 
     #template = env.get_template('ITP_report.html')
 
-    name = str(site.name) + '_' + str(project.name) + '_' + str(deliverable_types[0].name) + '_' + time.strftime("%Y%m%d") + '.pdf'
+
+    #create from pages
+    name = 'ITP_base.pdf'
     print(name)
 
     path_wkthmltopdf = '/var/www/medusa/wkhtmltox/bin/wkhtmltopdf'
@@ -162,7 +160,7 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
 
     #Creates PDF
     with app.app_context():
-        template = render_template( 'ITP_report.html',
+        template = render_template( 'ITP_report_base.html',
                                     site=site,
                                     project=project,
                                     project_ITP=project_ITP,
@@ -183,9 +181,96 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
 
         print('converting to pdf')
 
-        pdfkit.from_string(template, './app/reports/' + name, configuration=config)
+        pdfkit.from_string(template, name, configuration=config)
 
+
+        #create deliverable pdfs
+        for x in range(len(deliverables)):
+            #name = str(site.name) + '_' + str(project.name) + '_' + i + '_' + time.strftime("%Y%m%d") + '.pdf'
+            name = 'pdf_' + str(x) + '.pdf'
+            print(name)
+
+            deliverable = deliverables[x]
+
+            path_wkthmltopdf = '/var/www/medusa/wkhtmltox/bin/wkhtmltopdf'
+            config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
+
+            #Creates PDF
+            template = render_template( 'ITP_report.html',
+                                        site=site,
+                                        project=project,
+                                        project_ITP=project_ITP,
+                                        deliverable=deliverable,
+                                        deliverables=deliverables,
+                                        deliverables_all=deliverables_all,
+                                        ITCs=ITCs,
+                                        deliverable_types=deliverable_types,
+                                        deliverable_types_all=deliverable_types_all,
+                                        today=today,
+                                        groups=ITC_groups,
+                                        DDC_group=DDC_group)
+
+            print('Start pdf templates rendered')
+
+            # html = weasyprint.HTML(string=template)
+
+            print('converting to pdf')
+
+            pdfkit.from_string(template, name, configuration=config)
+
+        #Create final part of report
+        template = render_template( 'ITP_report_end.html',
+                                    site=site,
+                                    project=project,
+                                    project_ITP=project_ITP,
+                                    deliverables=deliverables,
+                                    deliverables_all=deliverables_all,
+                                    ITCs=ITCs,
+                                    deliverable_types=deliverable_types,
+                                    deliverable_types_all=deliverable_types_all,
+                                    today=today,
+                                    groups=ITC_groups,
+                                    DDC_group=DDC_group)
+
+        name = 'ITP_report_end.pdf'
+        print(name)
+
+        print('Final pdf template rendered')
+        self.update_state(state='PROGRESS',
+                          meta={'current': i + len(deliverables) * 0.4, 'total': total, 'status': 'Starting Report build'})
+
+        # html = weasyprint.HTML(string=template)
+
+        print('converting to pdf')
+
+        pdfkit.from_string(template, name, configuration=config)
+
+    total = x + 1
+
+    #join pdfs
+    pdfs = ['ITP_base.pdf']
+    print(total)
+    for y in range(total):
+        pdfs.extend(['pdf_' + str(y) + '.pdf'])
+
+    pdfs.extend(['ITP_report_end.pdf'])
+
+    merger = PdfFileMerger()
+
+    print(pdfs)
+
+    for pdf in pdfs:
+        merger.append(PdfFileReader('/var/www/medusa/' + pdf), import_bookmarks=False)
+
+    # name = str(site.name).replace(" ","_") + '_' + str(project.name).replace(" ","_") + '_' + '_' + time.strftime("%Y%m%d") + '.pdf'
+    name = 'test.pdf'
+
+    merger.write('app/reports/' + name)
     #pdf = html.write_pdf('./app/reports/' + name)
+    # os.remove('ITP_base.pdf')
+    # os.remove('ITP_report_end.pdf')
+    for pdf in pdfs:
+        os.remove('/var/www/medusa/' + pdf)
 
     self.update_state(state='PROGRESS',
                       meta={'current': i + len(deliverables) * 0.14, 'total': total, 'status': 'Saving Report'})

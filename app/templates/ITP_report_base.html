@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Medusa</title>
+
+
+  </head>
+
+  <body>
+    <style>
+      table {
+        border-collapse: collapse;
+        color: #333;
+        margin: auto;
+      }
+
+      td, th {
+        border: 1px solid #ccc;
+        padding: 0.5em;
+      }
+
+      table table {
+        direction: ltr;
+      }
+      p{
+        margin-top: 0;
+        margin-bottom: 0;
+        margin-left: 0;
+        margin-right: 0;
+        font-size: 8pt;
+      }
+    </style>
+    <h2 style="text-align:center">Inspection and Test Plan Report - {{project.name}}</h2>
+    <br>
+    <h4>Job Number:</h4> {{project.job_number}}
+    <br>
+    <h4>Description:</h4> {{project_ITP.name}}
+    <br>
+    <h4>Site:</h4> {{site.name}}
+    <br>
+    <h4>Start Date:</h4> {{project.start_date.strftime('%d-%m-%Y')}}
+    <br>
+    {% if project.completion_date != none %}
+    <h4>Completion Date:</h4>
+      {{project.completion_date.strftime('%d-%m-%Y')}}
+    <br>
+    {% endif %}
+    {% if project.assigned_to != none %}
+      <h4>Assigned to:</h4>
+        {{project.assigned_to}}
+      <br>
+    {% endif %}
+    <p style="page-break-after: always"></p>
+    <h4><u>Deliverable Schedule</u></h4>
+
+    <h5>DDC Deliverable Group</h5>
+    <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
+      <thead>
+        <col style="width:25%">
+        <col style="width:25%">
+        <col style="width:25%">
+        <col style="width:25%">
+        <tr  style="background-color: lightgrey !important;">
+          <th>Name</th>
+          <th>Type</th>
+          <th>Location</th>
+          <th>Sublocation</th>
+        </tr>
+      </thead>
+        <tbody>
+        {% for deliverable in deliverables_all %}
+          {% if deliverable.type.name in DDC_group %}
+            <tr>
+              <td>{{deliverable.name}}</td>
+              <td>{{deliverable.type}}</td>
+              <td>{{deliverable.location}}</td>
+              {% if deliverable.secondary != none %}
+                <td>{{deliverable.secondary}}</td>
+              {% else %}
+                <td></td>
+              {% endif %}
+            </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h5>Plant Deliverable Group</h5>
+    <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
+      <thead>
+        <col style="width:25%">
+        <col style="width:25%">
+        <col style="width:25%">
+        <col style="width:25%">
+        <tr  style="background-color: lightgrey !important;">
+          <th>Name</th>
+          <th>Type</th>
+          <th>Location</th>
+          <th>Sublocation</th>
+        </tr>
+      </thead>
+        <tbody>
+        {% for deliverable in deliverables_all %}
+          {% if deliverable.type.name not in DDC_group %}
+            <tr>
+              <td>{{deliverable.name}}</td>
+              <td>{{deliverable.type}}</td>
+              <td>{{deliverable.location}}</td>
+              {% if deliverable.secondary != none %}
+                <td>{{deliverable.secondary}}</td>
+              {% else %}
+                <td></td>
+              {% endif %}
+            </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="page-break-after: always"></p>
+    <h4><u>ITC Schedule</u></h4>
+
+    <h5>DDC Deliverable Group</h5>
+    <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
+      <thead>
+        <col style="width:20%">
+        <col style="width:20%">
+        <col style="width:20%">
+        <col style="width:20%">
+        <col style="width:20%">
+        <tr  style="background-color: lightgrey !important;">
+          <th>Type</th>
+          <th>ITC Template Short Name</th>
+          <th>ITC Template Description</th>
+          <th>ITC Template Version</th>
+          <th>ITC Template Code</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for deliverable_type in deliverable_types_all %}
+          {% if deliverable_type.name in DDC_group %}
+          <tr>
+            <td style="vertical-align:top;">{{deliverable_type}}</td>
+            <td colspan="4" style="padding: 0">
+              <table id="nest_table" style="width:100%;">
+                <tbody>
+                  <col style="width:25%">
+                  <col style="width:25%">
+                  <col style="width:25%">
+                  <col style="width:25%">
+                  {% for ITC in deliverable_type.ITC %}
+                    <tr>
+                      <td>{{ITC.group.short_name}}</td>
+                      <td>{{ITC.name}}</td>
+                      <td>
+                        {% if ITC.major_revision_number != none %}
+                          {{ITC.major_revision_number}}.
+                        {% else %}
+                          0.
+                        {% endif %}
+                        {% if ITC.minor_revision_number != none %}
+                          {{ITC.minor_revision_number}}.
+                        {% else %}
+                          1.
+                        {% endif %}
+                        {% if ITC.maintenance_revision_number != none %}
+                          {{ITC.maintenance_revision_number}}
+                        {% else %}
+                          0
+                        {% endif %}
+                      </td>
+                      <td>
+                        {{deliverable_type}}_
+                        {{ITC.group.short_name}}_
+                        {% if ITC.major_revision_number != none %}
+                          {{ITC.major_revision_number}}.
+                        {% else %}
+                          0.
+                        {% endif %}
+                        {% if ITC.minor_revision_number != none %}
+                          {{ITC.minor_revision_number}}.
+                        {% else %}
+                          1.
+                        {% endif %}
+                        {% if ITC.maintenance_revision_number != none %}
+                          {{ITC.maintenance_revision_number}}
+                        {% else %}
+                          0
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h5>Plant Deliverable Group</h5>
+    <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
+      <thead>
+        <col style="width:20%">
+        <col style="width:20%">
+        <col style="width:20%">
+        <col style="width:20%">
+        <col style="width:20%">
+        <tr  style="background-color: lightgrey !important;">
+          <th>Type</th>
+          <th>ITC Template Short Name</th>
+          <th>ITC Template Description</th>
+          <th>ITC Template Version</th>
+          <th>ITC Template Code</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for deliverable_type in deliverable_types_all %}
+          {% if deliverable_type.name not in DDC_group %}
+          <tr>
+            <td style="vertical-align:top;">{{deliverable_type}}</td>
+            <td colspan="4" style="padding: 0">
+              <table id="nest_table" style="width:100%;">
+                <tbody>
+                  <col style="width:25%">
+                  <col style="width:25%">
+                  <col style="width:25%">
+                  <col style="width:25%">
+                  {% for ITC in deliverable_type.ITC %}
+                    <tr>
+                      <td>{{ITC.group.short_name}}</td>
+                      <td>{{ITC.name}}</td>
+                      <td>
+                        {% if ITC.major_revision_number != none %}
+                          {{ITC.major_revision_number}}.
+                        {% else %}
+                          0.
+                        {% endif %}
+                        {% if ITC.minor_revision_number != none %}
+                          {{ITC.minor_revision_number}}.
+                        {% else %}
+                          1.
+                        {% endif %}
+                        {% if ITC.maintenance_revision_number != none %}
+                          {{ITC.maintenance_revision_number}}
+                        {% else %}
+                          0
+                        {% endif %}
+                      </td>
+                      <td>
+                        {{deliverable_type}}_
+                        {{ITC.group.short_name}}_
+                        {% if ITC.major_revision_number != none %}
+                          {{ITC.major_revision_number}}.
+                        {% else %}
+                          0.
+                        {% endif %}
+                        {% if ITC.minor_revision_number != none %}
+                          {{ITC.minor_revision_number}}.
+                        {% else %}
+                          1.
+                        {% endif %}
+                        {% if ITC.maintenance_revision_number != none %}
+                          {{ITC.maintenance_revision_number}}
+                        {% else %}
+                          0
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </body>
+</html>
