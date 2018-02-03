@@ -177,11 +177,12 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
         self.update_state(state='PROGRESS',
                           meta={'current': i + len(deliverables) * 0.4, 'total': total, 'status': 'Starting Report build'})
 
-        # html = weasyprint.HTML(string=template)
+        html = weasyprint.HTML(string=template)
+        pdf = html.write_pdf('./' + name)
 
         print('converting to pdf')
 
-        pdfkit.from_string(template, name, configuration=config)
+        # pdfkit.from_string(template, name, configuration=config)
 
 
         #create deliverable pdfs
@@ -212,11 +213,12 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
 
             print('Start pdf templates rendered')
 
-            # html = weasyprint.HTML(string=template)
+            html = weasyprint.HTML(string=template)
+            pdf = html.write_pdf('./' + name)
 
             print('converting to pdf')
 
-            pdfkit.from_string(template, name, configuration=config)
+            # pdfkit.from_string(template, name, configuration=config)
 
         #Create final part of report
         template = render_template( 'ITP_report_end.html',
@@ -239,11 +241,12 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
         self.update_state(state='PROGRESS',
                           meta={'current': i + len(deliverables) * 0.4, 'total': total, 'status': 'Starting Report build'})
 
-        # html = weasyprint.HTML(string=template)
+        html = weasyprint.HTML(string=template)
+        pdf = html.write_pdf('./' + name)
 
         print('converting to pdf')
 
-        pdfkit.from_string(template, name, configuration=config)
+        # pdfkit.from_string(template, name, configuration=config)
 
     total = x + 1
 
