@@ -246,7 +246,7 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid):
 
     percent_add = len(deliverables) * 0.5 / pdf_number
     for pdf in pdfs:
-        merger.append(PdfFileReader(app.config['PROJECT_ROOT'] + pdf), import_bookmarks=False)
+        merger.append(PdfFileReader(app.config['PROJECT_ROOT'] + '/' + pdf), import_bookmarks=False)
         i += percent_add
         self.update_state(state='PROGRESS',
                           meta={'current': i, 'total': total, 'status': 'Starting Report build'})
@@ -255,7 +255,7 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid):
 
     merger.write('app/reports/' + name)
     for pdf in pdfs:
-        os.remove(app.config['PROJECT_ROOT'] + pdf)
+        os.remove(app.config['PROJECT_ROOT'] + '/' + pdf)
 
     print('page has been rendered')
 
