@@ -35,19 +35,18 @@ def ITP_report_page(siteid, projectid, ITPid):
     return render_template('loading_page.html', site=site, project=project, ITP=project_ITP, deliverable_types=deliverable_types)
 
 #Downloads the report
-@app.route('/<siteid>/<projectid>/<ITPid>/<typeid>/download_report')
-def download_report(siteid, projectid, ITPid, typeid):
+@app.route('/<siteid>/<projectid>/<ITPid>/download_report')
+def download_report(siteid, projectid, ITPid):
     site = Site.query.filter_by(id=siteid).first()
     project = Project.query.filter_by(id=projectid).first()
     project_ITP = ITP.query.filter_by(id=ITPid).first()
-    deliverable_type = Deliverable_type.query.filter_by(id=typeid).first()
 
     # name = str(site.name).replace(" ","_") + '_' + str(project.name).replace(" ","_") + '_' + time.strftime("%Y%m%d") + '.pdf'
     name = 'test.pdf'
     @after_this_request
     def remove_file(response):
         try:
-            os.remove('/var/www/medusa/app/reports/' + name)
+            os.remove(app.config['PROJECT_ROOT'] + '/app/reports/' + name)
         except Exception as error:
             app.logger.error("Error removing or closing downloaded file handle", error)
         return response
@@ -59,13 +58,11 @@ def longtask():
     siteid = request.form['siteid']
     projectid = request.form['projectid']
     ITPid = request.form['ITPid']
-    typeid = request.form['typeid']
     print(siteid)
     print(projectid)
     print(ITPid)
-    print(typeid)
     print("starting background task")
-    pdf = ITP_report_pdf_render.delay(siteid=siteid, projectid=projectid, ITPid=ITPid, typeid=typeid)
+    pdf = ITP_report_pdf_render.delay(siteid=siteid, projectid=projectid, ITPid=ITPid)
     return jsonify({}), 202, {'Location': url_for('taskstatus', task_id=pdf.id)}
 
 #checks the current status for the generated report
@@ -106,7 +103,7 @@ def taskstatus(task_id):
 
 #Asynchronus task that will create the ITP report PDF
 @celery.task(bind=True)
-def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
+def ITP_report_pdf_render(self, siteid, projectid, ITPid):
     site = Site.query.filter_by(id=siteid).first()
     project = Project.query.filter_by(id=projectid).first()
     project_ITP = ITP.query.filter_by(id=ITPid).first()
@@ -114,7 +111,6 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
     deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id).all()
     deliverable_types = Deliverable_type.query.filter(Deliverable_type.id.in_([deliverable.deliverable_type_id for deliverable in deliverables])).all()
     deliverable_types_all = Deliverable_type.query.filter(Deliverable_type.id.in_([deliverable.deliverable_type_id for deliverable in deliverables_all])).all()
-    # deliverable_types = Deliverable_type.query.filter_by(id=typeid).all()
     today = datetime.datetime.now()
     # image = flask_weasyprint.default_url_fetcher("/static/img/logo-schneider-electric.png")
     ITC_groups = ITC_group.query.all()
@@ -125,38 +121,30 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
     DDC_group = ['Automation Server', 'AS-P', 'AS']
 
     #Set up variables to update user screen while ITCs are generated
-    ITCs_old = []
-    i = 0.0
-    total = len(deliverables) + len(deliverables) * 0.75
-    for deliverable in deliverables:
-        ITCs_old += Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
-        i += 1
-        self.update_state(state='PROGRESS',
-                          meta={'current': i, 'total': total, 'status': 'Creating ITCs'})
+    i = 0
+    total = len(deliverables) + len(deliverables)
 
     ITCs = Deliverable_ITC_map.query.filter(Deliverable_ITC_map.deliverable_id.in_([deliverable.id for deliverable in deliverables])).all()
     ITCs = sorted(ITCs, key=lambda x: (x.deliverable.type.name, x.deliverable.name, x.ITC.group.name))
+    i += total * 0.1
+    self.update_state(state='PROGRESS', meta={'current': i, 'total': total, 'status': 'Creating ITCs'})
 
     print('ITCs have been created')
     ITCs_old = sorted(ITCs, key=lambda x: (x.ITC.group.name))
+    i += total * 0.1
+    self.update_state(state='PROGRESS', meta={'current': i, 'total': total, 'status': 'Creating ITCs'})
 
     env = Environment(
     loader=PackageLoader('app', 'templates'),
     autoescape=select_autoescape(['html', 'xml'])
     )
 
+    i += total * 0.05
     self.update_state(state='PROGRESS',
-                      meta={'current': i + len(deliverables) * 0.2, 'total': total, 'status': 'Starting Report build'})
-
-    #template = env.get_template('ITP_report.html')
-
+                      meta={'current': i, 'total': total, 'status': 'Starting Report build'})
 
     #create from pages
     name = 'ITP_base.pdf'
-    print(name)
-
-    path_wkthmltopdf = '/var/www/medusa/wkhtmltox/bin/wkhtmltopdf'
-    config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
 
     #Creates PDF
     with app.app_context():
@@ -173,28 +161,22 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
                                     groups=ITC_groups,
                                     DDC_group=DDC_group)
 
-        print('template rendered')
+        print('Start pdf template rendered')
+        i += total * 0.025
         self.update_state(state='PROGRESS',
-                          meta={'current': i + len(deliverables) * 0.4, 'total': total, 'status': 'Starting Report build'})
+                          meta={'current': i, 'total': total, 'status': 'Starting Report build'})
 
         html = weasyprint.HTML(string=template)
         pdf = html.write_pdf('./' + name)
 
         print('converting to pdf')
 
-        # pdfkit.from_string(template, name, configuration=config)
-
+        percent_add = len(deliverables) / total
 
         #create deliverable pdfs
         for x in range(len(deliverables)):
-            #name = str(site.name) + '_' + str(project.name) + '_' + i + '_' + time.strftime("%Y%m%d") + '.pdf'
             name = 'pdf_' + str(x) + '.pdf'
-            print(name)
-
             deliverable = deliverables[x]
-
-            path_wkthmltopdf = '/var/www/medusa/wkhtmltox/bin/wkhtmltopdf'
-            config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
 
             #Creates PDF
             template = render_template( 'ITP_report.html',
@@ -211,14 +193,15 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
                                         groups=ITC_groups,
                                         DDC_group=DDC_group)
 
-            print('Start pdf templates rendered')
+            i += percent_add
+            self.update_state(state='PROGRESS', meta={'current': i, 'total': total, 'status': 'Creating ITCs'})
+
+            print('Middle pdf templates rendered')
 
             html = weasyprint.HTML(string=template)
             pdf = html.write_pdf('./' + name)
 
             print('converting to pdf')
-
-            # pdfkit.from_string(template, name, configuration=config)
 
         #Create final part of report
         template = render_template( 'ITP_report_end.html',
@@ -235,48 +218,45 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid, typeid):
                                     DDC_group=DDC_group)
 
         name = 'ITP_report_end.pdf'
-        print(name)
+        i += total * 0.025
+        self.update_state(state='PROGRESS',
+                          meta={'current': i, 'total': total, 'status': 'Starting Report build'})
 
         print('Final pdf template rendered')
-        self.update_state(state='PROGRESS',
-                          meta={'current': i + len(deliverables) * 0.4, 'total': total, 'status': 'Starting Report build'})
 
         html = weasyprint.HTML(string=template)
         pdf = html.write_pdf('./' + name)
 
         print('converting to pdf')
 
-        # pdfkit.from_string(template, name, configuration=config)
-
-    total = x + 1
+    pdf_number = x + 1
 
     #join pdfs
     pdfs = ['ITP_base.pdf']
-    print(total)
-    for y in range(total):
+    for y in range(pdf_number):
         pdfs.extend(['pdf_' + str(y) + '.pdf'])
 
     pdfs.extend(['ITP_report_end.pdf'])
 
+    i += len(deliverables) * 0.1
+    self.update_state(state='PROGRESS',
+                      meta={'current': i, 'total': total, 'status': 'Starting Report build'})
+
     merger = PdfFileMerger()
 
-    print(pdfs)
-
+    percent_add = len(deliverables) * 0.5 / pdf_number
     for pdf in pdfs:
-        merger.append(PdfFileReader('/var/www/medusa/' + pdf), import_bookmarks=False)
+        merger.append(PdfFileReader(app.config['PROJECT_ROOT'] + pdf), import_bookmarks=False)
+        i += percent_add
+        self.update_state(state='PROGRESS',
+                          meta={'current': i, 'total': total, 'status': 'Starting Report build'})
 
-    # name = str(site.name).replace(" ","_") + '_' + str(project.name).replace(" ","_") + '_' + '_' + time.strftime("%Y%m%d") + '.pdf'
     name = 'test.pdf'
 
     merger.write('app/reports/' + name)
-    #pdf = html.write_pdf('./app/reports/' + name)
-    # os.remove('ITP_base.pdf')
-    # os.remove('ITP_report_end.pdf')
     for pdf in pdfs:
-        os.remove('/var/www/medusa/' + pdf)
+        os.remove(app.config['PROJECT_ROOT'] + pdf)
 
-    self.update_state(state='PROGRESS',
-                      meta={'current': i + len(deliverables) * 0.14, 'total': total, 'status': 'Saving Report'})
     print('page has been rendered')
 
     self.update_state(state='Complete', meta={'current': total, 'total': total, 'status': 'Complete'})
