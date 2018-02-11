@@ -1585,6 +1585,7 @@ def ITC_testing(siteid, projectid, ITPid, deliverableid, ITCid):
         deliverable = Deliverable.query.filter_by(id=deliverableid, ITP_id=project_ITP.id).first()
         deliver_ITC = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id, id=ITCid).first()
         deliverable_checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=deliver_ITC.id).all()
+        ITCs_all = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id).all()
     except AttributeError:
         return redirect(url_for('site_project_ITP_deliverable_ITC_list', siteid=site.id, projectid=project.id, ITPid=project_ITP.id, deliverableid=deliverable.id))
 
@@ -1612,7 +1613,7 @@ def ITC_testing(siteid, projectid, ITPid, deliverableid, ITCid):
     except:
         pass
 
-    return render_template('specific_ITC/ITC.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=deliver_ITC, checks=deliverable_checks, ITCid=ITCid, percentage_complete=percentage_complete)
+    return render_template('specific_ITC/ITC.html', site=site, project=project, ITP=project_ITP, deliverable=deliverable, ITC=deliver_ITC, checks=deliverable_checks, ITCid=ITCid, percentage_complete=percentage_complete, ITCs_all=ITCs_all)
 
 #Route for editing a check
 @app.route('/site/<siteid>/projects/<projectid>/ITP/<ITPid>/deliverable/<deliverableid>/ITC/<ITCid>/checks/<checkid>/edit', methods=['POST','GET'])

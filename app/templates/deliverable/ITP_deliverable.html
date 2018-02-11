@@ -20,7 +20,7 @@
   <div>
     <div class="mdl-grid">
       <div class="mdl-cell mdl-cell--6-col">
-        <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+        <div class="mdl-card mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
           <div class="mdl-card__title">
             <h2 class="mdl-card__title-text">Details</h2>
           </div>
@@ -127,7 +127,7 @@
         </div>
       </div>
 
-      <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+      <div class="mdl-card mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
         <div class="mdl-card__title">
           <h2 class="mdl-card__title-text">Inspection and Testing Checks list</h2>
         </div>
@@ -162,6 +162,9 @@
               {% endfor %}
             </tbody>
           </table>
+        </div>
+        <div class="mdl-card__actions mdl-card--border">
+          <a href="{{url_for('site_project_ITP_deliverable_ITC_list', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}" class="mdl-button mdl-color-text--blue mdl-js-button mdl-js-ripple-effect">Show More</a>
         </div>
       </div>
 

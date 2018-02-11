@@ -88,14 +88,16 @@
                 <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
                   <thead>
                     <col style="width:10%">
-                    <col style="width:65%">
+                    <col style="width:55%">
                     <col style="width:10%">
                     <col style="width:15%">
+                    <col style="width:10%">
                     <tr style="background-color: lightgrey !important;">
                       <th>id</th>
                       <th>Description</th>
                       <th>Pass/Fail</th>
                       <th>Date</th>
+                      <th><b>Initials</b><th>
                     </tr>
                   </thead>
                 {% elif ITCs[i].ITC.group != ITCs[i-1].ITC.group %}
@@ -103,14 +105,16 @@
                   <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
                     <thead>
                       <col style="width:10%">
-                      <col style="width:65%">
+                      <col style="width:55%">
                       <col style="width:10%">
                       <col style="width:15%">
+                      <col style="width:10%">
                       <tr style="background-color: lightgrey !important;">
                         <th>id</th>
                         <th>Description</th>
                         <th>Pass/Fail</th>
                         <th>Date</th>
+                        <th><b>Initials</b><th>
                       </tr>
                     </thead>
                 {% elif ITCs[i].deliverable.id != ITCs[i-1].deliverable.id %}
@@ -118,19 +122,22 @@
                   <table style="font-size:80%; width:100%; table-layout:fixed; white-space:normal">
                     <thead>
                       <col style="width:10%">
-                      <col style="width:65%">
+                      <col style="width:55%">
                       <col style="width:10%">
                       <col style="width:15%">
+                      <col style="width:10%">
                       <tr style="background-color: lightgrey !important;">
                         <th>id</th>
                         <th>Description</th>
                         <th>Pass/Fail</th>
                         <th>Date</th>
+                        <th><b>Initials</b><th>
                       </tr>
                     </thead>
                 {% endif %}
                 <tbody>
                   <tr>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -141,19 +148,22 @@
                     <td><b>{{ ITCs[i].ITC.name }}</b></td>
                     <td></td>
                     <td></td>
+                    <td></td>
                   </tr>
                   {% for check in ITCs[i].deliverable_check_map %}
-                      <tr>
-                        <td>{{ ITCs[i].ITC_group_number }}.{{check.check_number}}</td>
-                        <td>{{check.ITC_check.check.check_description}}</td>
-                        {% if check.is_done %}
-                          <td><b>PASS<b></td>
-                          <td>{{check.completion_datetime.strftime('%d-%m-%Y')}}</td>
-                        {% else %}
-                          <td></td>
-                          <td></td>
-                        {% endif %}
-                      </tr>
+                    <tr>
+                      <td>{{ ITCs[i].ITC_group_number }}.{{check.check_number}}</td>
+                      <td>{{check.ITC_check.check.check_description}}</td>
+                      {% if check.is_done %}
+                        <td><b>PASS<b></td>
+                        <td>{{check.completion_datetime.strftime('%d-%m-%Y')}}</td>
+                        <td>{{check.user.first_name[0]}}{{check.user.last_name[0]}}</td>
+                      {% else %}
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                      {% endif %}
+                    </tr>
                   {% endfor %}
               {% endif %}
             {% endif %}

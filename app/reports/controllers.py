@@ -42,7 +42,7 @@ def download_report(siteid, projectid, ITPid):
     project_ITP = ITP.query.filter_by(id=ITPid).first()
 
     # name = str(site.name).replace(" ","_") + '_' + str(project.name).replace(" ","_") + '_' + time.strftime("%Y%m%d") + '.pdf'
-    name = 'test.pdf'
+    name = 'test_plan.pdf'
     @after_this_request
     def remove_file(response):
         try:
@@ -251,7 +251,7 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid):
         self.update_state(state='PROGRESS',
                           meta={'current': i, 'total': total, 'status': 'Starting Report build'})
 
-    name = 'test.pdf'
+    name = 'test_plan.pdf'
 
     merger.write('app/reports/' + name)
     for pdf in pdfs:

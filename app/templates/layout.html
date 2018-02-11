@@ -4,18 +4,54 @@
 {% block title %}
 {% endblock %}
 {% block layout %}
-	<div class="mdl-grid centered">
-	    <div class="mdl-cell mdl-cell--8-col">
-				<!-- {% with messages = get_flashed_messages() %}
-				  {% if messages %}
-				    <ul class=flashes>
-				    {% for message in messages %}
-				      <li>{{ message }}</li>
-				    {% endfor %}
-				    </ul>
-				  {% endif %}
-				{% endwith %} -->
-	    	{% block content %}{% endblock %}
-	    </div>
+	<div class="mdl-grid">
+		<div class="mdl-grid mdl-cell--2-col">
+			<div class="mdl-cell mdl-cell--12-col">
+				{% block sidenav %}{% endblock %}
+			</div>
+		</div>
+    <div class="mdl-grid mdl-cell mdl-cell--8-col">
+			<div class="mdl-grid mdl-cell mdl-cell--12-col">
+				<div class="mdl-cell mdl-cell--8-col">
+					<span>
+						{% if project is defined %}
+							<a href="/site/{{site.id}}/projects/{{project.id}}">Project</a>
+							{% if ITP is defined %}
+								> <a href="/site/{{site.id}}/projects/{{project.id}}/ITP/{{ITP.id}}">ITP</a>
+								{% if deliverable is defined %}
+									> <a href="/site/{{site.id}}/projects/{{project.id}}/ITP/{{ITP.id}}/deliverable">Deliverables</a>
+									{% if ITC is defined %}
+										> <a href="/site/{{site.id}}/projects/{{project.id}}/ITP/{{ITP.id}}/deliverable/{{deliverable.id}}/ITC">ITCs</a>
+									{% endif %}
+								{% endif %}
+							{% endif %}
+						{% endif %}
+					</span>
+				</div>
+			</div>
+			<!-- {% with messages = get_flashed_messages() %}
+			  {% if messages %}
+			    <ul class=flashes>
+			    {% for message in messages %}
+			      <li>{{ message }}</li>
+			    {% endfor %}
+			    </ul>
+			  {% endif %}
+			{% endwith %} -->
+			<div class="mdl-grid mdl-cell mdl-cell--12-col">
+				<div class=" mdl-cell mdl-cell--12-col">
+	    		{% block start %}{% endblock %}
+				</div>
+			</div>
+			<div class="mdl-grid mdl-cell--12-col">
+				<div class="mdl-cell mdl-cell--12-col">
+	    		{% block content %}{% endblock %}
+				</div>
+			</div>
+			<div class="mdl-grid mdl-cell--2-col">
+			</div>
+    </div>
+		<div class="mdl-grid mdl-cell mdl-cell--2-col">
+		</div>
 	</div>
 {% endblock %}

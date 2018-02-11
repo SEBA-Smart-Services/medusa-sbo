@@ -5,22 +5,37 @@
 
   </script>
 {% endblock %}
-{% block content %}
-<div class="mdl-grid">
-  <h3 class="mdl-cell mdl-cell--11-col mdl-cell--3-col-phone">Checks for {{ITC.ITC.name}}</h3>
+{% block start %}
+  <div class="mdl-grid">
+    <h3 class="mdl-cell mdl-cell--11-col mdl-cell--3-col-phone">{{deliverable.name}} checklist</h3>
 
-  <div class="mdl-cell mdl-cell--1-col mdl-cell--1-col-phone">
-    <a id="tooltip3" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" href="{{ url_for('checks_report_page', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id) }}">
-      <div class="material-icons" style="height: 10px; width: 10px;">file_download</div>
-      <div class = "mdl-tooltip" for = "tooltip3">Download Report</div>
-    </a>
+    <div class="mdl-cell mdl-cell--1-col mdl-cell--1-col-phone">
+      <a id="tooltip3" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" href="{{ url_for('checks_report_page', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id) }}">
+        <div class="material-icons" style="height: 10px; width: 10px;">file_download</div>
+        <div class = "mdl-tooltip" for = "tooltip3">Download Report</div>
+      </a>
+    </div>
+
+    <h4>{{ITC.ITC.name}}</h4>
+
+    <h5 class="mdl-cell mdl-cell--12-col">{{'%0.0f' %percentage_complete}}% completed</h5>
   </div>
-
-  <h5 class="mdl-cell mdl-cell--12-col">{{'%0.0f' %percentage_complete}}% completed</h5>
-</div>
+  {% endblock %}
 
   <br>
-
+  {% block sidenav %}
+    <span>Other ITCs:</span>
+    <ul>
+      {% for itc in ITCs_all %}
+        {% if itc.id == ITC.id %}
+          <li>{{itc.ITC.name}}</li>
+        {% else %}
+          <li><a href="{{url_for('ITC_testing', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=itc.id)}}">{{itc.ITC.name}}</a></li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  {% endblock %}
+  {% block content %}
   <div>
     <form method="POST" id="submit_form" action="{{url_for('site_project_ITP_deliverable_ITC_change', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id)}}">
       <div class="table-responsive">
@@ -38,7 +53,11 @@
           </thead>
           <tbody>
           {% for check in checks %}
-            <tr>
+            {% if check.is_done == True %}
+              <tr bgcolor="#ccffb3">
+            {% else %}
+              <tr>
+            {% endif %}
               {% if check.check_number != none %}
                 <td class="mdl-data-table__cell--non-numeric">{{check.check_number}}</th>
               {% else %}

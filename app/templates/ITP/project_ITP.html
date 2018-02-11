@@ -87,13 +87,17 @@
     </div>
 
     <div class="mdl-cell mdl-cell--6-col">
-      <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+      <div class="mdl-card mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
         <div class="mdl-card__title">
           <h2 class="mdl-card__title-text">Deliverable List</h2>
         </div>
         <div class="table-responsive">
           <table class="mdl-data-table mdl-js-data-table" style="width: 100%">
             <thead>
+              <col style="width:30%">
+              <col style="width:20%">
+              <col style="width:30%">
+              <col style="width:20%">
               <tr>
                 <th class="mdl-data-table__cell--non-numeric">Name</th>
                 <th class="mdl-data-table__cell--non-numeric">Type</th>
@@ -115,7 +119,7 @@
                 </tr>
               {% endfor %}
             </tbody>
-            <col style="width:10%">
+            <!-- <col style="width:10%">
             <col style="width:80%">
             <col style="width:10%">
             <tbody>
@@ -144,14 +148,17 @@
                   {% endif%}
                 </div>
               </tr>
-            </tbody>
+            </tbody> -->
           </table>
+        </div>
+        <div class="mdl-card__actions mdl-card--border">
+          <a href="{{url_for('site_project_ITP_deliverable_list', siteid=site.id, projectid=project.id, ITPid=ITP.id)}}" class="mdl-button mdl-color-text--blue mdl-js-button mdl-js-ripple-effect">Show More</a>
         </div>
       </div>
     </div>
 
     <div class="mdl-cell mdl-cell--12-col">
-      <div class="mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
+      <div class="mdl-card mdl-cell mdl-cell--12-col mdl-shadow--4dp mdl-typography--text-center">
         <div class="mdl-card__title">
           <h2 class="mdl-card__title-text">Inspection and Testing Checks</h2>
         </div>
@@ -190,7 +197,7 @@
                 </tr>
               {% endfor %}
             </tbody>
-            <col style="width:10%">
+            <!-- <col style="width:10%">
             <col style="width:80%">
             <col style="width:10%">
             <tbody>
@@ -223,8 +230,11 @@
                   {% endif%}
                 </div>
               </tr>
-            </tbody>
+            </tbody> -->
           </table>
+        </div>
+        <div class="mdl-card__actions mdl-card--border">
+          <a href="{{url_for('site_project_ITP_deliverable_list', siteid=site.id, projectid=project.id, ITPid=ITP.id)}}" class="mdl-button mdl-color-text--blue mdl-js-button mdl-js-ripple-effect">Show More</a>
         </div>
       </div>
     </div>

@@ -1,5 +1,9 @@
 {% for deliverable in deliverables_list.items %}
-  <tr>
+  {% if deliverable.status == "Completed" %}
+    <tr bgcolor="#ccffb3">
+  {% else %}
+    <tr>
+  {% endif %}
     <td class="mdl-data-table__cell--non-numeric">
       <a href="{{url_for('site_project_ITP_deliverable', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id)}}">
         {{deliverable.name}}

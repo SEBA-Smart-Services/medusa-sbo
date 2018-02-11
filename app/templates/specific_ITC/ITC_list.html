@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}- {{project.name}}{% endblock %}
 {% block content %}
-  <h3>Inspection and Testing Checks</h3>
+  <h3>{{deliverable.name}} Checklists</h3>
 
   <div class="table-responsive">
     {% for group in groups %}
@@ -21,7 +21,11 @@
         <tbody>
         {% for ITC in ITCs %}
           {% if ITC.ITC.group == group %}
+          {% if ITC.status == "Completed" %}
+            <tr bgcolor="#ccffb3">
+          {% else %}
             <tr>
+          {% endif %}
               {% if ITC.ITC_group_number != none %}
                 <td class="mdl-data-table__cell--non-numeric">{{ITC.ITC_group_number}}</td>
               {% else %}
@@ -37,7 +41,7 @@
               <td class="mdl-data-table__cell--non-numeric">{{'%0.0f' %ITC.percentage_complete}}%</td>
               <td class="mdl-data-table__cell--non-numeric">
                 <a href="{{url_for('start_ITC_testing', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id)}}">
-                  Start testing
+                  Regenerate
                 </a>
               </td>
               <td class="mdl-data-table__cell--non-numeric" style="width:10%;">
