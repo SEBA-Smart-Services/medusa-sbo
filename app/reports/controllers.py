@@ -13,6 +13,7 @@ import weasyprint
 import time
 from flask_script import prompt_choices, prompt_bool
 from PyPDF2 import PdfFileMerger, PdfFileReader
+import json
 
 import pdfkit
 
@@ -34,6 +35,17 @@ def ITP_report_page(siteid, projectid, ITPid):
 
     return render_template('loading_page.html', site=site, project=project, ITP=project_ITP, deliverable_types=deliverable_types)
 
+# provide a url to download a report for Deliverabels
+@app.route('/site/<siteid>/projects/<projectid>/ITP/<ITPid>/Deliverables/report')
+def deliverables_report_page(siteid, projectid, ITPid):
+    site = Site.query.filter_by(id=siteid).first()
+    project = Project.query.filter_by(id=projectid).first()
+    project_ITP = ITP.query.filter_by(id=ITPid).first()
+    deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id).all()
+    deliverable_types = Deliverable_type.query.filter(Deliverable_type.id.in_([deliverable.deliverable_type_id for deliverable in deliverables])).all()
+
+    return render_template('Deliverable_loading_page.html', site=site, project=project, ITP=project_ITP, deliverables=deliverables, deliverable_types=deliverable_types)
+
 #Downloads the report
 @app.route('/<siteid>/<projectid>/<ITPid>/download_report')
 def download_report(siteid, projectid, ITPid):
@@ -43,6 +55,24 @@ def download_report(siteid, projectid, ITPid):
 
     # name = str(site.name).replace(" ","_") + '_' + str(project.name).replace(" ","_") + '_' + time.strftime("%Y%m%d") + '.pdf'
     name = 'test_plan.pdf'
+    @after_this_request
+    def remove_file(response):
+        try:
+            os.remove(app.config['PROJECT_ROOT'] + '/app/reports/' + name)
+        except Exception as error:
+            app.logger.error("Error removing or closing downloaded file handle", error)
+        return response
+    return send_file('reports/' + name, as_attachment=True)
+
+#Downloads the report
+@app.route('/<siteid>/<projectid>/<ITPid>/download_deliverable_report')
+def download_Deliverable_report(siteid, projectid, ITPid):
+    site = Site.query.filter_by(id=siteid).first()
+    project = Project.query.filter_by(id=projectid).first()
+    project_ITP = ITP.query.filter_by(id=ITPid).first()
+
+    # name = str(site.name).replace(" ","_") + '_' + str(project.name).replace(" ","_") + '_' + time.strftime("%Y%m%d") + '.pdf'
+    name = 'test_deliverables.pdf'
     @after_this_request
     def remove_file(response):
         try:
@@ -63,6 +93,21 @@ def longtask():
     print(ITPid)
     print("starting background task")
     pdf = ITP_report_pdf_render.delay(siteid=siteid, projectid=projectid, ITPid=ITPid)
+    return jsonify({}), 202, {'Location': url_for('taskstatus', task_id=pdf.id)}
+
+#starts the pdf generation
+@app.route('/longtaskDeliverables', methods=['POST'])
+def longtaskDeliverables():
+    siteid = request.form['siteid']
+    projectid = request.form['projectid']
+    ITPid = request.form['ITPid']
+    deliverableIdList = list(map(int, json.loads(request.form['deliverableIdList'])))
+    print(siteid)
+    print(projectid)
+    print(ITPid)
+    print(deliverableIdList)
+    print("starting background task")
+    pdf = Deliverables_report_pdf_render.delay(siteid=siteid, projectid=projectid, ITPid=ITPid, deliverableIdList=deliverableIdList)
     return jsonify({}), 202, {'Location': url_for('taskstatus', task_id=pdf.id)}
 
 #checks the current status for the generated report
@@ -261,10 +306,128 @@ def ITP_report_pdf_render(self, siteid, projectid, ITPid):
 
     self.update_state(state='Complete', meta={'current': total, 'total': total, 'status': 'Complete'})
 
+#Asynchronus task that will create the ITP report PDF
+@celery.task(bind=True)
+def Deliverables_report_pdf_render(self, siteid, projectid, ITPid, deliverableIdList):
+    site = Site.query.filter_by(id=siteid).first()
+    project = Project.query.filter_by(id=projectid).first()
+    project_ITP = ITP.query.filter_by(id=ITPid).first()
+    print(deliverableIdList)
+    print([deliverable for deliverable in deliverableIdList])
+    deliverables_all = Deliverable.query.filter(Deliverable.id.in_(deliverableIdList)).all()
+    deliverables = Deliverable.query.filter(Deliverable.id.in_(deliverableIdList)).all()
+    deliverable_types = Deliverable_type.query.filter(Deliverable_type.id.in_([deliverable.deliverable_type_id for deliverable in deliverables])).all()
+    deliverable_types_all = Deliverable_type.query.filter(Deliverable_type.id.in_([deliverable.deliverable_type_id for deliverable in deliverables_all])).all()
+    today = datetime.datetime.now()
+    # image = flask_weasyprint.default_url_fetcher("/static/img/logo-schneider-electric.png")
+    ITC_groups = ITC_group.query.all()
+    ITC_groups = sorted(ITC_groups, key=lambda x: x.name)
+
+    self.update_state(state='PROGRESS')
+
+    DDC_group = ['Automation Server', 'AS-P', 'AS']
+
+    #Set up variables to update user screen while ITCs are generated
+    i = 0
+    total = len(deliverables) + len(deliverables)
+
+    ITCs = Deliverable_ITC_map.query.filter(Deliverable_ITC_map.deliverable_id.in_([deliverable.id for deliverable in deliverables])).all()
+    ITCs = sorted(ITCs, key=lambda x: (x.deliverable.type.name, x.deliverable.name, x.ITC.group.name))
+    i += total * 0.1
+    self.update_state(state='PROGRESS', meta={'current': i, 'total': total, 'status': 'Creating ITCs'})
+
+    print('ITCs have been created')
+    ITCs_old = sorted(ITCs, key=lambda x: (x.ITC.group.name))
+    i += total * 0.1
+    self.update_state(state='PROGRESS', meta={'current': i, 'total': total, 'status': 'Creating ITCs'})
+
+    env = Environment(
+    loader=PackageLoader('app', 'templates'),
+    autoescape=select_autoescape(['html', 'xml'])
+    )
+
+    i += total * 0.05
+    self.update_state(state='PROGRESS',
+                      meta={'current': i, 'total': total, 'status': 'Starting Report build'})
+
+    #Creates PDF
+    with app.app_context():
+        i += total * 0.025
+        self.update_state(state='PROGRESS',
+                          meta={'current': i, 'total': total, 'status': 'Starting Report build'})
+
+        print('converting to pdf')
+
+        percent_add = len(deliverables) / total
+
+        #create deliverable pdfs
+        for x in range(len(deliverables)):
+            name = 'pdf_' + str(x) + '.pdf'
+            deliverable = deliverables[x]
+
+            #Creates PDF
+            template = render_template( 'ITP_report.html',
+                                        site=site,
+                                        project=project,
+                                        project_ITP=project_ITP,
+                                        deliverable=deliverable,
+                                        deliverables=deliverables,
+                                        deliverables_all=deliverables_all,
+                                        ITCs=ITCs,
+                                        deliverable_types=deliverable_types,
+                                        deliverable_types_all=deliverable_types_all,
+                                        today=today,
+                                        groups=ITC_groups,
+                                        DDC_group=DDC_group)
+
+            i += percent_add
+            self.update_state(state='PROGRESS', meta={'current': i, 'total': total, 'status': 'Creating ITCs'})
+
+            print('Middle pdf templates rendered')
+
+            html = weasyprint.HTML(string=template)
+            pdf = html.write_pdf('./' + name)
+
+            print('converting to pdf')
+
+        i += total * 0.025
+        self.update_state(state='PROGRESS',
+                          meta={'current': i, 'total': total, 'status': 'Starting Report build'})
+
+    pdf_number = x + 1
+
+    #join pdfs
+    pdfs = []
+    for y in range(pdf_number):
+        pdfs.extend(['pdf_' + str(y) + '.pdf'])
+
+    i += len(deliverables) * 0.1
+    self.update_state(state='PROGRESS',
+                      meta={'current': i, 'total': total, 'status': 'Starting Report build'})
+
+    merger = PdfFileMerger()
+
+    percent_add = len(deliverables) * 0.5 / pdf_number
+    for pdf in pdfs:
+        merger.append(PdfFileReader(app.config['PROJECT_ROOT'] + '/' + pdf), import_bookmarks=False)
+        i += percent_add
+        self.update_state(state='PROGRESS',
+                          meta={'current': i, 'total': total, 'status': 'Starting Report build'})
+
+    name = 'test_deliverables.pdf'
+
+    merger.write('app/reports/' + name)
+    for pdf in pdfs:
+        os.remove(app.config['PROJECT_ROOT'] + '/' + pdf)
+
+    print('page has been rendered')
+
+    self.update_state(state='Complete', meta={'current': total, 'total': total, 'status': 'Complete'})
+
 
 # provide a url to download a report for all delvierables in an ITP
 @app.route('/site/<siteid>/projects/<projectid>/ITP/<ITPid>/deliverable/report')
-def deliverables_report_page(siteid, projectid, ITPid):
+def old_deliverables_report_page(siteid, projectid, ITPid):
     site = Site.query.filter_by(id=siteid).first()
     project = Project.query.filter_by(id=projectid).first()
     project_ITP = ITP.query.filter_by(id=ITPid).first()
