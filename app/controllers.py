@@ -747,6 +747,9 @@ def site_project(siteid, projectid):
         totals = [0,0,0,0,0]
         ITC_totals = [0,0,0,0,0]
 
+    project.percentage_complete = totals[1]
+    db.session.commit()
+
     return render_template('project/site_project.html', site=site, project=project, ITP=project_ITP, percents=percents, totals=ITC_totals)
 
 #Route for creating a new Project for a given Site
@@ -835,6 +838,27 @@ def site_project_delete(siteid, projectid):
         return redirect(url_for('site_projects_list', siteid=site.id))
     else:
         return render_template('project/site_project_delete.html', site=site, project=project)
+
+def site_project_update(siteid, projectid):
+    site = Site.query.filter_by(id=siteid).first()
+    project = Project.query.filter_by(id=projectid, site_id=site.id).first()
+    project_ITP = ITP.query.filter_by(project_id=project.id).first()
+    deliverables = Deliverable.query.filter_by(ITP_id=project_ITP.id).all()
+    ITCs = Deliverable_ITC_map.query.filter(Deliverable_ITC_map.deliverable_id.in_([deliverable.id for deliverable in deliverables])).all()
+
+    total = 0
+    num_deliv = 0
+
+    for ITC in ITCs:
+        print(ITC.percentage_complete)
+        if ITC.percentage_complete == 100:
+            total += 1
+        num_deliv += 1
+
+    project_ITP.percentage_complete = (total/num_deliv)*100
+    db.session.commit()
+
+    print(ITP.percentage_complete)
 
 ############################ ITP navigation controllers ########################
 
@@ -1540,6 +1564,8 @@ def site_project_ITP_deliverable_ITC_change(siteid, projectid, ITPid, deliverabl
             completed_check.is_done = False
             completed_check.status = "In Progress"
             db.session.commit()
+
+    site_project_update(siteid=site.id, projectid=project.id)
 
     return redirect(url_for('ITC_testing', siteid=site.id, projectid=project.id, ITPid=project_ITP.id, deliverableid=deliverable.id, ITCid=ITCid))
 

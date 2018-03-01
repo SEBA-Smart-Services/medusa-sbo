@@ -41,6 +41,8 @@
     <br>
     <h4>Site:</h4> {{site.name}}
     <br>
+    <h4>Report Date:</h4> {{today.strftime('%d-%m-%Y')}}
+    <br>
     <h4>Start Date:</h4> {{project.start_date.strftime('%d-%m-%Y')}}
     <br>
     {% if project.completion_date != none %}
@@ -49,10 +51,12 @@
     <br>
     {% endif %}
     {% if project.assigned_to != none %}
-      <h4>Assigned to:</h4>
-        {{project.assigned_to}}
+      <h4>Project Manager:</h4>
+        {{project.user.first_name}} {{project.user.last_name}}
       <br>
     {% endif %}
+    <h4>Percent Complete:</h4> {{project_ITP.percentage_complete}}%
+    <br>
     <p style="page-break-after: always"></p>
     <h4><u>Deliverable Schedule</u></h4>
 

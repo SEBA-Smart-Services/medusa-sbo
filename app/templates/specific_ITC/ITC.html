@@ -24,16 +24,16 @@
 
   <br>
   {% block sidenav %}
-    <span>Other ITCs:</span>
-    <ul>
-      {% for itc in ITCs_all %}
-        {% if itc.id == ITC.id %}
-          <li>{{itc.ITC.name}}</li>
-        {% else %}
-          <li><a href="{{url_for('ITC_testing', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=itc.id)}}">{{itc.ITC.name}}</a></li>
-        {% endif %}
-      {% endfor %}
-    </ul>
+      <span>Other ITCs:</span>
+      <ul class="">
+        {% for itc in ITCs_all %}
+          {% if itc.id == ITC.id %}
+            <li class="">{{itc.ITC.name}}</li>
+          {% else %}
+            <li class=""><a class="" href="{{url_for('ITC_testing', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=itc.id)}}">{{itc.ITC.name}}</a></li>
+          {% endif %}
+        {% endfor %}
+      </ul>
   {% endblock %}
   {% block content %}
   <div>

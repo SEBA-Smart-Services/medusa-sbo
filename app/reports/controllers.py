@@ -55,6 +55,9 @@ def download_report(siteid, projectid, ITPid):
 
     # name = str(site.name).replace(" ","_") + '_' + str(project.name).replace(" ","_") + '_' + time.strftime("%Y%m%d") + '.pdf'
     name = 'test_plan.pdf'
+
+    print(ITP.percentage_complete)
+
     @after_this_request
     def remove_file(response):
         try:
