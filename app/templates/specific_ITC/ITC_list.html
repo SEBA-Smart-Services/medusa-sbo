@@ -16,6 +16,7 @@
             <th class="mdl-data-table__cell--non-numeric">Complete</th>
             <th class="mdl-data-table__cell--non-numeric">Start Testing</th>
             <th class="mdl-data-table__cell--non-numeric"></th>
+            <th class="mdl-data-table__cell--non-numeric"></th>
           </tr>
         </thead>
         <tbody>
@@ -50,6 +51,11 @@
                 </a>/ -->
                 <a href="{{url_for('site_project_ITP_deliverable_ITC_delete', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id)}}">
                   Delete
+                </a>
+              </td>
+              <td>
+                <a href="{{url_for('site_project_ITP_deliverable_ITC_completeAllChecks', siteid=site.id, projectid=project.id, ITPid=ITP.id, deliverableid=deliverable.id, ITCid=ITC.id)}}">
+                  Check All
                 </a>
               </td>
             </tr>

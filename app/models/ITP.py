@@ -8,7 +8,7 @@ from sqlalchemy import UniqueConstraint
 class Project(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(255), nullable=False)
-    job_number = db.Column(db.Integer(), nullable=False)
+    job_number = db.Column(db.String(40), nullable=False)
     assigned_to_id = db.Column(db.Integer(), db.ForeignKey('user.id'))
     description = db.Column(db.String(500))
     start_date = db.Column(db.DateTime())

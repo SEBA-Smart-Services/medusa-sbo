@@ -750,6 +750,8 @@ def site_project(siteid, projectid):
     project.percentage_complete = totals[1]
     db.session.commit()
 
+    print(project.job_number)
+
     return render_template('project/site_project.html', site=site, project=project, ITP=project_ITP, percents=percents, totals=ITC_totals)
 
 #Route for creating a new Project for a given Site
@@ -804,6 +806,7 @@ def site_project_edit(siteid, projectid):
             if (description != "" and request.form['project_description'] != project.description):
                 project.description = request.form['project_description']
             job_number = request.form['job_number']
+            print(job_number)
             if Project.query.filter_by(job_number=job_number).first() != None and Project.query.filter_by(job_number=job_number).first().id != project.id:
                 error =  "Project job number " + request.form['job_number'] + " already exists."
                 return render_template('project/site_project_edit.html', site=site, project=project, users=users, error=error, referrer=referrer)
@@ -850,7 +853,6 @@ def site_project_update(siteid, projectid):
     num_deliv = 0
 
     for ITC in ITCs:
-        print(ITC.percentage_complete)
         if ITC.percentage_complete == 100:
             total += 1
         num_deliv += 1
@@ -1568,6 +1570,31 @@ def site_project_ITP_deliverable_ITC_change(siteid, projectid, ITPid, deliverabl
     site_project_update(siteid=site.id, projectid=project.id)
 
     return redirect(url_for('ITC_testing', siteid=site.id, projectid=project.id, ITPid=project_ITP.id, deliverableid=deliverable.id, ITCid=ITCid))
+
+#Route for updating all checks for a given ITC to check completed
+@app.route('/site/<siteid>/projects/<projectid>/ITP/<ITPid>/deliverable/<deliverableid>/ITC/<ITCid>/completeAllChecks', methods=['POST','GET'])
+def site_project_ITP_deliverable_ITC_completeAllChecks(siteid, projectid, ITPid, deliverableid, ITCid):
+    site = Site.query.filter_by(id=siteid).first()
+    project = Project.query.filter_by(id=projectid, site_id=site.id).first()
+    project_ITP = ITP.query.filter_by(id=ITPid, project_id=project.id).first()
+    deliverable = Deliverable.query.filter_by(id=deliverableid, ITP_id=project_ITP.id).first()
+    deliver_ITC = Deliverable_ITC_map.query.filter_by(deliverable_id=deliverable.id, id=ITCid).first()
+    user = current_user
+    checks = Deliverable_check_map.query.filter_by(deliverable_ITC_map_id=deliver_ITC.id).all()
+
+    #Change form status to done
+    for checkid in checks:
+        check = Deliverable_check_map.query.filter_by(id=checkid.id).first()
+        if check.is_done != True:
+            check.completion_datetime = datetime.datetime.now()
+            check.completion_by_user_id = User.query.filter_by(id=user.id).first().id
+            check.is_done = True
+            check.status = "Completed"
+            db.session.commit()
+
+    site_project_update(siteid=site.id, projectid=project.id)
+
+    return redirect(url_for('site_project_ITP_deliverable_ITC_list', siteid=site.id, projectid=project.id, ITPid=project_ITP.id, deliverableid=deliverable.id))
 
 ################################################################################
 ###################### Specific ITC check list items ###########################

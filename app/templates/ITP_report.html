@@ -164,7 +164,7 @@
                         <td></td>
                       {% endif %}
                     </tr>
-                  {% endfor %}
+                {% endfor %}
               {% endif %}
             {% endif %}
           {% endfor %}
@@ -172,5 +172,15 @@
       </table>
       <br>
     {% endfor %}
+    <br>
+
+    <h6>Notes</h6>
+    <p>
+      {% for list in deliverable.Deliverable_ITC_map %}
+        {% if list.comments != None %}
+          {{list.comments}} <br\>
+        {% endif %}
+      {% endfor %}
+    </p>
   </body>
 </html>
